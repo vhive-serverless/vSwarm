@@ -26,6 +26,7 @@ import (
 	"context"
 	"flag"
 	"fmt"
+	"log"
 	"net"
 	"os"
 
@@ -60,6 +61,7 @@ func (ps *producerServer) SayHello(ctx context.Context, req *pb.HelloRequest) (_
 		log.Fatalf("[producer] fail to dial: %s", err)
 	}
 	defer conn.Close()
+	log.Println("dialled the consumer")
 
 	client := pb_client.NewProducerConsumerClient(conn)
 
@@ -86,9 +88,10 @@ func main() {
 	log.SetOutput(os.Stdout)
 
 	if tracing.IsTracingEnabled() {
+		log.Printf("enabling tracing")
 		shutdown, err := tracing.InitBasicTracer(*url, "producer")
 		if err != nil {
-			log.Warn(err)
+			log.Fatal(err)
 		}
 		defer shutdown()
 	}
@@ -101,26 +104,25 @@ func main() {
 	}
 
 	reflection.Register(grpcServer)
-	// err = grpcServer.Serve(lis)
 
-	//client setup
-	log.Printf("[producer] Client using address: %s:%d\n", *flagAddress, *flagClientPort)
+	// client setup
+	log.Printf("[producer] Client using address: %s:%d", *flagAddress, *flagClientPort)
 
 	s := producerServer{}
 	s.consumerAddr = *flagAddress
 	s.consumerPort = *flagClientPort
 	pb.RegisterGreeterServer(grpcServer, &s)
 
-	//server setup
+	// server setup
 	lis, err := net.Listen("tcp", fmt.Sprintf(":%d", *flagServerPort))
 	if err != nil {
-		log.Fatalf("[producer] failed to listen: %v", err)
+		log.Fatalln("[producer] failed to listen:", err)
 	}
 
-	log.Println("[producer] Server Started")
+	log.Printf("[producer] Server Started on :%d", *flagServerPort)
 
 	if err := grpcServer.Serve(lis); err != nil {
-		log.Fatalf("[producer] failed to serve: %s", err)
+		log.Fatalln("[producer] failed to serve:", err)
 	}
 
 }
