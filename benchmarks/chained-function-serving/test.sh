@@ -24,7 +24,4 @@
 
 set -x
 
-NODEPORT=$(kubectl get svc kourier-ingress -n kourier-system -o=jsonpath='{.spec.ports[0].nodePort}')
-HOSTNAME=$(kubectl get ksvc producer -n default -o jsonpath='{.status.url}' | cut -c8-)
-
-grpcurl -d '{"name": "Michal"}' -plaintext $HOSTNAME:$NODEPORT helloworld.Greeter.SayHello
+grpcurl -d '{"name": "Michal"}' -plaintext producer.default.127.0.0.1.nip.io:31080 helloworld.Greeter.SayHello

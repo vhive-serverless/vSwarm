@@ -31,6 +31,7 @@ spec:
       containers:
         - image: ${IMAGE}
           imagePullPolicy: IfNotPresent
+          args: ["-addr", "consumer.default.127.0.0.1.nip.io", "-pc", "31080"]
           ports:
             # For `h2c`, see https://knative.tips/networking/http2/
             - name: h2c

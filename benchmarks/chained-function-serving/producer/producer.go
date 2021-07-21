@@ -104,7 +104,7 @@ func main() {
 	// err = grpcServer.Serve(lis)
 
 	//client setup
-	log.Printf("[producer] Client using address: %v\n", *flagAddress)
+	log.Printf("[producer] Client using address: %s:%d\n", *flagAddress, *flagClientPort)
 
 	s := producerServer{}
 	s.consumerAddr = *flagAddress
