@@ -63,6 +63,10 @@ apt-get install --yes \
     vim \
     wget
 
+# Skip tag resolution
+# https://knative.dev/v0.23-docs/serving/tag-resolution/#skipping-tag-resolution
+kubectl patch configmaps config-deployment --namespace knative-serving --patch '{"data": {"registriesSkippingTagResolving": "node-registry:5000"}}'
+
 # Install docker-compose
 curl -L "https://github.com/docker/compose/releases/download/1.29.2/docker-compose-Linux-x86_64" -o /usr/local/bin/docker-compose
 chmod +x /usr/local/bin/docker-compose

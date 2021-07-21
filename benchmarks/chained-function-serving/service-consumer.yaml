@@ -30,7 +30,7 @@ spec:
     spec:
       containers:
         - image: ${IMAGE}
-          imagePullPolicy: Always
+          imagePullPolicy: IfNotPresent
           ports:
             # For `h2c`, see https://knative.tips/networking/http2/
             - name: h2c

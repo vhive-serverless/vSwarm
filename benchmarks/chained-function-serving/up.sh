@@ -22,8 +22,14 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-IMAGE='node-registry:5000/chained-functions-serving-consumer' envsubst < service-consumer.yaml | kubectl apply --wait=true -f -
+CONSUMER_IMAGE='node-registry:5000/chained-functions-serving-consumer:volatile'
+PRODUCER_IMAGE='node-registry:5000/chained-functions-serving-producer:volatile'
+
+ctr image pull --plain-http $CONSUMER_IMAGE
+ctr image pull --plain-http $PRODUCER_IMAGE
+
+IMAGE=$CONSUMER_IMAGE envsubst < service-consumer.yaml | kubectl apply --wait=true -f -
 kubectl wait -n default --for=condition=Ready --timeout=120s ksvc/consumer || { kubectl describe -n default ksvc/consumer; exit 1; }
 
-IMAGE='node-registry:5000/chained-functions-serving-producer' envsubst < service-producer.yaml | kubectl apply --wait=true -f -
+IMAGE=$PRODUCER_IMAGE envsubst < service-producer.yaml | kubectl apply --wait=true -f -
 kubectl wait -n default --for=condition=Ready --timeout=120s ksvc/producer || { kubectl describe -n default ksvc/producer; exit 1; }

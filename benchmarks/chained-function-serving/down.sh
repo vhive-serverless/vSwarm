@@ -22,5 +22,5 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-IMAGE='node-registry:5000/chained-functions-serving-consumer' envsubst < service-consumer.yaml | kubectl delete -f -
-IMAGE='node-registry:5000/chained-functions-serving-producer' envsubst < service-producer.yaml | kubectl delete -f -
+IMAGE='node-registry:5000/chained-functions-serving-consumer:volatile' envsubst < service-consumer.yaml | kubectl delete -f -
+IMAGE='node-registry:5000/chained-functions-serving-producer:volatile' envsubst < service-producer.yaml | kubectl delete -f -

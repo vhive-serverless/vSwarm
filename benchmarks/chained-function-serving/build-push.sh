@@ -22,4 +22,4 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-make PRODUCER_TAG='node-registry:5000/chained-functions-serving-producer' CONSUMER_TAG='node-registry:5000/chained-functions-serving-consumer' all-image-push
+make PRODUCER_TAG='node-registry:5000/chained-functions-serving-producer:volatile' CONSUMER_TAG='node-registry:5000/chained-functions-serving-consumer:volatile' all-image-push
