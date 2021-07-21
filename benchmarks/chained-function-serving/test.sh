@@ -24,4 +24,4 @@
 
 set -x
 
-grpcurl -d '{"name": "Michal"}' -plaintext producer.default.127.0.0.1.nip.io:31080 helloworld.Greeter.SayHello
+grpcurl -max-time 60 -d '{"name": "Michal"}' -plaintext producer.default.127.0.0.1.nip.io:31080 helloworld.Greeter.SayHello

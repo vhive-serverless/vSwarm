@@ -50,6 +50,7 @@ type producerServer struct {
 func (ps *producerServer) SayHello(ctx context.Context, req *pb.HelloRequest) (_ *pb.HelloReply, err error) {
 	// establish a connection
 	addr := fmt.Sprintf("%v:%v", ps.consumerAddr, ps.consumerPort)
+	log.Println("dialling ", addr)
 	var conn *grpc.ClientConn
 	if tracing.IsTracingEnabled() {
 		conn, err = tracing.DialGRPCWithUnaryInterceptor(addr, grpc.WithBlock(), grpc.WithInsecure())

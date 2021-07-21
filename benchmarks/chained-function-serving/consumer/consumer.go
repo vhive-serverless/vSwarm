@@ -44,7 +44,9 @@ type consumerServer struct {
 }
 
 func (s *consumerServer) ConsumeString(ctx context.Context, str *pb.ConsumeStringRequest) (*pb.ConsumeStringReply, error) {
+	log.Println("consuming string", str.Value)
 	if tracing.IsTracingEnabled() {
+		log.Println("tracing consuming")
 		span1 := tracing.Span{SpanName: "custom-span-1", TracerName: "tracer"}
 		span2 := tracing.Span{SpanName: "custom-span-2", TracerName: "tracer"}
 		ctx = span1.StartSpan(ctx)
@@ -81,6 +83,7 @@ func main() {
 	log.SetOutput(os.Stdout)
 
 	if tracing.IsTracingEnabled() {
+		log.Println("tracing enabled")
 		shutdown, err := tracing.InitBasicTracer(*url, "consumer")
 		if err != nil {
 			log.Warn(err)
