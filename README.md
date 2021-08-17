@@ -13,22 +13,21 @@
         - `up.sh` \
             bring the benchmark up synchronously.
 - `utils/` \
-    is for benchmark utility _services_ (e.g. TimeseriesDB and XDT).
-    - `timeseriesdb/`
-- `tools/` \
-    is for command-line tools.
-    - `invoker/`
-- `libs/`
-    is for libraries used by benchmarks, utilities, and/or tools.
+    is for utilities used within serverless functions.
     - `vhivemetadata/`
         is for the Go library for handling vhivemetadata field.
-    - `protos/`
-        is for protobuf files and their generated outputs.
-        - `timeseriesdb/`
+    - `protobuf/`
+        is for common protobuf files and their generated outputs.
         - `helloworld/`
     - `tracing/`
         is for tracing libraries in different programming language.
         - `go/`
         - `python/`
+- `tools/` \
+    is for command-line tools and services useful outside of 
+    serverless functions, such as for deployment or invokation.
+    - `invoker/`
+    - `timeseriesdb/`
+
 - `runner/` \
     is for setting up self-hosted GitHub Actions runners.
