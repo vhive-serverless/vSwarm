@@ -37,7 +37,7 @@ bin/producer: producer/main.go producer/helloworld_grpc.pb.go producer/helloworl
 
 TAG_PRODUCER = vhiveease/chained-functions-eventing-producer:latest
 image-producer: Dockerfile bin/producer
-	docker build --tag ${TAG_PRODUCER} --build-arg target_arg=producer -f Dockerfile ../../..
+	docker build --tag ${TAG_PRODUCER} --build-arg target_arg=producer -f Dockerfile ../..
 
 push-producer: image-producer
 	docker push ${TAG_PRODUCER}
@@ -48,21 +48,21 @@ bin/consumer: consumer/main.go
 
 TAG_CONSUMER = vhiveease/chained-functions-eventing-consumer:latest
 image-consumer: Dockerfile bin/consumer
-	docker build --tag ${TAG_CONSUMER} --build-arg target_arg=consumer -f Dockerfile ../../..
+	docker build --tag ${TAG_CONSUMER} --build-arg target_arg=consumer -f Dockerfile ../..
 
 push-consumer: image-consumer
 	docker push ${TAG_CONSUMER}
 
 producer/helloworld.pb.go:
 	protoc \
-		-I../../../examples/invoker/ \
+		-I../../tools/invoker/ \
 		--go_out=producer \
 		--go_opt="paths=source_relative" \
 		helloworld.proto
 
 producer/helloworld_grpc.pb.go:
 	protoc \
-		-I../../../examples/invoker/ \
+		-I../../tools/invoker/ \
 		--go-grpc_out=producer \
 		--go-grpc_opt="paths=source_relative" \
 		helloworld.proto
