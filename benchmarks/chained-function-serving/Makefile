@@ -20,12 +20,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-# Define a Makefile variable using a ENV variable or a default value
-# https://stackoverflow.com/a/24264930/4466589
-PRODUCER_TAG ?= "vhiveease/chained-functions-serving-producer:latest"
-CONSUMER_TAG ?= "vhiveease/chained-functions-serving-consumer:latest"
-
-all: all-image
+all: all-image 
 
 all-image: producer-image consumer-image
 
@@ -36,27 +31,32 @@ clean:
 
 
 producer-image: Dockerfile producer/producer.go proto/prodcon.pb.go proto/prodcon_grpc.pb.go
-	buildah build-using-dockerfile --tag $(PRODUCER_TAG) --build-arg target_arg=producer -f Dockerfile ../..
+	DOCKER_BUILDKIT=1 docker build \
+	--tag vhiveease/chained-functions-serving-producer:latest \
+	--build-arg target_arg=producer \
+	--secret id=GOPRIVATE_KEY \
+	-f Dockerfile ../..
 
 producer-image-push: producer-image
-	buildah push --tls-verify=false $(PRODUCER_TAG)
+	docker push vhiveease/chained-functions-serving-producer:latest
 
 
 consumer-image: Dockerfile consumer/consumer.go proto/prodcon.pb.go proto/prodcon_grpc.pb.go
-	buildah build-using-dockerfile --tag $(CONSUMER_TAG) --build-arg target_arg=consumer -f Dockerfile ../..
+	DOCKER_BUILDKIT=1 docker build \
+	--tag vhiveease/chained-functions-serving-consumer:latest \
+	--build-arg target_arg=consumer \
+	--secret id=GOPRIVATE_KEY \
+	-f Dockerfile ../..
+
 
 consumer-image-push: consumer-image
-	buildah push --tls-verify=false $(CONSUMER_TAG)
+	docker push vhiveease/chained-functions-serving-consumer:latest
 
 
-cmd/server/tempReader.pb.go: cmd/server/tempReader.proto
+cmd/server/tempReader_grpc.pb.go cmd/server/tempReader.pb.go: cmd/server/tempReader.proto
 	protoc \
 		--go_out=. \
 		--go_opt="paths=source_relative" \
-		cmd/server/tempReader.proto
-
-cmd/server/tempReader_grpc.pb.go: cmd/server/tempReader.proto
-	protoc \
 		--go-grpc_out=. \
 		--go-grpc_opt="paths=source_relative" \
 		cmd/server/tempReader.proto
