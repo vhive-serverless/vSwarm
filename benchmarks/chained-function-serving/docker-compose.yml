@@ -40,7 +40,7 @@ services:
     producer:
         image: vhiveease/chained-functions-serving-producer
         ports: 
-            - "3031:3031"
+            - "50051:3031"
         volumes:
             - log-volume:/log
         command:

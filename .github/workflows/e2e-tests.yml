@@ -33,6 +33,32 @@ env:
   KUBECONFIG: /etc/kubernetes/admin.conf
 
 jobs:
+  test-compose:
+    name: Test Docker Compose
+    runs-on: ubuntu-18.04
+    strategy:
+      fail-fast: false
+      matrix:
+        benchmark: [chained-function-serving]
+    steps:
+    - name: Check out code into the Go module directory
+      uses: actions/checkout@v2
+      with:
+        lfs: 'true'
+
+    - name: start docker-compose benchmark
+      working-directory: benchmarks/${{ matrix.benchmark }}
+      run: |
+        docker-compose up &> log_file &
+        sleep 15s
+
+    - name: invoke the chain
+      run: |
+        ./tools/bin/grpcurl -plaintext localhost:50051 helloworld.Greeter.SayHello
+
+    - name: show docker-compose log
+      run: cat benchmarks/${{ matrix.benchmark }}/log_file
+
   test:
     name: Test
     runs-on: [stock-knative]
@@ -46,24 +72,24 @@ jobs:
       - name: Clear Local Registry
         run: echo TODO
 
-      - name: Run build-push.sh
-        working-directory: benchmarks/${{ matrix.benchmark }}
-        run: |
-          set -x
+      # - name: Run build-push.sh
+      #   working-directory: benchmarks/${{ matrix.benchmark }}
+      #   run: |
+      #     set -x
 
-          pwd
-          ls -lh
-          ./build-push.sh
+      #     pwd
+      #     ls -lh
+      #     ./build-push.sh
 
-      - name: Up
-        working-directory: benchmarks/${{ matrix.benchmark }}
-        run: ./up.sh
+      # - name: Up
+      #   working-directory: benchmarks/${{ matrix.benchmark }}
+      #   run: ./up.sh
 
-      - name: Test
-        working-directory: benchmarks/${{ matrix.benchmark }}
-        run: ./test.sh
+      # - name: Test
+      #   working-directory: benchmarks/${{ matrix.benchmark }}
+      #   run: ./test.sh
 
-      - name: Down
-        if: ${{ always() }}
-        working-directory: benchmarks/${{ matrix.benchmark }}
-        run: ./down.sh
+      # - name: Down
+      #   if: ${{ always() }}
+      #   working-directory: benchmarks/${{ matrix.benchmark }}
+      #   run: ./down.sh
