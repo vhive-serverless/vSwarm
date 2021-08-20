@@ -1,3 +1,5 @@
+#!/bin/bash
+
 # MIT License
 #
 # Copyright (c) 2021 Mert Bora Alper and EASE lab
@@ -20,32 +22,27 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-# Execute this playbook using
-#   GH_ACCESS_TOKEN=... ansible-playbook -u YOUR_SSH_USERNAME -i REMOTE_HOSTNAME, delete-runners.yaml
+# Execute this script (on the local) as
+#   GH_ACCESS_TOKEN=... ./easy-recreate.sh <HOSTNAME> <N> [USER]
+#
 
----
-- name: Delete All GitHub Runners
-  hosts: all
-  tasks:
-    - name: Get GitHub runner remove token
-      uri:
-        method: POST
-        url: https://api.github.com/repos/ease-lab/vhive-benchmarking/actions/runners/remove-token
-        headers:
-          Accept: application/vnd.github.v3+json
-          Authorization: "token {{ lookup('env', 'GH_ACCESS_TOKEN') }}"
-        status_code: 201
-      register: token
+set -x
+set -e
 
-    - name: List all KinD clusters
-      command: kind get clusters
-      register: clusters
+PWD="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
-    - name: Remove each runner
-      command: "docker exec -e RUNNER_ALLOW_RUNASROOT=1 {{ item }}-control-plane bash /actions-runner/config.sh remove --token {{ token.json.token }}"
-      ignore_errors: yes
-      loop: "{{ clusters.stdout_lines }}"
+REMOTE=$1
+COUNT=$2
+AS_USER=${3:-`whoami`}
 
-    - name: Destroy each KinD cluster
-      command: "kind delete cluster --name {{ item }}"
-      loop: "{{ clusters.stdout_lines }}"
+sudo apt update -qq
+sudo apt install software-properties-common
+sudo add-apt-repository --yes --update ppa:ansible/ansible
+sudo apt install -q ansible
+
+
+ansible-playbook -u $AS_USER -i ${REMOTE}, ${PWD}/delete-runners.yaml
+
+for i in $(seq ${COUNT}); do
+    ansible-playbook -u $AS_USER -i ${REMOTE}, ${PWD}/create-runner.yaml
+done

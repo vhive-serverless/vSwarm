@@ -164,7 +164,7 @@
     - name: Download knative-kind installation script
       become: yes
       get_url:
-        url: https://raw.githubusercontent.com/ease-lab/knative-kind/ease-lab-lr/install.sh
+        url: https://raw.githubusercontent.com/ease-lab/knative-kind/ease-lab/install.sh
         dest: /usr/local/bin/install-konk
         mode: 0755
         owner: root

@@ -31,7 +31,6 @@ apt-get install --yes \
     apt-transport-https \
     bash-completion \
     bc \
-    buildah \
     ca-certificates \
     curl \
     dmsetup \
@@ -63,12 +62,8 @@ apt-get install --yes \
     vim \
     wget
 
-# Skip tag resolution
-# https://knative.dev/v0.23-docs/serving/tag-resolution/#skipping-tag-resolution
-kubectl patch configmaps config-deployment --namespace knative-serving --patch '{"data": {"registriesSkippingTagResolving": "node-registry:5000"}}'
-
 # Install docker-compose
-curl -L "https://github.com/docker/compose/releases/download/1.29.2/docker-compose-Linux-x86_64" -o /usr/local/bin/docker-compose
+curl -L "https://github.com/docker/compose/releases/download/1.29.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
 chmod +x /usr/local/bin/docker-compose
 
 # Install kn
@@ -76,10 +71,6 @@ curl -L "https://github.com/knative/client/releases/download/v0.23.2/kn-linux-am
 chmod +x /usr/local/bin/kn
 echo 'source /etc/bash_completion' >> ~/.bashrc
 echo 'source <(kn completion bash)' >> ~/.bashrc
-
-# Install grpcurl
-curl -sSL 'https://github.com/fullstorydev/grpcurl/releases/download/v1.8.1/grpcurl_1.8.1_linux_x86_64.tar.gz' | tar -zx -C /usr/local/bin grpcurl
-chmod +x /usr/local/bin/grpcurl
 
 # Install GitHub Runner
 mkdir -p actions-runner
