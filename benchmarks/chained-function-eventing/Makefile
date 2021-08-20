@@ -24,6 +24,8 @@
 
 all: bin/consumer bin/producer
 
+all-image-push: push-all
+
 image-all: image-consumer image-producer
 
 push-all: push-consumer push-producer

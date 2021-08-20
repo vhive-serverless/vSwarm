@@ -2,7 +2,7 @@ module chained_function_eventing
 
 go 1.16
 
-replace github.com/ease-lab/vhive/utils/benchmarking/eventing => ../../../utils/benchmarking/eventing
+replace github.com/ease-lab/vhive/utils/benchmarking/eventing => ../../tools/benchmarking_eventing
 
 require (
 	github.com/cloudevents/sdk-go/v2 v2.4.1
