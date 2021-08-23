@@ -28,12 +28,13 @@ import (
 	"crypto/rand"
 	"flag"
 	"fmt"
+	"net"
+	"os"
+
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/s3/s3manager"
-	"net"
-	"os"
 
 	sdk "github.com/ease-lab/vhive-xdt/sdk/golang"
 	"github.com/ease-lab/vhive-xdt/utils"
@@ -61,9 +62,9 @@ type producerServer struct {
 }
 
 const (
-	INLINE = "INLINE"
-	XDT = "XDT"
-	S3 = "S3"
+	INLINE        = "INLINE"
+	XDT           = "XDT"
+	S3            = "S3"
 	AWS_S3_BUCKET = "vhive-prodcon-bench"
 	TOKEN         = ""
 )
@@ -173,7 +174,7 @@ func (ps *producerServer) SayHello(ctx context.Context, req *pb.HelloRequest) (_
 }
 
 func main() {
-	flagAddress := flag.String("addr", "consumer.default.192.168.1.240.sslip.io", "Server IP address")
+	flagAddress := flag.String("addr", "consumer.default.127.0.0.1.nip.io", "Server IP address")
 	flagClientPort := flag.Int("pc", 80, "Client Port")
 	flagServerPort := flag.Int("ps", 80, "Server Port")
 	url := flag.String("zipkin", "http://zipkin.istio-system.svc.cluster.local:9411/api/v2/spans", "zipkin url")
@@ -218,7 +219,7 @@ func main() {
 		log.Infof("TRANSFER_TYPE not found, using INLINE transfer")
 		transferType = INLINE
 	}
-	log.Infof("[producer] transfering via %s",transferType)
+	log.Infof("[producer] transfering via %s", transferType)
 	s.transferType = transferType
 	// 4194304 bytes is the limit by gRPC
 	payloadData := make([]byte, *transferSize*1024) // 10MiB
@@ -237,7 +238,7 @@ func main() {
 
 		s.config = config
 		s.XDTclient = xdtClient
-	}else if transferType == S3 {
+	} else if transferType == S3 {
 		setAWSCredentials()
 	}
 	pb.RegisterGreeterServer(grpcServer, &s)

@@ -41,7 +41,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        benchmark: [chained-function-serving, chained-function-eventing]
+        benchmark: [chained-function-serving, chained-function-eventing, stacking-training, tuning-halving, video-analytics]
     steps:
     - name: Check out code into the Go module directory
       uses: actions/checkout@v2
@@ -70,7 +70,16 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        benchmark: [chained-function-serving]
+        benchmark: [chained-function-serving, stacking-training, tuning-halving, video-analytics]
+        include:
+          - benchmark: chained-function-serving
+            compose: docker-compose.yml
+          - benchmark: stacking-training
+            compose: docker-compose-s3.yml
+          - benchmark: tuning-halving
+            compose: docker-compose-s3.yml
+          - benchmark: video-analytics
+            compose: docker-compose-s3.yml
     steps:
     - name: Check out code into the Go module directory
       uses: actions/checkout@v2
@@ -78,10 +87,13 @@ jobs:
         lfs: 'true'
 
     - name: start docker-compose benchmark
+      env:
+          AWS_ACCESS_KEY: ${{ secrets.AWS_ACCESS_KEY }}
+          AWS_SECRET_KEY: ${{ secrets.AWS_SECRET_KEY }}
       working-directory: benchmarks/${{ matrix.benchmark }}
       run: |
-        docker-compose up &> log_file &
-        sleep 15s
+        docker-compose -f ${{ matrix.compose }} up &> log_file &
+        sleep 60s
 
     - name: invoke the chain
       run: |
@@ -95,10 +107,16 @@ jobs:
     runs-on: [stock-knative]
     strategy:
       matrix:
-        benchmark: [chained-function-serving/knative_yamls/inline]
+        benchmark: [chained-function-serving/knative_yamls/inline, stacking-training/manifests/s3, tuning-halving/manifests/s3, video-analytics/knative_yamls/s3 ]
         include:
           - benchmark: chained-function-serving/knative_yamls/inline
             function: producer
+          - benchmark: stacking-training/manifests/s3
+            function: driver
+          - benchmark: tuning-halving/manifests/s3
+            function: driver
+          - benchmark: video-analytics/knative_yamls/s3
+            function: streaming
     steps:
       - uses: actions/checkout@v2
         with:
@@ -120,7 +138,7 @@ jobs:
           NODEPORT=$(kubectl get svc kourier-ingress -n kourier-system -o=jsonpath='{.spec.ports[0].nodePort}')
           HOSTNAME=$(kubectl get ksvc ${{ matrix.function }} -n default -o jsonpath='{.status.url}' | cut -c8-)
 
-          ./tools/bin/grpcurl -max-time 10 -d '{"name": "Michal"}' -plaintext $HOSTNAME:$NODEPORT helloworld.Greeter.SayHello
+          ./tools/bin/grpcurl -max-time 1000 -d '{"name": "Michal"}' -plaintext $HOSTNAME:$NODEPORT helloworld.Greeter.SayHello
 
       - name: Down
         working-directory: benchmarks/${{ matrix.benchmark }}
@@ -148,7 +166,7 @@ jobs:
 
       - name: Up
         working-directory: benchmarks/${{ matrix.benchmark }}
-        run: ./apply.sh && sleep 30
+        run: ./apply.sh && sleep 60
 
       - name: Test
         run: |
