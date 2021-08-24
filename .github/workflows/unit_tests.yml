@@ -23,7 +23,7 @@ jobs:
     runs-on: ubuntu-18.04
     defaults:
       run:
-        working-directory: tools/timeseriesdb
+        working-directory: tools/benchmarking_eventing/timeseriesdb
     strategy:
       fail-fast: false
     steps:
@@ -35,3 +35,36 @@ jobs:
 
       - name: Run tests
         run: go test -v -race -cover ./...
+
+  module_tests:
+    name: Module Tests
+    runs-on: ubuntu-18.04
+    strategy:
+      fail-fast: false
+      matrix:
+        module: [utils/tracing/go, utils/tracing/python, utils/storage/go ,utils/storage/python]
+    steps:
+    - name: Set up Go 1.16
+      uses: actions/setup-go@v2
+      with:
+        go-version: 1.16
+        
+    - name: Set up Python 3.x
+      uses: actions/setup-python@v2
+      with:
+        python-version: '3.x'
+
+    - name: Check out code into the Go module directory
+      uses: actions/checkout@v2
+
+    - name: Get extra python packages
+      run: pip install -r ./utils/tracing/python/requirements.txt && pip install -r ./utils/storage/python/requirements.txt
+
+    - name: Run tests in submodules
+      env:
+          MODULE: ${{ matrix.module }}
+          AWS_ACCESS_KEY: ${{ secrets.AWS_ACCESS_KEY }}
+          AWS_SECRET_KEY: ${{ secrets.AWS_SECRET_KEY }}
+      run: |
+        make -C $MODULE test
+        make -C $MODULE test-man
