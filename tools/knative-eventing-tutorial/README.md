@@ -1,5 +1,5 @@
 # Knative Eventing Tutorial
-See [Knative Eventing Tutorial](/docs/knative/eventing.md) for a primer on Knative Eventing.
+See [Knative Eventing Tutorial](https://github.com/ease-lab/vhive/blob/main/docs/knative/eventing.md) for a primer on Knative Eventing.
 
 Tested on a **CUSTOM** single-node stock Knative setup, [see vHive Developer's Guide](https://github.com/ease-lab/vhive/blob/main/docs/developers_guide.md#testing-stock-knative-images)---uses [knative/client@0c6ef82](https://github.com/knative/client/commit/0c6ef82a56654c9c7677a3d1059f74440324b27c).
 
