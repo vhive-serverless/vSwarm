@@ -47,7 +47,7 @@ spec:
             - name: MAX_DECODER_SERVER_THREADS
               value: "10"
             - name: ENABLE_TRACING
-              value: "true"
+              value: "false"
           ports:
             # For `h2c`, see https://knative.tips/networking/http2/
             - name: h2c

@@ -104,25 +104,32 @@ jobs:
 
   test-knative:
     name: Test Knative Deployment
+    env:
+      GOCACHE: /root/tmp/gocache
+      GOPATH: /root/tmp/gopath
     runs-on: [stock-knative]
     strategy:
       matrix:
-        benchmark: [chained-function-serving/knative_yamls/inline, stacking-training/manifests/s3, tuning-halving/manifests/s3, video-analytics/knative_yamls/s3 ]
+        benchmark: [chained-function-serving/knative_yamls/inline ] #video-analytics/knative_yamls/inline, stacking-training/manifests/s3, tuning-halving/manifests/s3,
         include:
           - benchmark: chained-function-serving/knative_yamls/inline
             function: producer
-          - benchmark: stacking-training/manifests/s3
-            function: driver
-          - benchmark: tuning-halving/manifests/s3
-            function: driver
-          - benchmark: video-analytics/knative_yamls/s3
-            function: streaming
+          # - benchmark: stacking-training/manifests/s3
+          #   function: driver
+          # - benchmark: tuning-halving/manifests/s3
+          #   function: driver
+          # - benchmark: video-analytics/knative_yamls/inline
+          #  function: streaming
     steps:
       - uses: actions/checkout@v2
         with:
           lfs: 'true'
       - name: Checkout LFS objects
         run: git lfs checkout
+      
+      - uses: actions/setup-go@v2
+        with:
+          go-version: 1.16
 
       - name: Up
         working-directory: benchmarks
@@ -132,51 +139,65 @@ jobs:
         run: ../tools/kn_deploy.sh ./${{ matrix.benchmark }}/*
 
       - name: Test
+        working-directory: tools/test-client
         run: |
           set -x
 
           NODEPORT=$(kubectl get svc kourier-ingress -n kourier-system -o=jsonpath='{.spec.ports[0].nodePort}')
           HOSTNAME=$(kubectl get ksvc ${{ matrix.function }} -n default -o jsonpath='{.status.url}' | cut -c8-)
 
-          ./tools/bin/grpcurl -max-time 180 -d '{"name": "Michal"}' -plaintext $HOSTNAME:$NODEPORT helloworld.Greeter.SayHello
+          go build ./test-client.go
+          ./test-client -addr $HOSTNAME:$NODEPORT
 
-      - name: Down
-        working-directory: benchmarks/${{ matrix.benchmark }}
-        run: kn service delete --all --wait
-
-  test-knative-eventing:
-    name: Test Knative Eventing Benchmarks
-    runs-on: [stock-knative]
-    strategy:
-      fail-fast: false
-      matrix:
-        benchmark: [chained-function-eventing/manifests]
-        include:
-          - benchmark: chained-function-eventing/manifests
-            function: producer
-            namespace: chained-functions-eventing
-            vhivemetadata: eyAiV29ya2Zsb3dJZCI6ICJXRklEIiwgIkludm9jYXRpb25JZCI6ICJJVklEIiwgIkludm9rZWRPbiI6ICIyMDIxLTA3LTEzVDA5OjM4OjE3Ljc5OTI3NzE0Mi0wNDowMCIgfQ==
-    
-    steps:
-      - uses: actions/checkout@v2
-        with:
-          lfs: 'true'
-      - name: Checkout LFS objects
-        run: git lfs checkout
-
-      - name: Up
-        working-directory: benchmarks/${{ matrix.benchmark }}
-        run: ./apply.sh && sleep 60
-
-      - name: Test
+      - name: Print logs
+        if: ${{ always() }}
         run: |
           set -x
+          kubectl logs -n default -c user-container -l serving.knative.dev/service=${{ matrix.function }}
+          kubectl logs -n default -c user-container -l serving.knative.dev/service=decoder
 
-          NODEPORT=$(kubectl get svc kourier-ingress -n kourier-system -o=jsonpath='{.spec.ports[0].nodePort}')
-          HOSTNAME=$(kubectl get ksvc ${{ matrix.function }} -n ${{ matrix.namespace }} -o jsonpath='{.status.url}' | cut -c8-)
 
-          ./tools/bin/grpcurl -max-time 10 -d '{"name": "Bora", "vHiveMetadata": "${{ matrix.vhivemetadata }}"}' -plaintext $HOSTNAME:$NODEPORT helloworld.Greeter.SayHello
-      
       - name: Down
+        if: ${{ always() }}
         working-directory: benchmarks/${{ matrix.benchmark }}
-        run: ./delete.sh
+        run: kn service delete --all --namespace default --wait
+
+  # test-knative-eventing:
+  #   name: Test Knative Eventing Benchmarks
+  #   runs-on: [stock-knative]
+  #   strategy:
+  #     fail-fast: false
+  #     matrix:
+  #       benchmark: [chained-function-eventing/manifests]
+  #       include:
+  #         - benchmark: chained-function-eventing/manifests
+  #           function: producer
+  #           namespace: chained-functions-eventing
+  #           vhivemetadata: eyAiV29ya2Zsb3dJZCI6ICJXRklEIiwgIkludm9jYXRpb25JZCI6ICJJVklEIiwgIkludm9rZWRPbiI6ICIyMDIxLTA3LTEzVDA5OjM4OjE3Ljc5OTI3NzE0Mi0wNDowMCIgfQ==
+    
+  #   steps:
+  #     - uses: actions/checkout@v2
+  #       with:
+  #         lfs: 'true'
+  #     - name: Checkout LFS objects
+  #       run: git lfs checkout
+
+  #     - name: Up
+  #       working-directory: benchmarks/${{ matrix.benchmark }}
+  #       run: ./apply.sh && sleep 60
+
+  #     - name: Test
+  #       run: |
+  #         set -x
+
+  #         NODEPORT=$(kubectl get svc kourier-ingress -n kourier-system -o=jsonpath='{.spec.ports[0].nodePort}')
+  #         HOSTNAME=$(kubectl get ksvc ${{ matrix.function }} -n ${{ matrix.namespace }} -o jsonpath='{.status.url}' | cut -c8-)
+
+  #         ./tools/bin/grpcurl -max-time 10 -d '{"name": "Bora", "vHiveMetadata": "${{ matrix.vhivemetadata }}"}' -plaintext $HOSTNAME:$NODEPORT helloworld.Greeter.SayHello
+      
+  #     - name: Down
+  #       if: ${{ always() }}
+  #       working-directory: benchmarks/${{ matrix.benchmark }}
+  #       run: |
+  #         ./delete.sh
+  #         kubectl config set-context --current --namespace=default

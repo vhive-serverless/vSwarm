@@ -41,7 +41,7 @@ spec:
             - name: TRANSFER_TYPE
               value: "INLINE"
             - name: ENABLE_TRACING
-              value: "true"
+              value: "false"
           ports:
             # For `h2c`, see https://knative.tips/networking/http2/
             - name: h2c
