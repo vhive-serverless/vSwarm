@@ -37,6 +37,9 @@ spec:
       containers:
         - image: docker.io/vhiveease/stacking-training-driver:latest
           imagePullPolicy: Always
+          args: ["-tAddr", "trainer.default.svc.cluster.local:80"]
+          args: ["-rAddr", "reducer.default.svc.cluster.local:80"]
+          args: ["-mAddr", "metatrainer.default.svc.cluster.local:80"]
           env:
             - name: TRANSFER_TYPE
               value: "S3"
