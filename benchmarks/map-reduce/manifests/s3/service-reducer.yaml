@@ -23,21 +23,20 @@
 apiVersion: serving.knative.dev/v1
 kind: Service
 metadata:
-  name: driver
+  name: reducer
   namespace: default
 spec:
   template:
     metadata:
       annotations:
         # prevent cold boots
-        autoscaling.knative.dev/minScale: "1"
-        autoscaling.knative.dev/maxScale: "1"
+        autoscaling.knative.dev/minScale: "2"
+        autoscaling.knative.dev/maxScale: "2"
     spec:
       containerConcurrency: 1
       containers:
-        - image: docker.io/vhiveease/stacking-training-driver:latest
+        - image: docker.io/vhiveease/mapreduce-reducer:latest
           imagePullPolicy: Always
-          args: ["-tAddr", "trainer.default.svc.cluster.local:80", "-rAddr", "reducer.default.svc.cluster.local:80", "-mAddr", "metatrainer.default.svc.cluster.local:80"]
           env:
             - name: TRANSFER_TYPE
               value: "S3"
@@ -47,10 +46,6 @@ spec:
               value: ${AWS_SECRET_KEY}
             - name: AWS_REGION
               value: "us-west-1"
-            - name: CONCURRENT_TRAINING
-              value: "false"
-            - name: TrainersNum
-              value: "4"
             - name: MAX_SERVER_THREADS
               value: "10"
             - name: ENABLE_TRACING
