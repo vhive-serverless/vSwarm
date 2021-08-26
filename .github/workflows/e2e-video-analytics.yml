@@ -1,0 +1,142 @@
+# MIT License
+#
+# Copyright (c) 2021 Michal Baczun and EASE lab
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
+
+name: End-to-End Tests
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+env:
+  GOOS: linux
+  GO111MODULE: on
+  KUBECONFIG: /etc/kubernetes/admin.conf
+
+jobs:
+  build-and-push:
+    name: Build and Push all images
+    runs-on: ubuntu-18.04
+    strategy:
+      fail-fast: false
+    steps:
+    - name: Check out code into the Go module directory
+      uses: actions/checkout@v2
+      with:
+        lfs: 'true'
+  
+    - name: Login to Docker Hub
+      uses: docker/login-action@v1
+      with:
+        username: ${{ secrets.DOCKER_HUB_USERNAME }}
+        password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
+
+    - name: Set up Docker Buildx
+      id: buildx
+      uses: docker/setup-buildx-action@v1
+
+    - name: Build and Push 
+      working-directory: benchmarks/video-analytics
+      env:
+        GOPRIVATE_KEY: ${{ secrets.EASE_LAB_ACCESS_KEY }}
+      run: make all-image-push
+
+  test-compose:
+    name: Test Docker Compose
+    needs: build-and-push
+    runs-on: ubuntu-18.04
+    strategy:
+      fail-fast: false
+    steps:
+    - name: Check out code into the Go module directory
+      uses: actions/checkout@v2
+      with:
+        lfs: 'true'
+
+    - name: start docker-compose benchmark
+      env:
+          AWS_ACCESS_KEY: ${{ secrets.AWS_ACCESS_KEY }}
+          AWS_SECRET_KEY: ${{ secrets.AWS_SECRET_KEY }}
+      working-directory: benchmarks/video-analytics
+      run: |
+        docker-compose -f docker-compose.yml up &> log_file &
+        sleep 60s
+
+    - name: invoke the chain
+      run: |
+        ./tools/bin/grpcurl -plaintext localhost:50051 helloworld.Greeter.SayHello
+
+    - name: show docker-compose log
+      run: cat benchmarks/video-analytics/log_file
+
+  test-knative:
+    name: Test Knative Deployment
+    needs: build-and-push
+    env:
+      GOCACHE: /root/tmp/gocache
+      GOPATH: /root/tmp/gopath
+    runs-on: [stock-knative]
+    strategy:
+      fail-fast: false
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          lfs: 'true'
+      - name: Checkout LFS objects
+        run: git lfs checkout
+      
+      - uses: actions/setup-go@v2
+        with:
+          go-version: 1.16
+
+      - name: Up
+        working-directory: benchmarks
+        env:
+          AWS_ACCESS_KEY: ${{ secrets.AWS_ACCESS_KEY }}
+          AWS_SECRET_KEY: ${{ secrets.AWS_SECRET_KEY }}
+        run: ../tools/kn_deploy.sh ./video-analytics/knative_yamls/inline/*
+
+      - name: Test
+        working-directory: tools/test-client
+        run: |
+          set -x
+
+          NODEPORT=$(kubectl get svc kourier-ingress -n kourier-system -o=jsonpath='{.spec.ports[0].nodePort}')
+          HOSTNAME=$(kubectl get ksvc streaming -n default -o jsonpath='{.status.url}' | cut -c8-)
+
+          go build ./test-client.go
+          ./test-client -addr $HOSTNAME:$NODEPORT
+
+      - name: Print logs
+        if: ${{ always() }}
+        run: |
+          set -x
+          kubectl logs -n default -c user-container -l serving.knative.dev/service=streaming
+          kubectl logs -n default -c user-container -l serving.knative.dev/service=decoder
+          kubectl logs -n default -c user-container -l serving.knative.dev/service=recog
+
+
+      - name: Down
+        if: ${{ always() }}
+        run: kn service delete --all --namespace default --wait
