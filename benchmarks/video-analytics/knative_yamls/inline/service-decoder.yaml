@@ -37,6 +37,7 @@ spec:
       containers:
         - image: docker.io/vhiveease/video-analytics-decoder:latest
           imagePullPolicy: Always
+          args: ["-addr", "recog.default.svc.cluster.local:80"]
           env:
             - name: TRANSFER_TYPE
               value: "INLINE"

@@ -49,7 +49,7 @@ from concurrent import futures
 # USE ENV VAR "DecoderFrames" to set the number of frames to be sent
 parser = argparse.ArgumentParser()
 parser.add_argument("-dockerCompose", "--dockerCompose", dest="dockerCompose", default=False, help="Env docker compose")
-parser.add_argument("-addr", "--addr", dest="addr", default="recog.default.127.0.0.1.nip.io:31080", help="recog address")
+parser.add_argument("-addr", "--addr", dest="addr", default="recog.default.127.0.0.1.nip.io:80", help="recog address")
 parser.add_argument("-sp", "--sp", dest="sp", default="80", help="serve port")
 parser.add_argument("-frames", "--frames", dest="frames", default="1", help="Default number of frames- overwritten by environment variable")
 parser.add_argument("-zipkin", "--zipkin", dest="url", default="http://zipkin.istio-system.svc.cluster.local:9411/api/v2/spans", help="Zipkin endpoint url")

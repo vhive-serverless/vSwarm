@@ -110,7 +110,7 @@ jobs:
     runs-on: [stock-knative]
     strategy:
       matrix:
-        benchmark: [chained-function-serving/knative_yamls/inline ] #video-analytics/knative_yamls/inline, stacking-training/manifests/s3, tuning-halving/manifests/s3,
+        benchmark: [chained-function-serving/knative_yamls/inline, video-analytics/knative_yamls/inline ] #stacking-training/manifests/s3, tuning-halving/manifests/s3,
         include:
           - benchmark: chained-function-serving/knative_yamls/inline
             function: producer
@@ -118,8 +118,8 @@ jobs:
           #   function: driver
           # - benchmark: tuning-halving/manifests/s3
           #   function: driver
-          # - benchmark: video-analytics/knative_yamls/inline
-          #  function: streaming
+          - benchmark: video-analytics/knative_yamls/inline
+            function: streaming
     steps:
       - uses: actions/checkout@v2
         with:
@@ -138,6 +138,11 @@ jobs:
           AWS_SECRET_KEY: ${{ secrets.AWS_SECRET_KEY }}
         run: ../tools/kn_deploy.sh ./${{ matrix.benchmark }}/*
 
+      - name: Show Info
+        run: |
+          kubectl get ksvc
+          kubectl get svc
+
       - name: Test
         working-directory: tools/test-client
         run: |
@@ -155,6 +160,7 @@ jobs:
           set -x
           kubectl logs -n default -c user-container -l serving.knative.dev/service=${{ matrix.function }}
           kubectl logs -n default -c user-container -l serving.knative.dev/service=decoder
+          kubectl logs -n default -c user-container -l serving.knative.dev/service=consumer
 
 
       - name: Down
