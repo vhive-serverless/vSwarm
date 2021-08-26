@@ -20,7 +20,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-name: End-to-End Tests
+name: Tuning Halving End-to-End Tests
 
 on:
   workflow_dispatch:
@@ -80,7 +80,7 @@ jobs:
           AWS_SECRET_KEY: ${{ secrets.AWS_SECRET_KEY }}
       working-directory: benchmarks/tuning-halving
       run: |
-        docker-compose -f docker-compose.yml up &> log_file &
+        docker-compose -f docker-compose-s3.yml up &> log_file &
         sleep 60s
 
     - name: invoke the chain

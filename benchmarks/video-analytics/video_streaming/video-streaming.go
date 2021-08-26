@@ -158,7 +158,7 @@ func main() {
 	debug := flag.Bool("d", false, "Debug level in logs")
 	dockerCompose := flag.Bool("dockerCompose", false, "Execution env")
 	decoderAddr := flag.String("addr", "decoder.default.127.0.0.1.nip.io", "Decoder address")
-	decoderPort := flag.Int("p", 31080, "Decoder port")
+	decoderPort := flag.Int("p", 80, "Decoder port")
 	servePort := flag.Int("sp", 80, "Port listened to by this streamer")
 	videoFile = flag.String("video", "reference/video.mp4", "The file location of the video")
 	zipkin := flag.String("zipkin", "http://zipkin.istio-system.svc.cluster.local:9411/api/v2/spans", "zipkin url")

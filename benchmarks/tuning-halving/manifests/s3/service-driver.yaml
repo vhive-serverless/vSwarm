@@ -37,6 +37,7 @@ spec:
       containers:
         - image: docker.io/vhiveease/tuning-halving-driver:latest
           imagePullPolicy: Always
+          args: ["-tAddr", "trainer.default.svc.cluster.local:80"]
           env:
             - name: TRANSFER_TYPE
               value: "S3"

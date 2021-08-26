@@ -20,7 +20,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-name: End-to-End Tests
+name: Chained Eventing End-to-End Tests
 
 on:
   workflow_dispatch:
@@ -37,7 +37,6 @@ env:
 jobs:
   build-and-push:
     name: Build and Push all images
-    needs: build-and-push
     runs-on: ubuntu-18.04
     strategy:
       fail-fast: false
@@ -80,7 +79,7 @@ jobs:
         working-directory: benchmarks/chained-function-eventing/manifests
         run: ./apply.sh && sleep 60
 
-    - name: Describe
+      - name: Describe
         run: |
           set -x
           kubectl get -n chained-functions-eventing broker

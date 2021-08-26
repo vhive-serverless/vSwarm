@@ -20,7 +20,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-name: End-to-End Tests
+name: Chained Serving End-to-End Tests
 
 on:
   workflow_dispatch:
