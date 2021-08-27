@@ -39,7 +39,7 @@ import numpy as np
 import pickle
 from sklearn.model_selection import StratifiedShuffleSplit
 
-# adding python tracing sources to the system path
+# adding python tracing and storage sources to the system path
 sys.path.insert(0, os.getcwd() + '/../proto/')
 sys.path.insert(0, os.getcwd() + '/../../../../utils/tracing/python')
 sys.path.insert(0, os.getcwd() + '/../../../../utils/storage/python')
@@ -73,9 +73,6 @@ INLINE = "INLINE"
 S3 = "S3"
 XDT = "XDT"
 
-# set aws credentials:
-AWS_ID = os.getenv('AWS_ACCESS_KEY', "")
-AWS_SECRET = os.getenv('AWS_SECRET_KEY', "")
 
 
 def get_self_ip():
@@ -108,25 +105,15 @@ def model_dispatcher(model_name):
 
 class TrainerServicer(tuning_pb2_grpc.TrainerServicer):
     def __init__(self, transferType, XDTconfig=None):
-
-        self.benchName = 'vhive-tuning'
-        self.transferType = transferType
-        self.trainer_id = ""
-        if transferType == S3:
-            self.s3_client = boto3.resource(
-                service_name='s3',
-                region_name=os.getenv("AWS_REGION", 'us-west-1'),
-                aws_access_key_id=AWS_ID,
-                aws_secret_access_key=AWS_SECRET
-            )
-        elif transferType == XDT:
+        if transferType == XDT:
             if XDTconfig is None:
                 log.fatal("Empty XDT config")
             self.XDTconfig = XDTconfig
 
     def Train(self, request, context):
         # Read from S3
-        dataset = storage.get(request.dataset_key)
+        global s
+        dataset = s.get(request.dataset_key)
 
         with tracing.Span("Training a model"):
             model_config = pickle.loads(request.model_config)
@@ -154,8 +141,8 @@ class TrainerServicer(tuning_pb2_grpc.TrainerServicer):
         # Write to S3
         model_key = f"model_{count}"
         pred_key = f"pred_model_{count}"
-        model_key = storage.put(model_key, model)
-        pred_key = storage.put(pred_key, y_pred)
+        model_key = s.put(model_key, model)
+        pred_key = s.put(pred_key, y_pred)
 
         return tuning_pb2.TrainReply(
             model=b'',
@@ -169,7 +156,8 @@ class TrainerServicer(tuning_pb2_grpc.TrainerServicer):
 def serve():
     transferType = os.getenv('TRANSFER_TYPE', S3)
     if transferType == S3:
-        storage.init("S3", 'vhive-tuning')
+        global s
+        s = storage.Storage("S3", 'vhive-tuning')
         log.info("Using inline or s3 transfers")
         max_workers = int(os.getenv("MAX_SERVER_THREADS", 10))
         server = grpc.server(futures.ThreadPoolExecutor(max_workers=max_workers))

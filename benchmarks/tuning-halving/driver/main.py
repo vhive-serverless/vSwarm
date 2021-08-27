@@ -25,7 +25,7 @@ from __future__ import print_function
 import sys
 import os
 
-# adding python tracing sources to the system path
+# adding python tracing and storage sources to the system path
 sys.path.insert(0, os.getcwd() + '/../proto/')
 sys.path.insert(0, os.getcwd() + '/../../../../utils/tracing/python')
 sys.path.insert(0, os.getcwd() + '/../../../../utils/storage/python')
@@ -147,7 +147,8 @@ class GreeterServicer(helloworld_pb2_grpc.GreeterServicer):
                 } for hyperparam in generate_hyperparam_sets(hyperparam_config['params'])
             ]
         }
-        key = storage.put('dataset_key', dataset)
+        global s
+        key = s.put('dataset_key', dataset)
         return {
             'dataset_key': key,
             'models_config': models_config
@@ -215,7 +216,8 @@ class GreeterServicer(helloworld_pb2_grpc.GreeterServicer):
 def serve():
     transferType = os.getenv('TRANSFER_TYPE', S3)
     if transferType == S3:
-        storage.init("S3", 'vhive-tuning')
+        global s
+        s = storage.Storage("S3", 'vhive-tuning')
         log.info("Using inline or s3 transfers")
         max_workers = int(os.getenv("MAX_SERVER_THREADS", 10))
         server = grpc.server(futures.ThreadPoolExecutor(max_workers=max_workers))
