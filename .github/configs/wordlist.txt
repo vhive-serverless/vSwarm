@@ -514,6 +514,7 @@ vmIncrStep
 VMs
 Volos
 warmUpTime
+wc
 WDDD
 wget
 WIDX
