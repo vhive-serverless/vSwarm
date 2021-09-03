@@ -44,26 +44,10 @@ spec:
               value: "10"
             - name: ENABLE_TRACING
               value: "true"
-            - name: CHUNK_SIZE_IN_BYTES
-              value: "65536"
-            - name: CT_BUFFER_SIZE
-              value: "25"
-            - name: NUMBER_OF_BUFFERS
-              value: "2"
-            - name: ST_AND_FW_BUFFER_SIZE
-              value: "1600"
             - name: ROUTING
               value: "CutThrough"
             - name: TRACING_ENABLED
               value: "true"
-            - name: RPC_TIMEOUT_MAX_BACK_OFF
-              value: "1000"
-            - name: RPC_TIMEOUT_DURATION
-              value: "60000"
-            - name: RPC_RETRY_DELAY
-              value: "1"
-            - name: MAX_DST_SERVER_THREADS_PYTHON
-              value: "10"
             - name: DST_SERVER_PORT
               value: ":80"
             - name: ZIPKIN_ENDPOINT
