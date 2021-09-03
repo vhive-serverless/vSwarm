@@ -116,7 +116,7 @@ func (s *server) SayHello(ctx context.Context, req *pb_helloworld.HelloRequest) 
 			FunctionName: "HelloXDT",
 			Data:         videoFragment,
 		}
-		if message, _, err := s.XDTclient.Invoke(addr, payloadToSend); err != nil {
+		if message, _, err := s.XDTclient.Invoke(ctx, addr, payloadToSend); err != nil {
 			log.Fatalf("SQP_to_dQP_data_transfer failed %v", err)
 		} else {
 			response = string(message)
@@ -225,7 +225,7 @@ func main() {
 		}
 
 		server.config = config
-		server.XDTclient = xdtClient
+		server.XDTclient = *xdtClient
 		log.Infof("[streaming] XDT client created")
 	}
 	pb_helloworld.RegisterGreeterServer(grpcServer, &server)
