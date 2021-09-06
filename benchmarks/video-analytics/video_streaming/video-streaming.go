@@ -88,9 +88,11 @@ func fetchSelfIP() string {
 }
 
 func uploadToS3(ctx context.Context) {
-	span := tracing.Span{SpanName: "Video upload", TracerName: "S3 video upload - tracer"}
-	ctx = span.StartSpan(ctx)
-	defer span.EndSpan()
+	if tracing.IsTracingEnabled() {
+		span := tracing.Span{SpanName: "Video upload", TracerName: "S3 video upload - tracer"}
+		ctx = span.StartSpan(ctx)
+		defer span.EndSpan()
+	}
 	file, err := os.Open(*videoFile)
 	if err != nil {
 		log.Fatalf("[Video Streaming] Failed to open file: %s", err)
@@ -175,13 +177,14 @@ func main() {
 	} else {
 		log.SetLevel(log.InfoLevel)
 	}
-
-	shutdown, err := tracing.InitBasicTracer(*zipkin, "Video Streaming")
-	if err != nil {
-		log.Warn(err)
+	if tracing.IsTracingEnabled() {
+		shutdown, err := tracing.InitBasicTracer(*zipkin, "Video Streaming")
+		if err != nil {
+			log.Warn(err)
+		}
+		defer shutdown()
 	}
-	defer shutdown()
-
+	var err error
 	videoFragment, err = ioutil.ReadFile(*videoFile)
 	log.Infof("read video fragment, size: %v\n", len(videoFragment))
 
