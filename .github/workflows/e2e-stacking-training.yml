@@ -26,8 +26,20 @@ on:
   workflow_dispatch:
   push:
     branches: [ main ]
+    paths:
+      - 'benchmarks/stacking-training/*'
+      - 'utils/*'
+    paths-ignore:
+      - 'docs/**'
+      - '**.md'
   pull_request:
     branches: [ main ]
+    paths:
+      - 'benchmarks/stacking-training/*'
+      - 'utils/*'
+    paths-ignore:
+      - 'docs/**'
+      - '**.md'
 
 env:
   GOOS: linux
