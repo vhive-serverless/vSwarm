@@ -44,6 +44,7 @@ bindSocket
 booktitle
 bool
 BOOL
+boolean
 Bora
 boris
 Bugnion
@@ -99,6 +100,7 @@ Ctrl
 Daglis
 datacenter
 Datacenter
+dataset
 david
 DBG
 dbg
@@ -134,6 +136,7 @@ edu
 ef
 EndExperiment
 endpointsFile
+ensemble
 env
 envsubst
 EPFL
@@ -229,6 +232,7 @@ Katebzadeh
 katsarakis
 Katsarakis
 Kaynak
+KBs
 Keckler
 Khosro
 KinD
@@ -267,6 +271,7 @@ lsquo
 Makefile
 Mangione
 Manycore
+MapReduce
 margaritov
 Margaritov
 Marios
@@ -275,6 +280,8 @@ maxVMNum
 md
 MECS
 metadata
+Metatrainer
+metatrainer
 Micheli
 Microarchitecting
 microarchitectural
@@ -288,6 +295,8 @@ Mirzadeh
 mkdir
 monet
 mr
+mrjob
+mrjob's
 MSI
 MT-Channel-broker
 multi
@@ -361,6 +370,7 @@ Prefetching
 priyank
 Priyank
 proc
+ProducerConsumer
 profileCPU
 profileCPUID
 profiler
@@ -381,6 +391,7 @@ RackOut
 RACKOUT
 Rakesh
 Ranganathan
+RandomForest
 RDMA
 rdquo
 README
@@ -447,6 +458,7 @@ stdout
 STR
 structs
 sudo
+subfolders
 svc
 swlh
 sys
@@ -466,6 +478,7 @@ tmux
 toc
 TOCS
 TODO
+todo
 toml
 TopDown
 toplev

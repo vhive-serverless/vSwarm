@@ -6,7 +6,7 @@ There are runtime arguments (e.g., RPS or requests-per-second target, experiment
 
 ### Input file
 
-The addresses to be invoked are stored in an input json file, named `endpoints.json` by default. The standard structure of this file is a list of json objects which have a hostname. In the event that more than one object (i.e. more than one hostname) is included, then the proided addresses will be called by the invoker in a round-robin fasion.
+The addresses to be invoked are stored in an input json file, named `endpoints.json` by default. The standard structure of this file is a list of json objects which have a hostname. In the event that more than one object (i.e. more than one hostname) is included, then the provided addresses will be called by the invoker in a round-robin fashion.
 
 An example input file can look like this:
 ```json
@@ -17,7 +17,7 @@ An example input file can look like this:
 ]
 ```
 
-For knative eventing, the invokation of functions with the goal of measuring their latency is more difficult since the connection does not stay open until a response arrives. For this reason we have developed `TimeseriesDB`. To use the invoker with TimeseriesDB the input json object will need an addtional matchers feild, which is a mapping of CloudEvent attribute names and values that are sought in completion events to exist. Please refer to the [benchmarking methedology documentation](https://github.com/ease-lab/vhive/blob/main/docs/benchmarking/methodology.md) for additional information.
+For knative eventing, the invokation of functions with the goal of measuring their latency is more difficult since the connection does not stay open until a response arrives. For this reason we have developed `TimeseriesDB`. To use the invoker with TimeseriesDB the input json object will need an additional matchers field, which is a mapping of CloudEvent attribute names and values that are sought in completion events to exist. Please refer to the [benchmarking methodology documentation](https://github.com/ease-lab/vhive/blob/main/docs/benchmarking/methodology.md) for additional information.
 
 An example input file for eventing can look like this:
 ```json
