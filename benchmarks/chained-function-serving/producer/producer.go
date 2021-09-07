@@ -48,7 +48,7 @@ import (
 	pb "github.com/ease-lab/vhive/examples/protobuf/helloworld"
 	"google.golang.org/grpc"
 
-	tracing "github.com/ease-lab/vhive/utils/tracing/go"
+	tracing "github.com/ease-lab/vhive-benchmarking/utils/tracing/go"
 )
 
 type producerServer struct {

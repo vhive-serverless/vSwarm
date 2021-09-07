@@ -80,7 +80,7 @@ ENTRYPOINT ["python3", "-u", "./decode.py"]
 
 
 FROM vhiveease/golang:latest as streamingBuilder
-WORKDIR /app
+WORKDIR /app/app/
 RUN apk add --no-cache make git
 RUN apk add -U --no-cache ca-certificates
 COPY ./benchmarks/video-analytics/video_streaming/video-streaming.go ./video_streaming/
@@ -88,7 +88,8 @@ COPY ./benchmarks/video-analytics/video_streaming/reference ./reference
 COPY ./benchmarks/video-analytics/go.mod ./
 COPY ./benchmarks/video-analytics/go.sum ./
 COPY ./benchmarks/video-analytics/proto ./proto
-COPY ./utils/storage/go ./storage
+COPY ./utils/storage/go ../../utils/storage/go
+COPY ./utils/tracing/go ../../utils/tracing/go
 RUN --mount=type=secret,id=GOPRIVATE_KEY \
     git config --global url."https://ease-lab:$(cat /run/secrets/GOPRIVATE_KEY)@github.com/ease-lab/vhive-xdt".insteadOf "https://github.com/ease-lab/vhive-xdt"
 RUN go env -w GOPRIVATE=github.com/ease-lab/vhive-xdt
@@ -98,7 +99,7 @@ RUN go mod download && \
 FROM scratch as streaming
 WORKDIR /app
 COPY --from=streamingBuilder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
-COPY --from=streamingBuilder /app/video_streaming/streaming-bin /app/gen/exe
-COPY --from=streamingBuilder /app/reference /app/reference
+COPY --from=streamingBuilder /app/app/video_streaming/streaming-bin /app/gen/exe
+COPY --from=streamingBuilder /app/app/reference /app/reference
 
 ENTRYPOINT [ "/app/gen/exe" ]
