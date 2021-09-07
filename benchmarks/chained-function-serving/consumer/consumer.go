@@ -26,14 +26,15 @@ import (
 	"context"
 	"flag"
 	"fmt"
+	"io"
+	"net"
+	"os"
+
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/s3"
 	"github.com/aws/aws-sdk-go/service/s3/s3manager"
-	"io"
-	"net"
-	"os"
 
 	ctrdlog "github.com/containerd/containerd/log"
 	log "github.com/sirupsen/logrus"
@@ -41,16 +42,16 @@ import (
 
 	pb "tests/chained-functions-serving/proto"
 
-	tracing "github.com/ease-lab/vhive/utils/tracing/go"
+	tracing "github.com/ease-lab/vhive-benchmarking/utils/tracing/go"
 
 	sdk "github.com/ease-lab/vhive-xdt/sdk/golang"
 	"github.com/ease-lab/vhive-xdt/utils"
 )
 
 const (
-	INLINE = "INLINE"
-	XDT = "XDT"
-	S3 = "S3"
+	INLINE        = "INLINE"
+	XDT           = "XDT"
+	S3            = "S3"
 	AWS_S3_BUCKET = "vhive-prodcon-bench"
 	TOKEN         = ""
 )
@@ -117,7 +118,7 @@ func (s *consumerServer) ConsumeByte(ctx context.Context, str *pb.ConsumeByteReq
 	}
 	if s.transferType == S3 {
 		log.Printf("[consumer] Consumed %d bytes\n", fetchFromS3(ctx, string(str.Value)))
-	}else if s.transferType == INLINE{
+	} else if s.transferType == INLINE {
 		log.Printf("[consumer] Consumed %d bytes\n", len(str.Value))
 	}
 	return &pb.ConsumeByteReply{Value: true}, nil
@@ -168,7 +169,7 @@ func main() {
 		setAWSCredentials()
 	}
 
-	if transferType == INLINE || transferType == S3  {
+	if transferType == INLINE || transferType == S3 {
 		//set up server
 		lis, err := net.Listen("tcp", fmt.Sprintf(":%d", *port))
 		if err != nil {

@@ -35,7 +35,8 @@ import (
 	"google.golang.org/grpc/reflection"
 
 	"chained_function_eventing/eventschemas"
-	"github.com/ease-lab/vhive/utils/benchmarking/eventing/vhivemetadata"
+
+	"github.com/ease-lab/vhive-benchmarking/tools/benchmarking_eventing/vhivemetadata"
 )
 
 type envConfig struct {
