@@ -29,17 +29,11 @@ on:
     paths:
       - 'benchmarks/video-analytics/*'
       - 'utils/*'
-    paths-ignore:
-      - 'docs/**'
-      - '**.md'
   pull_request:
     branches: [ main ]
     paths:
       - 'benchmarks/video-analytics/*'
       - 'utils/*'
-    paths-ignore:
-      - 'docs/**'
-      - '**.md'
 
 env:
   GOOS: linux

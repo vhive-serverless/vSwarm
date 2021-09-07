@@ -68,3 +68,23 @@ jobs:
       run: |
         make -C $MODULE test
         make -C $MODULE test-man
+
+  bench-python-tracing:
+    name: Python Tracing tests (docker-compose)
+    runs-on: ubuntu-18.04
+    defaults:
+      run:
+        working-directory: ./utils/tracing/integ-tests/client-server
+    strategy:
+      fail-fast: false
+    steps:
+    - uses: actions/checkout@v2
+    
+    - name: build local images
+      run: make all-image
+    - name: Python client with docker-compose
+      run: |
+        docker-compose up --exit-code-from client
+    - name: Golang client with docker-compose
+      run: |
+        docker-compose --file ./docker-compose-goclient.yml up --exit-code-from client
