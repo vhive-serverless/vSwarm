@@ -63,7 +63,7 @@ Since vHive functions use gRPC, for example in both the
 need to include the `h2c` port translation in each relevant manifest.
 
 vHive manifests must follow a specific structure, and they rely on hosting a guest image on a stub
-image in order to work. See [this hello-world example](/configs/knative_workloads/helloworld.yaml)
+image in order to work. See [this hello-world example](https://github.com/ease-lab/vhive/tree/main/configs/knative_workloads/helloworld.yaml)
 for a typical vHive manifest. `h2c` port translation must be used, and one's function must be
 specified as a guest image environment variable. The guest port variable must match the
 containerPort associated with the h2c, and the core container image must be
@@ -137,15 +137,14 @@ The producer in the vHive
 gives an example usage of this utility for both server and client behaviour.
 
 Below one can see screenshots from a producer-consumer trace visualized with Zipkin.
-![Tracing chain view](../figures/tracing_chain_view.jpg)
-![Tracing breakdown view](../figures/tracing_breakdown.jpg)
+![Tracing chain view](./figures/tracing_chain_view.jpg)
+![Tracing breakdown view](./figures/tracing_breakdown.jpg)
 
 
 ### Continuous Integration
-New vHive workloads should be included in the automatic CI for regular testing, as this is helpful
-both for code maintenance and in demonstrating how the workload should be deployed. The vHive
-[function composition workflow](/.github/workflows/function-composition.yml) can be referred
-to as an example in which the demo serving and eventing workloads are ran both "locally" and on
+New workloads should be included in the automatic CI for regular testing, as this is helpful
+both for code maintenance and in demonstrating how the workload should be deployed. Existing
+[function end-to-end CI workflows](/.github/workflows) can be referred to as an example in which the demo serving and eventing workloads are ran both "locally" and on
 a Knative cluster.
 
 ### Logging
@@ -174,7 +173,7 @@ function C and a server for function A.
 The serving function composition example can be found
 [here](/benchmarks/chained-function-serving), and additional CI implementation which shows
 how this code is executed can be found
-[here](https://github.com/ease-lab/vhive/blob/main/.github/workflows/function-composition.yml).
+[here](/.github/workflows/e2e-chained-serving.yml).
 This example implements a simple Client -> Producer -> Consumer function chain, whereby the client
 triggers the producer function to generate a random string, and the consumer consumes said string
 (by logging it to a file).
@@ -238,7 +237,7 @@ An example of function composition using eventing can be found
 (grpcurl) -> Producer -> Consumer function chain, whereby the client triggers the producer function
 to generate an event, and the consumer consumes said event. The CI workflow for this example can be
 found
-[here](https://github.com/ease-lab/vhive/blob/main/.github/workflows/function-composition.yml),
+[here](/.github/workflows/e2e-chained-eventing.yml),
 showing how the example can be deployed.
 
 In general, to deploy a workload with eventing one will need to:
