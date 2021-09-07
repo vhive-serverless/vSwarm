@@ -16,7 +16,7 @@ the consumer. Subsequently the consumer shall reply to the producer, which then 
 
 The producer is the interface function, implementing the standard helloworld grpc service. The
 producer and consumer use a separate "ProducerConsumer" grpc service for sending the payload
-and recieving the acknowledgement.
+and receiving the acknowledgement.
 
 ## Parameters
 
