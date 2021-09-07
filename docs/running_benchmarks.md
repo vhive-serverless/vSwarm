@@ -15,7 +15,7 @@ Contact us if you would like to ask for our keys, or see the [File Transfer](#fi
 section for more information.
 
 1. `cd` to the benchmark's directory, e.g. 
-    [`./benchmarks/chained-function-serving/`](benchmarks/chained-function-serving/).
+    [`./benchmarks/chained-function-serving/`](/benchmarks/chained-function-serving/).
 2. Make docker images locally with `make all-image`. 
     > **Note:**
     >
@@ -52,7 +52,7 @@ section for more information.
     > in the README of that particular benchmark.
 
 5. (Optionally) You can also invoke the benchmark using the invoker. `golang` will be required to
-    build the invoker binary. Find out more about the invoker [here](tools/invoker/).
+    build the invoker binary. Find out more about the invoker [here](/tools/invoker/).
     ```bash
     # build the invoker binary
     cd ../../tools/invoker

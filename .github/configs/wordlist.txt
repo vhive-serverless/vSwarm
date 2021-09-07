@@ -167,6 +167,8 @@ Gavrielatos
 GECCO
 GetGRPCServerWithUnaryInterceptor
 GFM
+gg
+GG
 Ghoshal
 github
 Golang
@@ -220,6 +222,7 @@ ISCA
 ISPASS
 Istio
 istioctl
+iteratively
 jekyll
 Jevdjic
 Joshi

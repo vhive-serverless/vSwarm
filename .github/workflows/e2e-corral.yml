@@ -20,7 +20,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-name: Word Count (Corral) Benchmark
+name: Corral (word count) Benchmark
 
 # > Concurrency ensures that only a single job or workflow using the
 # > same concurrency group will run at a time.
@@ -61,7 +61,7 @@ jobs:
 
       - uses: docker/build-push-action@v2
         with:
-            file: benchmarks/word_count/Dockerfile
+            file: benchmarks/corral/Dockerfile
             push: true
             tags: vhiveease/word_count:volatile
 
@@ -109,7 +109,7 @@ jobs:
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_KEY }}
-        working-directory: benchmarks/word_count/manifests-ci
+        working-directory: benchmarks/corral/manifests-ci
         run: |
           set -x
 
