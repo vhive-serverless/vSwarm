@@ -118,7 +118,7 @@ for a default knative cluster, or consider using the
 
 ## File Transfer
 
-When transfering files - or any other payload or message - either inline or external transfer could
+When transferring files - or any other payload or message - either inline or external transfer could
 be used. Inline transfer sends the payload over http, via the load balancer within knative. With
 external transfer a service such as `s3` can be used, where one function uploads data to an agreed
 s3 bucket, and another pulls data from this bucket when prompted. Most benchmarks in this suite 
@@ -126,10 +126,10 @@ support both inline and s3 transfer, but sometimes only one or the other is supp
 
 If inline transfer is used, no additional flags or environment variables need to be passed or set, 
 typically making this the simplest form of transfer. If s3 is used, though, then some additional
-paramaters must be set. 
+parameters must be set. 
 
 Connecting to s3 requires an access key and a secret key, such that the function can access the 
-shared bucket. All the functions in this suite look for these paramaters in the `AWS_ACCESS_KEY` 
+shared bucket. All the functions in this suite look for these parameters in the `AWS_ACCESS_KEY` 
 and `AWS_SECRET_KEY` environment variables. Additionally the `AWS_REGION` sometimes needs to be
 set to specify the region. Additionally, the functions typically assume that the target bucket
 already exists on s3, so if a new s3 instance is being used then these buckets may need to be

@@ -35,6 +35,7 @@ autostart
 aws
 backend
 Backend
+balancer
 baseurl
 bc
 benchmarking
