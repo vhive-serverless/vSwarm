@@ -28,10 +28,10 @@ We openly welcome any contributions, so please get in touch if you're interested
 Bringing up a benchmark typically consists of dockerizing the benchmark functions to deploy and
 test them with docker-compose, then integrating the functions with knative, and including the
 benchmark in the CI/CD pipeline. Please refer to our documentation on 
-[bringing up new benchmarks](https://github.com/ease-lab/vhive/blob/main/docs/benchmarking/adding_benchmarks.md)
+[bringing up new benchmarks](/docs/adding_benchmarks.md)
 for more guidance.
 
 We also have some basic requirements for contributions the the repository, which are described
 in detail in our 
-[Contributing to vHive](https://github.com/ease-lab/vhive/blob/main/docs/contributing_to_vhive.md)
+[Contributing to vHive](/docs/contributing_to_vhive.md)
 document.
