@@ -129,16 +129,21 @@ jobs:
           AWS_SECRET_KEY: ${{ secrets.AWS_SECRET_KEY }}
         run: ../tools/kn_deploy.sh ./chained-function-serving/knative_yamls/inline/*
 
+      - name: Build invoker
+        working-directory: tools/invoker
+        run: make invoker
+
       - name: Test
-        working-directory: tools/test-client
+        working-directory: tools/invoker
         run: |
           set -x
 
           NODEPORT=$(kubectl get svc kourier-ingress -n kourier-system -o=jsonpath='{.spec.ports[0].nodePort}')
           HOSTNAME=$(kubectl get ksvc producer -n default -o jsonpath='{.status.url}' | cut -c8-)
 
-          go build ./test-client.go
-          ./test-client -addr $HOSTNAME:$NODEPORT
+          echo '[ { "hostname": "$HOSTNAME" } ]' > endpoints.json
+          ./invoker -port $NODEPORT -dbg
+          cat rps*lat.csv
 
       - name: Print logs
         if: ${{ always() }}
