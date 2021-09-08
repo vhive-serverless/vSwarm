@@ -20,25 +20,30 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-apiVersion: serving.knative.dev/v1
-kind: Service
-metadata:
-  name: driver
-  namespace: default
-spec:
-  template:
-    spec:
-      containers:
-        - image: vhiveease/chained-functions-serving-driver:latest
-          imagePullPolicy: Always
-          args: ["-prodEndpoint", "producer.default.svc.cluster.local", "-consEndpoint", "consumer.default.svc.cluster.local"]
-          env:
-            - name: ENABLE_TRACING
-              value: "true"
-            - name: FANOUT
-              value: "3"
+version: "3.7"
 
-          ports:
-            # For `h2c`, see https://knative.tips/networking/http2/
-            - name: h2c
-              containerPort: 80
+services:
+    consumer:
+        image: vhiveease/chained-functions-serving-consumer
+        volumes:
+            - log-volume:/log
+        command:
+            - -ps=3030
+
+    producer:
+        image: vhiveease/chained-functions-serving-producer
+        ports: 
+            - "3031:3031"
+        volumes:
+            - log-volume:/log
+        command:
+            - -addr=consumer
+            - -ps=3031
+            - -pc=3030
+        environment:
+            - TRANSFER_SIZE_KB=10
+        depends_on:
+            - consumer
+
+volumes:
+    log-volume:
