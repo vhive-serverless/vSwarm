@@ -31,6 +31,25 @@ service ProducerConsumer {
     rpc ConsumeStream(stream ConsumeByteRequest) returns (ConsumeByteReply) {}
 }
 
+service ProdConDriver {
+    rpc Benchmark(BenchType) returns (BenchResponse) {}
+    rpc FetchByte(ReductionRequest) returns (ConsumeByteReply) {}
+}
+
+message BenchType {
+    string name = 1;
+    int64 fanAmount = 2;
+}
+
+message ReductionRequest {
+    repeated string capability= 1;
+}
+
+message BenchResponse {
+    string capability= 1;
+    bool ok = 2;
+}
+
 service ClientProducer {
     rpc ProduceBytes(ProduceBytesRequest) returns (Empty);
 }

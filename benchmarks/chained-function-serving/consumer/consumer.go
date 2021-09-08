@@ -26,21 +26,22 @@ import (
 	"context"
 	"flag"
 	"fmt"
-	"io"
-	"net"
-	"os"
-
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/s3"
-	"github.com/aws/aws-sdk-go/service/s3/s3manager"
+	"io"
+	"io/ioutil"
+	"net"
+	"os"
+	"strconv"
 
 	ctrdlog "github.com/containerd/containerd/log"
 	log "github.com/sirupsen/logrus"
 	"google.golang.org/grpc"
 
 	pb "tests/chained-functions-serving/proto"
+	pb_client "tests/chained-functions-serving/proto"
 
 	tracing "github.com/ease-lab/vhive-benchmarking/utils/tracing/go"
 
@@ -60,11 +61,19 @@ var (
 	AKID          string
 	SECRET_KEY    string
 	AWS_S3_REGION string
+	S3_SVC        *s3.S3
 )
 
 type consumerServer struct {
 	transferType string
+	XDTconfig    utils.Config
 	pb.UnimplementedProducerConsumerServer
+}
+
+type ubenchServer struct {
+	transferType string
+	XDTconfig    utils.Config
+	pb_client.UnimplementedProdConDriverServer
 }
 
 func setAWSCredentials() {
@@ -82,29 +91,37 @@ func setAWSCredentials() {
 		AWS_S3_REGION = awsRegion
 	}
 	fmt.Printf("USING AWS ID: %v", AKID)
-}
-
-func fetchFromS3(ctx context.Context, key string) int64 {
-	span := tracing.Span{SpanName: "S3 get", TracerName: "S3 get - tracer"}
-	ctx = span.StartSpan(ctx)
-	defer span.EndSpan()
-	sess, err := session.NewSession(&aws.Config{
+	sessionInstance, err := session.NewSession(&aws.Config{
 		Region:      aws.String(AWS_S3_REGION),
 		Credentials: credentials.NewStaticCredentials(AKID, SECRET_KEY, TOKEN),
 	})
 	if err != nil {
 		log.Fatalf("[consumer] Failed establish s3 session: %s", err)
 	}
+	S3_SVC = s3.New(sessionInstance)
+}
+
+func fetchFromS3(ctx context.Context, key string) (int, error) {
+	span := tracing.Span{SpanName: "S3 get", TracerName: "S3 get - tracer"}
+	ctx = span.StartSpan(ctx)
+	defer span.EndSpan()
 	log.Infof("[consumer] Fetching %s from S3", key)
-	downloader := s3manager.NewDownloader(sess)
-	buf := aws.NewWriteAtBuffer([]byte{})
-	numBytes, err := downloader.Download(buf, &s3.GetObjectInput{
+	object, err := S3_SVC.GetObject(&s3.GetObjectInput{
 		Bucket: aws.String(AWS_S3_BUCKET),
-		Key:    aws.String(key)})
+		Key:    aws.String(key),
+	})
 	if err != nil {
-		log.Fatalf("[consumer] Failed to fetch bytes from s3: %s", err)
+		log.Errorf("Object %q not found in S3 bucket %q: %s", key, AWS_S3_BUCKET, err.Error())
+		return 0, err
 	}
-	return numBytes
+
+	payload, err := ioutil.ReadAll(object.Body)
+	if err != nil {
+		log.Infof("Error reading object body: %v", err)
+		return 0, err
+	}
+
+	return len(payload), nil
 }
 
 func (s *consumerServer) ConsumeByte(ctx context.Context, str *pb.ConsumeByteRequest) (*pb.ConsumeByteReply, error) {
@@ -117,9 +134,23 @@ func (s *consumerServer) ConsumeByte(ctx context.Context, str *pb.ConsumeByteReq
 		defer span2.EndSpan()
 	}
 	if s.transferType == S3 {
-		log.Printf("[consumer] Consumed %d bytes\n", fetchFromS3(ctx, string(str.Value)))
+		payloadSize, err := fetchFromS3(ctx, string(str.Value))
+		if err != nil {
+			return &pb.ConsumeByteReply{Value: false}, err
+		} else {
+			log.Printf("[consumer] Consumed %d bytes\n", payloadSize)
+			return &pb.ConsumeByteReply{Value: true}, err
+		}
 	} else if s.transferType == INLINE {
 		log.Printf("[consumer] Consumed %d bytes\n", len(str.Value))
+	} else if s.transferType == XDT {
+		payload, err := sdk.BroadcastGet(ctx, string(str.Value), s.XDTconfig)
+		if err != nil {
+			return &pb.ConsumeByteReply{Value: false}, err
+		} else {
+			log.Printf("[consumer] Consumed %d bytes from XDT\n", len(payload))
+			return &pb.ConsumeByteReply{Value: true}, err
+		}
 	}
 	return &pb.ConsumeByteReply{Value: true}, nil
 }
@@ -169,7 +200,28 @@ func main() {
 		setAWSCredentials()
 	}
 
-	if transferType == INLINE || transferType == S3 {
+	var fanIn = false
+	if value, ok := os.LookupEnv("FANIN"); ok {
+		if intValue, err := strconv.Atoi(value); err == nil && intValue > 0 {
+			fanIn = true
+		}
+	}
+
+	var broadcast = false
+	if value, ok := os.LookupEnv("BROADCAST"); ok {
+		if intValue, err := strconv.Atoi(value); err == nil && intValue > 0 {
+			broadcast = true
+		}
+	}
+
+	if transferType == XDT && !fanIn && !broadcast {
+		var handler = func(data []byte) ([]byte, bool) {
+			log.Infof("gx: destination handler received data of size %d", len(data))
+			return nil, true
+		}
+		config := utils.ReadConfig()
+		sdk.StartDstServer(config, handler)
+	} else {
 		//set up server
 		lis, err := net.Listen("tcp", fmt.Sprintf(":%d", *port))
 		if err != nil {
@@ -182,21 +234,13 @@ func main() {
 		} else {
 			grpcServer = grpc.NewServer()
 		}
-
-		s := consumerServer{}
-		s.transferType = transferType
-		pb.RegisterProducerConsumerServer(grpcServer, &s)
-
-		log.Printf("[consumer] Server Started on port %v\n", *port)
+		cs := consumerServer{transferType: transferType, XDTconfig: utils.ReadConfig()}
+		pb.RegisterProducerConsumerServer(grpcServer, &cs)
+		us := ubenchServer{transferType: transferType, XDTconfig: utils.ReadConfig()}
+		pb_client.RegisterProdConDriverServer(grpcServer, &us)
 
 		if err := grpcServer.Serve(lis); err != nil {
 			log.Fatalf("[consumer] failed to serve: %s", err)
 		}
-	} else if transferType == XDT {
-		var handler = func(data []byte) {
-			log.Infof("gx: destination handler received data of size %d", len(data))
-		}
-		config := utils.ReadConfig()
-		sdk.StartDstServer(config, handler)
 	}
 }
