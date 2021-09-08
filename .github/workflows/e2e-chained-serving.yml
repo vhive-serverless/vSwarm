@@ -74,6 +74,16 @@ jobs:
     runs-on: ubuntu-18.04
     strategy:
       fail-fast: false
+      matrix:
+        file: [docker-compose.yml, fanin-basic.yml, fanout-basic.yml]
+        include:
+          - file: docker-compose.yml
+            port: 3031
+          - file: fanin-basic.yml
+            port: 3032
+          - file: fanout-basic.yml
+            port: 3032
+
     steps:
     - name: Check out code into the Go module directory
       uses: actions/checkout@v2
@@ -84,17 +94,17 @@ jobs:
       env:
           AWS_ACCESS_KEY: ${{ secrets.AWS_ACCESS_KEY }}
           AWS_SECRET_KEY: ${{ secrets.AWS_SECRET_KEY }}
-      working-directory: benchmarks/chained-function-serving
+      working-directory: benchmarks/chained-function-serving/compose_yamls
       run: |
-        docker-compose -f docker-compose.yml up &> log_file &
+        docker-compose -f ${{ matrix.file }} up &> log_file &
         sleep 60s
 
     - name: invoke the chain
       run: |
-        ./tools/bin/grpcurl -plaintext localhost:50051 helloworld.Greeter.SayHello
+        ./tools/bin/grpcurl -plaintext localhost:${{ matrix.port }} helloworld.Greeter.SayHello
 
     - name: show docker-compose log
-      run: cat benchmarks/chained-function-serving/log_file
+      run: cat benchmarks/chained-function-serving/compose_yamls/log_file
 
   test-knative:
     name: Test Knative Deployment
@@ -105,6 +115,8 @@ jobs:
     runs-on: [stock-knative]
     strategy:
       fail-fast: false
+      matrix:
+        folder: [inline, fanin-basic, fanout-basic]
     steps:
       - uses: actions/checkout@v2
         with:
@@ -121,23 +133,18 @@ jobs:
         env:
           AWS_ACCESS_KEY: ${{ secrets.AWS_ACCESS_KEY }}
           AWS_SECRET_KEY: ${{ secrets.AWS_SECRET_KEY }}
-        run: ../tools/kn_deploy.sh ./chained-function-serving/knative_yamls/inline/*
-
-      - name: Build invoker
-        working-directory: tools/invoker
-        run: make invoker
+        run: ../tools/kn_deploy.sh ./chained-function-serving/knative_yamls/${{ matrix.folder }}/*
 
       - name: Test
-        working-directory: tools/invoker
+        working-directory: tools/test-client
         run: |
           set -x
 
           NODEPORT=$(kubectl get svc kourier-ingress -n kourier-system -o=jsonpath='{.spec.ports[0].nodePort}')
-          HOSTNAME=$(kubectl get ksvc producer -n default -o jsonpath='{.status.url}' | cut -c8-)
+          HOSTNAME=$(kubectl get ksvc driver -n default -o jsonpath='{.status.url}' | cut -c8-)
 
-          echo '[ { "hostname": "$HOSTNAME" } ]' > endpoints.json
-          ./invoker -port $NODEPORT -dbg
-          cat rps*lat.csv
+          go build ./test-client.go
+          ./test-client -addr $HOSTNAME:$NODEPORT
 
       - name: Print logs
         if: ${{ always() }}
@@ -145,6 +152,7 @@ jobs:
           set -x
           kubectl logs -n default -c user-container -l serving.knative.dev/service=producer
           kubectl logs -n default -c user-container -l serving.knative.dev/service=consumer
+          kubectl logs -n default -c user-container -l serving.knative.dev/service=driver
 
 
       - name: Down
