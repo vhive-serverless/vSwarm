@@ -66,3 +66,10 @@ Manifests are split into separate files and are enumerated in the order of their
    ```bash
    ./function-images/tests/chained-function-eventing/manifests/delete.sh
    ```
+
+## Instances
+Number of instances per function in a stable flow:
+| Function | Instances | Is Configurable |
+|----------|-----------|-----------------|
+| Producer | 1 | No |
+| Consumer | 1 | No |

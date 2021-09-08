@@ -13,6 +13,15 @@ The driver is the interface function and is invoked with a helloworld grpc call 
 This benchmark is unique in that it relies on S3 transfer for saving and loading models, so inline
 transfer will not work.
 
+## Instances
+Number of instances per function in a stable flow:
+| Function | Instances | Is Configurable |
+|----------|-----------|-----------------|
+| Driver | 1 | No |
+| Trainer | 4 | Yes - Set in trainer knative manifest and must equal `TrainersNum` driver env var |
+| Reducer | 1 | No |
+| Metatrainer | 1 | No |
+
 ## Parameters
 
 ### Flags

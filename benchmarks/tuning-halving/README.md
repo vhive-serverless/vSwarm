@@ -14,6 +14,13 @@ repeated until only one model remains.
 
 This benchmark relies on s3 for sharing models between driver and trainer.
 
+## Instances
+Number of instances per function in a stable flow:
+| Function | Instances | Is Configurable |
+|----------|-----------|-----------------|
+| Driver | 1 | No |
+| Trainer | 1 | No |
+
 ## Parameters
 
 ### Flags

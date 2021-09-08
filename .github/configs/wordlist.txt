@@ -328,6 +328,7 @@ NOCS
 noicon
 Novakovic
 nr
+Num
 NUMA
 OCI
 Ocin
@@ -337,6 +338,7 @@ Onur
 OpenCV
 opentelemetry
 Opentelemetry
+orchestrates
 orchestrator
 otelgrpc
 Ozer
@@ -403,6 +405,8 @@ ReadTemp
 Rebase
 rebase
 rebasing
+recog
+Recog
 repo
 Repos
 roadmap

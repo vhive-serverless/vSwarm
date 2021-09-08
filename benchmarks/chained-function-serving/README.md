@@ -18,6 +18,13 @@ The producer is the interface function, implementing the standard helloworld grp
 producer and consumer use a separate "ProducerConsumer" grpc service for sending the payload
 and receiving the acknowledgement.
 
+## Instances
+Number of instances per function in a stable flow:
+| Function | Instances | Is Configurable |
+|----------|-----------|-----------------|
+| Producer | 1 | No |
+| Consumer | 1 | No |
+
 ## Parameters
 
 ### Flags

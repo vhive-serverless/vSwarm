@@ -130,7 +130,7 @@ jobs:
           kubectl logs -c user-container -l serving.knative.dev/service=word-count-driver
 
       - name: Verify
-        working-directory: benchmarks/word_count
+        working-directory: benchmarks/corral
         run: |
           aws s3 cp s3://vhive-corral-bench/word_count/vhive-ubench/out/output-part-0 - | LC_ALL=C sort - | cmp expected-sorted-output.txt -
 
