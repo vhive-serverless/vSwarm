@@ -40,7 +40,7 @@ services:
     producer:
         image: vhiveease/chained-functions-serving-producer
         ports: 
-            - "50051:3031"
+            - "3031:3031"
         volumes:
             - log-volume:/log
         command:
@@ -48,8 +48,33 @@ services:
             - -ps=3031
             - -pc=3030
             - -zipkin=http://zipkin:9411/api/v2/spans
+        environment:
+            - TRANSFER_SIZE_KB=10
         depends_on:
             - consumer
+            - zipkin
+
+    driver:
+        image: vhiveease/chained-functions-serving-driver
+        ports:
+            - 3032:3032
+        volumes:
+            - log-volume:/log
+        command:
+            - -prodEndpoint=producer
+            - -consEndpoint=consumer
+            - -prodPort=3031
+            - -consPort=3030
+            - -sp=3032
+            - -dbg=true
+            - -zipkin=http://zipkin:9411/api/v2/spans
+        environment:
+            - FANIN=0
+            - FANOUT=3
+            - ENABLE_TRACING=false
+        depends_on:
+            - consumer
+            - producer
             - zipkin
 
 volumes:

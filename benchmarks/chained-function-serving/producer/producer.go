@@ -25,19 +25,18 @@ package main
 import (
 	"bytes"
 	"context"
-	"crypto/rand"
 	"flag"
 	"fmt"
-	"net"
-	"os"
-
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/s3/s3manager"
-
 	sdk "github.com/ease-lab/vhive-xdt/sdk/golang"
 	"github.com/ease-lab/vhive-xdt/utils"
+	"math/rand"
+	"net"
+	"os"
+	"strconv"
 
 	ctrdlog "github.com/containerd/containerd/log"
 	log "github.com/sirupsen/logrus"
@@ -55,10 +54,20 @@ type producerServer struct {
 	consumerAddr string
 	consumerPort int
 	payloadData  []byte
-	config       utils.Config
-	XDTclient    sdk.XDTclient
+	XDTclient    *sdk.XDTclient
 	transferType string
+	randomStr    string
 	pb.UnimplementedGreeterServer
+}
+
+type ubenchServer struct {
+	consumerAddr string
+	consumerPort int
+	transferType string
+	payloadData  []byte
+	XDTclient    *sdk.XDTclient
+	randomStr    string
+	pb_client.UnimplementedProdConDriverServer
 }
 
 const (
@@ -73,24 +82,8 @@ var (
 	AKID          string
 	SECRET_KEY    string
 	AWS_S3_REGION string
+	S3_SESSION    *session.Session
 )
-
-func fetchSelfIP() string {
-	addrs, err := net.InterfaceAddrs()
-	if err != nil {
-		log.Errorf("Error fetching self IP: " + err.Error())
-	}
-
-	for _, a := range addrs {
-		if ipnet, ok := a.(*net.IPNet); ok && !ipnet.IP.IsLoopback() {
-			if ipnet.IP.To4() != nil {
-				return ipnet.IP.String()
-			}
-		}
-	}
-	log.Errorf("unable to find IP, returning empty string")
-	return ""
-}
 
 func setAWSCredentials() {
 	awsAccessKey, ok := os.LookupEnv("AWS_ACCESS_KEY")
@@ -106,55 +99,63 @@ func setAWSCredentials() {
 	if ok {
 		AWS_S3_REGION = awsRegion
 	}
-	fmt.Printf("USING AWS ID: %v", AKID)
-}
-
-func uploadToS3(ctx context.Context, payloadData []byte) string {
-	span := tracing.Span{SpanName: "S3 put", TracerName: "S3 put - tracer"}
-	ctx = span.StartSpan(ctx)
-	defer span.EndSpan()
-	sess, err := session.NewSession(&aws.Config{
+	var err error
+	S3_SESSION, err = session.NewSession(&aws.Config{
 		Region:      aws.String(AWS_S3_REGION),
 		Credentials: credentials.NewStaticCredentials(AKID, SECRET_KEY, TOKEN),
 	})
 	if err != nil {
-		log.Fatalf("[producer] Failed establish s3 session: %s", err)
+		log.Fatalf("[consumer] Failed establish s3 session: %s", err)
 	}
-	log.Infof("[producer] uploading %d bytes to s3", len(payloadData))
-	uploader := s3manager.NewUploader(sess)
-	reader := bytes.NewReader(payloadData)
-	key := "payload_bytes.txt"
-	_, err = uploader.Upload(&s3manager.UploadInput{
+	fmt.Printf("USING AWS ID: %v", AKID)
+}
+
+func uploadToS3(ctx context.Context, payloadData []byte, randomStr string) string {
+	span := tracing.Span{SpanName: "S3 put", TracerName: "S3 put - tracer"}
+	ctx = span.StartSpan(ctx)
+	defer span.EndSpan()
+
+	s3uploader := s3manager.NewUploader(S3_SESSION)
+
+	key := fmt.Sprintf("payload_bytes_%s.txt", randomStr)
+	uploadOutput, err := s3uploader.Upload(&s3manager.UploadInput{
 		Bucket: aws.String(AWS_S3_BUCKET),
 		Key:    aws.String(key),
-		Body:   reader,
+		Body:   bytes.NewReader(payloadData),
 	})
-	log.Infof("[producer] S3 upload complete")
+	if err != nil {
+		log.Fatalf("Unable to upload %q to %q, %v", key, AWS_S3_BUCKET, err.Error())
+	}
+
+	log.Infof("[producer] Successfully uploaded %q to bucket %q (%s)", key, AWS_S3_BUCKET, uploadOutput.Location)
 	if err != nil {
 		log.Fatalf("[producer] Failed to upload bytes to s3: %s", err)
 	}
 	return key
 }
+func getGRPCclient(addr string) (pb_client.ProducerConsumerClient, *grpc.ClientConn) {
+	// establish a connection
+	var conn *grpc.ClientConn
+	var err error
+	if tracing.IsTracingEnabled() {
+		conn, err = tracing.DialGRPCWithUnaryInterceptor(addr, grpc.WithBlock(), grpc.WithInsecure())
+	} else {
+		conn, err = grpc.Dial(addr, grpc.WithBlock(), grpc.WithInsecure())
+	}
+	if err != nil {
+		log.Fatalf("[producer] fail to dial: %s", err)
+	}
+	return pb_client.NewProducerConsumerClient(conn), conn
+}
 
 func (ps *producerServer) SayHello(ctx context.Context, req *pb.HelloRequest) (_ *pb.HelloReply, err error) {
 	addr := fmt.Sprintf("%v:%v", ps.consumerAddr, ps.consumerPort)
 	if ps.transferType == INLINE || ps.transferType == S3 {
-		// establish a connection
-		var conn *grpc.ClientConn
-		if tracing.IsTracingEnabled() {
-			conn, err = tracing.DialGRPCWithUnaryInterceptor(addr, grpc.WithBlock(), grpc.WithInsecure())
-		} else {
-			conn, err = grpc.Dial(addr, grpc.WithBlock(), grpc.WithInsecure())
-		}
-		if err != nil {
-			log.Fatalf("[producer] fail to dial: %s", err)
-		}
+		client, conn := getGRPCclient(addr)
 		defer conn.Close()
-
-		client := pb_client.NewProducerConsumerClient(conn)
 		payloadToSend := ps.payloadData
 		if ps.transferType == S3 {
-			payloadToSend = []byte(uploadToS3(ctx, ps.payloadData))
+			payloadToSend = []byte(uploadToS3(ctx, ps.payloadData, ps.randomStr))
 		}
 		ack, err := client.ConsumeByte(ctx, &pb_client.ConsumeByteRequest{Value: payloadToSend})
 		if err != nil {
@@ -166,7 +167,7 @@ func (ps *producerServer) SayHello(ctx context.Context, req *pb.HelloRequest) (_
 			FunctionName: "HelloXDT",
 			Data:         ps.payloadData,
 		}
-		if err := ps.XDTclient.Invoke(addr, payloadToSend); err != nil {
+		if _, _, err := ps.XDTclient.Invoke(ctx, addr, payloadToSend); err != nil {
 			log.Fatalf("SQP_to_dQP_data_transfer failed %v", err)
 		}
 	}
@@ -174,11 +175,11 @@ func (ps *producerServer) SayHello(ctx context.Context, req *pb.HelloRequest) (_
 }
 
 func main() {
-	flagAddress := flag.String("addr", "consumer.default.127.0.0.1.nip.io", "Server IP address")
+	flagAddress := flag.String("addr", "consumer.default.192.168.1.240.sslip.io", "Server IP address")
 	flagClientPort := flag.Int("pc", 80, "Client Port")
 	flagServerPort := flag.Int("ps", 80, "Server Port")
 	url := flag.String("zipkin", "http://zipkin.istio-system.svc.cluster.local:9411/api/v2/spans", "zipkin url")
-	transferSize := flag.Int("transferSize", 4095, "Number of KB's to transfer")
+	dockerCompose := flag.Bool("dockerCompose", false, "Env docker Compose?")
 	flag.Parse()
 
 	log.SetFormatter(&log.TextFormatter{
@@ -205,14 +206,11 @@ func main() {
 		grpcServer = grpc.NewServer()
 	}
 
-	reflection.Register(grpcServer)
-
 	//client setup
 	log.Printf("[producer] Client using address: %v:%d\n", *flagAddress, *flagClientPort)
 
-	s := producerServer{}
-	s.consumerAddr = *flagAddress
-	s.consumerPort = *flagClientPort
+	ps := producerServer{consumerAddr: *flagAddress, consumerPort: *flagClientPort}
+	us := ubenchServer{consumerAddr: *flagAddress, consumerPort: *flagClientPort}
 
 	transferType, ok := os.LookupEnv("TRANSFER_TYPE")
 	if !ok {
@@ -220,28 +218,47 @@ func main() {
 		transferType = INLINE
 	}
 	log.Infof("[producer] transfering via %s", transferType)
-	s.transferType = transferType
+	ps.transferType = transferType
+	us.transferType = transferType
+
+	transferSizeKB := 4095
+	if value, ok := os.LookupEnv("TRANSFER_SIZE_KB"); ok {
+		if intValue, err := strconv.Atoi(value); err == nil {
+			transferSizeKB = intValue
+		} else {
+			log.Infof("invalid TRANSFER_SIZE_KB: %s, using default %d", value, transferSizeKB)
+		}
+	}
+
 	// 4194304 bytes is the limit by gRPC
-	payloadData := make([]byte, *transferSize*1024) // 10MiB
+	payloadData := make([]byte, transferSizeKB*1024)
 	if _, err := rand.Read(payloadData); err != nil {
 		log.Fatal(err)
 	}
+	ps.randomStr = os.Getenv("HOSTNAME")
+	us.randomStr = ps.randomStr
+
 	log.Infof("sending %d bytes to consumer", len(payloadData))
-	s.payloadData = payloadData
+	ps.payloadData = payloadData
+	us.payloadData = payloadData
 	if transferType == XDT {
 		config := utils.ReadConfig()
-		config.SQPServerHostname = fetchSelfIP()
+		if !*dockerCompose {
+			config.SQPServerHostname = utils.FetchSelfIP()
+		}
 		xdtClient, err := sdk.NewXDTclient(config)
 		if err != nil {
 			log.Fatalf("InitXDT failed %v", err)
 		}
 
-		s.config = config
-		s.XDTclient = xdtClient
+		ps.XDTclient = xdtClient
+		us.XDTclient = xdtClient
 	} else if transferType == S3 {
 		setAWSCredentials()
 	}
-	pb.RegisterGreeterServer(grpcServer, &s)
+	pb.RegisterGreeterServer(grpcServer, &ps)
+	pb_client.RegisterProdConDriverServer(grpcServer, &us)
+	reflection.Register(grpcServer)
 
 	//server setup
 	lis, err := net.Listen("tcp", fmt.Sprintf(":%d", *flagServerPort))
