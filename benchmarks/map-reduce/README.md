@@ -1,6 +1,19 @@
 # Map-Reduce
 
+This benchmark implements a map-reduce process whereby a `Driver` function orchestrates
+a number of `Mapper` instances which upload their results to an s3 bucket, after which point the 
+driver then calls a number of `Reducer` instances which read and reduce the values from the
+previous mapper buckets into a final set of reduced buckets.
 
+This benchmark relies on s3 for sharing input and output, and so inline transfer is not supported.
+
+## Instances
+Number of instances per function in a stable flow:
+| Function | Instances | Is Configurable |
+|----------|-----------|-----------------|
+| Driver | 1 | No |
+| Mapper | 8 | Yes - Set `NUM_MAPPERS` in Driver and match scale in knative manifest. can't be more than 2215 |
+| Reducer | 2 | Yes - Set `NUM_REDUCERS` in Driver and match scale in knative manifest. Must be power of 2 and smaller than `NUM_MAPPERS`|
 
 ## Parameters
 

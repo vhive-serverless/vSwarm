@@ -1,16 +1,16 @@
 ## Benchmark Summary
 
-| Benchmark                     | Knative infra | tracing | s3   | Patterns |
-|-------------------------------|---------------|---------|------|----------|
-| Chained Function Eventing     | Eventing      | ✕       | ✕    | pipeline |
-| Chained Function Serving      | Serving       | ✓       | ✓    | pipeline |
-| Map-Reduce                    | Serving       | ✓       | ✓    | scatter, gather |
-| Corral (word count)           | Serving       | ✓       | ✕    | scatter, gather |
-| Stacking-Training             | Serving       | ✓       | ✓    | broadcast, gather |
-| Hyperparameter Tuning Halving | Serving       | ✓       | ✓    | broadcast, gather |
-| Video Analytics               | Serving       | ✓       | ✓    | pipeline, scatter |
-| Distributed compilation (gg)  | Serving       | ✕       | ✓    |   |
-| Video decoding (gg)           | Serving       | ✕       | ✓    |   |
+| Benchmark                     | Knative infra | tracing | s3   | Patterns | Num. of Unique Functions |
+|-------------------------------|---------------|---------|------|----------|---|
+| Chained Function Eventing     | Eventing      | ✕       | ✕    | pipeline | 2 |
+| Chained Function Serving      | Serving       | ✓       | ✓    | pipeline | 2 |
+| Map-Reduce                    | Serving       | ✓       | ✓    | scatter, gather | 3 |
+| Corral (word count)           | Serving       | ✓       | ✕    | scatter, gather | 2 |
+| Stacking-Training             | Serving       | ✓       | ✓    | broadcast, gather | 4 |
+| Hyperparameter Tuning Halving | Serving       | ✓       | ✓    | broadcast, gather | 3 |
+| Video Analytics               | Serving       | ✓       | ✓    | pipeline, scatter | 3 |
+| Distributed compilation (gg)  | Serving       | ✕       | ✓    |   |   |
+| Video decoding (gg)           | Serving       | ✕       | ✓    |   |   |
 
 ## Patterns
 
