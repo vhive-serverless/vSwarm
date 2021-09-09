@@ -3,14 +3,15 @@
 | Benchmark                     | Knative infra | tracing | s3   | Patterns | Num. of Unique Functions |
 |-------------------------------|---------------|---------|------|----------|---|
 | Chained Function Eventing     | Eventing      | ✕       | ✕    | pipeline | 2 |
-| Chained Function Serving      | Serving       | ✓       | ✓    | pipeline | 2 |
+| Chained Function Serving      | Serving       | ✓       | ✓    | pipeline, scatter, gather, broadcast | 3 |
 | Map-Reduce                    | Serving       | ✓       | ✓    | scatter, gather | 3 |
-| Corral (word count)           | Serving       | ✓       | ✕    | scatter, gather | 2 |
+| Corral (word count)           | Serving       | ✓       | ✓    | scatter, gather | 2 |
 | Stacking-Training             | Serving       | ✓       | ✓    | broadcast, gather | 4 |
 | Hyperparameter Tuning Halving | Serving       | ✓       | ✓    | broadcast, gather | 3 |
 | Video Analytics               | Serving       | ✓       | ✓    | pipeline, scatter | 3 |
-| Distributed compilation (gg)  | Serving       | ✕       | ✓    |   |   |
-| Video decoding (gg)           | Serving       | ✕       | ✓    |   |   |
+| Distributed compilation (gg)  | Serving       | ✕       | ✓    | scatter, gather | 1 |
+| Video decoding (gg)           | Serving       | ✕       | ✓    | scatter, gather | 1 |
+| Fibonacci (gg)                | Serving       | ✕       | ✓    | scatter, gather | 1 |
 
 ## Patterns
 
