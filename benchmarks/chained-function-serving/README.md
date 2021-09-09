@@ -1,10 +1,10 @@
 # Chained Function Serving
 ![diagram](diagram.png)
 
-This is a basic example benchmark demonstrating how multiple functions can be chained together
-using knative serving. The benchmark consists of two functions, **Producer** and **Consumer*,
-which are used to imitate the producer-consumer design pattern whereby the prior creates some
-object and sends it to the latter, where it is "consumed".
+This is an example benchmark demonstrating how multiple functions can be chained together
+using knative serving. The core of the benchmark consists of two functions, **Producer** and 
+**Consumer*, which are used to imitate the producer-consumer design pattern whereby the prior
+creates some object and sends it to the latter, where it is "consumed".
 
 The consumer is a server which listens on a set port. Upon receiving a call from the producer it
 logs the value that was sent to it, and return an acknowledgement. The producer is a client which
@@ -14,26 +14,73 @@ simultaneously a server which we, as the user, can call in order to trigger the 
 From the control flow perspective, we invoke the producer first, which then sends its payload to
 the consumer. Subsequently the consumer shall reply to the producer, which then replies to us.
 
-The producer is the interface function, implementing the standard helloworld grpc service. The
-producer and consumer use a separate "ProducerConsumer" grpc service for sending the payload
-and receiving the acknowledgement.
+There is also a third function, the **Driver**, which allows us to benchmark gather, scatter, and
+broadcast patterns in addition to the basic pipeline pattern as described above.
+
+In a gather (`fan-in`) experiment the driver will invoke multiple producers which each produce a 
+"capability". The driver then invokes one consumer which receives the list of capabilities and 
+consumes them, thereby we have one function "gather" payloads from multiple other functions.
+
+In a scatter (`fan-out`) experiment the driver invokes a single producer which goes on to send
+payloads to multiple consumers. The broadcast experiment is similar, but the payload (capability)
+is only uploaded once and the same key is sent to all consumers, whereas in scatter experiments
+the producer uploads a separate payload for each consumer and hence each consumer receives a unique
+reference key. 
+
+Due to the way in which keys must be shared and capabilities uploaded in gather, scatter, and
+broadcast experiments, these configurations of the benchmark only support `s3` transfer. The
+basic pipeline configuration (which does not require the use of a driver) also supports the
+`inline` transfer type.
 
 ## Instances
 Number of instances per function in a stable flow:
 | Function | Instances | Is Configurable |
 |----------|-----------|-----------------|
-| Producer | 1 | No |
-| Consumer | 1 | No |
+| Driver | 1 | No |
+| Producer | N | Yes |
+| Consumer | N | Yes |
+
+This benchmark is highly configurable, enabling the benchmarking of 4 distinct patterns, however
+each pattern must be configured in a very specific way which requires additional explanation:
+
+### Pipeline
+
+This is the basic pattern involving just one producer and one consumer. No driver is needed. The
+manifests for the producer and consumer should use just one instance, and the `FANIN` and `FANOUT`
+environment variables should both be set to zero. The producer can be invoked directly with the
+standard `helloworld` grpc call.
+
+### Gather
+
+All three functions are required for this pattern. There should be one driver and one consumer
+instance, and the desired number (`N`) of producer instances defined in their respective
+manifests, where `N` is the fan-in degree. `FANOUT` should be set to 0, and `FANIN` should be set 
+to `N` in each function. The benchmark is started by invoking the driver.
+
+### Scatter
+
+All three functions are used in this pattern. There should be one driver and one producer, and
+the desired number (`N`) of consumers defined in their appropriate manifests, where `N` is the 
+fan-out degree. `FANOUT` should be set to the fan-out degree, `N`, and `FANIN` to 0. The driver is
+the also interface function for this configuration.
+
+### Broadcast
+
+This has a very similar setup to the scatter pattern. Only one driver and producer instance are
+needed, and `N` consumers. `FANIN` and `FANOUT` are both set to 0, and the `BROADCAST` environment
+variable is set to `N`.
 
 ## Parameters
 
 ### Flags
 
-- `addr` - The address of the consumer
+- `addr` - The address of the consumer (in the producer function)
 - `pc` - The port on which the consumer is listening
 - `ps` - The port to which the producer will listen (which is used for invokation)
 - `zipkin` - Address of the zipkin span collector
 - `transferSize` -  Number of KBs to transfer to the consumer
+- `prodEndpoint` - Address of the producer (in the Driver)
+- `consEndpoint` - Address of the consumer (in the Driver)
 
 ### Environment Variables
 
@@ -42,3 +89,5 @@ all benchmarks support all transfer types.
 - `AWS_ACCESS_KEY`, `AWS_SECRET_KEY`, `AWS_REGION` - Standard s3 keys, only needed if the s3
 transfer type is used
 - `ENABLE_TRACING` - Toggles tracing.
+- `FANIN`, `FANOUT`, `BROADCAST` - used to set the benchmark configuration for a specific pattern.
+Refer to the [Instances section](#instances).
