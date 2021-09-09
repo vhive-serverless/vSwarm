@@ -3,7 +3,7 @@
 
 This is an example benchmark demonstrating how multiple functions can be chained together
 using knative serving. The core of the benchmark consists of two functions, **Producer** and 
-**Consumer*, which are used to imitate the producer-consumer design pattern whereby the prior
+**Consumer**, which are used to imitate the producer-consumer design pattern whereby the prior
 creates some object and sends it to the latter, where it is "consumed".
 
 The consumer is a server which listens on a set port. Upon receiving a call from the producer it

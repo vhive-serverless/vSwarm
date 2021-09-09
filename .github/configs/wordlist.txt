@@ -9,6 +9,7 @@ amna
 Amna
 Amna's
 amohoste
+AMPLab
 analytics
 Analytics
 Ansible
@@ -148,6 +149,7 @@ EuroSys
 eval
 eventing
 Eventing
+ExCamera
 FaaS
 faldu
 Faldu
@@ -173,6 +175,7 @@ GG
 Ghoshal
 github
 Golang
+golang
 GOPRIVATE
 goroutine
 Gratz
@@ -183,6 +186,7 @@ grpc
 grpcServer
 grpcurl
 gz
+gVisor
 Harald
 HDDs
 HelloRequest
@@ -197,6 +201,7 @@ http
 https
 Hu
 Hyperparameter
+hyperparameter
 Idgunji
 IEEE
 IEEEMicro
@@ -265,6 +270,7 @@ Linearizable
 linter
 linux
 LLC
+LLVM
 loadStep
 localhost
 logrus
