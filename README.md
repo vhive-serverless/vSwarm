@@ -6,6 +6,12 @@ Welcome! This repository presents a collection of ready-to-run serverless benchm
 typically consisting of a number of interconnected serverless functions, and with a general
 focus on realistic data-intensive workloads.
 
+This suite is a turnkey and fully tested solution meant to used in conjunction with 
+[vHive](https://github.com/ease-lab/vhive), and is compatible with all technologies that it supports,
+namely, containers, Firecracker and gVisor microVMs. The majority of benchmarks support distributed
+tracing with [Zipkin](https://zipkin.io/) which traces both the infra components and the user 
+functions.
+
 ## Directory Structure
 
 - `benchmarks` contains all of the available benchmark source code and manifests. 
@@ -13,6 +19,22 @@ focus on realistic data-intensive workloads.
 - `tools` is for command-line tools and services useful outside of serverless functions, such as 
    deployment or invokation.
 - `runner` is for setting up self-hosted GitHub Actions runners.
+- `docs` contains additional documentation on a number of relevant topics.
+
+## Summary of Benchmarks
+- 2 microbenchmarks for benchmarking chained functions performance, data transfer performance in 
+various patterns (pipeline, scatter, gather), and using different communication medium (AWS S3 
+and inline transfers)
+- 8 real-world benchmarks
+   - MapReduce: [Corral](/benchmarks/corral) (golang), and an [aws-reference](/benchmarks/map-reduce)
+    python implementation of Aggregation Query from the representative 
+    [AMPLab Big Data Benchmark](https://www.cs.cmu.edu/~pavlo/papers/benchmarks-sigmod09.pdf) 
+   1node dataset.
+   - Real-time [video analytics](/benchmarks/video-analytics) (Python and Golang): recognizes objects in a video fragment
+   - ML models training: [stacking ensemble training](/benchmarks/stacking-training) and 
+   [iterative hyperparameter tuning](/benchmarks/tuning-halving)
+   - ExCamera video decoding (gg): decoding of a video in parallel
+   - distributed compilation (gg): compiles LLVM in parallel
 
 ## Running Benchmarks
 
@@ -20,6 +42,8 @@ Details on each specific benchmark can be found in their relative subfolders. Ev
 be run on a knative cluster, and most can also be run locally with `docker-compose`. Please see the
 [running benchmarks document](/docs/running_benchmarks.md) for detailed instructions on how to
 run a benchmark locally or on a cluster.
+
+We have a detailed outline on the benchmarking methodology used, which you can find [here](/docs/methodology.md).
 
 ## Contributing a Benchmark
 
