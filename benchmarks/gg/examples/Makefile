@@ -22,12 +22,24 @@
 
 all: all-image-push
 
-all-image: driver-image
+all-image: driver-fibonacci-image driver-llvm-image driver-excamera-image
 
-all-image-push: gg-image-push
+all-image-push: gg-driver-fibonacci-image-push gg-driver-llvm-image-push gg-driver-excamera-image-push
 
-driver-image: Dockerfile
-	DOCKER_BUILDKIT=1 docker build --tag vhiveease/gg-driver:latest .
+driver-fibonacci-image: Dockerfile
+	DOCKER_BUILDKIT=1 docker build --tag vhiveease/gg-driver-fibonacci:latest --build-arg target_arg=fibonacci .
 
-gg-image-push: driver-image
-	docker push vhiveease/gg-driver:latest
+driver-llvm-image: Dockerfile
+	DOCKER_BUILDKIT=1 docker build --tag vhiveease/gg-driver-llvm:latest --build-arg target_arg=llvm .
+
+driver-excamera-image: Dockerfile
+	DOCKER_BUILDKIT=1 docker build --tag vhiveease/gg-driver-excamera:latest --build-arg target_arg=excamera .
+
+gg-driver-fibonacci-image-push: driver-fibonacci-image
+	docker push vhiveease/gg-driver-fibonacci:latest
+
+gg-driver-llvm-image-push: driver-llvm-image
+	docker push vhiveease/gg-driver-llvm:latest
+
+gg-driver-excamera-image-push: driver-excamera-image
+	docker push vhiveease/gg-driver-excamera:latest

@@ -4,9 +4,11 @@ cd $DIR/../
 
 cd /app/llvm
 
-USAGE="$0 <JOBS-COUNT>"
+USAGE="$0 <ADDR> <PORT> <JOBS-COUNT>"
 
-JOBS_COUNT=${1?$USAGE}
+ADDR=${1?$USAGE}
+PORT=${2?$USAGE}
+JOBS_COUNT=${3?$USAGE}
 
 if [ ! -d "llvm-project" ]; then
   printf "0. Clone LLVM from Github (it may take some time)\n"
@@ -34,4 +36,4 @@ printf "6. Input trunk:\n"
 cat bin/llvm-tblgen
 
 printf "7. Build llvm-tblgen\n"
-gg force --jobs=$JOBS_COUNT --engine=vhive=${ADDR} bin/llvm-tblgen
+gg force --jobs=$JOBS_COUNT --engine=vhive=${ADDR}:${PORT} bin/llvm-tblgen

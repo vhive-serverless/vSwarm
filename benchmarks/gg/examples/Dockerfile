@@ -38,7 +38,7 @@ ARG target_arg
 ENV target=$target_arg
 COPY ./setup_gg.sh .
 RUN ./setup_gg.sh
-COPY ./fibonacci ./fibonacci
+COPY ./${target} ./${target}
 ENV GG_LAMBDA_ROLE=arn:aws:iam::356764711652:role/gg
 ENV AWS_REGION=us-west-1
 ENV GG_MODELPATH=/app/gg/src/models/wrappers
