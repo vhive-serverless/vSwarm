@@ -1,7 +1,7 @@
 apiVersion: serving.knative.dev/v1
 kind: Service
 metadata:
-  name: gg-driver
+  name: gg-driver-llvm
   namespace: default
 spec:
   template:
@@ -11,8 +11,9 @@ spec:
           autoscaling.knative.dev/minScale: "1"
     spec:
       containers:
-        - image: docker.io/vhiveease/gg-driver:latest
+        - image: docker.io/vhiveease/gg-driver-llvm:latest
           imagePullPolicy: Always
+          args: ["-addr", "gg-driver-llvm.default.svc.cluster.local", "-p", "80"]
           env:
             - name: AWS_ACCESS_KEY_ID
               value: ${AWS_ACCESS_KEY}
@@ -25,5 +26,5 @@ spec:
             - name: GG_STORAGE_URI
               value: s3://${AWS_ACCESS_KEY}:${AWS_SECRET_KEY}@gg-ease/?region=us-west-1
           ports:
-            - containerPort: 50051
+            - containerPort: 80
               name: h2c

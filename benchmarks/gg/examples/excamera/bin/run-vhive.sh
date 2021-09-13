@@ -1,8 +1,11 @@
 #!/bin/bash -e
 
-USAGE="$0 <JOBS-COUNT>"
+USAGE="$0 <ADDR> <PORT> <JOBS-COUNT>"
 
-JOBS_COUNT=${1?$USAGE}
+ADDR=${1?$USAGE}
+PORT=${2?$USAGE}
+JOBS_COUNT=${3?$USAGE}
+
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 cd $DIR/../
 
@@ -19,7 +22,7 @@ printf "3. Execute 'make' to create thunks\n"
 gg-infer make -j$(nproc)
 
 printf "4. Run video processing jobs\n"
-gg force --jobs=$JOBS_COUNT --engine=vhive=${ADDR} *.ivf
+gg force --jobs=$JOBS_COUNT --engine=vhive=${ADDR}:${PORT} *.ivf
 
 printf "5. Build output.avi\n"
 ls *-vpxenc.ivf | while read each; do echo "file '$each'" >> mylist.txt; done
