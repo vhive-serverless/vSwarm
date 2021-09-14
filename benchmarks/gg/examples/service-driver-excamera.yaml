@@ -13,7 +13,7 @@ spec:
       containers:
         - image: docker.io/vhiveease/gg-driver-excamera:latest
           imagePullPolicy: Always
-          args: ["-addr", "gg-driver-excamera.default.svc.cluster.local", "-p", "80"]
+          args: ["-addr", "gg-port-0.default.svc.cluster.local", "-p", "80"]
           env:
             - name: AWS_ACCESS_KEY_ID
               value: ${AWS_ACCESS_KEY}
