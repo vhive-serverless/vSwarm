@@ -51,7 +51,7 @@ func (s *server) SayHello(ctx context.Context, in *pb.HelloRequest) (*pb.HelloRe
 
 func main() {
 	addr = flag.String("addr", "gg-port-0.default.svc.cluster.local", "Decoder address")
-	servePort := flag.String("ps", "80", "Decoder port")
+	servePort := flag.String("ps", ":80", "Decoder port")
 	port = flag.String("p", "80", "Decoder port")
 
 	flag.Parse()

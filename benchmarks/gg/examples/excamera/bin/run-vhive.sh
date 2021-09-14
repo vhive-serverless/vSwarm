@@ -6,10 +6,15 @@ ADDR=${1?$USAGE}
 PORT=${2?$USAGE}
 JOBS_COUNT=${3?$USAGE}
 
-DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
-cd $DIR/../
+# DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
+# cd $DIR/../
 
 cd /app/excamera
+
+apt -y install ffmpeg
+./bin/prepare.sh ./drop.avi
+git clone https://github.com/excamera/excamera-static-bins.git
+export EXCAMERA_BIN_DIR=/app/excamera/excamera-static-bins
 
 printf "1. Generate Makefile\n"
 ./gen_makefile.py 0 6 16 1 > Makefile

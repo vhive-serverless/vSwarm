@@ -1,6 +1,6 @@
 #!/bin/bash
-DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
-cd $DIR/../
+# DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
+# cd $DIR/../
 
 cd /app/llvm
 
@@ -10,11 +10,14 @@ ADDR=${1?$USAGE}
 PORT=${2?$USAGE}
 JOBS_COUNT=${3?$USAGE}
 
-if [ ! -d "llvm-project" ]; then
-  printf "0. Clone LLVM from Github (it may take some time)\n"
+apt-get -y install cmake
 
-  git clone https://github.com/llvm/llvm-project
-fi
+# if [ ! -d "llvm-project" ]; then
+#   printf "0. Clone LLVM from Github (it may take some time)\n"
+
+#   git clone https://github.com/llvm/llvm-project
+# fi
+tar -xzvf llvm.tar.gz
 
 printf "1. Clear workspace\n"
 ./bin/clear.sh
