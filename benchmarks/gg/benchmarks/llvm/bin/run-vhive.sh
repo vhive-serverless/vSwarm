@@ -10,6 +10,7 @@ ADDR=${1?$USAGE}
 PORT=${2?$USAGE}
 JOBS_COUNT=${3?$USAGE}
 
+apt-get update
 apt-get -y install cmake
 
 # if [ ! -d "llvm-project" ]; then

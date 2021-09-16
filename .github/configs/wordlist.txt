@@ -20,6 +20,7 @@ Apache
 api
 apiserver
 apiVersion
+archiver
 arg
 args
 artemiy
@@ -31,11 +32,15 @@ ASBD
 Asheim
 ASPLOS
 Atamel
+autodetect
 autoscaling
 autostart
+avi
+AVI
 aws
 backend
 Backend
+backends
 balancer
 baseurl
 bc
@@ -68,6 +73,8 @@ cloudlab
 CloudLab
 CloudWatch
 cloudwatch
+CMake
+cmake
 CMP
 CMPMSI
 CNCF
@@ -102,6 +109,7 @@ Ctrl
 Daglis
 datacenter
 Datacenter
+dataflows
 dataset
 david
 DBG
@@ -110,6 +118,7 @@ DCNs
 De
 debian
 deployer
+deps
 dev
 devmapper
 df
@@ -137,6 +146,7 @@ Edouard
 edu
 ef
 EndExperiment
+endian
 endpointsFile
 ensemble
 env
@@ -150,6 +160,7 @@ eval
 eventing
 Eventing
 ExCamera
+excamera
 FaaS
 faldu
 Faldu
@@ -158,9 +169,12 @@ Falsafi
 fccd
 Ferdman
 FETCHDIR
+fibonacci
 filesystem
 fmt
 Frontend
+frontend
+frontends
 fullstorydev
 FullTimestamp
 funcNames
@@ -271,6 +285,7 @@ linter
 linux
 LLC
 LLVM
+llvm
 loadStep
 localhost
 logrus
@@ -379,6 +394,7 @@ preconfigured
 Prefetch
 Prefetched
 Prefetching
+preprocessor
 priyank
 Priyank
 proc
@@ -432,6 +448,8 @@ Scalability
 Scalable
 schall
 Schall
+sdk
+SDK
 Seiculescu
 Sep
 serverfull
@@ -476,6 +494,7 @@ subfolders
 svc
 swlh
 sys
+tblgen
 TCO
 TempReader
 TestProfileIncrementConfiguration
@@ -564,3 +583,18 @@ zA
 Zhu
 zipkin
 Zipkin
+
+EsjWHBuJ
+HZPSfs
+TIUi
+eo
+fItQQrIC
+mM
+CKLaRdBFZA
+VOIOYOzqPDKzUblafpIDyiGTKyymk
+dPT
+Fi
+GDOUdjLVlBznCj
+HvqGhIcV
+YvOkEE
+tpA
