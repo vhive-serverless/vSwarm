@@ -1,6 +1,6 @@
 # Build LLVM Using `gg`
 
-[https://llvm.org/](LLVM)
+[LLVM](https://llvm.org/)
 
 ## Prerequisites
 
@@ -8,7 +8,7 @@ Follow [the instructions](https://github.com/StanfordSNR/gg/blob/master/README.m
 
 ## Build
 
-The time required to compile software is an evergreen frustration for software developers. Using model substitution, we implemented models for seven popular stages of a C or C++ software build pipeline: the preprocessor, compiler, assembler, linker, archiver, indexer, and strip. These allow us to automatically transform some software build processes (e.g., a Makefile or build.ninja file) into an expression in gg IR, which can then be executed with thousands-way parallelism on cloud-functions platforms to obtain the same results as if the build system hadbeen executed locally. You can read more on page ninth of [the paper](https://www.usenix.org/system/files/atc19-fouladi.pdf).
+The time required to compile software is an evergreen frustration for software developers. Using model substitution, we implemented models for seven popular stages of a C or C++ software build pipeline: the preprocessor, compiler, assembler, linker, archiver, indexer, and strip. These allow us to automatically transform some software build processes (e.g., a Makefile or build.ninja file) into an expression in gg IR, which can then be executed with thousands-way parallelism on cloud-functions platforms to obtain the same results as if the build system had been executed locally. You can read more on page ninth of [the paper](https://www.usenix.org/system/files/atc19-fouladi.pdf).
 
 Let's see how you can speed up the build of LLVM using `gg`.
 

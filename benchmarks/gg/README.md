@@ -35,7 +35,7 @@ gg force --jobs 2 --engine vhive=http://gg-framework.default.123.456.7.890.sslip
 Other parameters to `gg force` can be reviewed by simply calling `gg force` with no parameters.
 However, the only required one to work with vHive is `--engine vhive=<url>`.
 
-Any of `gg`'s supported storagge backends (e.g., Amazon S3 and Google Cloud Storage) work with vHive. Please see `gg`'s [README](https://github.com/StanfordSNR/gg#readme) for how to set the _GG_STORAGE_URI_ variable.
+Any of `gg`'s supported storage backends (e.g., Amazon S3 and Google Cloud Storage) work with vHive. Please see `gg`'s [README](https://github.com/StanfordSNR/gg#readme) for how to set the _GG_STORAGE_URI_ variable.
 
 ### Examples
 `gg` includes a number of [examples](https://github.com/StanfordSNR/gg/tree/master/examples) which can be run with vHive as the backend.
