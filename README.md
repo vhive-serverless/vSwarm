@@ -35,6 +35,9 @@ and inline transfers)
    [iterative hyperparameter tuning](/benchmarks/tuning-halving)
    - ExCamera video decoding (gg): decoding of a video in parallel
    - distributed compilation (gg): compiles LLVM in parallel
+   - fibonacci (gg): classic recursive implementation to find `n`th number in the sequence by calculating `n-1` and `n-2` in parallel
+
+Refer to [this document](/benchmarks/README.md) for more detail on the differences and supported features of each benchmark.
 
 ## Running Benchmarks
 
@@ -59,3 +62,11 @@ We also have some basic requirements for contributions the the repository, which
 in detail in our 
 [Contributing to vHive](/docs/contributing_to_vhive.md)
 document.
+
+### Maintainers
+
+- ML benchmarks, invoker, utils - Dmitrii Ustiugov: [GitHub](https://github.com/ustiugov),
+[twitter](https://twitter.com/DmitriiUstiugov), [web page](http://homepages.inf.ed.ac.uk/s1373190/)
+- Video Analytics and Map-Reduce benchmarks - Shyam Jesalpura
+- GG benchmarks - Francisco Romero and Clemente Farias
+- Everything else - Michal Baczun
