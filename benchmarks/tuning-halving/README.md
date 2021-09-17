@@ -14,6 +14,28 @@ repeated until only one model remains.
 
 This benchmark relies on s3 for sharing models between driver and trainer.
 
+## Running this Benchmark
+
+1. Make sure to set the `AWS_ACCESS_KEY` and `AWS_SECRET_KEY` environment variables.
+    The kn_deploy script will then substitute these values into the knative manifests.
+    Example:
+    ```bash               
+    export AWS_ACCESS_KEY=ABCDEFGHIJKLMNOPQRST
+    export AWS_SECRET_KEY=ABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFGHIJKLMN
+    ```
+
+2. Deploy the necessary functions using the `kn_deploy` script.
+    ```bash
+    ../../tools/kn_deploy.sh ./knative_yamls/s3/*
+    ```
+    Only one set of manifests is provided by default for this benchmark. Both of the manifests in
+    the `knative_yamls/s3` folder must be deployed. These default manifests deploy functions with
+    the `s3` transfer type enabled, and with tracing turned off.
+
+3. Invoke the benchmark. The interface function of this benchmark is named `driver`. It can be
+    invoked using the invoker or our test client, as described in the 
+    [running benchmarks](/docs/running_benchmarks.md) document.
+
 ## Instances
 Number of instances per function in a stable flow:
 | Function | Instances | Is Configurable |

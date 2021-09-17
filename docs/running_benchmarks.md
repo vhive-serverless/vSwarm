@@ -7,16 +7,18 @@ for instructions on testing benchmarks locally with docker-compose see the [runn
 
 ### Running Benchmarks on Knative Clusters
 
-You will need a vHive Knative cluster. To set up a stock knative cluster consider following the vHive
+**You will need a vHive Knative cluster**. To set up a stock knative cluster see the vHive
 [stock knative setup guide](https://github.com/ease-lab/vhive/blob/main/docs/developers_guide.md#testing-stock-knative-setup-or-images)
 for a default knative cluster, or consider using the 
 [vHive quickstart guide](https://github.com/ease-lab/vhive/blob/main/docs/quickstart_guide.md).
 
 1. Deploy the benchmark functions as Knative services. The manifests for each benchmark function
     can be found in a sub-directory of the benchmark, e.g. 
-    `/benchmarks/chained-function-serving/knative_yamls/inline/`. Benchmarks tend to have multiple
-    sets of manifests which are used to deploy functions using different configurations, similar to
-    how there can be multiple docker-compose manifests for local testing.
+    `/benchmarks/chained-function-serving/knative_yamls/inline/`.
+    Follow the commands described in each benchmark folder to deploy any mix of functions.
+     Benchmarks tend to have multiple
+    sets of manifests which are used to deploy functions using different configurations, for
+    example to toggle tracing or choosing which transfer type to use.
     ```bash
     ./tools/kn_deploy.sh ./benchmarks/path/to/manifests/*
     ```
@@ -51,6 +53,15 @@ for a default knative cluster, or consider using the
     ./invoker -port 80 -dbg -time 60 -rps 0.016667
     ``` 
 
+    *Alternatively*, the test client can be used to invoke the benchmark. This is a bare-bones
+    client which invokes the function at the given address with a helloworld grpc message, similar
+    to how one might use grpcurl, however it is compatible with more manifest configurations.
+    ```bash
+    cd ./tools/test-client
+    go build ./test-client.go
+    ./test-client -addr <HOSTNAME>:<PORT>
+    ```
+
 3. If needed, the logs of individual functions can be checked using `kubectl logs`:
     ```bash
     # find the name of the pod
@@ -59,6 +70,41 @@ for a default knative cluster, or consider using the
     # view the logs of the pod
     kubectl logs <POD_NAME> -c user-container
     ```
+
+### Tracing
+
+In benchmarks which support tracing (refer to [this summary](/benchmarks/README.md)), this can be
+toggled by setting the `ENABLE_TRACING` environment variable to "true" or "false". This variable
+should be included in every function, which prompts the function to emit traces which shall be
+collected by a zipkin span collector.
+
+Before deploying the functions, the zipkin span collector has to be set up. In vHive the
+[`setup_zipkin.sh`](https://github.com/ease-lab/vhive/blob/main/scripts/setup_zipkin.sh) script can
+be used to do this. Refer to the [knative tracing](https://github.com/ease-lab/vhive/blob/main/docs/developers_guide.md#knative-request-tracing)
+section of the vHive developers guide for further information.
+
+Once the span collector is deployed, the benchmark functions can be deployed as normal.
+
+### Debugging
+
+Most of the workloads in this suite support docker-compose, which enables the functionality of the
+benchmark to be tested outside of the knative cluster. Please see the end-to-end CI files for any
+one of these benchmarks for an example of how docker-compose can be run.
+
+Logs for functions running inside knative can also be accessed to help with debugging, as is done
+in our end-to-end CI. Example:
+```bash
+kubectl logs -n default -c user-container -l serving.knative.dev/service=gg-driver-llvm --tail=-1
+```
+If a pod experiences an error and has to restart, the old logs can still be accessed by adding
+`-p` to the above command.
+
+Outside of the CI, when running a benchmark by hand, it can be very useful to "enter" the function
+ pod by using its bash console, letting you run scripts manually or check the contents or access 
+ permissions of files, and so on. For example:
+```bash
+kubectl exec -it -c user-container <POD NAME> -- /bin/sh
+```
 
 ## File Transfer
 

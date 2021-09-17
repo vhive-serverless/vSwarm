@@ -32,6 +32,42 @@ broadcast experiments, these configurations of the benchmark only support `s3` t
 basic pipeline configuration (which does not require the use of a driver) also supports the
 `inline` transfer type.
 
+## Running this Benchmark
+
+1. If s3 is used, make sure to set the `AWS_ACCESS_KEY` and `AWS_SECRET_KEY` environment variables!
+    The kn_deploy script will then substitute these values into the knative manifests.
+    Example:
+    ```bash               
+    export AWS_ACCESS_KEY=ABCDEFGHIJKLMNOPQRST
+    export AWS_SECRET_KEY=ABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFGHIJKLMN
+    ```
+
+2. Deploy the necessary functions using the `kn_deploy` script.
+    ```bash
+    ../../tools/kn_deploy.sh ./knative_yamls/s3/*
+    ```
+    Any sub-folder in the `knative_yamls` directory can be used, and all of the manifests therein
+    must be deployed.
+
+    The sub-folders each contain an example configuration, and the can differ by the transfer type
+    used as well as the configuration used. Please see the [instances](#instances) section of this
+    document for further explanation of the different configurations available for this benchmark.
+
+    `fanin-basic` and `fanout-basic` contain manifests for the fan-in and fan-out configuration
+    respectively. They both use the s3 transfer type and have tracing disabled.
+
+    `inline` contains the most generic example of this benchmark, which is a pipeline configuration
+    using the inline transfer type and with tracing disabled.
+
+    `s3` contains another fan-in s3 configuration, also with tracing disabled. The fan-in degree
+    and transfer size in this configuration differ from the `fanin-basic` configuration.
+    
+
+3. Invoke the benchmark. The interface function of this benchmark depends on which configuration is
+    has been deployed: `producer` should be used in the `pipeline` configuration, and `driver` in
+    all other cases. The appropriate function should be invoked using the invoker or our test 
+    client, as described in the [running benchmarks](/docs/running_benchmarks.md) document.
+
 ## Instances
 Number of instances per function in a stable flow:
 | Function | Instances | Is Configurable |

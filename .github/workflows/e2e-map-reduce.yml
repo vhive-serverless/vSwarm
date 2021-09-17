@@ -121,7 +121,7 @@ jobs:
         env:
           AWS_ACCESS_KEY: ${{ secrets.AWS_ACCESS_KEY }}
           AWS_SECRET_KEY: ${{ secrets.AWS_SECRET_KEY }}
-        run: ../tools/kn_deploy.sh ./map-reduce/manifests/s3/*
+        run: ../tools/kn_deploy.sh ./map-reduce/knative_yamls/s3/*
 
       - name: Test
         working-directory: tools/test-client

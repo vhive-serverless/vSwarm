@@ -7,6 +7,28 @@ Corral is a MapReduce framework designed to be deployed to serverless platforms,
 MapReduce. Much of the design philosophy was inspired by Yelp's mrjob -- corral retains mrjob's ease-of-use while gaining the 
 type safety and speed of Go.
 
+## Running this Benchmark
+
+1. Make sure to set the `AWS_ACCESS_KEY` and `AWS_SECRET_KEY` environment variables.
+    The kn_deploy script will then substitute these values into the knative manifests.
+    Example:
+    ```bash               
+    export AWS_ACCESS_KEY=ABCDEFGHIJKLMNOPQRST
+    export AWS_SECRET_KEY=ABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFGHIJKLMN
+    ```
+
+2. Deploy the necessary functions using the `kn_deploy` script.
+    ```bash
+    ../../tools/kn_deploy.sh ./knative_yamls/*
+    ```
+    Only one set of manifests is provided by default for this benchmark. Both of the manifests in
+    the `knative_yamls` folder must be deployed. These default manifests deploy functions with
+    the `s3` transfer type enabled, and with tracing turned off.
+
+3. Invoke the benchmark. The interface function of this benchmark is named `word-count-driver`. It can be
+    invoked using the invoker or our test client, as described in the 
+    [running benchmarks](/docs/running_benchmarks.md) document.
+
 ## Instances
 Number of instances per function in a stable flow:
 | Function | Instances | Is Configurable |
