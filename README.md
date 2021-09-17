@@ -65,8 +65,9 @@ document.
 
 ### Maintainers
 
-- ML benchmarks, invoker, utils - Dmitrii Ustiugov: [GitHub](https://github.com/ustiugov),
+- Invoker, timeseriesdb, runners - Dmitrii Ustiugov: [GitHub](https://github.com/ustiugov),
 [twitter](https://twitter.com/DmitriiUstiugov), [web page](http://homepages.inf.ed.ac.uk/s1373190/)
-- Video Analytics and Map-Reduce benchmarks - Shyam Jesalpura
-- GG benchmarks - Francisco Romero and Clemente Farias
-- Everything else - Michal Baczun
+- ML benchmarks and utils (tracing and storage modules) - Michal Baczun [GitHub](https://github.com/MBaczun)
+- ML benchmarks - Rustem Feyzkhanov [GitHub](https://github.com/ryfeus)
+- Video Analytics and Map-Reduce benchmarks - Shyam Jesalpura [GitHub](https://github.com/shyamjesal)
+- GG benchmarks - Francisco Romero [GitHub](https://github.com/faromero) and Clemente Farias [GitHub](https://github.com/cbfariasc)
