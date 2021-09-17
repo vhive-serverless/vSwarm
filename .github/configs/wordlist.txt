@@ -172,6 +172,7 @@ Farias
 fccd
 Ferdman
 FETCHDIR
+Feyzkhanov
 fibonacci
 filesystem
 fmt
@@ -445,6 +446,7 @@ RPERF
 rsquo
 runtime
 runtimes
+Rustem
 s
 SABRes
 SayHello
