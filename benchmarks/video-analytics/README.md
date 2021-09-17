@@ -13,6 +13,33 @@ service. Upon invokation, it will send the video fragment to the driver which th
 singular frames to the recogniser. The result of the object recognition is relayed back to the 
 callee, and is displayed in order from most likely to least likely tag.
 
+## Running this Benchmark
+
+1. If s3 is used, make sure to set the `AWS_ACCESS_KEY` and `AWS_SECRET_KEY` environment variables!
+    The kn_deploy script will then substitute these values into the knative manifests.
+    Example:
+    ```bash               
+    export AWS_ACCESS_KEY=ABCDEFGHIJKLMNOPQRST
+    export AWS_SECRET_KEY=ABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFGHIJKLMN
+    ```
+
+2. Deploy the necessary functions using the `kn_deploy` script.
+    ```bash
+    ../../tools/kn_deploy.sh ./knative_yamls/s3/*
+    ```
+    Any sub-folder in the `knative_yamls` directory can be used, and all of the manifests therein
+    must be deployed.
+
+    `s3` contains manifests configured to use s3 for file transfer, with tracing disabled. 
+    The functions deployed using this set of manifests will have `TRANSFER_TYPE` set to `S3`.
+
+    `inline` contains manifests that use the inline transfer type with tracing disabled. 
+    Functions deployed using this set of manifests will have `TRANSFER_TYPE` set to `INLINE`.
+
+3. Invoke the benchmark. The interface function of this benchmark is named `streaming`. It can be
+    invoked using the invoker or our test client, as described in the 
+    [running benchmarks](/docs/running_benchmarks.md) document.
+
 ## Instances
 Number of instances per function in a stable flow:
 | Function | Instances | Is Configurable |

@@ -121,7 +121,7 @@ jobs:
         env:
           AWS_ACCESS_KEY: ${{ secrets.AWS_ACCESS_KEY }}
           AWS_SECRET_KEY: ${{ secrets.AWS_SECRET_KEY }}
-        run: ../tools/kn_deploy.sh ./stacking-training/manifests/s3/*
+        run: ../tools/kn_deploy.sh ./stacking-training/knative_yamls/s3/*
 
       - name: Build invoker
         working-directory: tools/invoker
