@@ -1,8 +1,8 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-# vHive Benchmarking Suite
+# vSwarm - Serverless Benchmarking Suite
 
-Welcome! This repository presents a collection of ready-to-run serverless benchmarks, each 
+Welcome! vSwarm is a collection of ready-to-run serverless benchmarks, each 
 typically consisting of a number of interconnected serverless functions, and with a general
 focus on realistic data-intensive workloads.
 
