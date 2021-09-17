@@ -1,6 +1,6 @@
 # Running Benchmarks
 
-All of the benchmarks in this suite can be run on a Knative cluster. The majority of them can also
+All of the benchmarks in the vSwarm benchmarking suite can be run on a Knative cluster. The majority of them can also
 be run locally with docker-compose to test and demonstrate their functionality without serverless 
 deployment. This document is concerned with running benchmarks with [vHive](https://github.com/ease-lab/vhive),
 for instructions on testing benchmarks locally with docker-compose see the [running locally guide](./running_locally.md).
@@ -87,7 +87,7 @@ Once the span collector is deployed, the benchmark functions can be deployed as 
 
 ### Debugging
 
-Most of the workloads in this suite support docker-compose, which enables the functionality of the
+Most of the workloads in vSwarm support docker-compose, which enables the functionality of the
 benchmark to be tested outside of the knative cluster. Please see the end-to-end CI files for any
 one of these benchmarks for an example of how docker-compose can be run.
 
@@ -111,7 +111,7 @@ kubectl exec -it -c user-container <POD NAME> -- /bin/sh
 When transferring files - or any other payload or message - either inline or external transfer could
 be used. Inline transfer sends the payload over http, via the load balancer within knative. With
 external transfer a service such as `s3` can be used, where one function uploads data to an agreed
-s3 bucket, and another pulls data from this bucket when prompted. Most benchmarks in this suite 
+s3 bucket, and another pulls data from this bucket when prompted. Most benchmarks in vSwarm
 support both inline and s3 transfer, but sometimes only one or the other is supported. 
 
 If inline transfer is used, no additional flags or environment variables need to be passed or set, 

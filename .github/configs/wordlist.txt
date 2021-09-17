@@ -565,6 +565,10 @@ vmID
 vmIncrStep
 VMs
 Volos
+vSwarm
+VSwarm
+vswarm
+vSwarm's
 warmUpTime
 wc
 WDDD
