@@ -126,9 +126,14 @@ jobs:
         if: ${{ always() }}
         run: |
           set -x
-          kubectl logs -n default -c user-container -l serving.knative.dev/service=gg-port-0
-          kubectl logs -n default -c user-container -l serving.knative.dev/service=gg-driver-llvm
+          kubectl get pods -A
+          kubectl logs -n default -c user-container -l serving.knative.dev/service=gg-port-0 --tail=-1
+          kubectl logs -n default -c user-container -l serving.knative.dev/service=gg-driver-llvm --tail=-1
+          sleep 10
+          kubectl logs -n default -c user-container -p -l serving.knative.dev/service=gg-driver-llvm --tail=-1
 
       - name: Down
         if: ${{ always() }}
-        run: kn service delete --all --namespace default --wait
+        run: |
+          sleep 20
+          kn service delete --all --namespace default --wait
