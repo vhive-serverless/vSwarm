@@ -35,8 +35,14 @@ on:
   workflow_dispatch:
   push:
     branches: [ main ]
+    paths:
+      - 'benchmarks/corral/*'
+      - 'utils/*'
   pull_request:
     branches: [ main ]
+    paths:
+      - 'benchmarks/corral/*'
+      - 'utils/*'
 
 env:
   GOOS: linux
