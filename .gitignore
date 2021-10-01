@@ -23,6 +23,8 @@
 
 # Binaries
 vhive
+tools/deployer/deployer
+tools/invoker/invoker
 
 # Created by https://www.toptal.com/developers/gitignore/api/vim,visualstudiocode,go,intellij+all,windows,linux,macos,python
 # Edit at https://www.toptal.com/developers/gitignore?templates=vim,visualstudiocode,go,intellij+all,windows,linux,macos,python
