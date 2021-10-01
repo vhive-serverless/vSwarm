@@ -79,7 +79,7 @@ LATEST_URL=$(curl -s https://api.github.com/repos/actions/runner/releases/latest
 curl -C - -o actions-runner.tar.gz -L $LATEST_URL
 tar xzf actions-runner.tar.gz
 ./bin/installdependencies.sh
-./config.sh --url https://github.com/ease-lab/vhive-benchmarking --labels stock-knative --token $TOKEN
+./config.sh --url https://github.com/ease-lab/vSwarm --labels stock-knative --token $TOKEN
 
 tee /etc/systemd/system/github-runner.service <<END
 [Unit]
