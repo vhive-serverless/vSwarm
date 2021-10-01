@@ -32,7 +32,7 @@ GH_ACCESS_TOKEN=... ansible-playbook -u YOUR_SSH_USERNAME -i REMOTE_HOSTNAME, de
 ## Delete All Runners and Start New _N_ Runners
 
 ```bash
-GH_ACCESS_TOKEN=... ./scripts/self-hosted-kind/easy-recreate.sh REMOTE_HOSTNAME N
+GH_ACCESS_TOKEN=... ./runner/easy-recreate.sh REMOTE_HOSTNAME N
 ```
 
 ## Restarting the Host
