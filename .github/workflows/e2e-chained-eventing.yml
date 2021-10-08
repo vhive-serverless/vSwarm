@@ -25,7 +25,7 @@ name: Chained Eventing End-to-End Tests
 on:
   workflow_dispatch:
   schedule:
-    - cron:  '0 12 * * *'
+    - cron:  '0 9 * * 1'
   push:
     branches: [ main ]
     paths:
