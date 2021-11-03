@@ -91,7 +91,7 @@ def get(key, doPickle = True):
         if not doPickle:
             return response['Body'].read()
         else:
-            return pickle.loads(response['Body'].read())
+            return pickle.loads(response)
     elif transferType == XDT:
         log.fatal("XDT is not yet supported")
     elif transferType == ELASTICACHE:
@@ -99,6 +99,6 @@ def get(key, doPickle = True):
         if not doPickle:
             return response['Body'].read()
         else:
-            return pickle.loads(response['Body'].read())
+            return pickle.loads(response)
     else:
          log.fatal("unsupported transfer type!")

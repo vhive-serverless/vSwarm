@@ -23,6 +23,9 @@
 test:
 	python3 -m unittest storage_test.MyTest.test_s3
 
+test-elasticache:
+	python3 -m unittest storage_test.MyTest.test_elasticache
+
 test-man:
 	echo "Nothing to test manually"
 

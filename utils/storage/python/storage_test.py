@@ -33,7 +33,7 @@ class MyTest(unittest.TestCase):
         self.assertEqual(storage.get("aws-test-key"), msg)
 
     def test_elasticache(self):
-        storage.init("ELASTICACHE","redis://test2.0vgvbw.ng.0001.usw1.cache.amazonaws.com:6379")
+        storage.init("ELASTICACHE","redis://test5.0vgvbw.ng.0001.usw1.cache.amazonaws.com:6379")
         self.assertEqual(storage.elasticache_client.ping(), True)
         msg = b"test msg"
         storage.put("elasticache-test-key", msg)
