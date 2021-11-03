@@ -52,6 +52,18 @@ func (s *ubenchServer) FetchByte(ctx context.Context, str *pb.ReductionRequest) 
 				}
 			}(capability)
 		}
+	}else if s.transferType == ELASTICACHE {
+		for _, capability := range str.Capability {
+			go func(capability string) {
+				payloadSize, err := fetchFromRedis(ctx, capability)
+				if err != nil {
+					errorChannel <- err
+				} else {
+					log.Printf("[consumer] Consumed %d bytes\n", payloadSize)
+					errorChannel <- nil
+				}
+			}(capability)
+		}
 	} else if s.transferType == XDT {
 		for _, capability := range str.Capability {
 			go func(capability string) {

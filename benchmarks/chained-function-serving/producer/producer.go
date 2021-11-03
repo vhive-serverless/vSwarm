@@ -33,6 +33,7 @@ import (
 	"github.com/aws/aws-sdk-go/service/s3/s3manager"
 	sdk "github.com/ease-lab/vhive-xdt/sdk/golang"
 	"github.com/ease-lab/vhive-xdt/utils"
+	"github.com/go-redis/redis/v8"
 	"math/rand"
 	"net"
 	"os"
@@ -74,7 +75,9 @@ const (
 	INLINE        = "INLINE"
 	XDT           = "XDT"
 	S3            = "S3"
+	ELASTICACHE = "ELASTICACHE"
 	AWS_S3_BUCKET = "vhive-prodcon-bench"
+	AWS_ELASTICACHE_BENCH = "test5.0vgvbw.ng.0001.usw1.cache.amazonaws.com:6379"
 	TOKEN         = ""
 )
 
@@ -83,6 +86,7 @@ var (
 	SECRET_KEY    string
 	AWS_S3_REGION string
 	S3_SESSION    *session.Session
+	REDIS_CLIENT *redis.Client
 )
 
 func setAWSCredentials() {
@@ -108,6 +112,11 @@ func setAWSCredentials() {
 		log.Fatalf("[consumer] Failed establish s3 session: %s", err)
 	}
 	fmt.Printf("USING AWS ID: %v", AKID)
+	REDIS_CLIENT = redis.NewClient(&redis.Options{
+		Addr:     AWS_ELASTICACHE_BENCH,
+		Password: "", // no password set
+		DB:       0,  // use default DB
+	})
 }
 
 func uploadToS3(ctx context.Context, payloadData []byte, randomStr string) string {
@@ -133,6 +142,24 @@ func uploadToS3(ctx context.Context, payloadData []byte, randomStr string) strin
 	}
 	return key
 }
+
+func uploadToRedis(ctx context.Context, payloadData []byte, randomStr string) string {
+	span := tracing.Span{SpanName: "S3 put", TracerName: "S3 put - tracer"}
+	ctx = span.StartSpan(ctx)
+	defer span.EndSpan()
+
+	log.Infof("Uploading %d bytes to ElastiCache", len(payloadData))
+	key := fmt.Sprintf("payload_bytes_%s.txt", randomStr)
+
+	err := REDIS_CLIENT.Set(ctx, key, payloadData, 0).Err()
+	if err != nil {
+		log.Fatalf("Unable to upload %q to redis %q, %v", key, AWS_S3_BUCKET, err.Error())
+	}
+	log.Infof("[producer] Successfully uploaded %q to redis bucket %q", key, AWS_S3_BUCKET)
+
+	return key
+}
+
 func getGRPCclient(addr string) (pb_client.ProducerConsumerClient, *grpc.ClientConn) {
 	// establish a connection
 	var conn *grpc.ClientConn
@@ -150,12 +177,15 @@ func getGRPCclient(addr string) (pb_client.ProducerConsumerClient, *grpc.ClientC
 
 func (ps *producerServer) SayHello(ctx context.Context, req *pb.HelloRequest) (_ *pb.HelloReply, err error) {
 	addr := fmt.Sprintf("%v:%v", ps.consumerAddr, ps.consumerPort)
-	if ps.transferType == INLINE || ps.transferType == S3 {
+	if ps.transferType == INLINE || ps.transferType == S3 || ps.transferType == ELASTICACHE {
 		client, conn := getGRPCclient(addr)
 		defer conn.Close()
 		payloadToSend := ps.payloadData
 		if ps.transferType == S3 {
 			payloadToSend = []byte(uploadToS3(ctx, ps.payloadData, ps.randomStr))
+		}
+		if ps.transferType == ELASTICACHE {
+			payloadToSend = []byte(uploadToRedis(ctx, ps.payloadData, ps.randomStr))
 		}
 		ack, err := client.ConsumeByte(ctx, &pb_client.ConsumeByteRequest{Value: payloadToSend})
 		if err != nil {

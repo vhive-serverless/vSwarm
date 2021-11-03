@@ -55,6 +55,11 @@ func (s *ubenchServer) putData(ctx context.Context) (pb_client.BenchResponse, er
 		log.Printf("[producer] S3 push complete")
 		return pb_client.BenchResponse{Capability: key, Ok: true}, nil
 
+	}else if s.transferType == ELASTICACHE {
+		key := uploadToRedis(ctx, s.payloadData, s.randomStr)
+		log.Printf("[producer] ELASTICACHE push complete")
+		return pb_client.BenchResponse{Capability: key, Ok: true}, nil
+
 	} else if s.transferType == XDT {
 		if capability, err := s.XDTclient.Put(ctx, s.payloadData); err != nil {
 			log.Fatalf("SQP_to_dQP_data_transfer failed %v", err)
@@ -68,7 +73,7 @@ func (s *ubenchServer) putData(ctx context.Context) (pb_client.BenchResponse, er
 
 func (s *ubenchServer) fanOut(ctx context.Context, fanAmount int64, addr string) pb_client.BenchResponse{
 	errorChannel := make(chan error, fanAmount)
-	if s.transferType == INLINE || s.transferType == S3 {
+	if s.transferType == INLINE || s.transferType == S3 || s.transferType == ELASTICACHE {
 		client, conn := getGRPCclient(addr)
 		defer conn.Close()
 		payloadToSend := s.payloadData
@@ -77,6 +82,9 @@ func (s *ubenchServer) fanOut(ctx context.Context, fanAmount int64, addr string)
 			go func(threadNumber int64) {
 				if s.transferType == S3 {
 					key := uploadToS3(ctx, s.payloadData, fmt.Sprintf("%s-%d",s.randomStr, threadNumber))
+					payloadToSend = []byte(key)
+				}else if s.transferType == ELASTICACHE {
+					key := uploadToRedis(ctx, s.payloadData, fmt.Sprintf("%s-%d",s.randomStr, threadNumber))
 					payloadToSend = []byte(key)
 				}
 				ack, err := client.ConsumeByte(ctx, &pb_client.ConsumeByteRequest{Value: payloadToSend})
@@ -122,11 +130,14 @@ func (s *ubenchServer) broadcast(ctx context.Context, fanAmount int64, addr stri
 	errorChannel := make(chan error, fanAmount)
 	client, conn := getGRPCclient(addr)
 	defer conn.Close()
-	if s.transferType == INLINE || s.transferType == S3 {
+	if s.transferType == INLINE || s.transferType == S3 || s.transferType == ELASTICACHE{
 		payloadToSend := s.payloadData
 
 		if s.transferType == S3 {
 			key := uploadToS3(ctx, s.payloadData, s.randomStr)
+			payloadToSend = []byte(key)
+		}else if s.transferType == ELASTICACHE {
+			key := uploadToRedis(ctx, s.payloadData, s.randomStr)
 			payloadToSend = []byte(key)
 		}
 

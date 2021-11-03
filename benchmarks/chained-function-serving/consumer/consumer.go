@@ -30,6 +30,7 @@ import (
 	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/s3"
+	"github.com/go-redis/redis/v8"
 	"io"
 	"io/ioutil"
 	"net"
@@ -53,7 +54,9 @@ const (
 	INLINE        = "INLINE"
 	XDT           = "XDT"
 	S3            = "S3"
+	ELASTICACHE = "ELASTICACHE"
 	AWS_S3_BUCKET = "vhive-prodcon-bench"
+	AWS_ELASTICACHE_BENCH = "test5.0vgvbw.ng.0001.usw1.cache.amazonaws.com:6379"
 	TOKEN         = ""
 )
 
@@ -62,6 +65,7 @@ var (
 	SECRET_KEY    string
 	AWS_S3_REGION string
 	S3_SVC        *s3.S3
+	REDIS_CLIENT *redis.Client
 )
 
 type consumerServer struct {
@@ -99,6 +103,11 @@ func setAWSCredentials() {
 		log.Fatalf("[consumer] Failed establish s3 session: %s", err)
 	}
 	S3_SVC = s3.New(sessionInstance)
+	REDIS_CLIENT = redis.NewClient(&redis.Options{
+		Addr:     AWS_ELASTICACHE_BENCH,
+		Password: "", // no password set
+		DB:       0,  // use default DB
+	})
 }
 
 func fetchFromS3(ctx context.Context, key string) (int, error) {
@@ -124,6 +133,20 @@ func fetchFromS3(ctx context.Context, key string) (int, error) {
 	return len(payload), nil
 }
 
+func fetchFromRedis(ctx context.Context, key string) (int, error) {
+	span := tracing.Span{SpanName: "S3 get", TracerName: "S3 get - tracer"}
+	ctx = span.StartSpan(ctx)
+	defer span.EndSpan()
+	log.Infof("[consumer] Fetching %s from ElastiCache", key)
+	val, err := REDIS_CLIENT.Get(ctx, key).Result()
+	if err != nil {
+		log.Errorf("Object %q not found in ELASTICACHE bucket %q: %s", key, AWS_ELASTICACHE_BENCH, err.Error())
+		return 0, err
+	}
+
+	return len(val), nil
+}
+
 func (s *consumerServer) ConsumeByte(ctx context.Context, str *pb.ConsumeByteRequest) (*pb.ConsumeByteReply, error) {
 	if tracing.IsTracingEnabled() {
 		span1 := tracing.Span{SpanName: "custom-span-1", TracerName: "tracer"}
@@ -135,6 +158,14 @@ func (s *consumerServer) ConsumeByte(ctx context.Context, str *pb.ConsumeByteReq
 	}
 	if s.transferType == S3 {
 		payloadSize, err := fetchFromS3(ctx, string(str.Value))
+		if err != nil {
+			return &pb.ConsumeByteReply{Value: false}, err
+		} else {
+			log.Printf("[consumer] Consumed %d bytes\n", payloadSize)
+			return &pb.ConsumeByteReply{Value: true}, err
+		}
+	}else if s.transferType == ELASTICACHE {
+		payloadSize, err := fetchFromRedis(ctx, string(str.Value))
 		if err != nil {
 			return &pb.ConsumeByteReply{Value: false}, err
 		} else {

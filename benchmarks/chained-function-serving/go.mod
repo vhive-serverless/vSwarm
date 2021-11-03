@@ -19,6 +19,7 @@ require (
 	github.com/ease-lab/vhive-xdt/sdk/golang v0.0.0-20210903135911-a8dd405a02ec
 	github.com/ease-lab/vhive-xdt/utils v0.0.0-00010101000000-000000000000
 	github.com/ease-lab/vhive/examples/protobuf/helloworld v0.0.0-20210630153229-45a1c5894f68
+	github.com/go-redis/redis/v8 v8.11.4
 	github.com/sirupsen/logrus v1.8.1
 	go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc v0.20.0
 	google.golang.org/grpc v1.39.0
