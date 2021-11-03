@@ -59,7 +59,7 @@ func TestS3File(t *testing.T) {
 }
 
 func TestElasticache(t *testing.T) {
-	InitStorage("ELASTICACHE", "test4.0vgvbw.ng.0001.usw1.cache.amazonaws.com:6379")
+	InitStorage("ELASTICACHE", "test5.0vgvbw.ng.0001.usw1.cache.amazonaws.com:6379")
 	msg := []byte("test message")
 	Put("testkey", msg)
 	ret := Get("testkey")

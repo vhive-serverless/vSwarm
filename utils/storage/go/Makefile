@@ -27,6 +27,9 @@ test:
 	# go versions installed so that calling go from root may fail
 	sudo env "PATH=$(PATH)" "GOROOT=$(GOROOT)" "AWS_ACCESS_KEY=$(AWS_ACCESS_KEY)" "AWS_SECRET_KEY=$(AWS_SECRET_KEY)" go test '-run=^TestS3' $(EXTRAGOARGS)
 
+test-elasticache:
+	sudo env "PATH=$(PATH)" "GOROOT=$(GOROOT)" "AWS_ACCESS_KEY=$(AWS_ACCESS_KEY)" "AWS_SECRET_KEY=$(AWS_SECRET_KEY)" go test '-run=^TestElasticache' $(EXTRAGOARGS)
+
 test-man:
 	echo "Nothing to test manually"
 
