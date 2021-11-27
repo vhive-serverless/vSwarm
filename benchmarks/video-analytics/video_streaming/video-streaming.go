@@ -39,6 +39,7 @@ import (
 
 	sdk "github.com/ease-lab/vhive-xdt/sdk/golang"
 	"github.com/ease-lab/vhive-xdt/utils"
+	"github.com/go-redis/redis/v8"
 	pb_helloworld "github.com/ease-lab/vhive/examples/protobuf/helloworld"
 
 	storage "github.com/ease-lab/vhive-benchmarking/utils/storage/go"
@@ -51,6 +52,8 @@ var (
 	AKID          string
 	SECRET_KEY    string
 	AWS_S3_REGION string
+	ELASTICACHE_URL string
+	redisClient *redis.Client
 )
 
 const (
@@ -59,6 +62,7 @@ const (
 	INLINE        = "INLINE"
 	XDT           = "XDT"
 	S3            = "S3"
+	ELASTICACHE   = "ELASTICACHE"
 )
 
 type server struct {
@@ -101,6 +105,24 @@ func uploadToS3(ctx context.Context) {
 	log.Infof("[Video Streaming] Uploaded video to s3")
 }
 
+func uploadToRedis(ctx context.Context) {
+	if tracing.IsTracingEnabled() {
+		span := tracing.Span{SpanName: "Video upload", TracerName: "Elasticache video upload - tracer"}
+		ctx = span.StartSpan(ctx)
+		defer span.EndSpan()
+	}
+	file, err := ioutil.ReadFile(*videoFile)
+	if err != nil {
+		log.Fatalf("[Video Streaming] Failed to open file: %s", err)
+	}
+
+	log.Infof("[Video Streaming] Uploading %d bytes to ElastiCache", len(file))
+	key := "streaming-video.mp4"
+
+	storage.Put(key, file)
+	log.Infof("[Video Streaming] Uploaded %q to elasticache %q", key, ELASTICACHE_URL)
+}
+
 // SayHello implements the helloworld interface. Used to trigger the video streamer to start the benchmark.
 func (s *server) SayHello(ctx context.Context, req *pb_helloworld.HelloRequest) (_ *pb_helloworld.HelloReply, err error) {
 	// Become a client of the decoder function and send the video:
@@ -123,7 +145,7 @@ func (s *server) SayHello(ctx context.Context, req *pb_helloworld.HelloRequest) 
 		} else {
 			response = string(message)
 		}
-	} else if s.transferType == S3 || s.transferType == INLINE {
+	} else if s.transferType == S3 || s.transferType == INLINE || s.transferType == ELASTICACHE {
 		var conn *grpc.ClientConn
 		if tracing.IsTracingEnabled() {
 			conn, err = tracing.DialGRPCWithUnaryInterceptor(addr, grpc.WithBlock(), grpc.WithInsecure())
@@ -140,6 +162,9 @@ func (s *server) SayHello(ctx context.Context, req *pb_helloworld.HelloRequest) 
 			// upload video to s3
 			uploadToS3(ctx)
 			// issue request
+			reply, err = client.Decode(ctx, &pb_video.DecodeRequest{S3Key: "streaming-video.mp4"})
+		} else if s.transferType == ELASTICACHE {
+			uploadToRedis(ctx)
 			reply, err = client.Decode(ctx, &pb_video.DecodeRequest{S3Key: "streaming-video.mp4"})
 		} else {
 			reply, err = client.Decode(ctx, &pb_video.DecodeRequest{Video: videoFragment})
@@ -215,6 +240,9 @@ func main() {
 
 	if server.transferType == S3 {
 		storage.InitStorage("S3", "vhive-video-bench")
+	} else if server.transferType == ELASTICACHE {
+		ELASTICACHE_URL, _ := os.LookupEnv("AWS_ELASTICACHE_URL")
+		storage.InitStorage("ELASTICACHE", ELASTICACHE_URL)
 	} else if server.transferType == XDT {
 		log.Infof("[streaming] TransferType = %s", server.transferType)
 		config := utils.ReadConfig()

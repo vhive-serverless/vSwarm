@@ -43,6 +43,8 @@ import argparse
 import boto3
 import logging as log
 import socket
+import pickle
+import redis
 
 from concurrent import futures
 
@@ -64,6 +66,8 @@ if tracing.IsTracingEnabled():
 INLINE = "INLINE"
 S3 = "S3"
 XDT = "XDT"
+ELASTICACHE = "ELASTICACHE"
+AWS_ELASTICACHE_URL = os.getenv("AWS_ELASTICACHE_URL", "undefined.url")
 
 def decode(bytes):
     temp = tempfile.NamedTemporaryFile(suffix=".mp4")
@@ -98,6 +102,7 @@ class VideoDecoderServicer(videoservice_pb2_grpc.VideoDecoderServicer):
 
         self.frameCount = 0
         self.transferType = transferType
+
         if transferType == XDT:
             if XDTconfig is None:
                 log.fatal("Empty XDT config")
@@ -108,11 +113,11 @@ class VideoDecoderServicer(videoservice_pb2_grpc.VideoDecoderServicer):
         log.info("Decoder recieved a request")
 
         videoBytes = b''
-        if self.transferType == S3:
+        if self.transferType == S3 or self.transferType == ELASTICACHE:
             log.info("Using s3, getting bucket")
             with tracing.Span("Video fetch"):
                 videoBytes = storage.get(request.s3key, doPickle=False)
-            log.info("decoding frames of the s3 object")
+            log.info("decoding frames of the s3/elasticache object")
         elif self.transferType == INLINE:
             log.info("Inline video decode. Decoding frames.")
             videoBytes = request.video
@@ -144,12 +149,12 @@ class VideoDecoderServicer(videoservice_pb2_grpc.VideoDecoderServicer):
         channel = grpc.insecure_channel(args.addr)
         stub = videoservice_pb2_grpc.ObjectRecognitionStub(channel)
         result = b''
-        if self.transferType == S3:
+        if self.transferType == S3 or self.transferType == ELASTICACHE:
             name = "decoder-frame-" + str(self.frameCount) + ".jpg"
             with tracing.Span("Upload frame"):
                 self.frameCount += 1
                 storage.put(name, frame)
-            log.info("calling recog with s3 key")
+            log.info("calling recog with s3/elasticache` key")
             response = stub.Recognise(videoservice_pb2.RecogniseRequest(s3key=name))
             result = response.classification
         elif self.transferType == INLINE:
@@ -171,7 +176,10 @@ def serve():
     transferType = os.getenv('TRANSFER_TYPE', INLINE)
     if transferType == S3:
         storage.init("S3", 'vhive-video-bench')
-    if transferType == S3 or transferType == INLINE:
+    elif transferType == ELASTICACHE:
+        storage.init(ELASTICACHE, AWS_ELASTICACHE_URL)
+
+    if transferType == S3 or transferType == INLINE or transferType == ELASTICACHE:
         max_workers = int(os.getenv("MAX_DECODER_SERVER_THREADS", 10))
         server = grpc.server(futures.ThreadPoolExecutor(max_workers=max_workers))
         videoservice_pb2_grpc.add_VideoDecoderServicer_to_server(

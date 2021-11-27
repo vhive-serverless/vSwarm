@@ -45,6 +45,8 @@ import grpc
 import argparse
 import boto3
 import logging as log
+import pickle
+import redis
 
 from concurrent import futures
 
@@ -58,6 +60,8 @@ args = parser.parse_args()
 INLINE = "INLINE"
 S3 = "S3"
 XDT = "XDT"
+ELASTICACHE = "ELASTICACHE"
+AWS_ELASTICACHE_URL = os.getenv("AWS_ELASTICACHE_URL", "undefined.url")
 
 if tracing.IsTracingEnabled():
     tracing.initTracer("recog", url=args.url)
@@ -122,8 +126,8 @@ class ObjectRecognitionServicer(videoservice_pb2_grpc.ObjectRecognitionServicer)
 
         # get the frame from s3 or inline
         frame = None
-        if self.transferType == S3:
-            log.info("retrieving target frame '%s' from s3" % request.s3key)
+        if self.transferType == S3 or self.transferType == ELASTICACHE:
+            log.info("retrieving target frame '%s' from s3/elasticache" % request.s3key)
             with tracing.Span("Frame fetch"):
                 frame = storage.get(request.s3key)
         elif self.transferType == INLINE:
@@ -139,7 +143,10 @@ def serve():
     transferType = os.getenv('TRANSFER_TYPE', INLINE)
     if transferType == S3:
         storage.init("S3", 'vhive-video-bench')
-    if transferType == S3 or transferType == INLINE:
+    elif transferType == ELASTICACHE:
+        storage.init(ELASTICACHE, AWS_ELASTICACHE_URL)
+
+    if transferType == S3 or transferType == INLINE or transferType == ELASTICACHE:
         max_workers = int(os.getenv("MAX_RECOG_SERVER_THREADS", 10))
         server = grpc.server(futures.ThreadPoolExecutor(max_workers=max_workers))
         videoservice_pb2_grpc.add_ObjectRecognitionServicer_to_server(
