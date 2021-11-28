@@ -58,7 +58,7 @@ def init(service, bucket):
             aws_secret_access_key=AWS_SECRET
         )
     elif transferType == ELASTICACHE:
-        elasticache_client = redis.Redis.from_url(bucket)
+        elasticache_client = redis.Redis.from_url("redis://" + bucket)
 
 # `put` uploads the payload to the storage service using the provided key
 def put(key, obj, doPickle = True):
@@ -97,8 +97,8 @@ def get(key, doPickle = True):
     elif transferType == ELASTICACHE:
         response = elasticache_client.get(key)
         if not doPickle:
-            return response['Body'].read()
+            return response
         else:
-            return pickle.loads(response['Body'].read())
+            return pickle.loads(response)
     else:
          log.fatal("unsupported transfer type!")
