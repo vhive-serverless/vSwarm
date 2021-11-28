@@ -32,35 +32,35 @@ clean:
 
 producer-image: Dockerfile producer/producer.go proto/prodcon.pb.go proto/prodcon_grpc.pb.go
 	DOCKER_BUILDKIT=1 docker build \
-	--tag vhiveease/chained-functions-serving-producer:latest \
+	--tag vhiveease/chained-functions-serving-producer:elasticache \
 	--build-arg target_arg=producer \
 	--secret id=GOPRIVATE_KEY \
 	-f Dockerfile ../..
 
 producer-image-push: producer-image
-	docker push vhiveease/chained-functions-serving-producer:latest
+	docker push vhiveease/chained-functions-serving-producer:elasticache
 
 
 consumer-image: Dockerfile consumer/consumer.go proto/prodcon.pb.go proto/prodcon_grpc.pb.go
 	DOCKER_BUILDKIT=1 docker build \
-	--tag vhiveease/chained-functions-serving-consumer:latest \
+	--tag vhiveease/chained-functions-serving-consumer:elasticache \
 	--build-arg target_arg=consumer \
 	--secret id=GOPRIVATE_KEY \
 	-f Dockerfile ../..
 
 
 consumer-image-push: consumer-image
-	docker push vhiveease/chained-functions-serving-consumer:latest
+	docker push vhiveease/chained-functions-serving-consumer:elasticache
 
 driver-image: Dockerfile driver/driver.go proto/prodcon.pb.go proto/prodcon_grpc.pb.go
 	DOCKER_BUILDKIT=1 docker build \
-	--tag vhiveease/chained-functions-serving-driver:latest \
+	--tag vhiveease/chained-functions-serving-driver:elasticache \
 	--build-arg target_arg=driver \
 	--secret id=GOPRIVATE_KEY \
 	-f Dockerfile ../..
 
 driver-image-push: driver-image
-	docker push vhiveease/chained-functions-serving-driver:latest
+	docker push vhiveease/chained-functions-serving-driver:elasticache
 
 cmd/server/tempReader_grpc.pb.go cmd/server/tempReader.pb.go: cmd/server/tempReader.proto
 	protoc \

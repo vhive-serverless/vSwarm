@@ -26,16 +26,17 @@ import (
 	"context"
 	"flag"
 	"fmt"
-	"github.com/aws/aws-sdk-go/aws"
-	"github.com/aws/aws-sdk-go/aws/credentials"
-	"github.com/aws/aws-sdk-go/aws/session"
-	"github.com/aws/aws-sdk-go/service/s3"
-	"github.com/go-redis/redis/v8"
 	"io"
 	"io/ioutil"
 	"net"
 	"os"
 	"strconv"
+
+	"github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/aws/credentials"
+	"github.com/aws/aws-sdk-go/aws/session"
+	"github.com/aws/aws-sdk-go/service/s3"
+	"github.com/go-redis/redis/v8"
 
 	ctrdlog "github.com/containerd/containerd/log"
 	log "github.com/sirupsen/logrus"
@@ -51,13 +52,13 @@ import (
 )
 
 const (
-	INLINE        = "INLINE"
-	XDT           = "XDT"
-	S3            = "S3"
-	ELASTICACHE = "ELASTICACHE"
-	AWS_S3_BUCKET = "vhive-prodcon-bench"
-	AWS_ELASTICACHE_BENCH = "test5.0vgvbw.ng.0001.usw1.cache.amazonaws.com:6379"
-	TOKEN         = ""
+	INLINE                = "INLINE"
+	XDT                   = "XDT"
+	S3                    = "S3"
+	ELASTICACHE           = "ELASTICACHE"
+	AWS_S3_BUCKET         = "vhive-prodcon-bench"
+	AWS_ELASTICACHE_BENCH = "test.0vgvbw.0001.usw1.cache.amazonaws.com:6379"
+	TOKEN                 = ""
 )
 
 var (
@@ -65,7 +66,7 @@ var (
 	SECRET_KEY    string
 	AWS_S3_REGION string
 	S3_SVC        *s3.S3
-	REDIS_CLIENT *redis.Client
+	REDIS_CLIENT  *redis.Client
 )
 
 type consumerServer struct {
@@ -164,7 +165,7 @@ func (s *consumerServer) ConsumeByte(ctx context.Context, str *pb.ConsumeByteReq
 			log.Printf("[consumer] Consumed %d bytes\n", payloadSize)
 			return &pb.ConsumeByteReply{Value: true}, err
 		}
-	}else if s.transferType == ELASTICACHE {
+	} else if s.transferType == ELASTICACHE {
 		payloadSize, err := fetchFromRedis(ctx, string(str.Value))
 		if err != nil {
 			return &pb.ConsumeByteReply{Value: false}, err
@@ -227,7 +228,7 @@ func main() {
 		transferType = "INLINE"
 	}
 
-	if transferType == S3 {
+	if transferType == S3 || transferType == ELASTICACHE {
 		setAWSCredentials()
 	}
 

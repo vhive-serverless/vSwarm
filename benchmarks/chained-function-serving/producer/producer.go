@@ -27,6 +27,11 @@ import (
 	"context"
 	"flag"
 	"fmt"
+	"math/rand"
+	"net"
+	"os"
+	"strconv"
+
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/aws/aws-sdk-go/aws/session"
@@ -34,10 +39,6 @@ import (
 	sdk "github.com/ease-lab/vhive-xdt/sdk/golang"
 	"github.com/ease-lab/vhive-xdt/utils"
 	"github.com/go-redis/redis/v8"
-	"math/rand"
-	"net"
-	"os"
-	"strconv"
 
 	ctrdlog "github.com/containerd/containerd/log"
 	log "github.com/sirupsen/logrus"
@@ -72,13 +73,13 @@ type ubenchServer struct {
 }
 
 const (
-	INLINE        = "INLINE"
-	XDT           = "XDT"
-	S3            = "S3"
-	ELASTICACHE = "ELASTICACHE"
-	AWS_S3_BUCKET = "vhive-prodcon-bench"
-	AWS_ELASTICACHE_BENCH = "test5.0vgvbw.ng.0001.usw1.cache.amazonaws.com:6379"
-	TOKEN         = ""
+	INLINE                = "INLINE"
+	XDT                   = "XDT"
+	S3                    = "S3"
+	ELASTICACHE           = "ELASTICACHE"
+	AWS_S3_BUCKET         = "vhive-prodcon-bench"
+	AWS_ELASTICACHE_BENCH = "test.0vgvbw.0001.usw1.cache.amazonaws.com:6379"
+	TOKEN                 = ""
 )
 
 var (
@@ -86,7 +87,7 @@ var (
 	SECRET_KEY    string
 	AWS_S3_REGION string
 	S3_SESSION    *session.Session
-	REDIS_CLIENT *redis.Client
+	REDIS_CLIENT  *redis.Client
 )
 
 func setAWSCredentials() {
@@ -153,7 +154,7 @@ func uploadToRedis(ctx context.Context, payloadData []byte, randomStr string) st
 
 	err := REDIS_CLIENT.Set(ctx, key, payloadData, 0).Err()
 	if err != nil {
-		log.Fatalf("Unable to upload %q to redis %q, %v", key, AWS_S3_BUCKET, err.Error())
+		log.Fatalf("Unable to upload %q to redis %q, %v", key, AWS_ELASTICACHE_BENCH, err.Error())
 	}
 	log.Infof("[producer] Successfully uploaded %q to redis bucket %q", key, AWS_S3_BUCKET)
 
@@ -283,7 +284,7 @@ func main() {
 
 		ps.XDTclient = xdtClient
 		us.XDTclient = xdtClient
-	} else if transferType == S3 {
+	} else if transferType == S3 || transferType == ELASTICACHE {
 		setAWSCredentials()
 	}
 	pb.RegisterGreeterServer(grpcServer, &ps)

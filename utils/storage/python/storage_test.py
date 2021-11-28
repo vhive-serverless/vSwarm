@@ -23,6 +23,7 @@
 import unittest
 import storage
 import random
+import os
 
 
 class MyTest(unittest.TestCase):
@@ -33,7 +34,8 @@ class MyTest(unittest.TestCase):
         self.assertEqual(storage.get("aws-test-key"), msg)
 
     def test_elasticache(self):
-        storage.init("ELASTICACHE","redis://test2.0vgvbw.ng.0001.usw1.cache.amazonaws.com:6379")
+        redis_url = os.getenv("AWS_ELASTICACHE_URL", "undefined.url")
+        storage.init("ELASTICACHE",redis_url)
         self.assertEqual(storage.elasticache_client.ping(), True)
         msg = b"test msg"
         storage.put("elasticache-test-key", msg)
