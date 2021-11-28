@@ -74,10 +74,12 @@ if tracing.IsTracingEnabled():
 INLINE = "INLINE"
 S3 = "S3"
 XDT = "XDT"
+ELASTICACHE = "ELASTICACHE"
 
 # set aws credentials:
 AWS_ID = os.getenv('AWS_ACCESS_KEY', "")
 AWS_SECRET = os.getenv('AWS_SECRET_KEY', "")
+AWS_ELASTICACHE_URL = os.getenv("AWS_ELASTICACHE_URL", "undefined.url")
 
 
 def get_self_ip():
@@ -162,9 +164,12 @@ class TrainerServicer(stacking_pb2_grpc.TrainerServicer):
 
 def serve():
     transferType = os.getenv('TRANSFER_TYPE', S3)
-    if transferType == S3:
-        storage.init("S3", 'vhive-stacking')
-        log.info("Using inline or s3 transfers")
+    if transferType == S3 or transferType == ELASTICACHE:
+        if transferType == S3:
+            storage.init(S3, 'vhive-stacking')
+        elif transferType == ELASTICACHE:
+            storage.init(ELASTICACHE, AWS_ELASTICACHE_URL)
+        log.info("Using inline or s3 or elasticache transfers")
         max_workers = int(os.getenv("MAX_SERVER_THREADS", 10))
         server = grpc.server(futures.ThreadPoolExecutor(max_workers=max_workers))
         stacking_pb2_grpc.add_TrainerServicer_to_server(
