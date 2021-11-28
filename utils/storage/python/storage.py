@@ -97,8 +97,8 @@ def get(key, doPickle = True):
     elif transferType == ELASTICACHE:
         response = elasticache_client.get(key)
         if not doPickle:
-            return response['Body'].read()
+            return response
         else:
-            return pickle.loads(response['Body'].read())
+            return pickle.loads(response)
     else:
          log.fatal("unsupported transfer type!")
