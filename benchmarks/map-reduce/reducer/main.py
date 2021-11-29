@@ -41,6 +41,7 @@ import pickle
 sys.path.insert(0, os.getcwd() + '/../proto/')
 sys.path.insert(0, os.getcwd() + '/../../../utils/tracing/python')
 import tracing
+import storage
 import mapreduce_pb2_grpc
 import mapreduce_pb2
 import destination as XDTdst
@@ -70,10 +71,12 @@ INPUT_REDUCER_PREFIX = OUTPUT_MAPPER_PREFIX
 OUTPUT_REDUCER_PREFIX = "artemiy/task/reducer/"
 S3 = "S3"
 XDT = "XDT"
+ELASTICACHE = "ELASTICACHE"
 
 # set aws credentials:
 AWS_ID = os.getenv('AWS_ACCESS_KEY', "")
 AWS_SECRET = os.getenv('AWS_SECRET_KEY', "")
+AWS_ELASTICACHE_URL = os.getenv("AWS_ELASTICACHE_URL", "undefined.url")
 
 
 class ReducerServicer(mapreduce_pb2_grpc.ReducerServicer):
@@ -91,17 +94,16 @@ class ReducerServicer(mapreduce_pb2_grpc.ReducerServicer):
             self.XDTclient = XDTsrc.XDTclient(XDTconfig)
             self.XDTconfig = XDTconfig
 
-    def put(self, bucket, key, obj, metadata=None, forceS3=False):
+    def put(self, bucket, key, obj, forceS3=False):
         msg = "Reducer uploading object with key '" + key + "' to " + self.transferType
         log.info(msg)
         with tracing.Span(msg):
             # pickled = pickle.dumps(obj)
-            if self.transferType == S3 or forceS3:
+            if forceS3: # only for the results
                 s3object = self.s3_client.Object(bucket_name=bucket, key=key)
-                if metadata is None:
-                    s3object.put(Body=obj)
-                else:
-                    s3object.put(Body=obj, Metadata=metadata)
+                s3object.put(Body=obj)
+            elif self.transferType == S3 or self.transferType == ELASTICACHE:
+                storage.put(key, obj)
             elif self.transferType == XDT:
                 key = self.XDTclient.Put(payload=obj)
 
@@ -175,13 +177,7 @@ class ReducerServicer(mapreduce_pb2_grpc.ReducerServicer):
             else:
                 fname = "%sjob_%s/reducer_%s" % (OUTPUT_REDUCER_PREFIX, job_id, r_id)
 
-            metadata = {
-                            "linecount":  '%s' % line_count,
-                            "processingtime": '%s' % time_in_secs,
-                            "memoryUsage": '%s' % resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
-                    }
-
-            self.put(dest_bucket, fname, pickle.dumps(results), metadata=metadata, forceS3=True)
+            self.put(dest_bucket, fname, pickle.dumps(results), forceS3=True)
 
         # return pret
         return mapreduce_pb2.ReduceReply(
@@ -191,6 +187,13 @@ class ReducerServicer(mapreduce_pb2_grpc.ReducerServicer):
 
 def serve():
     transferType = os.getenv('TRANSFER_TYPE', S3)
+
+    if transferType == S3 or transferType == ELASTICACHE:
+        if transferType == S3:
+            storage.init(S3, 'storage-module-test')
+        elif transferType == ELASTICACHE:
+            storage.init(ELASTICACHE, AWS_ELASTICACHE_URL)
+        log.info("Using inline or s3 or elasticache transfers")
 
     XDTconfig = dict()
     if transferType == XDT:
