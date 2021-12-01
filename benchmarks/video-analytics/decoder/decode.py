@@ -77,10 +77,12 @@ def decode(bytes):
     all_frames = [] 
     with tracing.Span("Decode frames"):
         vidcap = cv2.VideoCapture(temp.name)
-        for i in range(int(os.getenv('DecoderFrames', int(args.frames)))):
+        frame_skip = int(os.getenv('DecoderFrames', int(args.frames)))
+        for i in range(60):
             success,image = vidcap.read()
-            all_frames.append(cv2.imencode('.jpg', image)[1].tobytes())
-
+            if i % frame_skip == 0:
+                all_frames.append(cv2.imencode('.jpg', image)[1].tobytes())
+                
     return all_frames
 
 

@@ -62,6 +62,7 @@ S3 = "S3"
 XDT = "XDT"
 ELASTICACHE = "ELASTICACHE"
 AWS_ELASTICACHE_URL = os.getenv("AWS_ELASTICACHE_URL", "undefined.url")
+torch.set_num_threads(4)
 
 if tracing.IsTracingEnabled():
     tracing.initTracer("recog", url=args.url)
