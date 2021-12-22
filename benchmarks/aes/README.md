@@ -25,16 +25,16 @@ The detailed and general description how to run benchmarks local you can find [h
    ../../tools/bin/grpcurl -plaintext -import-path proto -proto helloworld.proto localhost:50051 helloworld.Greeter.SayHello
    ```
 4. Run the invoker
-   ```
+   ```bash
    # build the invoker binary
-  cd ../../tools/invoker
-  make invoker
+   cd ../../tools/invoker
+   make invoker
 
-  # Specify the hostname through "endpoints.json"
-  echo '[ { "hostname": "localhost" } ]' > endpoints.json
+   # Specify the hostname through "endpoints.json"
+   echo '[ { "hostname": "localhost" } ]' > endpoints.json
 
-  # Start the invoker with a chosen RPS rate and time
-  ./invoker -port 50051 -dbg -time 10 -rps 1
+   # Start the invoker with a chosen RPS rate and time
+   ./invoker -port 50051 -dbg -time 10 -rps 1
    ```
 
 
