@@ -1,0 +1,9 @@
+version: "3.9"
+services:
+  ## Python
+  aes-python:
+    image: davidschall/aes-python:latest
+    container_name: aes-python
+    ports:
+    - published: 50051
+      target: 50051

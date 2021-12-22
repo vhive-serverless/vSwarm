@@ -1,0 +1,9 @@
+version: "3.9"
+services:
+  ## NodeJS
+  aes-nodejs:
+    image: davidschall/aes-nodejs:latest
+    container_name: aes-nodejs
+    ports:
+    - published: 50051
+      target: 50051
