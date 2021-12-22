@@ -20,45 +20,31 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-
-# clean:
-# 	rm -f ./producer-bin ./consumer-bin
-
-
-DOCKER_HUB_ACCOUNT=davidschall
-FUNCTIONS = aes-python aes-nodejs aes-go
-ALL_IMAGES = $(addsuffix -image, $(FUNCTIONS))
-
-all: all_image
-
-all_image: $(ALL_IMAGES)
-
-aes-python-image:
-	DOCKER_BUILDKIT=1 docker build \
-	--tag $(DOCKER_HUB_ACCOUNT)/aes-python:latest \
-	-f ./python/Dockerfile.python python/
-
-
-aes-nodejs-image:
-	DOCKER_BUILDKIT=1 docker build \
-	--tag $(DOCKER_HUB_ACCOUNT)/aes-nodejs:latest \
-	-f ./nodejs/Dockerfile nodejs/
-
-aes-go-image:
-	DOCKER_BUILDKIT=1 docker build \
-	--tag $(DOCKER_HUB_ACCOUNT)/aes-go:latest \
-	-f ./go/Dockerfile go/
+apiVersion: serving.knative.dev/v1
+kind: Service
+metadata:
+  name: aes-python
+  namespace: default
+spec:
+  template:
+    spec:
+      containers:
+        - image: docker.io/davidschall/aes-python:latest
+          imagePullPolicy: Always
+          # args: ["--knative", "--verbose", "--out", "s3://vhive-corral-bench/word_count/vhive-ubench/out"]
+          # env:
+          #   - name: KNATIVE
+          #     value: "1"
+          # ports:
+          #   - name: h2c
+          #     containerPort: 80
 
 
-
-push-%: %-image
-	docker push docker.io/$(DOCKER_HUB_ACCOUNT)/$(subst push-,,$@):latest
-
-push: $(addprefix push-, $(FUNCTIONS))
-
-
-pull-%:
-	docker pull docker.io/$(DOCKER_HUB_ACCOUNT)/$(subst pull-,,$@):latest
-
-pull: $(addprefix pull-, $(FUNCTIONS))
-
+          ports:
+            - name: h2c
+              containerPort: 50051
+      #     # env:
+      #     #   - name: TARGET
+      #     #     value: "World"
+      # imagePullSecrets:  # <--------------- Add this line
+      #   - name: docker-hub-registry # <---- Add this line
