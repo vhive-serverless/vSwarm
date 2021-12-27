@@ -1,0 +1,35 @@
+/*
+* Set up: 
+* $ go install google.golang.org/protobuf/cmd/protoc-gen-go@v1.26
+* $ go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@v1.1
+*
+* Add `<GOPATH>/bin` to your $PATH:
+* OR (!suboptimal since it overwrites $PATH by appending an additional 
+* line as opposed to change it directly)
+* $ echo "export PATH=$PATH:$(go env GOPATH)/bin" >> ~/.profile 
+* $ source ~/.profile 
+* OR temporarily
+* $ export PATH="$PATH:$(go env GOPATH)/bin"
+*/
+syntax = "proto3";
+
+option go_package = "github.com/vSwarm/tools/loader/server";
+
+package faas;
+
+service Executor {
+  // Remote execution via RPC call.
+  rpc Execute (FaasRequest) returns (FaasReply) {}
+}
+
+message FaasRequest {
+  string message = 1;           // Text message field (unused).
+  uint32 runtimeInMilliSec = 2; // Execution runtime [ms].
+  uint32 memoryInMebiBytes = 3; // Request memory usage [MiB].
+}
+
+message FaasReply {
+  string message = 1;             // Text message field (unused).
+  uint32 latencyInMicroSec = 2;   // Execution latency [µs].
+  uint32 memoryUsageInKb = 3;     // Memory usage [KB].
+}

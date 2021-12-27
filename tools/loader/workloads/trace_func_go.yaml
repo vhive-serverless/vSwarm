@@ -1,0 +1,13 @@
+apiVersion: serving.knative.dev/v1
+kind: Service
+metadata:
+  namespace: default
+spec:
+  template:
+    spec:
+      containers:
+        - image: docker.io/hyhe/trace-func-go:latest
+          # imagePullPolicy: Always # No need if the tag is `latest`.
+          ports:
+            - name: h2c # For gRPC support
+              containerPort: 80

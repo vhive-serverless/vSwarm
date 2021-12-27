@@ -1,0 +1,12 @@
+apiVersion: serving.knative.dev/v1
+kind: Service
+metadata:
+  namespace: default
+spec:
+  template:
+    spec:
+      containers:
+        - image: docker.io/hyhe/helloworld:go1.7
+          env:
+            - name: TARGET
+              value: "there!"

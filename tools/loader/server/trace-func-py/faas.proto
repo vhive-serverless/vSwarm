@@ -1,0 +1,30 @@
+/*
+* Set up: 
+* go install google.golang.org/protobuf/cmd/protoc-gen-go@v1.26
+* go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@v1.1
+* echo "$PATH:$(go env GOPATH)/bin" >> ~/.profile 
+*/
+syntax = "proto3";
+
+option go_package = "github.com/vSwarm/tools/loader/pkg/faas";
+
+package faasfunction;
+
+// The function service definition.
+service Executor {
+  // Executes the function
+  rpc Execute (FaasRequest) returns (FaasReply) {}
+}
+
+// Request message containing the function input (string).
+message FaasRequest {
+  string input = 1;
+  uint32 runtime = 2;
+  uint32 memory = 3;
+}
+
+// Response message containing the execution latency (microseconds).
+message FaasReply {
+  string response = 1;
+  int64 latency = 2;
+}

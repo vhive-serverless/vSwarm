@@ -1,0 +1,14 @@
+{
+    "functions": [
+        {
+            "name": "helloworld",
+            "file": "helloworld.yaml",
+            "count": 1
+        },
+        {
+            "name": "timed",
+            "file": "timed.yaml",
+            "count": 2
+        }
+    ]
+}
