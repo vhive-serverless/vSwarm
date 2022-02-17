@@ -23,13 +23,13 @@
 apiVersion: serving.knative.dev/v1
 kind: Service
 metadata:
-  name: aes-python
+  name: aes-go
   namespace: default
 spec:
   template:
     spec:
       containers:
-        - image: docker.io/davidschall/aes-python:latest
+        - image: docker.io/vhiveease/aes-go:latest
           imagePullPolicy: Always
           env:
             - name: ENABLE_TRACING

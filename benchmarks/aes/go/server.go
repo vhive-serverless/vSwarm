@@ -27,13 +27,16 @@ import (
 	"encoding/hex"
 	"fmt"
 	"io"
-	"log"
+    //	"log"
 	"net"
 	"os"
 	"syscall"
 
 	"google.golang.org/grpc"
+   	"google.golang.org/grpc/reflection"
+	log "github.com/sirupsen/logrus"    
 	pb "google.golang.org/grpc/examples/helloworld/helloworld"
+    tracing "github.com/ease-lab/vhive/utils/tracing/go"
 )
 
 const (
@@ -125,16 +128,30 @@ func main() {
 		address += default_port
 	}
 
+    if tracing.IsTracingEnabled(){ 
+        shutdown, err := tracing.InitBasicTracer("http://localhost:9411/api/v2/spans", "aes function")
+        if err != nil {
+            log.Warn(err)
+        }   
+    defer shutdown()
+    }
+
 	lis, err := net.Listen("tcp", address)
 	if err != nil {
 		log.Fatalf("failed to listen: %v", err)
 	}
 	log.Printf("Start server: listen on : %s\n", address)
 
-	s := grpc.NewServer()
-	pb.RegisterGreeterServer(s, &server{})
+    var grpcServer *grpc.Server
+    if tracing.IsTracingEnabled(){
+        grpcServer = tracing.GetGRPCServerWithUnaryInterceptor()
+    } else {
+        grpcServer = grpc.NewServer()
+    }	
+    pb.RegisterGreeterServer(grpcServer, &server{})
+   	reflection.Register(grpcServer)
 
-	if err := s.Serve(lis); err != nil {
+	if err := grpcServer.Serve(lis); err != nil {
 		log.Fatalf("failed to serve: %v", err)
 	}
 }
