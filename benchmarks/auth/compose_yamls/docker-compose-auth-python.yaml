@@ -1,0 +1,8 @@
+version: "3"
+services:
+  ## Python
+  auth-python:
+   image: vhiveease/auth-python:latest
+   container_name: auth-python
+   ports:
+           - "50061:50051"
