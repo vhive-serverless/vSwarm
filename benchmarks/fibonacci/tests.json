@@ -1,0 +1,32 @@
+[
+  {
+    "services": ["all"],
+    "input": "39",
+    "outputNeeds": ["fib(x)", "y: 63245986"]
+  },
+  {
+    "services": ["all"],
+    "input": "47",
+    "outputNeeds": ["fib(x)", "y: 2971215073"]
+  },
+  {
+    "services": ["fibonacci-python", "fibonacci-pypy", "fibonacci-cython_s"],
+    "input": "39",
+    "outputNeeds": ["fib(x)", "python"]
+  },
+  {
+    "services": ["fibonacci-go"],
+    "input": "39",
+    "outputNeeds": ["fib(x)", "GoLang"]
+  },
+  {
+    "services": ["fibonacci-cpp"],
+    "input": "39",
+    "outputNeeds": ["fib(x)", "C++"]
+  },
+  {
+    "services": ["fibonacci-nodejs"],
+    "input": "39",
+    "outputNeeds": ["fib(x)", "NodeJS"]
+  }
+]

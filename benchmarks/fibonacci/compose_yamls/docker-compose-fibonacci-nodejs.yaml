@@ -1,0 +1,12 @@
+version: "3.9"
+services:
+   ## NodeJS
+   fibonacci-nodejs:
+     image: davidschall/fibonacci-nodejs:v1
+     container_name: fibonacci-nodejs
+     build: 
+       context: ./
+       dockerfile: ./nodejs/Dockerfile
+     ports:
+     - published: 50081
+       target: 50051

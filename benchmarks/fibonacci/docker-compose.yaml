@@ -1,0 +1,81 @@
+version: "3.9"
+services:
+  ## Python
+  fibonacci-python:
+    image: davidschall/fibonacci-python:v1
+    container_name: fibonacci-python
+    build: 
+      context: ./
+      dockerfile: ./python/Dockerfile.python
+    ports:
+    - published: 50061
+      target: 50051
+
+  # fibonacci-cython:
+  #   image: davidschall/fibonacci-cython:v1
+  #   container_name: helloworld-cython
+  #   build: 
+  #     context: ./
+  #     dockerfile: ./python/Dockerfile.cython
+  #   ports:
+  #   - published: 50062
+  #     target: 50051
+
+  fibonacci-pypy:
+    image: davidschall/fibonacci-pypy:v1
+    container_name: fibonacci-pypy
+    build: 
+      context: ./
+      dockerfile: ./python/Dockerfile.pypy
+    ports:
+    - published: 50063
+      target: 50051
+
+  
+  fibonacci-cython_s:
+    image: davidschall/fibonacci-cython_s:v1
+    container_name: fibonacci-cython_s
+    build: 
+      context: ./
+      dockerfile: ./python/Dockerfile.cython_s
+    ports:
+    - published: 50064
+      target: 50051
+
+
+
+  ## Go
+  fibonacci-go:
+    image: davidschall/fibonacci-go:v1
+    container_name: fibonacci-go
+    build: 
+      context: ./
+      dockerfile: ./go/Dockerfile
+    ports:
+    - published: 50071
+      target: 50051
+
+  ## NodeJS
+  fibonacci-nodejs:
+    image: davidschall/fibonacci-nodejs:v1
+    container_name: fibonacci-nodejs
+    build: 
+      context: ./
+      dockerfile: ./nodejs/Dockerfile
+    ports:
+    - published: 50081
+      target: 50051
+
+  ## C++
+  fibonacci-cpp:
+    image: davidschall/fibonacci-cpp:v1
+    container_name: fibonacci-cpp
+    build: 
+      context: ./
+      dockerfile: ./cpp/Dockerfile
+    ports:
+    - published: 50091
+      target: 50051
+
+
+
