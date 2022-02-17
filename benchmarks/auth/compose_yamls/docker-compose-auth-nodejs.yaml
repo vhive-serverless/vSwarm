@@ -1,0 +1,9 @@
+version: "3.9"
+services:
+  ## NodeJS
+  auth-nodejs:
+    image: davidschall/auth-nodejs:latest
+    container_name: auth-nodejs
+    ports:
+    - published: 50081
+      target: 50051

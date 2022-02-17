@@ -1,0 +1,32 @@
+[
+  {
+    "services": ["all"],
+    "input": "",
+    "outputNeeds": ["auth"]
+  },
+  {
+    "services": ["auth-nodejs"],
+    "input": "",
+    "outputNeeds": ["NodeJS"]
+  },
+  {
+    "services": ["auth-python"],
+    "input": "",
+    "outputNeeds": ["Python"]
+  },
+  {
+    "services": ["auth-go"],
+    "input": "",
+    "outputNeeds": ["Golang"]
+  },
+  {
+    "services": ["all"],
+    "input": ".f1",
+    "outputNeeds": [".f1"]
+  },
+  {
+    "services": ["all"],
+    "input": ".f2",
+    "outputNeeds": [".f2"]
+  }
+]

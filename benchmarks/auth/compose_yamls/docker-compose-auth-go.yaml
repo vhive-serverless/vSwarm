@@ -1,0 +1,8 @@
+version: "3"
+services:
+  ## Golang
+  auth-go:
+    image: davidschall/auth-go:latest
+    container_name: auth-go
+    ports:
+           - "50071:50051"
