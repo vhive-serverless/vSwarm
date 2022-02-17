@@ -1,0 +1,17 @@
+
+## First stage: install all dependencies for this workload
+FROM davidschall/pypy_grpc:base AS builder_workload
+COPY --from=davidschall/pypy_grpc:base /root/.local /root/.local
+COPY python/requirements.txt .
+RUN pip install --user -r requirements.txt
+
+
+## Second stage: Create the actual image running the workload
+## Copy only the important files.
+FROM davidschall/pypy_grpc:base as var_workload
+COPY --from=builder_workload /root/.local /root/.local
+
+WORKDIR /app
+COPY python/*.py proto/*.py /app/
+
+ENTRYPOINT [ "pypy3", "/app/server.py" ]
