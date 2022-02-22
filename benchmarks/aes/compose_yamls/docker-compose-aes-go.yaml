@@ -1,9 +1,8 @@
-version: "3.9"
+version: "3"
 services:
   ## Golang
   aes-go:
-    image: davidschall/aes-go:latest
+    image: vhiveease/aes-go:latest
     container_name: aes-go
     ports:
-    - published: 50051
-      target: 50051
+        - "50051:50051"
