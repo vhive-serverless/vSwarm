@@ -1,0 +1,8 @@
+version: "3"
+services:
+  ## C++
+  fibonacci-cpp:
+    image: vhiveease/fibonacci-cpp:latest
+    container_name: fibonacci-cpp
+    ports:
+        - "50091:50051"
