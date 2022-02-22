@@ -2,10 +2,7 @@ version: "3"
  services:
    ## Go
    fibonacci-go:
-     image: davidschall/fibonacci-go:v1
+     image: vhiveease/fibonacci-go:latest
      container_name: fibonacci-go
-     build:
-       context: ./
-       dockerfile: ./go/Dockerfile
      ports:
          - "50071:50051"
