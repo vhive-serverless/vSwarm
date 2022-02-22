@@ -1,7 +1,3 @@
-# clean:
-# 	rm -f ./producer-bin ./consumer-bin
-
-
 DOCKER_HUB_ACCOUNT=vhiveease
 FUNCTIONS = auth-python auth-nodejs auth-go
 ALL_IMAGES = $(addsuffix -image, $(FUNCTIONS))
@@ -13,7 +9,7 @@ all_image: $(ALL_IMAGES)
 auth-python-image:
 	DOCKER_BUILDKIT=1 docker build \
 	--tag $(DOCKER_HUB_ACCOUNT)/auth-python:latest \
-	-f ./python/Dockerfile.python .
+	-f ./python/Dockerfile .
 
 
 auth-nodejs-image:
