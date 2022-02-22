@@ -2,9 +2,7 @@ version: "3"
 services:
   ## Python
   aes-python:
-    image: davidschall/aes-python:latest
+    image: vhiveease/aes-python:latest
     container_name: aes-python
     ports: 
-      - "50051:50051"
-    # - published: 50051
-    #   target: 50051
+        - "50051:50051"

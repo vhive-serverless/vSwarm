@@ -36,7 +36,7 @@ all_image: $(ALL_IMAGES)
 aes-python-image:
 	DOCKER_BUILDKIT=1 docker build \
 	--tag $(DOCKER_HUB_ACCOUNT)/aes-python:latest \
-	-f ./python/Dockerfile.python python/
+	-f ./python/Dockerfile python/
 
 
 aes-nodejs-image:

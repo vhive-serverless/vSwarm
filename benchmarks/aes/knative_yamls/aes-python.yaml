@@ -29,7 +29,7 @@ spec:
   template:
     spec:
       containers:
-        - image: docker.io/davidschall/aes-python:latest
+        - image: docker.io/vhiveease/aes-python:latest
           imagePullPolicy: Always
           env:
             - name: ENABLE_TRACING
