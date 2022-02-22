@@ -9,20 +9,6 @@ spec:
       containers:
         - image: docker.io/vhiveease/auth-python:latest
           imagePullPolicy: Always
-          # args: ["--knative", "--verbose", "--out", "s3://vhive-corral-bench/word_count/vhive-ubench/out"]
-          # env:
-          #   - name: KNATIVE
-          #     value: "1"
-          # ports:
-          #   - name: h2c
-          #     containerPort: 80
-
-
           ports:
             - name: h2c
               containerPort: 50051
-      #     # env:
-      #     #   - name: TARGET
-      #     #     value: "World"
-      # imagePullSecrets:  # <--------------- Add this line
-      #   - name: docker-hub-registry # <---- Add this line
