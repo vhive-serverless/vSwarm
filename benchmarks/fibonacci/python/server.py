@@ -10,7 +10,9 @@ import string
 import helloworld_pb2
 import helloworld_pb2_grpc
 
-
+# adding python tracing sources to the system path
+sys.path.insert(0, os.getcwd() + '/../../../../utils/tracing/python')
+import tracing
 
 import os
 import sys
@@ -22,6 +24,10 @@ print("python version: %s" % sys.version)
 print("Server has PID: %d" % os.getpid())
 GRPC_PORT_ADDRESS = os.getenv("GRPC_PORT")
 
+if tracing.IsTracingEnabled():
+    tracing.initTracer("fibonacci", url=args.url)
+    tracing.grpcInstrumentClient()
+    tracing.grpcInstrumentServer()
 
 def fibonacci(num):
     num1=0
@@ -39,8 +45,9 @@ class Greeter(helloworld_pb2_grpc.GreeterServicer):
 
     def SayHello(self, request, context):
 
-        x = int(request.name)
-        y = fibonacci(x)
+        with tracing.Span("Run fibonacci"):
+            x = int(request.name)
+            y = fibonacci(x)
 
         gid = syscall(104)
         msg = "Hello: this is GID: %i Invoke python fib: y = fib(x) | x: %i y: %.1f" % (gid,x,y)

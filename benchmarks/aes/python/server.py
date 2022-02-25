@@ -10,7 +10,9 @@ import pyaes
 import helloworld_pb2
 import helloworld_pb2_grpc
 
-
+# adding python tracing sources to the system path
+sys.path.insert(0, os.getcwd() + '/../../../../utils/tracing/python')
+import tracing
 
 import os
 import sys
@@ -23,7 +25,10 @@ print("Server has PID: %d" % os.getpid())
 GRPC_PORT_ADDRESS = os.getenv("GRPC_PORT")
 
 
-
+if tracing.IsTracingEnabled():
+    tracing.initTracer("aes", url=args.url)
+    tracing.grpcInstrumentClient()
+    tracing.grpcInstrumentServer()
 
 
 def generate(length):
@@ -60,12 +65,13 @@ class Greeter(helloworld_pb2_grpc.GreeterServicer):
 
     def SayHello(self, request, context):
 
-        if request.name == "" or ".f1" in request.name:
-            msg, plaintext, ciphertext = function1()
-        elif ".f2" in request.name:
-            msg, plaintext, ciphertext = function1()
-        else:
-            msg, plaintext, ciphertext = function(request.name)
+        with tracing.Span("Plaintext selection and Encryption"):
+            if request.name == "" or ".f1" in request.name:
+                msg, plaintext, ciphertext = function1()
+            elif ".f2" in request.name:
+                msg, plaintext, ciphertext = function1()
+            else:
+                msg, plaintext, ciphertext = function(request.name)
 
         gid = syscall(104)
         msg = f"Hello: this is: {gid}. Invoke {msg} | Plaintext: {plaintext} Ciphertext: {ciphertext}"

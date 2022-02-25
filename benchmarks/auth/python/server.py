@@ -6,6 +6,10 @@ import grpc
 import random
 import string
 
+# adding python tracing sources to the system path
+sys.path.insert(0, os.getcwd() + '/../../../../utils/tracing/python')
+import tracing
+
 import os
 import sys
 
@@ -21,7 +25,10 @@ print("python version: %s" % sys.version)
 print("Server has PID: %d" % os.getpid())
 GRPC_PORT_ADDRESS = os.getenv("GRPC_PORT")
 
-
+if tracing.IsTracingEnabled():
+    tracing.initTracer("auth", url=args.url)
+    tracing.grpcInstrumentClient()
+    tracing.grpcInstrumentServer()
 
 class Empty:  # declare this class to enable dynamically adding new attributes
     pass
@@ -60,15 +67,16 @@ class Greeter(helloworld_pb2_grpc.GreeterServicer):
         token = request.name
         fakeMethodArn = "arn:aws:execute-api:{regionId}:{accountId}:{apiId}/{stage}/{httpVerb}/[{resource}/[{child-resources}]]"
         
-        if '.f2' in token:
-            generatePolicy('user', 'Allow', fakeMethodArn)
-            msg = 'auth.f2'
-        else:
-            generatePolicy('user', 'Deny', fakeMethodArn)
-            msg = 'auth.f1'
+        with tracing.Span("Generate Policy"):
+            if '.f2' in token:
+                generatePolicy('user', 'Allow', fakeMethodArn)
+                msg = 'auth.f2'
+            else:
+                generatePolicy('user', 'Deny', fakeMethodArn)
+                msg = 'auth.f1'
 
-        gid = syscall(104)
-        msg = "Serve Function: Python.%s: from GID: %i" % (msg, gid)
+            gid = syscall(104)
+            msg = "Serve Function: Python.%s: from GID: %i" % (msg, gid)
         return helloworld_pb2.HelloReply(message=msg)
 
 
