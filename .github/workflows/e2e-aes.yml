@@ -1,0 +1,139 @@
+name: AES End-to-End Tests
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "0 9 * * 1"
+  push:
+    branches: [main]
+    paths:
+      - "benchmarks/aes/*"
+      - "utils/*"
+  pull_request:
+    branches: [main]
+    paths:
+      - "benchmarks/aes/*"
+      - "utils/*"
+
+env:
+  GOOS: linux
+  GO111MODULE: on
+  KUBECONFIG: /etc/kubernetes/admin.conf
+
+jobs:
+  build-and-push:
+    name: Build and Push all images
+    runs-on: ubuntu-18.04
+    strategy:
+      fail-fast: false
+    steps:
+      - name: Check out code into the Go module directory
+        uses: actions/checkout@v2
+        with:
+          lfs: "true"
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v1
+        with:
+          username: ${{ secrets.DOCKER_HUB_USERNAME }}
+          password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
+
+      - name: Set up Docker Buildx
+        id: buildx
+        uses: docker/setup-buildx-action@v1
+
+      - name: Build and Push
+        working-directory: benchmarks/aes
+        env:
+          GOPRIVATE_KEY: ${{ secrets.EASE_LAB_ACCESS_KEY }}
+        run: make all-image-push
+
+  test-compose:
+    name: Test Docker Compose
+    needs: build-and-push
+    runs-on: ubuntu-18.04
+    strategy:
+      fail-fast: false
+      matrix:
+        file: [docker-compose.yml, fanin-basic.yml, fanout-basic.yml]
+        include:
+          - file: docker-compose.yml
+            port: 3031
+          - file: fanin-basic.yml
+            port: 3032
+          - file: fanout-basic.yml
+            port: 3032
+
+    steps:
+      - name: Check out code into the Go module directory
+        uses: actions/checkout@v2
+        with:
+          lfs: "true"
+
+      - name: start docker-compose benchmark
+        env:
+          AWS_ACCESS_KEY: ${{ secrets.AWS_ACCESS_KEY }}
+          AWS_SECRET_KEY: ${{ secrets.AWS_SECRET_KEY }}
+        working-directory: benchmarks/aes/compose_yamls
+        run: |
+          docker-compose -f ${{ matrix.file }} up &> log_file &
+          sleep 60s
+
+      - name: invoke the chain
+        run: |
+          ./tools/bin/grpcurl -plaintext localhost:${{ matrix.port }} helloworld.Greeter.SayHello
+
+      - name: show docker-compose log
+        run: cat benchmarks/aes/compose_yamls/log_file
+
+  test-knative:
+    name: Test Knative Deployment
+    needs: build-and-push
+    env:
+      GOCACHE: /root/tmp/gocache
+      GOPATH: /root/tmp/gopath
+    runs-on: [stock-knative]
+    strategy:
+      fail-fast: false
+      matrix:
+        folder: [inline, fanin-basic, fanout-basic]
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          lfs: "true"
+      - name: Checkout LFS objects
+        run: git lfs checkout
+
+      - uses: actions/setup-go@v2
+        with:
+          go-version: 1.16
+
+      - name: Up
+        working-directory: benchmarks
+        env:
+          AWS_ACCESS_KEY: ${{ secrets.AWS_ACCESS_KEY }}
+          AWS_SECRET_KEY: ${{ secrets.AWS_SECRET_KEY }}
+        run: ../tools/kn_deploy.sh ./aes/knative_yamls/${{ matrix.folder }}/*
+
+      - name: Test
+        working-directory: tools/test-client
+        run: |
+          set -x
+
+          NODEPORT=$(kubectl get svc kourier-ingress -n kourier-system -o=jsonpath='{.spec.ports[0].nodePort}')
+          HOSTNAME=$(kubectl get ksvc driver -n default -o jsonpath='{.status.url}' | cut -c8-)
+
+          go build ./test-client.go
+          ./test-client -addr $HOSTNAME:$NODEPORT
+
+      - name: Print logs
+        if: ${{ always() }}
+        run: |
+          set -x
+          kubectl logs -n default -c user-container -l serving.knative.dev/service=producer
+          kubectl logs -n default -c user-container -l serving.knative.dev/service=consumer
+          kubectl logs -n default -c user-container -l serving.knative.dev/service=driver
+
+      - name: Down
+        if: ${{ always() }}
+        run: kn service delete --all --namespace default --wait
