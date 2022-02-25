@@ -1,16 +1,17 @@
-# AES Benchmark
+# Auth Benchmark
 
-The AES benchmark use the AES128 algorithm to encrypt a certain message string.
+The auth benchmark ...
 
 The same functionality is implemented in different runtimes, namely Python, NodeJS and golang.
 
+
 ## Running this benchmark locally (using docker)
 
-The detailed and general description how to run benchmarks local you can find [here](../../docs/running_locally.md). The following steps show it on the aes-python function.
+The detailed and general description how to run benchmarks local you can find [here](../../docs/running_locally.md). The following steps show it on the auth-python function.
 1. Build or pull the function images using `make all-images` or `make pull`.
 2. Start the function with docker-compose
    ```bash
-   docker-compose -f compose_yamls/docker-compose-aes-python.yaml up
+   docker-compose -f compose_yamls/docker-compose-auth-python.yaml up
    ```
 3. In a new terminal, invoke the interface function with grpcurl. To provide the helloworld protocol explicitly we'll use `-import-path <path/to proto/dir> -proto helloworld.proto`.
    ```bash
@@ -32,11 +33,11 @@ The detailed and general description how to run benchmarks local you can find [h
 
 ## Running this benchmark (using knative)
 
-The detailed and general description how to run benchmarks on knative clusters you can find [here](../../docs/running_benchmarks.md). The following steps show it on the aes-python function.
+The detailed and general description how to run benchmarks on knative clusters you can find [here](../../docs/running_benchmarks.md). The following steps show it on the auth-python function.
 1. Build or pull the function images using `make all-images` or `make pull`.
 2. Start the function with knative
    ```bash
-   kn service apply -f ./knative_yamls/aes-python.yaml
+   kn service apply -f ./knative_yamls/auth-python.yaml
    ```
 3. **Note the URL provided in the output. The part without the `http://` we'll call `$URL`. Replace any instance of `$URL` in the code below with it.**
 4. In a new terminal, invoke the interface function with grpcurl. To provide the helloworld protocol explicitly we'll use `-import-path <path/to proto/dir> -proto helloworld.proto`.

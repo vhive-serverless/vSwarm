@@ -25,3 +25,11 @@ passed to multiple consumers.
 multiple recipients. Unlike the broadcast pattern, the sent payloads are different from each other.
 - **Gather** - Describes a fan-in many-to-one pattern, whereby a consumer retrieves objects from 
 multiple producers, e.g., as in the reduce phase in MapReduce.
+
+## Standalone functions benchmark summary
+
+| Benchmark | Knative infra | tracing | Runtimes            | Languages implemented  |
+|-----------|---------------|---------|---------------------|------------------------|
+| AES       | Serving       | ✓       | docker, knative     | python, golang, nodejs |
+| Auth      | Serving       | ✓       | docker, knative     | python, golang, nodejs |
+| Fibonacci | Serving       | ✓       | docker, knative     | python, golang, nodejs |
