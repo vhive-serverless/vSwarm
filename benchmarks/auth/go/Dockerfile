@@ -1,19 +1,21 @@
-FROM golang:1.16 as builder
+## First stage:
+## Builder
+FROM golang:1.16 AS builder
 
 WORKDIR /app
-COPY go/* /app/
-# COPY proto/helloworld.proto /app/proto/
+COPY . .
 
-# RUN apt update && apt install -y protobuf-compiler
-# RUN go get -u github.com/golang/protobuf/protoc-gen-go
-# RUN protoc -I /app/proto /app/proto/helloworld.proto --go_out=plugins=grpc:/app/proto
-# RUN go env -w GOPROXY=https://goproxy.cn/,direct && go get . && go build .
-RUN go get . && go build .
+RUN go get .
+RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo .
 
 
-FROM vhiveease/runner
-WORKDIR /app
-COPY --from=builder /app/server /app/server
+## Second stage: deployment image
+FROM alpine:3.14
+RUN apk --no-cache add ca-certificates
 
+LABEL author="David Schall"
+
+WORKDIR /app/
+COPY --from=builder /app/server .
 
 ENTRYPOINT /app/server
