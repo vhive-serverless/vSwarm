@@ -138,7 +138,8 @@ class ObjectRecognitionServicer(videoservice_pb2_grpc.ObjectRecognitionServicer)
 def serve():
     transferType = os.getenv('TRANSFER_TYPE', INLINE)
     if transferType == S3:
-        storage.init("S3", 'vhive-video-bench')
+        bucketName = os.getenv('BUCKET_NAME', 'vhive-video-bench')
+        storage.init("S3", bucketName)
     if transferType == S3 or transferType == INLINE:
         max_workers = int(os.getenv("MAX_RECOG_SERVER_THREADS", 10))
         server = grpc.server(futures.ThreadPoolExecutor(max_workers=max_workers))

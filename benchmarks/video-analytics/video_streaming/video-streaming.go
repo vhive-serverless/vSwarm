@@ -51,14 +51,14 @@ var (
 	AKID          string
 	SECRET_KEY    string
 	AWS_S3_REGION string
+	AWS_S3_BUCKET = "vhive-video-bench"
 )
 
 const (
-	AWS_S3_BUCKET = "vhive-video-bench"
-	TOKEN         = ""
-	INLINE        = "INLINE"
-	XDT           = "XDT"
-	S3            = "S3"
+	TOKEN  = ""
+	INLINE = "INLINE"
+	XDT    = "XDT"
+	S3     = "S3"
 )
 
 type server struct {
@@ -214,7 +214,10 @@ func main() {
 	}
 
 	if server.transferType == S3 {
-		storage.InitStorage("S3", "vhive-video-bench")
+		if value, ok := os.LookupEnv("BUCKET_NAME"); ok {
+			AWS_S3_BUCKET = value
+		}
+		storage.InitStorage("S3", AWS_S3_BUCKET)
 	} else if server.transferType == XDT {
 		log.Infof("[streaming] TransferType = %s", server.transferType)
 		config := utils.ReadConfig()
