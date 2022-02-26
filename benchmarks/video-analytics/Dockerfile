@@ -32,9 +32,7 @@ COPY ./utils/storage/python/storage.py ./
 COPY ./benchmarks/video-analytics/object_recognition/* ./
 COPY ./benchmarks/video-analytics/proto/videoservice_pb2_grpc.py ./
 COPY ./benchmarks/video-analytics/proto/videoservice_pb2.py ./
-RUN --mount=type=secret,id=GOPRIVATE_KEY \
-        git config --global url."https://ease-lab:$(cat /run/secrets/GOPRIVATE_KEY)@github.com/ease-lab/vhive-xdt".insteadOf "https://github.com/ease-lab/vhive-xdt"
-RUN git clone --depth 1 https://github.com/ease-lab/vhive-xdt /xdt
+RUN --mount=type=secret,id=GOPRIVATE_KEY git clone --depth 1 https://$(cat /run/secrets/GOPRIVATE_KEY)@github.com/ease-lab/vhive-xdt /xdt
 
 FROM vhiveease/python-slim:latest as recog
 COPY --from=recogBuilder /root/.local /root/.local
@@ -61,9 +59,7 @@ COPY ./benchmarks/video-analytics/decoder/decode.py ./
 RUN mkdir frames
 COPY ./benchmarks/video-analytics/proto/videoservice_pb2_grpc.py ./
 COPY ./benchmarks/video-analytics/proto/videoservice_pb2.py ./
-RUN --mount=type=secret,id=GOPRIVATE_KEY \
-        git config --global url."https://ease-lab:$(cat /run/secrets/GOPRIVATE_KEY)@github.com/ease-lab/vhive-xdt".insteadOf "https://github.com/ease-lab/vhive-xdt"
-RUN git clone --depth 1 https://github.com/ease-lab/vhive-xdt /xdt
+RUN --mount=type=secret,id=GOPRIVATE_KEY git clone --depth 1 https://$(cat /run/secrets/GOPRIVATE_KEY)@github.com/ease-lab/vhive-xdt /xdt
 
 FROM vhiveease/python-slim:latest as decode
 RUN apt update && apt-get install ffmpeg libsm6 libxext6  -y
@@ -91,7 +87,7 @@ COPY ./benchmarks/video-analytics/proto ./proto
 COPY ./utils/storage/go ../../utils/storage/go
 COPY ./utils/tracing/go ../../utils/tracing/go
 RUN --mount=type=secret,id=GOPRIVATE_KEY \
-    git config --global url."https://ease-lab:$(cat /run/secrets/GOPRIVATE_KEY)@github.com/ease-lab/vhive-xdt".insteadOf "https://github.com/ease-lab/vhive-xdt"
+    git config --global url."https://$(cat /run/secrets/GOPRIVATE_KEY)@github.com/ease-lab/vhive-xdt".insteadOf "https://github.com/ease-lab/vhive-xdt"
 RUN go env -w GOPRIVATE=github.com/ease-lab/vhive-xdt
 RUN go mod download && \
    CGO_ENABLED=0 GOOS=linux go build -v -o ./video_streaming/streaming-bin ./video_streaming
