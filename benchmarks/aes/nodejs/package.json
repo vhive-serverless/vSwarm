@@ -8,6 +8,8 @@
     "crypto-js": "^4.1.1",
     "google-protobuf": "^3.0.0",
     "lodash": "^4.6.1",
-    "minimist": "^1.2.0"
+    "minimist": "^1.2.0",
+    "tracing": "github:ease-lab/vSwarm#main",
+    "tracing": "github:ease-lab/vSwarm#nodejs-tracing"
   }
 }
