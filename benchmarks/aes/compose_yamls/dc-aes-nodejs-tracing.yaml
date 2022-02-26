@@ -1,0 +1,23 @@
+version: "3.9"
+services:
+  ## NodeJS
+  aes-nodejs:
+    image: vhiveease/aes-nodejs:latest
+    container_name: aes-nodejs
+    entrypoint:
+        - node
+        - server.js
+        - --addr=0.0.0.0
+        - --port=50051
+        - --zipkin=http://zipkin:9411/api/v2/spans
+    ports:
+        - "50051:50051"
+    environment:
+        - ENABLE_TRACING=true
+    depends_on:
+        - zipkin
+
+  zipkin:
+    image: openzipkin/zipkin
+    ports:
+        - 9411:9411

@@ -10,23 +10,29 @@ import pyaes
 import helloworld_pb2
 import helloworld_pb2_grpc
 
-# adding python tracing sources to the system path
-sys.path.insert(0, os.getcwd() + '/../../../../utils/tracing/python')
-import tracing
-
+import argparse
 import os
 import sys
 import ctypes
 libc = ctypes.CDLL(None)
 syscall = libc.syscall
 
-print("python version: %s" % sys.version)
+# For local builds add python tracing sources to the system path
+sys.path.insert(0, os.getcwd() + '/../../../utils/tracing/python')
+import tracing
+
 print("Server has PID: %d" % os.getpid())
-GRPC_PORT_ADDRESS = os.getenv("GRPC_PORT")
+
+# USE ENV VAR "DecoderFrames" to set the number of frames to be sent
+parser = argparse.ArgumentParser()
+parser.add_argument("-a", "--addr", dest="addr", default="0.0.0.0", help="IP address")
+parser.add_argument("-p", "--port", dest="port", default="50051", help="serve port")
+parser.add_argument("-zipkin", "--zipkin", dest="url", default="http://0.0.0.0:9411/api/v2/spans", help="Zipkin endpoint url")
+args = parser.parse_args()
 
 
 if tracing.IsTracingEnabled():
-    tracing.initTracer("aes", url=args.url)
+    tracing.initTracer("aes-python", url=args.url)
     tracing.grpcInstrumentClient()
     tracing.grpcInstrumentServer()
 
@@ -82,7 +88,7 @@ def serve():
     server = grpc.server(futures.ThreadPoolExecutor(max_workers=1))
     helloworld_pb2_grpc.add_GreeterServicer_to_server(Greeter(), server)
 
-    address = ('[::]:' + GRPC_PORT_ADDRESS if GRPC_PORT_ADDRESS else  '[::]:50051')
+    address = (args.addr + ":" + args.port)
     server.add_insecure_port(address)
     print("Start server: listen on : " + address)
 

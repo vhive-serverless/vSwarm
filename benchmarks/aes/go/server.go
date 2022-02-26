@@ -25,22 +25,19 @@ import (
 	"crypto/cipher"
 	"crypto/rand"
 	"encoding/hex"
+	"flag"
 	"fmt"
 	"io"
-    //	"log"
+
+	//	"log"
 	"net"
-	"os"
 	"syscall"
 
+	tracing "github.com/ease-lab/vhive/utils/tracing/go"
+	log "github.com/sirupsen/logrus"
 	"google.golang.org/grpc"
-   	"google.golang.org/grpc/reflection"
-	log "github.com/sirupsen/logrus"    
 	pb "google.golang.org/grpc/examples/helloworld/helloworld"
-    tracing "github.com/ease-lab/vhive/utils/tracing/go"
-)
-
-const (
-	default_port = "50051"
+	"google.golang.org/grpc/reflection"
 )
 
 func AES(plaintext []byte) []byte {
@@ -120,36 +117,40 @@ func (s *server) SayHello(ctx context.Context, in *pb.HelloRequest) (*pb.HelloRe
 
 func main() {
 
-	var address string = ":"
+	zipkin := flag.String("zipkin", "http://localhost:9411/api/v2/spans", "zipkin url")
+	address := flag.String("addr", "0.0.0.0:50051", "Address")
+	flag.Parse()
+
 	// log.Printf("Start server: listen on : %s\n", address)
-	if port, ok := os.LookupEnv("GRPC_PORT"); ok {
-		address += port
-	} else {
-		address += default_port
+	// if port, ok := os.LookupEnv("GRPC_PORT"); ok {
+	// 	address += port
+	// } else {
+	// 	address += default_port
+	// }
+	if tracing.IsTracingEnabled() {
+		log.Printf("Start tracing on : %s\n", *zipkin)
+		shutdown, err := tracing.InitBasicTracer(*zipkin, "aes function")
+		if err != nil {
+			log.Warn(err)
+		}
+		log.Printf("Tracing enabled")
+		defer shutdown()
 	}
 
-    if tracing.IsTracingEnabled(){ 
-        shutdown, err := tracing.InitBasicTracer("http://localhost:9411/api/v2/spans", "aes function")
-        if err != nil {
-            log.Warn(err)
-        }   
-    defer shutdown()
-    }
-
-	lis, err := net.Listen("tcp", address)
+	lis, err := net.Listen("tcp", *address)
 	if err != nil {
 		log.Fatalf("failed to listen: %v", err)
 	}
-	log.Printf("Start server: listen on : %s\n", address)
+	log.Printf("Start server: listen on : %s\n", *address)
 
-    var grpcServer *grpc.Server
-    if tracing.IsTracingEnabled(){
-        grpcServer = tracing.GetGRPCServerWithUnaryInterceptor()
-    } else {
-        grpcServer = grpc.NewServer()
-    }	
-    pb.RegisterGreeterServer(grpcServer, &server{})
-   	reflection.Register(grpcServer)
+	var grpcServer *grpc.Server
+	if tracing.IsTracingEnabled() {
+		grpcServer = tracing.GetGRPCServerWithUnaryInterceptor()
+	} else {
+		grpcServer = grpc.NewServer()
+	}
+	pb.RegisterGreeterServer(grpcServer, &server{})
+	reflection.Register(grpcServer)
 
 	if err := grpcServer.Serve(lis); err != nil {
 		log.Fatalf("failed to serve: %v", err)
