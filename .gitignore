@@ -388,4 +388,4 @@ $RECYCLE.BIN/
 *.lnk
 
 # End of https://www.toptal.com/developers/gitignore/api/vim,visualstudiocode,go,intellij+all,windows,linux,macos,python
-utils/tracing/nodejs/node_modules/
+node_modules/

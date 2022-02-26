@@ -2,7 +2,7 @@
   "name": "tracing",
   "version": "1.0.0",
   "description": "",
-  "main": "tracing.js",
+  "main": "utils/tracing/nodejs/tracing.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
