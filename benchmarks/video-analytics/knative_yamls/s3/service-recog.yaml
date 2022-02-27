@@ -35,7 +35,7 @@ spec:
     spec:
       containerConcurrency: 1
       containers:
-        - image: docker.io/vhiveease/video-analytics-recog:dynamicBucket
+        - image: docker.io/vhiveease/video-analytics-recog:latest
           imagePullPolicy: Always
           env:
             - name: TRANSFER_TYPE
