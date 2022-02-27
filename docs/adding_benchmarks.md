@@ -308,7 +308,7 @@ spec:
 - A Trigger is a link between a broker and a _subscriber_ that relays the incoming CloudEvents to
   the broker after filtering them on certain attributes, commonly `type` and `source` but possibly
   also any other
-  [attribute extensions](https://github.com/cloudevents/spec/blob/master/primer.md#cloudevent-attributes).
+  [attribute extensions](https://github.com/cloudevents/spec/blob/main/cloudevents/primer.md#cloudevent-attributes).
 - A Trigger must be in the same namespace with the broker it is attached to, but can relay
   CloudEvents to any
   [_addressable_](https://github.com/knative/specs/blob/main/specs/eventing/overview.md#addressable)
