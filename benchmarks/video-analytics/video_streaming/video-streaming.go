@@ -217,6 +217,7 @@ func main() {
 		if value, ok := os.LookupEnv("BUCKET_NAME"); ok {
 			AWS_S3_BUCKET = value
 		}
+		log.Infof("[streaming]  BUCKET = %s", AWS_S3_BUCKET)
 		storage.InitStorage("S3", AWS_S3_BUCKET)
 	} else if server.transferType == XDT {
 		log.Infof("[streaming] TransferType = %s", server.transferType)
