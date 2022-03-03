@@ -10,7 +10,7 @@ replace (
 )
 
 require (
-	github.com/containerd/containerd v1.5.8
+	github.com/containerd/containerd v1.5.10
 	github.com/ease-lab/vhive/examples/endpoint v0.0.0-00010101000000-000000000000
 	github.com/ease-lab/vhive/utils/benchmarking/eventing v0.0.0-00010101000000-000000000000
 	github.com/ease-lab/vhive/utils/tracing/go v0.0.0-20210701094502-1e364449633f
