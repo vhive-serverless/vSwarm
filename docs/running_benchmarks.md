@@ -22,7 +22,7 @@ for a default knative cluster, or consider using the
     ```bash
     ./tools/kn_deploy.sh ./benchmarks/path/to/manifests/*
     ```
-    The function deployment can be monitored using `kn service list --all` 
+    The function deployment can be monitored using `kn service list --all-namespaces` 
     > **Note:**
     > 
     > Deployment of Knative Eventing benchmarks requires more steps, so such benchmarks will
@@ -37,7 +37,7 @@ for a default knative cluster, or consider using the
     the `invoker` over using `grpcurl` since some function manifests include configurations that
     interfere with grpcurl.
 
-    The hostname of the interface function can be double-checked with `kn service list --all`, for
+    The hostname of the interface function can be double-checked with `kn service list --all-namespaces`, for
     example: "driver.default.127.0.0.1.nip.io". Do not include the "http://" protocol prefix. The
     interface function can have a different name depending on the benchmark, this is documented
     in the README within each benchmark's directory.
