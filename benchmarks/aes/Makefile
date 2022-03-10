@@ -1,6 +1,6 @@
 # MIT License
 #
-# Copyright (c) 2021 David Schall and EASE lab
+# Copyright (c) 2022 David Schall and EASE lab
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -21,14 +21,13 @@
 # SOFTWARE.
 
 
-# clean:
-# 	rm -f ./producer-bin ./consumer-bin
+clean: clean-proto
 
 
 ROOT = ../../
 
+.PHONY: proto
 
-DOCKER_HUB_ACCOUNT=vhiveease
 FUNCTIONS = aes-python aes-nodejs aes-go
 ALL_IMAGES = $(addsuffix -image, $(FUNCTIONS))
 
@@ -36,33 +35,65 @@ all: all_image
 
 all_image: $(ALL_IMAGES)
 
-aes-python-image:
+
+aes-python-image: Dockerfile proto/helloworld_pb2_grpc.py proto/helloworld_pb2.py python/server.py
 	DOCKER_BUILDKIT=1 docker build \
-	--tag $(DOCKER_HUB_ACCOUNT)/aes-python:latest \
-	-f ./python/Dockerfile \
+	--tag vhiveease/aes-python:latest \
+	--target aesPython \
+	-f Dockerfile \
 	$(ROOT)
 
 
-aes-nodejs-image:
-	DOCKER_BUILDKIT=1 docker build \
-	--tag $(DOCKER_HUB_ACCOUNT)/aes-nodejs:latest \
-	-f ./nodejs/Dockerfile nodejs/
+aes-nodejs-image: Dockerfile proto/helloworld.proto nodejs/server.js
+	DOCKER_BUILDKIT=1 docker build --progress=plain \
+	--tag vhiveease/aes-nodejs:latest \
+	--target aesNodeJS \
+	-f Dockerfile \
+	$(ROOT)
 
-aes-go-image:
-	DOCKER_BUILDKIT=1 docker build \
-	--tag $(DOCKER_HUB_ACCOUNT)/aes-go:latest \
-	-f ./go/Dockerfile go/
+
+aes-go-image: Dockerfile proto/helloworld_grpc.pb.go proto/helloworld.pb.go go/server.go
+	DOCKER_BUILDKIT=1 \
+	docker build \
+	--tag vhiveease/aes-go:latest \
+	--target aesGo \
+	-f Dockerfile \
+	$(ROOT)
+
+
 
 
 
 push-%: %-image
-	docker push docker.io/$(DOCKER_HUB_ACCOUNT)/$(subst push-,,$@):latest
+	docker push docker.io/vhiveease/$(subst push-,,$@):latest
 
 push: $(addprefix push-, $(FUNCTIONS))
 
 
 pull-%:
-	docker pull docker.io/$(DOCKER_HUB_ACCOUNT)/$(subst pull-,,$@):latest
+	docker pull docker.io/vhiveease/$(subst pull-,,$@):latest
 
 pull: $(addprefix pull-, $(FUNCTIONS))
 
+
+
+## Protocol buffer
+proto: proto/_.py proto/_.go
+
+proto/%.py: proto/helloworld.proto
+	cd proto && \
+	python -m grpc_tools.protoc -I. \
+		--python_out=. \
+		--grpc_python_out=. \
+		helloworld.proto
+
+proto/%.go: proto/helloworld.proto
+	protoc --go_out=. \
+		--go_opt=paths=source_relative \
+		--go-grpc_out=. \
+		--go-grpc_opt=paths=source_relative proto/helloworld.proto
+
+
+clean-proto:
+	rm -f proto/*.py
+	rm -f proto/*.go

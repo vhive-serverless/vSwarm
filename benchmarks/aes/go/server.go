@@ -23,36 +23,42 @@ import (
 	"context"
 	"crypto/aes"
 	"crypto/cipher"
-	"crypto/rand"
 	"encoding/hex"
 	"flag"
 	"fmt"
-	"io"
+
+	log "github.com/sirupsen/logrus"
 
 	//	"log"
 	"net"
-	"syscall"
 
-	tracing "github.com/ease-lab/vhive/utils/tracing/go"
-	log "github.com/sirupsen/logrus"
+	pb "aes/proto"
+
+	tracing "github.com/ease-lab/vSwarm/utils/tracing/go"
+
 	"google.golang.org/grpc"
-	pb "google.golang.org/grpc/examples/helloworld/helloworld"
 	"google.golang.org/grpc/reflection"
 )
 
-func AES(plaintext []byte) []byte {
+var (
+	zipkin       = flag.String("zipkin", "http://localhost:9411/api/v2/spans", "zipkin url")
+	address      = flag.String("addr", "0.0.0.0:50051", "Address:Port the grpc server is listening to")
+	key_string   = flag.String("key", "6368616e676520746869732070617373", "The key which is used for encryption")
+	default_name = flag.String("default-plaintext", "exampleplaintext", "Default plaintext when the function is called with the name world")
+)
+
+func AESModeCBC(plaintext []byte) []byte {
 	// Reference: cipher documentation
 	// https://golang.org/pkg/crypto/cipher/#BlockMode
 
-	key, _ := hex.DecodeString("6368616e676520746869732070617373")
+	key, _ := hex.DecodeString(*key_string)
 
 	// CBC mode works on blocks so plaintexts may need to be padded to the
 	// next whole block. For an example of such padding, see
 	// https://tools.ietf.org/html/rfc5246#section-6.2.3.2.
-	// For simplicity, here we'll assume that the plaintext
-	// is already of the correct length.
+	var padding [aes.BlockSize]byte
 	if len(plaintext)%aes.BlockSize != 0 {
-		panic("plaintext is not a multiple of the block size")
+		plaintext = append(plaintext, padding[(len(plaintext)%aes.BlockSize):]...)
 	}
 
 	block, err := aes.NewCipher(key)
@@ -60,34 +66,52 @@ func AES(plaintext []byte) []byte {
 		panic(err)
 	}
 
-	// IV: initialization vector that is generated randomly.
-	// This will make the encryption result different from time to time
-	ciphertext := make([]byte, aes.BlockSize+len(plaintext))
-	iv := ciphertext[:aes.BlockSize]
-	if _, err := io.ReadFull(rand.Reader, iv); err != nil {
-		panic(err)
-	}
+	// IV: initialization vector that randomly.
+	// Need to be size 16. We will use 0 for now
+	iv := make([]byte, aes.BlockSize)
 
+	ciphertext := make([]byte, aes.BlockSize+len(plaintext))
 	mode := cipher.NewCBCEncrypter(block, iv)
 	mode.CryptBlocks(ciphertext[aes.BlockSize:], plaintext)
 
 	return ciphertext
 }
 
-func f1() (string, []byte, []byte) {
-	plaintext := []byte("exampleplaintext")
-	ciphertext := AES(plaintext)
-	return "GoLang.aes.f1", plaintext, ciphertext
+func AESModeCTR(plaintext []byte) []byte {
+	// Reference: cipher documentation
+	// https://golang.org/pkg/crypto/cipher/#Stream
+
+	key, _ := hex.DecodeString(*key_string)
+	block, err := aes.NewCipher(key)
+	if err != nil {
+		panic(err)
+	}
+
+	// The IV needs to be unique, but not secure. Therefore it's common to
+	// include it at the beginning of the ciphertext.
+	// We will use 0 to be predictable
+	iv := make([]byte, aes.BlockSize)
+	ciphertext := make([]byte, len(plaintext))
+
+	stream := cipher.NewCTR(block, iv)
+	stream.XORKeyStream(ciphertext, plaintext)
+	return ciphertext
 }
-func f2() (string, []byte, []byte) {
-	plaintext := []byte("a m e s s a g e ")
-	ciphertext := AES(plaintext)
-	return "GoLang.aes.f2", plaintext, ciphertext
-}
-func fn(plaintext []byte) (string, []byte, []byte) {
-	ciphertext := AES(plaintext)
-	return "GoLang.aes.fn(plaintext)", plaintext, ciphertext
-}
+
+// func f1() (string, []byte, []byte) {
+// 	plaintext := []byte("exampleplaintext")
+// 	ciphertext := AESModeCTR(plaintext)
+// 	return "GoLang.aes.f1", plaintext, ciphertext
+// }
+// func f2() (string, []byte, []byte) {
+// 	plaintext := []byte("a m e s s a g e ")
+// 	ciphertext := AESModeCTR(plaintext)
+// 	return "GoLang.aes.f2", plaintext, ciphertext
+// }
+// func fn(plaintext []byte) (string, []byte, []byte) {
+// 	ciphertext := AESModeCTR(plaintext)
+// 	return "GoLang.aes.fn(plaintext)", plaintext, ciphertext
+// }
 
 // server is used to implement helloworld.GreeterServer.
 type server struct {
@@ -97,43 +121,28 @@ type server struct {
 // SayHello implements helloworld.GreeterServer
 func (s *server) SayHello(ctx context.Context, in *pb.HelloRequest) (*pb.HelloReply, error) {
 	// log.Printf("Received: %v", in.GetName())
-	gid := syscall.Getgid()
-	var msg string
+
 	var plaintext, ciphertext []byte
-	switch in.GetName() {
-	case ".f2":
-		msg, plaintext, ciphertext = f2()
-	case "", ".f1":
-		msg, plaintext, ciphertext = f1()
-	default:
+	if in.GetName() == "" || in.GetName() == "world" {
+		plaintext = []byte(*default_name)
+	} else {
 		plaintext = []byte(in.GetName())
-		var padding [aes.BlockSize]byte
-		plaintext = append(plaintext, padding[(len(plaintext)%aes.BlockSize):]...)
-		msg, plaintext, ciphertext = fn(plaintext)
 	}
-	resp := fmt.Sprintf("Hello: this is: %d. Invoke %s | Plaintext: %s Ciphertext: %x", gid, msg, plaintext, ciphertext)
+	// Do the encryption
+	ciphertext = AESModeCTR(plaintext)
+	resp := fmt.Sprintf("fn: AES | plaintext: %s | ciphertext: %x | runtime: golang", plaintext, ciphertext)
 	return &pb.HelloReply{Message: resp}, nil
 }
 
 func main() {
-
-	zipkin := flag.String("zipkin", "http://localhost:9411/api/v2/spans", "zipkin url")
-	address := flag.String("addr", "0.0.0.0:50051", "Address")
 	flag.Parse()
 
-	// log.Printf("Start server: listen on : %s\n", address)
-	// if port, ok := os.LookupEnv("GRPC_PORT"); ok {
-	// 	address += port
-	// } else {
-	// 	address += default_port
-	// }
 	if tracing.IsTracingEnabled() {
 		log.Printf("Start tracing on : %s\n", *zipkin)
 		shutdown, err := tracing.InitBasicTracer(*zipkin, "aes function")
 		if err != nil {
 			log.Warn(err)
 		}
-		log.Printf("Tracing enabled")
 		defer shutdown()
 	}
 
@@ -141,7 +150,7 @@ func main() {
 	if err != nil {
 		log.Fatalf("failed to listen: %v", err)
 	}
-	log.Printf("Start server: listen on : %s\n", *address)
+	log.Printf("Start AES-go server. Addr: %s\n", *address)
 
 	var grpcServer *grpc.Server
 	if tracing.IsTracingEnabled() {

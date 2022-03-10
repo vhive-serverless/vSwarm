@@ -1,8 +1,14 @@
 # AES Benchmark
 
-The AES benchmark use the AES128 algorithm to encrypt a certain message string.
+The AES benchmark use the AES128 algorithm to encrypt a certain message string. As we are using the helloworld gRPC protocol for this benchmark the message will be the `name` variable. If you do not specify a name a default name is taken. You can change the default name with the argument `default-plaintext`.
+
+AES requires a secrete key for encryption. The functions use a default key but you can specify your own by passing it with the `key` argument to the function. See source code for more details.
 
 The same functionality is implemented in different runtimes, namely Python, NodeJS and golang.
+
+
+
+
 
 ## Running this benchmark locally (using docker)
 
@@ -10,7 +16,7 @@ The detailed and general description how to run benchmarks local you can find [h
 1. Build or pull the function images using `make all-images` or `make pull`.
 2. Start the function with docker-compose
    ```bash
-   docker-compose -f compose_yamls/docker-compose-aes-python.yaml up
+   docker-compose -f yamls/docker-compose/dc-aes-<runtime>.yaml up
    ```
 3. In a new terminal, invoke the interface function with grpcurl. To provide the helloworld protocol explicitly we'll use `-import-path <path/to proto/dir> -proto helloworld.proto`.
    ```bash
@@ -55,9 +61,7 @@ The detailed and general description how to run benchmarks on knative clusters y
    # Start the invoker with a chosen RPS rate and time
    ./invoker -port 50051 -dbg -time 10 -rps 1
    ```
-6. To use tracing, see [vSwarm docs here](../../docs/running_benchmarks.md#tracing)
+## Tracing
+This Benchmark supports distributed tracing for all runtimes. For the general use see vSwarm docs for tracing [locally](../../docs/running_locally.md#tracing) and with [knative](../../docs/running_benchmarks.md#tracing).
 
 
-### *getgid*-syscall
-
-We instrumented each image with a *getgid()*-syscall. All syscalls can be traced using linux **perf**. With this we can easily see when the function is executed and how often. This was for development and will be removed most likely soon.

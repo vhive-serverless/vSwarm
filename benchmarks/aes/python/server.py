@@ -7,27 +7,26 @@ import random
 import string
 import pyaes
 
-import helloworld_pb2
-import helloworld_pb2_grpc
-
 import argparse
 import os
 import sys
-import ctypes
-libc = ctypes.CDLL(None)
-syscall = libc.syscall
 
-# For local builds add python tracing sources to the system path
+# For local builds add protobuffer and
+# python tracing sources to the system path
+sys.path.insert(0, os.getcwd() + '/../proto')
+import helloworld_pb2
+import helloworld_pb2_grpc
+
 sys.path.insert(0, os.getcwd() + '/../../../utils/tracing/python')
 import tracing
-
-print("Server has PID: %d" % os.getpid())
 
 # USE ENV VAR "DecoderFrames" to set the number of frames to be sent
 parser = argparse.ArgumentParser()
 parser.add_argument("-a", "--addr", dest="addr", default="0.0.0.0", help="IP address")
 parser.add_argument("-p", "--port", dest="port", default="50051", help="serve port")
 parser.add_argument("-zipkin", "--zipkin", dest="url", default="http://0.0.0.0:9411/api/v2/spans", help="Zipkin endpoint url")
+parser.add_argument("-k", "--key", dest="KEY", default="6368616e676520746869732070617373", help="Secret key")
+parser.add_argument("--default_plaintext", default="exampleplaintext", help="Default plain text if name is empty or 'world'")
 args = parser.parse_args()
 
 
@@ -41,46 +40,44 @@ def generate(length):
     letters = string.ascii_lowercase + string.digits
     return ''.join(random.choice(letters) for i in range(length))
 
-KEY = b'\xa1\xf6%\x8c\x87}_\xcd\x89dHE8\xbf\xc9,'
+KEY = args.KEY.encode(encoding = 'UTF-8')
 message = generate(100)
-message2 = generate(100)
 
-responses = ["record_response", "replay_response"]
+from base64 import b64decode
 
-
-
-def function1():
-    plaintext = "exampleplaintext"
-    aes = pyaes.AESModeOfOperationCTR(KEY)
+def AESModeCTR(plaintext):
+    counter = pyaes.Counter(initial_value = 0)
+    aes = pyaes.AESModeOfOperationCTR(KEY, counter = counter)
     ciphertext = aes.encrypt(plaintext)
-    return "Python.aes.f1", plaintext, ciphertext
+    return ciphertext
 
-def function2():
-    plaintext = "a m e s s a g e "
-    aes = pyaes.AESModeOfOperationCTR(KEY)
+def AESModeCBC(plaintext):
+    # random initialization vector of 16 bytes
+    # blocks_size = 16
+    iv = "InitializationVe"
+    pad = 16 - len(plaintext)% blocks_size
+    plaintext = str("0" * pad) + plaintext
+    aes = pyaes.AESModeOfOperationCBC(KEY, iv = iv)
     ciphertext = aes.encrypt(plaintext)
-    return "Python.aes.f2", plaintext, ciphertext
 
-def function(plaintext):
-    aes = pyaes.AESModeOfOperationCTR(KEY)
-    ciphertext = aes.encrypt(plaintext)
-    return "python.aes.fn", plaintext, ciphertext
+    print(ciphertext, ciphertext.decode('UTF-8'))
+
+    return ciphertext.decode('UTF-8')
 
 
 class Greeter(helloworld_pb2_grpc.GreeterServicer):
 
     def SayHello(self, request, context):
 
-        with tracing.Span("Plaintext selection and Encryption"):
-            if request.name == "" or ".f1" in request.name:
-                msg, plaintext, ciphertext = function1()
-            elif ".f2" in request.name:
-                msg, plaintext, ciphertext = function1()
-            else:
-                msg, plaintext, ciphertext = function(request.name)
+        if request.name in ["", "world"]:
+            plaintext = args.default_plaintext
+        else:
+            plaintext = request.name
 
-        gid = syscall(104)
-        msg = f"Hello: this is: {gid}. Invoke {msg} | Plaintext: {plaintext} Ciphertext: {ciphertext}"
+        with tracing.Span("AES Encryption"):
+            ciphertext = AESModeCTR(plaintext)
+
+        msg = f"fn: AES | plaintext: {plaintext} | ciphertext: {ciphertext} | runtime: Python"
         return helloworld_pb2.HelloReply(message=msg)
 
 
@@ -90,12 +87,12 @@ def serve():
 
     address = (args.addr + ":" + args.port)
     server.add_insecure_port(address)
-    print("Start server: listen on : " + address)
+    print("Start AES-python server. Addr: " + address)
 
     server.start()
     server.wait_for_termination()
 
 
 if __name__ == '__main__':
-    logging.basicConfig()
+    # logging.basicConfig()
     serve()

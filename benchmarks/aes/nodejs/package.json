@@ -10,7 +10,6 @@
     "lodash": "^4.6.1",
     "minimist": "^1.2.0",
     "tracing": "./../../../utils/tracing/nodejs/",
-    "tracing": "github:ease-lab/vSwarm#main",
-    "tracing": "github:ease-lab/vSwarm#nodejs-tracing"
+    "tracing": "./utils/tracing/nodejs/"
   }
 }

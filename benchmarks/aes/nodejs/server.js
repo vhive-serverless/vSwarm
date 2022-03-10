@@ -18,36 +18,102 @@ var packageDefinition = protoLoader.loadSync(
 var hello_proto = grpc.loadPackageDefinition(packageDefinition).helloworld;
 var CryptoJS = require("crypto-js");
 
+var key = "6368616e676520746869732070617373";
+var default_plaintext = "exampleplaintext";
+var iv = "0000000000000000"
 
+/**
+ * Argument parsing
+ */
+ function parsArgs() {
 
-function func1()
-{
-  // Encrypt
-  var plaintext = "exampleplaintext"
-  var ciphertext = CryptoJS.AES.encrypt(plaintext, 'secret key 123').toString();
+  var { argv } = require("yargs")
+  .scriptName("server")
+  .usage("Usage: $0 --addr <IP> --port <PORT> --zipkin <ZIPKIN URL>")
+  .example(
+    "$0 -p 50061",
+    "Starts AES gRPC server on localhost:50061"
+  )
+  .option("a", {alias: "addr", type: "string",
+    describe: "IP address",
+  })
+  .option("p", {alias: "port", type: "string",
+    describe: "Port the server listen to",
+  })
+  .option("z", {alias: "zipkin", type: "string",
+    describe: "Zipkin URL",
+  })
+  .option("k", {alias: "key", type: "string",
+    describe: "Secret key",
+  })
+  .option("default_plaintext", {type: "string",
+    describe: "Default plaintext",
+  })
+  .describe("help", "Show help.") // Override --help usage message.
+  .describe("version", "Show version number.") // Override --version usage message.
+  .epilog("copyright 2022");
 
-  // Decrypt
-  // var bytes  = CryptoJS.AES.decrypt(ciphertext, 'secret key 123');
-  // var originalText = bytes.toString(CryptoJS.enc.Utf8);
+  var addr = "0.0.0.0";
+  var port = "50051";
+  var zipkin = "http://localhost:9411/api/v2/spans";
 
-  // console.log(ciphertext);
-  return ["NodeJS.aes.f1", plaintext, ciphertext];
+  if ('addr' in argv) { addr = argv.addr; }
+  if ('port' in argv) { port = argv.port; }
+  if ('zipkin' in argv) { zipkin = argv.zipkin; }
+  if ('key' in argv) { key = argv.key; }
+  if ('default_plaintext' in argv) { default_plaintext = argv.default_plaintext; }
+
+  return [ addr, port, zipkin ];
 }
-function func2()
-{
-  var plaintext = "a m e s s a g e "
-  var ciphertext = CryptoJS.AES.encrypt(plaintext, 'examplekey').toString();
-  // console.log(ciphertext);
-  return ["NodeJS.aes.f1", plaintext, ciphertext];
-}
 
-function func(plaintext)
-{
-  var ciphertext = CryptoJS.AES.encrypt(plaintext, 'examplekey').toString();
-  // console.log(ciphertext);
-  return ["NodeJS.aes.fn", plaintext, ciphertext];
-}
+var JsonFormatter = {
+  stringify: function(cipherParams) {
+    // create json object with ciphertext
+    var jsonObj = { ct: cipherParams.ciphertext.toString(CryptoJS.enc.Base64) };
+    // optionally add iv or salt
+    if (cipherParams.iv) {
+      jsonObj.iv = cipherParams.iv.toString();
+    }
+    if (cipherParams.salt) {
+      jsonObj.s = cipherParams.salt.toString();
+    }
+    // stringify json object
+    return JSON.stringify(jsonObj);
+  },
+  parse: function(jsonStr) {
+    // parse json string
+    var jsonObj = JSON.parse(jsonStr);
+    // extract ciphertext from json object, and create cipher params object
+    var cipherParams = CryptoJS.lib.CipherParams.create({
+      ciphertext: CryptoJS.enc.Base64.parse(jsonObj.ct)
+    });
+    // optionally extract iv or salt
+    if (jsonObj.iv) {
+      cipherParams.iv = CryptoJS.enc.Hex.parse(jsonObj.iv);
+    }
 
+    if (jsonObj.s) {
+      cipherParams.salt = CryptoJS.enc.Hex.parse(jsonObj.s);
+    }
+
+    return cipherParams;
+  }
+};
+
+var encrypted = CryptoJS.AES.encrypt("Message", "Secret Passphrase", {
+  format: JsonFormatter
+})
+
+function AESModeCTR(plaintext) {
+
+  //Create Key
+  var _key = CryptoJS.enc.Utf8.parse(key);
+  //Get IV
+  var _iv = CryptoJS.enc.Utf8.parse(iv);
+  var encrypted = CryptoJS.AES.encrypt(plaintext, _key,{ iv: _iv});
+  //Encrypt string
+  return encrypted.ciphertext.toString();
+}
 
 
 /**
@@ -62,78 +128,21 @@ function sayHello(call, callback) {
   }
 
 
-  var gid = process.getgid();
-
-  switch (call.request.name) {
-    case ".f1":
-      ret = func1();
-
-      break;
-    case ".f2":
-      ret = func2();
-      break;
-
-    default:
-      ret = func(call.request.name);
-      break;
+  var plaintext = call.request.name
+  if (call.request.name == "" || call.request.name == "world") {
+    plaintext = default_plaintext
   }
-  const [msg1, plaintext, ciphertext] = ret
-  var msg = `Hello: this is: ${gid}. Invoke ${msg1} | Plaintext: ${plaintext} Ciphertext: ${ciphertext}`;
+
+  const ciphertext = AESModeCTR(plaintext)
+  var msg = `fn: AES | plaintext: ${plaintext} ciphertext: ${ciphertext} | runtime: NodeJS`;
 
   if (tracing.IsTracingEnabled()) {
-    span.addEvent(`Invoke ${msg1} | Plaintext: ${plaintext} Ciphertext: ${ciphertext}`);
+    span.addEvent(msg);
     span.end();
   }
   callback(null, {message: msg});
-
 }
 
-/**
- * Argument parsing
- */
-function parsArgs() {
-
-  var { argv } = require("yargs")
-  .scriptName("server")
-  .usage("Usage: $0 --addr <IP> --port <PORT> --zipkin <ZIPKIN URL>")
-  .example(
-    "$0 -p 50061",
-    "Starts AES gRPC server on localhost:50061"
-  )
-  .option("a", {
-    alias: "addr",
-    describe: "IP address",
-    type: "string",
-  })
-  .option("p", {
-    alias: "port",
-    describe: "Port the server listen to",
-    type: "string",
-  })
-  .option("z", {
-    alias: "zipkin",
-    describe: "Zipkin URL",
-    type: "string",
-  })
-  .describe("help", "Show help.") // Override --help usage message.
-  .describe("version", "Show version number.") // Override --version usage message.
-  .epilog("copyright 2022");
-
-  var addr = "0.0.0.0";
-  var port = "50051";
-  var zipkin = "http://localhost:9411/api/v2/spans";
-
-  if ('addr' in argv) {
-    addr = argv.addr;
-  }
-  if ('port' in argv) {
-    port = argv.port;
-  }
-  if ('zipkin' in argv) {
-    zipkin = argv.zipkin;
-  }
-  return [ addr, port, zipkin ];
-}
 
 
 /**
