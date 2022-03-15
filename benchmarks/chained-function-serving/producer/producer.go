@@ -27,16 +27,17 @@ import (
 	"context"
 	"flag"
 	"fmt"
+	"math/rand"
+	"net"
+	"os"
+	"strconv"
+
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/s3/s3manager"
 	sdk "github.com/ease-lab/vhive-xdt/sdk/golang"
 	"github.com/ease-lab/vhive-xdt/utils"
-	"math/rand"
-	"net"
-	"os"
-	"strconv"
 
 	ctrdlog "github.com/containerd/containerd/log"
 	log "github.com/sirupsen/logrus"
@@ -44,7 +45,7 @@ import (
 
 	pb_client "tests/chained-functions-serving/proto"
 
-	pb "github.com/ease-lab/vhive/examples/protobuf/helloworld"
+	pb "github.com/ease-lab/vSwarm/examples/protobuf/helloworld"
 	"google.golang.org/grpc"
 
 	tracing "github.com/ease-lab/vSwarm/utils/tracing/go"

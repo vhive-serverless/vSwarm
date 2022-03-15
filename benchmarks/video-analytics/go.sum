@@ -248,8 +248,8 @@ github.com/ease-lab/vhive/examples/protobuf/helloworld v0.0.0-20210707110616-9ea
 github.com/ease-lab/vhive/examples/protobuf/helloworld v0.0.0-20210707110616-9ea18b3bc35e/go.mod h1:gaATl3mm8BfKM1VC708dwDEQfGFwxPfN2u0gvlhAC88=
 github.com/ease-lab/vhive/utils/storage/go v0.0.0-20210825110151-2a0979407942 h1:azS8vg04N+GRJr8lLAGY+WhgeX/6h03Y2fKeXWBNwcY=
 github.com/ease-lab/vhive/utils/storage/go v0.0.0-20210825110151-2a0979407942/go.mod h1:KYK1gzsMtI1Df9PpDvgO4a0RfqqCpNe0ybk6yx4IAbU=
-github.com/ease-lab/vhive/utils/tracing/go v0.0.0-20210708110826-fffc98ca29d6 h1:al+QqxfFtuDiwNzjyAo5h9q/9itxdGoPfNaBmqiFF+I=
-github.com/ease-lab/vhive/utils/tracing/go v0.0.0-20210708110826-fffc98ca29d6/go.mod h1:7a477TAJimC1AkzEynida5yXncx5l2FwL1YqEaxLNI8=
+ v0.0.0-20210708110826-fffc98ca29d6 h1:al+QqxfFtuDiwNzjyAo5h9q/9itxdGoPfNaBmqiFF+I=
+ v0.0.0-20210708110826-fffc98ca29d6/go.mod h1:7a477TAJimC1AkzEynida5yXncx5l2FwL1YqEaxLNI8=
 github.com/elazarl/goproxy v0.0.0-20180725130230-947c36da3153/go.mod h1:/Zj4wYkgs4iZTTu3o/KG3Itv/qCCa8VVMlb3i9OVuzc=
 github.com/emicklei/go-restful v0.0.0-20170410110728-ff4f55a20633/go.mod h1:otzb+WCGbkyDHkqmQmT5YD2WR4BBwUdeQoFo8l/7tVs=
 github.com/emicklei/go-restful v2.9.5+incompatible/go.mod h1:otzb+WCGbkyDHkqmQmT5YD2WR4BBwUdeQoFo8l/7tVs=

@@ -26,6 +26,7 @@ WORKDIR /app/app/
 RUN apt-get install git ca-certificates
 
 COPY ./tools/relay/ ./tools/relay/
+COPY ./utils/tracing/go/ ./utils/tracing/go/
 
 WORKDIR /app/app/tools/relay
 RUN go mod tidy

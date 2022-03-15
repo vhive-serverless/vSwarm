@@ -43,7 +43,6 @@ import (
 	"go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc"
 
 	"github.com/ease-lab/vSwarm/tools/benchmarking_eventing/vhivemetadata"
-
 	"github.com/ease-lab/vSwarm/tools/endpoint"
 	tracing "github.com/ease-lab/vSwarm/utils/tracing/go"
 
