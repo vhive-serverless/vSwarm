@@ -1,3 +1,3 @@
-module "github.com/ease-lab/vhive/examples/endpoint"
+module "github.com/ease-lab/vSwarm/tools/endpoint"
 
 

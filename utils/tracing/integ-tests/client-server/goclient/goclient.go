@@ -30,9 +30,9 @@ import (
 	"time"
 
 	ctrdlog "github.com/containerd/containerd/log"
-	pb "github.com/ease-lab/vhive/examples/protobuf/helloworld"
+	pb "github.com/ease-lab/vSwarm/examples/protobuf/helloworld"
 
-	tracing "github.com/ease-lab/vhive/utils/tracing/go"
+	tracing "github.com/ease-lab/vSwarm/utils/tracing/go"
 	log "github.com/sirupsen/logrus"
 	"go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc"
 	"google.golang.org/grpc"

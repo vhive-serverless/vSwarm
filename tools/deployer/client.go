@@ -30,8 +30,8 @@ import (
 	"os/exec"
 	"path/filepath"
 
+	"github.com/ease-lab/vSwarm/tools/endpoint"
 	log "github.com/sirupsen/logrus"
-	"github.com/ease-lab/vhive/examples/endpoint"
 )
 
 // Functions is an object for unmarshalled JSON with functions to deploy.

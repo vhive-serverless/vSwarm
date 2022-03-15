@@ -1,5 +1,5 @@
 invoker: client.go measure.go helloworld.pb.go helloworld_grpc.pb.go
-	go build github.com/ease-lab/vhive/examples/invoker
+	go build github.com/ease-lab/vSwarm/tools/invoker
 
 helloworld.pb.go: helloworld.proto
 	protoc \
