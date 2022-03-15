@@ -29,10 +29,10 @@ services:
       - node
       - server.js
       - --addr=0.0.0.0
-      - --port=50061
+      - --port=50051
     ports:
-      - published: 50061
-        target: 50061
+      - published: 50051
+        target: 50051
 
   relay:
     image: vhiveease/relay:latest
@@ -40,7 +40,7 @@ services:
       - /app/server
       - --addr=0.0.0.0:50000
       - --function-endpoint-url=aes-nodejs
-      - --function-endpoint-port=50061
+      - --function-endpoint-port=50051
       - --function-name=aes-nodejs
     ports:
         - published: 50000

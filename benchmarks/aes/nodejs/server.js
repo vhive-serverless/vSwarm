@@ -54,8 +54,8 @@ function parsArgs() {
     .scriptName("server")
     .usage("Usage: $0 --addr <IP> --port <PORT> --zipkin <ZIPKIN URL>")
     .example(
-      "$0 -p 50061",
-      "Starts AES gRPC server on localhost:50061"
+      "$0 -p 50051",
+      "Starts AES gRPC server on localhost:50051"
     )
     .option("a", {
       alias: "addr", type: "string",
@@ -82,7 +82,7 @@ function parsArgs() {
     .epilog("copyright 2022");
 
   var addr = "0.0.0.0";
-  var port = "50061";
+  var port = "50051";
   var zipkin = "http://localhost:9411/api/v2/spans";
 
   if ('addr' in argv) { addr = argv.addr; }
@@ -148,6 +148,7 @@ function AESModeCTR(plaintext) {
  * Implements the ShowEncryption RPC method.
  */
 function showEncryption(call, callback) {
+  process.stdout.write(`Received gRPC call.\n`);
 
   let span;
 
@@ -179,7 +180,10 @@ function main() {
   const [addr, port, zipkin] = parsArgs();
 
   if (tracing.IsTracingEnabled()) {
+    process.stdout.write(`Tracing enabled\n`);
     tracing.InitTracer('aes-nodejs-server', zipkin);
+  } else {
+    process.stdout.write(`Tracing disabled\n`);
   }
 
   var server = new grpc.Server();

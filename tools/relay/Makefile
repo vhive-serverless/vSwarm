@@ -49,14 +49,5 @@ pull:
 	docker pull docker.io/vhiveease/relay:latest
 
 
-
-## Protocol buffer
-proto: 
-	protoc --go_out=. \
-		--go_opt=paths=source_relative \
-		--go-grpc_out=. \
-		--go-grpc_opt=paths=source_relative proto/helloworld/*.proto
-
-
 clean-proto:
 	rm -f proto/*.go

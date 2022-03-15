@@ -4,22 +4,24 @@ import (
 	"context"
 	"flag"
 	"fmt"
-	"google.golang.org/grpc/reflection"
 	"net"
 	"os"
 	"strconv"
 	"strings"
 	"time"
 
+	"google.golang.org/grpc/reflection"
+
+	pb_client "tests/chained-functions-serving/proto"
+
 	ctrdlog "github.com/containerd/containerd/log"
 	log "github.com/sirupsen/logrus"
 	"google.golang.org/grpc"
-	pb_client "tests/chained-functions-serving/proto"
 
 	"go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc"
 
+	pb "github.com/ease-lab/vSwarm/examples/protobuf/helloworld"
 	tracing "github.com/ease-lab/vSwarm/utils/tracing/go"
-	pb "github.com/ease-lab/vhive/examples/protobuf/helloworld"
 )
 
 const (
