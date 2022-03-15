@@ -23,7 +23,7 @@ env:
 jobs:
   build-and-push:
     name: Build all images
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-20.04
     strategy:
       fail-fast: false
     steps:
@@ -45,7 +45,7 @@ jobs:
       - name: Set up Python version
         uses: actions/setup-python@v3
         with:
-          python-versions: "3.x"
+          python-version: "3.x"
           
       - name: Set up python dependencies
         working-directory: benchmarks/aes/python
