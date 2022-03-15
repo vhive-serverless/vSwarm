@@ -50,7 +50,7 @@ jobs:
       - name: Set up python dependencies
         working-directory: benchmarks/aes/python
         run: |
-          python3 -m pip install --upgrade setuptools
+          python3 -m pip install setuptools==49.6.0
           python3 -m pip install ez_setup
           python3 -m pip install wheel
           python3 -m pip install -r requirements.txt
