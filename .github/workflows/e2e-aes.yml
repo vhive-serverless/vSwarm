@@ -56,10 +56,19 @@ jobs:
       fail-fast: false
       matrix:
         file: [dc-aes-go.yaml,dc-aes-python.yaml,dc-aes-nodejs.yaml,dc-aes-go-tracing.yaml,dc-aes-python-tracing.yaml,dc-aes-nodejs-tracing.yaml]
-        port: 50051
-        # include:
-        #   - file: docker-compose.yml
-        #     port: 50051
+        include:
+          - file: dc-aes-go.yml
+            port: 50051
+          - file: dc-aes-go-tracing.yml
+            port: 50051
+          - file: dc-aes-python.yml
+            port: 50051
+          - file: dc-aes-python-tracing.yml
+            port: 50051
+          - file: dc-aes-nodejs.yml
+            port: 50051
+          - file: dc-aes-nodejs-tracing.yml
+            port: 50051
 
     steps:
       - name: Check out code into the Go module directory
