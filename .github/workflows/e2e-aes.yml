@@ -42,14 +42,15 @@ jobs:
         id: buildx
         uses: docker/setup-buildx-action@v1
 
-      - name: Setup Python
-        uses: actions/setup-python@v3
-        with:
-          python-versions: "3.x"
-        run: python -m pip install -r requirements.txt
+      - steps:
+        - name: Setup Python
+          uses: actions/setup-python@v3
+          with:
+            python-versions: "3.x"
           
-      # - name: Set up python dependencies
-      #   working-directory: benchmarks/aes/python
+        - name: Set up python dependencies
+          working-directory: benchmarks/aes/python
+          run: python -m pip install -r requirements.txt
       
       - name: Build
         working-directory: benchmarks/aes
