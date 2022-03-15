@@ -1,5 +1,5 @@
-grpcio==1.38.1
-grpcio-tools==1.38.1
+grpcio
+grpcio-tools
 opentelemetry-api==1.3.0
 opentelemetry-exporter-zipkin==1.3.0
 opentelemetry-exporter-zipkin-json==1.3.0

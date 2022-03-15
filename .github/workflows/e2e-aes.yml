@@ -55,7 +55,7 @@ jobs:
           python3 -m pip install setuptools==49.6.0
           python3 -m pip install ez_setup
           GRPC_PYTHON_BUILD_SYSTEM_ZLIB=true
-          python3 -m pip install --only-binary ":all:" -r requirements.txt
+          python3 -m pip install -r requirements.txt
       
       - name: Build
         working-directory: benchmarks/aes
