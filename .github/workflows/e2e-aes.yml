@@ -46,7 +46,7 @@ jobs:
         - name: Setup Python
           uses: actions/setup-python@v3
           with:
-            python-versions: "3.x"
+            python-versions: "3.10"
           
         - name: Set up python dependencies
           working-directory: benchmarks/aes/python
