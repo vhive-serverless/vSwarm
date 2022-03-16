@@ -61,10 +61,11 @@ jobs:
         run: |
           PROTOC_ZIP=protoc-3.14.0-linux-x86_64
           curl -OL https://github.com/protocolbuffers/protobuf/releases/download/v3.14.0/$PROTOC_ZIP.zip
-          unzip -o $PROTOC_ZIP.zip -d $PROTOC_ZIP
+          unzip -o $PROTOC_ZIP.zip -d protoc
           echo $PATH
-          export PATH=$(pwd)/$PROTOC_ZIP/bin:$PATH
+          export PATH=$(pwd)/protoc/bin:$PATH
           echo $PATH
+          echo "::add-path::$RUNNER_WORKSPACE/$(basename $GITHUB_REPOSITORY)/bin"
           rm -f $PROTOC_ZIP.zip
       
       - name: Build
@@ -72,6 +73,7 @@ jobs:
         env:
           GOPRIVATE_KEY: ${{ secrets.EASE_LAB_ACCESS_KEY }}
         run: |
+          export PATH=/home/runner/work/vSwarm/vSwarm/protoc/bin:$PATH
           echo $PATH
           make all_image
 
