@@ -114,6 +114,7 @@ jobs:
 
       - name: invoke the chain
         run: |
+          echo localhost:${{ matrix.port }}
           ./tools/bin/grpcurl -plaintext localhost:${{ matrix.port }} helloworld.Greeter.SayHello
 
       - name: show docker-compose log
