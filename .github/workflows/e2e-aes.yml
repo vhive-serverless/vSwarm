@@ -129,7 +129,8 @@ jobs:
     env:
       GOCACHE: /root/tmp/gocache
       GOPATH: /root/tmp/gopath
-    runs-on: [self-hosted, stock-knative]
+#     runs-on: [self-hosted, stock-knative]
+    runs-on: test-runner
     strategy:
       fail-fast: false
     steps:
