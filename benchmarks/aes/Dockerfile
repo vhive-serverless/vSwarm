@@ -56,7 +56,7 @@ COPY ./benchmarks/aes/go.sum ./
 COPY ./benchmarks/aes/proto ./proto
 COPY ./benchmarks/aes/go/server.go ./
 
-RUN go mod download
+RUN go mod tidy
 RUN CGO_ENABLED=0 GOOS=linux go build -v -o ./server server.go
 
 # Second stage (Runner):
