@@ -113,10 +113,11 @@ jobs:
         run: |
           docker-compose -f dc-aes-${{ matrix.runtime }}.yaml up &> log_file &
           sleep 60s
+          cat log_file
 
       - name: invoke the chain
         run: |
-          echo localhost:${{ matrix.port }}
+          echo localhost:$PORT
           ./tools/bin/grpcurl -plaintext localhost:$PORT helloworld.Greeter.SayHello
 
       - name: show docker-compose log
