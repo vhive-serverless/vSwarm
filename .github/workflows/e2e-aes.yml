@@ -69,12 +69,15 @@ jobs:
           # export PATH=$RUNNER_WORKSPACE/$(basename $GITHUB_REPOSITORY)/protoc/bin:$PATH
           echo $PATH
           rm -f $PROTOC_ZIP.zip
+          go install google.golang.org/protobuf/cmd/protoc-gen-go@v1.26
+          go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@v1.1
       
       - name: Build
         working-directory: benchmarks/aes
         env:
           GOPRIVATE_KEY: ${{ secrets.EASE_LAB_ACCESS_KEY }}
         run: |
+          echo $PATH
           export PATH="$PATH:$HOME/.local/bin"
           # export PATH=$RUNNER_WORKSPACE/$(basename $GITHUB_REPOSITORY):$PATH
           echo $PATH
