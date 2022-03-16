@@ -87,7 +87,7 @@ jobs:
       fail-fast: false
       matrix:
 #         file: [dc-aes-go.yaml,dc-aes-python.yaml,dc-aes-nodejs.yaml,dc-aes-go-tracing.yaml,dc-aes-python-tracing.yaml,dc-aes-nodejs-tracing.yaml]
-        runtimes: [go, nodejs, python]
+        runtime: [go, nodejs, python]
         include:
           - file: dc-aes-go.yaml
             port: 50051
