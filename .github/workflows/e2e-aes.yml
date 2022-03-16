@@ -2,13 +2,13 @@ name: AES End-to-End Tests
 
 on:
   workflow_dispatch:
-  schedule:
-    - cron: "0 9 * * 1"
+#   schedule:
+#     - cron: "0 9 * * 1"
   push:
     branches: [main]
-    paths:
-      - "benchmarks/aes/*"
-      - "utils/*"
+#     paths:
+#       - "benchmarks/aes/*"
+#       - "utils/*"
   pull_request:
     branches: [main]
 #     paths:
