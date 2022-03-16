@@ -18,6 +18,7 @@ on:
 env:
   GOOS: linux
   GO111MODULE: on
+  PORT: 50051
   KUBECONFIG: /etc/kubernetes/admin.conf
 
 jobs:
@@ -85,19 +86,20 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        file: [dc-aes-go.yaml,dc-aes-python.yaml,dc-aes-nodejs.yaml,dc-aes-go-tracing.yaml,dc-aes-python-tracing.yaml,dc-aes-nodejs-tracing.yaml]
+#         file: [dc-aes-go.yaml,dc-aes-python.yaml,dc-aes-nodejs.yaml,dc-aes-go-tracing.yaml,dc-aes-python-tracing.yaml,dc-aes-nodejs-tracing.yaml]
+        runtimes: [go, nodejs, python]
         include:
-          - file: dc-aes-go.yml
+          - file: dc-aes-go.yaml
             port: 50051
-          - file: dc-aes-go-tracing.yml
+          - file: dc-aes-go-tracing.yaml
             port: 50051
-          - file: dc-aes-python.yml
+          - file: dc-aes-python.yaml
             port: 50051
-          - file: dc-aes-python-tracing.yml
+          - file: dc-aes-python-tracing.yaml
             port: 50051
-          - file: dc-aes-nodejs.yml
+          - file: dc-aes-nodejs.yaml
             port: 50051
-          - file: dc-aes-nodejs-tracing.yml
+          - file: dc-aes-nodejs-tracing.yaml
             port: 50051
 
     steps:
@@ -109,13 +111,13 @@ jobs:
       - name: start docker-compose benchmark
         working-directory: benchmarks/aes/yamls/docker-compose
         run: |
-          docker-compose -f ${{ matrix.file }} up &> log_file &
+          docker-compose -f dc-aes-${{ matrix.runtime }}.yaml up &> log_file &
           sleep 60s
 
       - name: invoke the chain
         run: |
           echo localhost:${{ matrix.port }}
-          ./tools/bin/grpcurl -plaintext localhost:${{ matrix.port }} helloworld.Greeter.SayHello
+          ./tools/bin/grpcurl -plaintext localhost:$PORT helloworld.Greeter.SayHello
 
       - name: show docker-compose log
         run: cat benchmarks/aes/yamls/docker-compose/log_file
