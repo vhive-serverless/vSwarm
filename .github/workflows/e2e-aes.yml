@@ -71,7 +71,9 @@ jobs:
         working-directory: benchmarks/aes
         env:
           GOPRIVATE_KEY: ${{ secrets.EASE_LAB_ACCESS_KEY }}
-        run: make all_image
+        run: |
+          echo $GITHUB_PATH
+          make all_image
 
   test-compose:
     name: Test Docker Compose
