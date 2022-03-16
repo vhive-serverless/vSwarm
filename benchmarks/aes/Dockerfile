@@ -56,9 +56,8 @@ COPY ./benchmarks/aes/go.sum ./
 COPY ./benchmarks/aes/proto ./proto
 COPY ./benchmarks/aes/go/server.go ./
 
-RUN go mod download && \
-    CGO_ENABLED=0 GOOS=linux go build -v -o ./server server.go
-
+RUN go mod download
+RUN CGO_ENABLED=0 GOOS=linux go build -v -o ./server server.go
 
 # Second stage (Runner):
 FROM scratch as aesGo
