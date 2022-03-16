@@ -118,7 +118,7 @@ jobs:
       - name: invoke the chain
         run: |
           echo localhost:$PORT
-          ./tools/bin/grpcurl -plaintext -import-path benchmarks/aes/${{ matrix.runtime }}/proto -proto helloworld.proto localhost:$PORT helloworld.Greeter.SayHello
+          ./tools/bin/grpcurl -plaintext -import-path ./benchmarks/aes/proto -proto helloworld.proto localhost:$PORT helloworld.Greeter.SayHello
 
       - name: show docker-compose log
         run: cat benchmarks/aes/yamls/docker-compose/log_file
