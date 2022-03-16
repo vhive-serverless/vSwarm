@@ -62,9 +62,9 @@ jobs:
           PROTOC_ZIP=protoc-3.14.0-linux-x86_64
           curl -OL https://github.com/protocolbuffers/protobuf/releases/download/v3.14.0/$PROTOC_ZIP.zip
           unzip -o $PROTOC_ZIP.zip -d $PROTOC_ZIP
-          echo $PATH
-          export PATH=$(pwd)/$PROTOC_ZIP/bin:$PATH
-          echo $PATH
+          echo $GITHUB_PATH
+          export GITHUB_PATH=$(pwd)/$PROTOC_ZIP/bin:$GITHUB_PATH
+          echo $GITHUB_PATH
           rm -f $PROTOC_ZIP.zip
       
       - name: Build
