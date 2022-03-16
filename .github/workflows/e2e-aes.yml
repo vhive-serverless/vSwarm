@@ -71,11 +71,8 @@ jobs:
           GOPRIVATE_KEY: ${{ secrets.EASE_LAB_ACCESS_KEY }}
         run: |
           go get -u google.golang.org/protobuf/cmd/protoc-gen-go@v1.26
-          go install google.golang.org/protobuf/cmd/protoc-gen-go
           go get -u google.golang.org/grpc/cmd/protoc-gen-go-grpc@v1.1
-          go install google.golang.org/grpc/cmd/protoc-gen-go-grpc
-          ls -l
-          ls -l $(go env GOPATH)/bin
+          chmod +x $(go env GOPATH)/bin/*
           echo $PATH
           export PATH="$PATH:$(go env GOPATH)/bin"
           echo $PATH
