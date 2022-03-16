@@ -11,9 +11,9 @@ on:
       - "utils/*"
   pull_request:
     branches: [main]
-    paths:
-      - "benchmarks/aes/*"
-      - "utils/*"
+#     paths:
+#       - "benchmarks/aes/*"
+#       - "utils/*"
 
 env:
   GOOS: linux
