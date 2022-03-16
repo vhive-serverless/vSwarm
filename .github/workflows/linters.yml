@@ -10,8 +10,8 @@ jobs:
     name: Spellcheck
     runs-on: ubuntu-18.04
     steps:
-    - uses: actions/checkout@master
-    - uses: rojopolis/spellcheck-github-actions@0.16.0
+    - uses: actions/checkout@v3
+    - uses: rojopolis/spellcheck-github-actions@0.22.1
       name: Spellcheck
       with:
         config_path: .github/configs/spellcheck.yml
@@ -19,10 +19,10 @@ jobs:
     name: Commitlint
     runs-on: ubuntu-18.04
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
         with:
           fetch-depth: 0
-      - uses: actions/setup-node@v2
+      - uses: actions/setup-node@v3
         with:
           node-version: '14'
       
@@ -39,7 +39,7 @@ jobs:
     name: LinkCheck
     runs-on: ubuntu-18.04
     steps:
-      - uses: actions/checkout@master
+      - uses: actions/checkout@v3
       - uses: gaurav-nelson/github-action-markdown-link-check@v1
         with:
           use-quiet-mode: 'yes'
