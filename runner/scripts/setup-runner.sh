@@ -25,8 +25,9 @@
 set -e
 
 # Install base- and setup-dependencies
+
 apt-get update
-apt-get install --yes \
+DEBIAN_FRONTEND=noninteractive apt-get install --yes \
     acl \
     apt-transport-https \
     bash-completion \
@@ -63,7 +64,7 @@ apt-get install --yes \
     wget
 
 # Install docker-compose
-curl -L "https://github.com/docker/compose/releases/download/1.29.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+curl -L "https://github.com/docker/compose/releases/download/v2.3.3/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
 chmod +x /usr/local/bin/docker-compose
 
 # Install kn
@@ -75,11 +76,24 @@ echo 'source <(kn completion bash)' >> ~/.bashrc
 # Install GitHub Runner
 mkdir -p actions-runner
 cd actions-runner
-LATEST_URL=$(curl -s https://api.github.com/repos/actions/runner/releases/latest | jq -r '.assets[] | select(.name | startswith("actions-runner-linux-x64")) | .browser_download_url')
+
+# Download the latest runner package
+# Make sure we download the full version with all external stuff included
+# LATEST_URL=https://github.com/actions/runner/releases/download/v2.288.1/actions-runner-linux-x64-2.288.1.tar.gz
+LATEST_URL=$(curl -s https://api.github.com/repos/actions/runner/releases/latest | jq -r '.assets[] | select(.name | match("actions-runner-linux-x64.+[0-9].tar.gz")) | .browser_download_url')
+
 curl -C - -o actions-runner.tar.gz -L $LATEST_URL
-tar xzf actions-runner.tar.gz
+tar xzf ./actions-runner.tar.gz
+# Install dependencies
 ./bin/installdependencies.sh
-./config.sh --url https://github.com/ease-lab/vSwarm --labels stock-knative --token $TOKEN
+
+./config.sh \
+    --url https://github.com/ease-lab/vSwarm \
+    --labels stock-knative \
+    --token $TOKEN \
+    --runnergroup Default \
+    --name $HOSTNAME \
+    --work _work
 
 tee /etc/systemd/system/github-runner.service <<END
 [Unit]
@@ -103,3 +117,5 @@ WantedBy=default.target
 END
 systemctl daemon-reload
 systemctl enable github-runner --now
+sleep 10
+systemctl status github-runner

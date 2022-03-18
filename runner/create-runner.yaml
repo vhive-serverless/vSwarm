@@ -49,7 +49,7 @@
         var: cluster_name.stdout
 
     - name: Create a Knative-KinD Cluster
-      shell: "KIND_CLUSTER_NAME={{ cluster_name.stdout }} install-konk"
+      shell: "KIND_CLUSTER_NAME={{ cluster_name.stdout }} /tmp/scripts/install-konk.sh"
 
     - name: Copy setup-runner.sh to the remote host
       ansible.builtin.copy:
