@@ -1,0 +1,21 @@
+version: "3.9"
+services:
+  ## Golang
+  auth-go:
+    image: vhiveease/auth-go:latest
+    container_name: auth-go
+    entrypoint:
+        - /app/server
+        - -addr=0.0.0.0:50051
+        - -zipkin=http://zipkin:9411/api/v2/spans
+    ports:
+        - "50051:50051"
+    environment:
+        - ENABLE_TRACING=true
+    depends_on:
+        - zipkin
+
+  zipkin:
+    image: openzipkin/zipkin
+    ports:
+        - 9411:9411 

@@ -35,6 +35,7 @@ Asheim
 ASPLOS
 Atamel
 Auth
+auth
 autodetect
 autoscaling
 autostart
@@ -390,6 +391,7 @@ Passwordless
 pc
 pdf
 Pejman
+perf
 personal_ws-1.1 en 0
 PESGD
 Petrov
@@ -519,6 +521,8 @@ subfolders
 svc
 swlh
 sys
+syscall
+syscalls
 tblgen
 TCO
 TempReader

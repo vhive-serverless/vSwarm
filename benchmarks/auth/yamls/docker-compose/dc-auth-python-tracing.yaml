@@ -1,0 +1,23 @@
+version: "3"
+services:
+  ## Python
+  auth-python:
+    image: vhiveease/auth-python:latest
+    container_name: auth-python
+    ports:
+        - "50051:50051"
+    entrypoint:
+        - python
+        - /app/server.py
+        - --addr=0.0.0.0
+        - --port=50051
+        - -zipkin=http://zipkin:9411/api/v2/spans
+    environment:
+        - ENABLE_TRACING=true
+    depends_on:
+        - zipkin
+
+  zipkin:
+    image: openzipkin/zipkin
+    ports:
+        - 9411:9411 
