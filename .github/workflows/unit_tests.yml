@@ -79,7 +79,6 @@ jobs:
       fail-fast: false
     steps:
     - uses: actions/checkout@v3
-    
     - name: build local images
       run: make all-image
     - name: Python client with docker-compose

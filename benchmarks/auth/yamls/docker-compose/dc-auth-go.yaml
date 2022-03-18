@@ -1,0 +1,8 @@
+version: "3"
+services:
+  ## Golang
+  auth-go:
+    image: vhiveease/auth-go:latest
+    container_name: auth-go
+    ports:
+        - "50051:50051"

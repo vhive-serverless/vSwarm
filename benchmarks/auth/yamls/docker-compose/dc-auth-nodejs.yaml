@@ -1,0 +1,8 @@
+version: "3"
+services:
+  ## NodeJS
+  auth-nodejs:
+    image: vhiveease/auth-nodejs:latest
+    container_name: auth-nodejs
+    ports:
+        - "50051:50051"
