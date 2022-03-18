@@ -23,20 +23,16 @@ import (
 	"context"
 	"flag"
 	"log"
-	"os"
 	"time"
 
 	"google.golang.org/grpc"
 	pb "google.golang.org/grpc/examples/helloworld/helloworld"
 )
 
-const (
-	defaultName = "world"
-)
-
 func main() {
 	// read flags
 	flagAddress := flag.String("addr", "localhost:50051", "Server IP address")
+	flagName := flag.String("name", "world", "The message that is passed on using gRPC")
 	flag.Parse()
 	// Set up a connection to the server.
 	conn, err := grpc.Dial(*flagAddress, grpc.WithTimeout(5*time.Second), grpc.WithInsecure(), grpc.WithBlock())
@@ -46,10 +42,7 @@ func main() {
 	defer conn.Close()
 	c := pb.NewGreeterClient(conn)
 	// Contact the server and print out its response.
-	name := defaultName
-	if len(os.Args) > 1 {
-		name = os.Args[1]
-	}
+	name := *flagName
 	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Minute)
 	defer cancel()
 	r, err := c.SayHello(ctx, &pb.HelloRequest{Name: name})
