@@ -161,13 +161,12 @@
         src: https://golang.org/dl/go1.16.6.linux-amd64.tar.gz
         dest: /usr/local
 
-    - name: Download knative-kind installation script
-      become: yes
-      get_url:
-        url: https://raw.githubusercontent.com/ease-lab/knative-kind/ease-lab/install.sh
-        dest: /usr/local/bin/install-konk
+    - name: Copy script folder to the remote host
+      ansible.builtin.copy:
+        src: ./scripts/
+        dest: /tmp/scripts
         mode: 0755
-        owner: root
+
 
     - name: Download predicates word-list
       become: yes
