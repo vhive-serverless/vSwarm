@@ -1,0 +1,8 @@
+version: "3"
+services:
+  ## Golang
+  aes-go:
+    image: vhiveease/aes-go:latest
+    container_name: aes-go
+    ports:
+        - "50051:50051"
