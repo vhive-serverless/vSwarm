@@ -1,0 +1,8 @@
+version: "3"
+services:
+  ## NodeJS
+  aes-nodejs:
+    image: vhiveease/aes-nodejs:latest
+    container_name: aes-nodejs
+    ports:
+        - "50051:50051"

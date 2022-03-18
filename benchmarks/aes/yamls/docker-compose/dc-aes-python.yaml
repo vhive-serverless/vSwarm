@@ -1,0 +1,8 @@
+version: "3"
+services:
+  ## Python
+  aes-python:
+    image: vhiveease/aes-python:latest
+    container_name: aes-python
+    ports: 
+        - "50051:50051"
