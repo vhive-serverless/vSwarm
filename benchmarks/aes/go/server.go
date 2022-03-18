@@ -98,21 +98,6 @@ func AESModeCTR(plaintext []byte) []byte {
 	return ciphertext
 }
 
-// func f1() (string, []byte, []byte) {
-// 	plaintext := []byte("exampleplaintext")
-// 	ciphertext := AESModeCTR(plaintext)
-// 	return "GoLang.aes.f1", plaintext, ciphertext
-// }
-// func f2() (string, []byte, []byte) {
-// 	plaintext := []byte("a m e s s a g e ")
-// 	ciphertext := AESModeCTR(plaintext)
-// 	return "GoLang.aes.f2", plaintext, ciphertext
-// }
-// func fn(plaintext []byte) (string, []byte, []byte) {
-// 	ciphertext := AESModeCTR(plaintext)
-// 	return "GoLang.aes.fn(plaintext)", plaintext, ciphertext
-// }
-
 // server is used to implement helloworld.GreeterServer.
 type server struct {
 	pb.UnimplementedGreeterServer
