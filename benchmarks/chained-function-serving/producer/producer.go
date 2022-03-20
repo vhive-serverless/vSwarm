@@ -238,15 +238,18 @@ func main() {
 	ps.randomStr = os.Getenv("HOSTNAME")
 	us.randomStr = ps.randomStr
 
-	log.Infof("sending %d bytes to consumer", len(payloadData))
+	log.Infof("[producer] sending %d bytes to consumer", len(payloadData))
 	ps.payloadData = payloadData
 	us.payloadData = payloadData
 	if transferType == XDT {
 		config := utils.ReadConfig()
 		if !*dockerCompose {
 			config.SQPServerHostname = utils.FetchSelfIP()
+			config.SrcServerHostname = utils.FetchSelfIP()
 		}
+		log.Infof("[producer]using config %v to init XDT", config)
 		xdtClient, err := sdk.NewXDTclient(config)
+		log.Infof("[producer] XDT client initialized")
 		if err != nil {
 			log.Fatalf("InitXDT failed %v", err)
 		}
