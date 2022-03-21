@@ -1,0 +1,14 @@
+apiVersion: serving.knative.dev/v1
+kind: Service
+metadata:
+  name: fibonacci-nodejs
+  namespace: default
+spec:
+  template:
+    spec:
+      containers:
+        - image: docker.io/vhiveease/fibonacci-nodejs:latest
+          imagePullPolicy: Always
+          ports:
+            - name: h2c
+              containerPort: 50051

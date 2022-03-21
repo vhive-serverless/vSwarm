@@ -1,0 +1,17 @@
+apiVersion: serving.knative.dev/v1
+kind: Service
+metadata:
+  name: fibonacci-nodejs-tracing
+  namespace: default
+spec:
+  template:
+    spec:
+      containers:
+        - image: docker.io/vhiveease/fibonacci-nodejs:latest
+          imagePullPolicy: Always
+          env:
+            - name: ENABLE_TRACING
+              value: "true"
+          ports:
+            - name: h2c
+              containerPort: 50051

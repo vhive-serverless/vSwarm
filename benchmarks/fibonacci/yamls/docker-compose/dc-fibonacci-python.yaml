@@ -1,0 +1,8 @@
+version: "3"
+services:
+  ## Python
+  fibonacci-python:
+    image: vhiveease/fibonacci-python:latest
+    container_name: fibonacci-python
+    ports:
+      - "50051:50051"
