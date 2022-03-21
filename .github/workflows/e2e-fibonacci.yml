@@ -1,0 +1,174 @@
+name: Fibonacci End-to-End Tests
+
+on:
+  workflow_dispatch:
+    schedule:
+      - cron: "0 9 * * 1"
+  push:
+    branches: [main]
+    paths:
+      - "benchmarks/fibonacci/*"
+      - "utils/*"
+      - "tools/*"
+      - "runner/*"
+
+  pull_request:
+    branches: [main]
+    paths:
+      - "benchmarks/fibonacci/*"
+      - "utils/*"
+      - "tools/*"
+      - "runner/*"
+
+env:
+  GOOS: linux
+  GO111MODULE: on
+  PORT: 50051
+  KUBECONFIG: /etc/kubernetes/admin.conf
+
+jobs:
+  build-and-push:
+    name: Build and push all images
+    runs-on: ubuntu-20.04
+    strategy:
+      fail-fast: false
+    steps:
+      - name: Check out code into the Go module directory
+        uses: actions/checkout@v2
+        with:
+          lfs: "true"
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v1
+        with:
+          username: ${{ secrets.DOCKER_HUB_USERNAME }}
+          password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
+
+      - name: Set up Docker Buildx
+        id: buildx
+        uses: docker/setup-buildx-action@v1
+
+      - name: Set up Python version
+        uses: actions/setup-python@v3
+        with:
+          python-version: "3.8"
+
+      - name: Set up python dependencies
+        working-directory: benchmarks/fibonacci/python
+        run: |
+          python3 -m pip install --upgrade pip
+          python3 -m pip install wheel
+          python3 -m pip install setuptools==49.6.0
+          python3 -m pip install ez_setup
+          GRPC_PYTHON_BUILD_SYSTEM_ZLIB=true
+          python3 -m pip install -r requirements.txt
+
+      - name: Install protoc
+        run: |
+          PROTOC_ZIP=protoc-3.14.0-linux-x86_64
+          curl -OL https://github.com/protocolbuffers/protobuf/releases/download/v3.14.0/$PROTOC_ZIP.zip
+          unzip -o $PROTOC_ZIP.zip -d $HOME/.local
+          chmod +x $HOME/.local/bin/protoc
+          rm -f $PROTOC_ZIP.zip
+
+      - name: Build and push
+        working-directory: benchmarks/fibonacci
+        env:
+          GOPRIVATE_KEY: ${{ secrets.EASE_LAB_ACCESS_KEY }}
+        run: |
+          go get -u google.golang.org/protobuf/cmd/protoc-gen-go@v1.26
+          go get -u google.golang.org/grpc/cmd/protoc-gen-go-grpc@v1.1
+          chmod +x $(go env GOPATH)/bin/*
+          export PATH="$PATH:$(go env GOPATH)/bin"
+          make all
+          make push
+
+  test-compose:
+    name: Test Docker Compose
+    needs: build-and-push
+    runs-on: ubuntu-18.04
+    strategy:
+      fail-fast: false
+      matrix:
+        file:
+          [
+            dc-fibonacci-go.yaml,
+            dc-fibonacci-python.yaml,
+            dc-fibonacci-nodejs.yaml,
+            dc-fibonacci-go-tracing.yaml,
+            dc-fibonacci-python-tracing.yaml,
+            dc-fibonacci-nodejs-tracing.yaml,
+          ]
+
+    steps:
+      - name: Check out code into the Go module directory
+        uses: actions/checkout@v2
+        with:
+          lfs: "true"
+
+      - name: start docker-compose benchmark
+        working-directory: benchmarks/fibonacci/yamls/docker-compose
+        run: |
+          docker-compose -f ${{ matrix.file }} pull
+          docker-compose -f ${{ matrix.file }} up &> log_file &
+          sleep 60s
+          cat log_file
+
+      - name: invoke the chain
+        run: |
+          ./tools/bin/grpcurl -plaintext -d '{"name": "10"}' -import-path ./benchmarks/fibonacci/proto -proto helloworld.proto localhost:${{ env.PORT }} helloworld.Greeter.SayHello
+
+      - name: show docker-compose log
+        run: cat benchmarks/fibonacci/yamls/docker-compose/log_file
+
+  test-knative:
+    name: Test Knative Deployment
+    needs: build-and-push
+    env:
+      GOCACHE: /root/tmp/gocache
+      GOPATH: /root/tmp/gopath
+    runs-on: [self-hosted, stock-knative]
+    #     runs-on: test-runner
+    strategy:
+      fail-fast: false
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          lfs: "true"
+      - name: Checkout LFS objects
+        run: git lfs checkout
+
+      - uses: actions/setup-go@v2
+        with:
+          go-version: 1.16
+
+      - name: Deploy knative
+        working-directory: benchmarks
+        run: ../tools/kn_deploy.sh ./fibonacci/yamls/knative/*
+
+      - name: Test invoking once
+        working-directory: tools/test-client
+        run: |
+          set -x
+          go build ./test-client.go
+
+          NODEPORT=$(kubectl get svc kourier-ingress -n kourier-system -o=jsonpath='{.spec.ports[0].nodePort}')
+          url_list=$(kn service list | awk '$2 ~ /http/ {sub(/http\:\/\//,""); print $2}')
+          for url in $url_list
+          do
+            ./test-client -addr $url:$NODEPORT -name 10
+          done
+      - name: Print logs
+        if: ${{ always() }}
+        run: |
+          set -x
+          kubectl logs -n default -c user-container -l serving.knative.dev/service=fibonacci-go
+          kubectl logs -n default -c user-container -l serving.knative.dev/service=fibonacci-go-tracing
+          kubectl logs -n default -c user-container -l serving.knative.dev/service=fibonacci-python
+          kubectl logs -n default -c user-container -l serving.knative.dev/service=fibonacci-python-tracing
+          kubectl logs -n default -c user-container -l serving.knative.dev/service=fibonacci-nodejs
+          kubectl logs -n default -c user-container -l serving.knative.dev/service=fibonacci-nodejs-tracing
+
+      - name: Down
+        if: ${{ always() }}
+        run: kn service delete --all --namespace default --wait
