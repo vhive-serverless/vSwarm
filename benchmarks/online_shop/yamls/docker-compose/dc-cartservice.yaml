@@ -1,0 +1,18 @@
+version: "3.9"
+services:
+    
+  cartservice:
+    image: davidschall/onlineshop-cartservice:latest
+    container_name: 'cartservice'
+    build:
+      context: ./../../cartservice/
+      dockerfile: ./Dockerfile
+    # environment: 
+    #   - PORT=9555
+    entrypoint: ["/app/cartservice"]
+    ports:
+    - published: 8082
+      target: 7070
+
+    restart: always
+    cpuset: "0-6"

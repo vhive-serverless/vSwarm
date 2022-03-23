@@ -1,0 +1,37 @@
+version: "3.9"
+services:
+
+  checkoutservice:
+    image: vhiveease/onlineshop-checkoutservice:latest
+    container_name: 'checkoutservice'
+    build:
+      context: ./../../checkoutservice/
+      dockerfile: ./Dockerfile
+    environment:
+      - PORT=5050
+      - SHIPPING_SERVICE_ADDR=shipping:50051
+      - PRODUCT_CATALOG_SERVICE_ADDR=productcatalog:3550
+      - CART_SERVICE_ADDR=cart:7070
+      - CURRENCY_SERVICE_ADDR=currency:7000
+      - EMAIL_SERVICE_ADDR=email:8080
+      - PAYMENT_SERVICE_ADDR=payment:50051
+    entrypoint: ["/checkoutservice"]
+    ports:
+    - published: 8083
+      target: 5050
+    links:
+      - "shippingservice:shipping"
+      - "productcatalogservice:productcatalog"
+      - "cartservice:cart"
+      - "currencyservice:currency"
+      - "emailservice:email"
+      - "paymentservice:payment"
+    depends_on:
+      - shippingservice
+      - productcatalogservice
+      - cartservice
+      - currencyservice
+      - emailservice
+      - paymentservice
+    restart: always
+    cpuset: "0-6"

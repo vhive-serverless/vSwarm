@@ -1,0 +1,17 @@
+version: "3.9"
+services:
+
+  productcatalogservice:
+    image: vhiveease/onlineshop-productcatalogservice:latest
+    container_name: 'productcatalogservice'
+    build:
+      context: ./../../productcatalogservice/
+      dockerfile: ./Dockerfile
+    environment:
+      - PORT=3550
+    entrypoint: ["/productcatalogservice/server"]
+    ports:
+    - published: 8087
+      target: 3550
+    restart: always
+    cpuset: "0-6"
