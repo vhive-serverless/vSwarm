@@ -1,0 +1,22 @@
+version: "3.9"
+services:
+
+  recommendationservice:
+    image: vhiveease/onlineshop-recommendationservice:latest
+    container_name: 'recommendationservice'
+    build:
+      context: ./../../recommendationservice/
+      dockerfile: ./Dockerfile
+    environment:
+      - PORT=8080
+      - PRODUCT_CATALOG_SERVICE_ADDR=productcatalog:3550
+    entrypoint: ["python", "/recommendationservice/recommendation_server.py"]
+    ports:
+    - published: 8088
+      target: 8080
+    restart: always
+    links:
+      - "productcatalogservice:productcatalog"
+    depends_on:
+      - productcatalogservice
+    cpuset: "0-6"

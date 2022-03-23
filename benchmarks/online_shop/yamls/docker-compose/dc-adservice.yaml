@@ -1,0 +1,18 @@
+version: "3.9"
+services:
+
+  adservice:
+    image: vhiveease/onlineshop-adservice:latest
+    container_name: 'adservice'
+    build:
+      context: ./../../adservice/
+      dockerfile: ./Dockerfile
+    environment:
+      - PORT=9555
+    entrypoint: /app/build/install/hipstershop/bin/AdService
+    ports:
+    - published: 8081
+      target: 9555
+
+    restart: always
+    cpuset: "0-6"

@@ -1,0 +1,14 @@
+apiVersion: serving.knative.dev/v1
+kind: Service
+metadata:
+  name: kn-productcatalogservice
+  namespace: default
+spec:
+  template:
+    spec:
+      containers:
+        - image: docker.io/vhiveease/kn-productcatalogservice:latest
+          imagePullPolicy: Always
+          ports:
+            - name: h2c
+              containerPort: 50051

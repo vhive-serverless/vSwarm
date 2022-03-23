@@ -1,0 +1,131 @@
+{
+    "products": [
+        {
+            "id": "OLJCESPC7Z",
+            "name": "Coffee",
+            "description": "Beans with a smooth and flowery chocolate finish.",
+            "picture": "/static/img/products/coffee-beans.jpg",
+            "priceUsd": {
+                "currencyCode": "USD",
+                "units": 18,
+                "nanos": 990000000
+            },
+            "categories": [
+                "coffee"
+            ]
+        },
+        {
+            "id": "66VCHSJNUP",
+            "name": "Rainbow Delight",
+            "description": "All the colours of the rainbow!",
+            "picture": "/static/img/products/donut-rainbow.jpg",
+            "priceUsd": {
+                "currencyCode": "USD",
+                "units": 4,
+                "nanos": 490000000
+            },
+            "categories": [
+                "donuts"
+            ]
+        },
+        {
+            "id": "1YMWWN1N4O",
+            "name": "Home Barista Kit",
+            "description": "Always wanted to brew coffee with Chemex and Aeropress at home?",
+            "picture": "/static/img/products/barista-kit.jpg",
+            "priceUsd": {
+                "currencyCode": "USD",
+                "units": 124
+            },
+            "categories": [
+                "cookware",
+                "coffee"
+            ]
+        },
+        {
+            "id": "L9ECAV7KIM",
+            "name": "Cookie Crumble",
+            "description": "Imagine your favourite cookie smashed onto a donut, here it is.",
+            "picture": "/static/img/products/donut-cookie.jpg",
+            "priceUsd": {
+                "currencyCode": "USD",
+                "units": 5,
+                "nanos": 250000000
+            },
+            "categories": [
+                "donuts"
+            ]
+        },
+        {
+            "id": "0PUK6V6EV0",
+            "name": "Chocolate Supreme",
+            "description": "So. Much. Chocolate.",
+            "picture": "/static/img/products/donut-chocolate.jpg",
+            "priceUsd": {
+                "currencyCode": "USD",
+                "units": 5,
+                "nanos": 900000000
+            },
+            "categories": [
+                "donuts"
+            ]
+        },
+        {
+            "id": "LS4PSXUNUM",
+            "name": "Metal Camping Mug",
+            "description": "You probably don't go camping that often but this is better than plastic cups.",
+            "picture": "/static/img/products/camp-mug.jpg",
+            "priceUsd": {
+                "currencyCode": "USD",
+                "units": 24,
+                "nanos": 330000000
+            },
+            "categories": [
+                "cookware",
+                "coffee"
+            ]
+        },
+        {
+            "id": "6E92ZMYYKL",
+            "name": "Strawberry & Cream",
+            "description": "Delicious strawberry and cream glaze.",
+            "picture": "/static/img/products/donut-strawberry.jpg",
+            "priceUsd": {
+                "currencyCode": "USD",
+                "units": 3,
+                "nanos": 500000000
+            },
+            "categories": [
+                "donuts"
+            ]
+        },
+        {
+            "id": "3R92ZMYYKL",
+            "name": "Powdered",
+            "description": "Light and fluffy, best enjoyed with a delicious coffee.",
+            "picture": "/static/img/products/donut-powdered.jpg",
+            "priceUsd": {
+                "currencyCode": "USD",
+                "units": 2,
+                "nanos": 250000000
+            },
+            "categories": [
+                "donuts"
+            ]
+        },
+        {
+            "id": "3R92ZDDYKL",
+            "name": "Old Fashioned",
+            "description": "A classic hits the spot every time",
+            "picture": "/static/img/products/donut-old-fashioned.jpg",
+            "priceUsd": {
+                "currencyCode": "USD",
+                "units": 3,
+                "nanos": 200000000
+            },
+            "categories": [
+                "donuts"
+            ]
+        }
+    ]
+}

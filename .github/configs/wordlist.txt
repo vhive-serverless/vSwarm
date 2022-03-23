@@ -1,5 +1,7 @@
 ACM
 addr
+adservice
+AdService
 Adileh
 AES
 aes
@@ -72,6 +74,7 @@ cd
 celsius
 Changelog
 changelog
+checkoutservice
 Chunduri
 Clemente
 CloudEvent
@@ -208,6 +211,8 @@ golang
 gopls
 GOPRIVATE
 goroutine
+gradle
+gradlew
 Gratz
 grot
 Grot
@@ -222,6 +227,7 @@ HDDs
 HelloRequest
 helloworld
 Hestness
+hipstershop
 hostname
 HPCA
 href
@@ -265,6 +271,7 @@ Jevdjic
 Joshi
 jpg
 json
+jsonpath
 Kafka
 Kamran
 katebzadeh
@@ -425,6 +432,7 @@ priyank
 Priyank
 proc
 ProducerConsumer
+productcatalogservice
 profileCPU
 profileCPUID
 profiler
@@ -509,6 +517,7 @@ Sotiria
 SPECU
 specversion
 Sprintf
+src
 SSD
 sslip
 stackoverflow

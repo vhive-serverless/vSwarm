@@ -1,0 +1,15 @@
+version: "3.9"
+services:
+
+  emailservice:
+    image: vhiveease/onlineshop-emailservice:latest
+    container_name: 'emailservice'
+    build:
+      context: ./../../emailservice/
+      dockerfile: ./Dockerfile
+    entrypoint: ["python", "email_server.py" ]
+    ports:
+    - published: 8085
+      target: 8080
+    restart: always
+    cpuset: "0-6"
