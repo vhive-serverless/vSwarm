@@ -2,13 +2,23 @@ name: AES End-to-End Tests
 
 on:
   workflow_dispatch:
-#   schedule:
-#     - cron: "0 9 * * 1"
+    schedule:
+      - cron: "0 9 * * 1"
   push:
     branches: [main]
+    paths:
+      - "benchmarks/aes/*"
+      - "utils/*"
+      - "tools/*"
+      - "runner/*"
 
   pull_request:
     branches: [main]
+    paths:
+      - "benchmarks/aes/*"
+      - "utils/*"
+      - "tools/*"
+      - "runner/*"
 
 env:
   GOOS: linux
@@ -42,7 +52,7 @@ jobs:
         uses: actions/setup-python@v3
         with:
           python-version: "3.8"
-          
+
       - name: Set up python dependencies
         working-directory: benchmarks/aes/python
         run: |
@@ -60,7 +70,7 @@ jobs:
           unzip -o $PROTOC_ZIP.zip -d $HOME/.local
           chmod +x $HOME/.local/bin/protoc
           rm -f $PROTOC_ZIP.zip
-      
+
       - name: Build and push
         working-directory: benchmarks/aes
         env:
@@ -73,7 +83,6 @@ jobs:
           make all
           make push
 
-
   test-compose:
     name: Test Docker Compose
     needs: build-and-push
@@ -81,7 +90,15 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        file: [dc-aes-go.yaml,dc-aes-python.yaml,dc-aes-nodejs.yaml,dc-aes-go-tracing.yaml,dc-aes-python-tracing.yaml,dc-aes-nodejs-tracing.yaml]
+        file:
+          [
+            dc-aes-go.yaml,
+            dc-aes-python.yaml,
+            dc-aes-nodejs.yaml,
+            dc-aes-go-tracing.yaml,
+            dc-aes-python-tracing.yaml,
+            dc-aes-nodejs-tracing.yaml,
+          ]
 
     steps:
       - name: Check out code into the Go module directory
@@ -111,7 +128,7 @@ jobs:
       GOCACHE: /root/tmp/gocache
       GOPATH: /root/tmp/gopath
     runs-on: [self-hosted, stock-knative]
-#     runs-on: test-runner
+    #     runs-on: test-runner
     strategy:
       fail-fast: false
     steps:
@@ -134,7 +151,7 @@ jobs:
         run: |
           set -x
           go build ./test-client.go
-          
+
           NODEPORT=$(kubectl get svc kourier-ingress -n kourier-system -o=jsonpath='{.spec.ports[0].nodePort}')
 
           url_list=$(kn service list | awk '$2 ~ /http/ {sub(/http\:\/\//,""); print $2}')
