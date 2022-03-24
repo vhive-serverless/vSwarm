@@ -57,9 +57,7 @@ jobs:
         working-directory: benchmarks/aes/python
         run: |
           python3 -m pip install --upgrade pip
-          python3 -m pip install wheel
-          python3 -m pip install setuptools==49.6.0
-          python3 -m pip install ez_setup
+          python3 -m pip install wheel ez_setup setuptools
           GRPC_PYTHON_BUILD_SYSTEM_ZLIB=true
           python3 -m pip install -r requirements.txt
 
@@ -86,7 +84,7 @@ jobs:
   test-compose:
     name: Test Docker Compose
     needs: build-and-push
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-20.04
     strategy:
       fail-fast: false
       matrix:
@@ -128,7 +126,6 @@ jobs:
       GOCACHE: /root/tmp/gocache
       GOPATH: /root/tmp/gopath
     runs-on: [self-hosted, stock-knative]
-    #     runs-on: test-runner
     strategy:
       fail-fast: false
     steps:

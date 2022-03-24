@@ -1,17 +1,17 @@
 # MIT License
-#
-# Copyright (c) 2022 David Schall and EASE lab
-#
+
+# Copyright (c) 2022 EASE lab
+
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
 # in the Software without restriction, including without limitation the rights
 # to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
 # copies of the Software, and to permit persons to whom the Software is
 # furnished to do so, subject to the following conditions:
-#
+
 # The above copyright notice and this permission notice shall be included in all
 # copies or substantial portions of the Software.
-#
+
 # THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 # IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 # FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -45,7 +45,7 @@ ENTRYPOINT [ "python", "/app/server.py" ]
 
 #---------- GoLang -----------#
 # First stage (Builder):
-FROM golang:1.16-alpine AS aesGoBuilder
+FROM vhiveease/golang:1.16-alpine AS aesGoBuilder
 WORKDIR /app/app/
 RUN apk add --no-cache make git
 RUN apk add -U --no-cache ca-certificates
@@ -72,7 +72,7 @@ ENTRYPOINT [ "/app/server" ]
 
 #---------- NodeJS -----------#
 # First stage (Builder):
-FROM node:stretch-slim AS aesNodeJSBuild
+FROM vhiveease/node-slim:latest AS aesNodeJSBuild
 WORKDIR /app/
 
 COPY ./utils/tracing/nodejs ./utils/tracing/nodejs
@@ -84,7 +84,7 @@ RUN npm set progress=false && npm config set depth 0
 RUN npm install --only=production
 
 # Second stage (Runner):
-FROM node:stretch-slim AS aesNodeJS
+FROM vhiveease/node-slim:latest AS aesNodeJS
 WORKDIR /app/
 COPY --from=aesNodeJSBuild /app/ .
 

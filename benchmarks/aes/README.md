@@ -63,5 +63,3 @@ The detailed and general description how to run benchmarks on knative clusters y
    ```
 ## Tracing
 This Benchmark supports distributed tracing for all runtimes. For the general use see vSwarm docs for tracing [locally](../../docs/running_locally.md#tracing) and with [knative](../../docs/running_benchmarks.md#tracing).
-
-
