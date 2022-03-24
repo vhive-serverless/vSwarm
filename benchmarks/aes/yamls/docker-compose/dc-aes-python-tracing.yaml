@@ -27,7 +27,7 @@ services:
     container_name: aes-python
     ports:
       - published: 50051
-      - target: 50051
+        target: 50051
     entrypoint:
       - python
       - /app/server.py
@@ -43,4 +43,4 @@ services:
     image: openzipkin/zipkin
     ports:
       - published: 9411
-      - target: 9411
+        target: 9411

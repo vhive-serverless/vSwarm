@@ -2,12 +2,9 @@
 
 The AES benchmark use the AES128 algorithm to encrypt a certain message string. As we are using the helloworld gRPC protocol for this benchmark the message will be the `name` variable. If you do not specify a name a default name is taken. You can change the default name with the argument `default-plaintext`.
 
-AES requires a secrete key for encryption. The functions use a default key but you can specify your own by passing it with the `key` argument to the function. See source code for more details.
+AES requires a secret key for encryption. The functions use a default key but you can specify your own by passing it with the `key` argument to the function. See source code for more details.
 
 The same functionality is implemented in different runtimes, namely Python, NodeJS and golang.
-
-
-
 
 
 ## Running this benchmark locally (using docker)

@@ -166,7 +166,6 @@ function sayHello(call, callback) {
 }
 
 
-
 /**
  * Starts an RPC server that receives requests for the Greeter service at the
  * sample server port

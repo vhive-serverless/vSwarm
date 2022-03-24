@@ -5,34 +5,34 @@ updates:
     directory: "/"
     schedule:
       interval: "weekly"
-
+      
   - package-ecosystem: "gomod"
-    directory: "/function-images/tests/chained-function-serving"
+    directory: "/benchmarks/aes"
     schedule:
       interval: "weekly"
 
   - package-ecosystem: "gomod"
-    directory: "/function-images/tests/chained-function-eventing"
+    directory: "/benchmarks/chained-function-serving"
     schedule:
       interval: "weekly"
 
   - package-ecosystem: "gomod"
-    directory: "/lib/timing"
+    directory: "/benchmarks/chained-function-eventing"
     schedule:
       interval: "weekly"
 
   - package-ecosystem: "gomod"
-    directory: "/lib/tracing/go"
+    directory: "/utils/tracing/go"
     schedule:
       interval: "weekly"
 
   - package-ecosystem: "gomod"
-    directory: "/examples/deployer"
+    directory: "/tools/invoker"
     schedule:
       interval: "weekly"
 
   - package-ecosystem: "gomod"
-    directory: "/examples/invoker"
+    directory: "/tools/deployer"
     schedule:
       interval: "weekly"
 
