@@ -27,4 +27,4 @@ services:
     container_name: aes-nodejs
     ports:
       - published: 50051
-      - target: 50051
+        target: 50051

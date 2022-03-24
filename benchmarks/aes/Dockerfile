@@ -45,10 +45,9 @@ ENTRYPOINT [ "python", "/app/server.py" ]
 
 #---------- GoLang -----------#
 # First stage (Builder):
-FROM vhiveease/golang:1.16-alpine AS aesGoBuilder
+FROM vhiveease/golang-builder:latest AS aesGoBuilder
 WORKDIR /app/app/
-RUN apk add --no-cache make git
-RUN apk add -U --no-cache ca-certificates
+RUN apt-get install git ca-certificates
 
 COPY ./utils/tracing/go ../../utils/tracing/go
 COPY ./benchmarks/aes/go.mod ./

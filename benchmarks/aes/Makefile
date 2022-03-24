@@ -61,14 +61,14 @@ aes-go-image: Dockerfile proto/helloworld_grpc.pb.go proto/helloworld.pb.go go/s
 	$(ROOT)
 
 
-
-
+## Push images
 
 push-%: %-image
 	docker push docker.io/vhiveease/$(subst push-,,$@):latest
 
 push: $(addprefix push-, $(FUNCTIONS))
 
+## Pull images from docker hub
 
 pull-%:
 	docker pull docker.io/vhiveease/$(subst pull-,,$@):latest
