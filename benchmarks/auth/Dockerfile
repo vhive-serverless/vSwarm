@@ -46,10 +46,9 @@ ENTRYPOINT [ "python", "/app/server.py" ]
 
 #---------- GoLang -----------#
 ## First stage (Builder):
-FROM golang:1.16-alpine AS authGoBuilder
+FROM vhiveease/golang-builder:latest AS authGoBuilder
 WORKDIR /app/app/
-RUN apk add --no-cache make git
-RUN apk add -U --no-cache ca-certificates
+RUN apt-get install git ca-certificates
 
 COPY ./utils/tracing/go ../../utils/tracing/go
 COPY ./benchmarks/auth/go.mod ./
@@ -73,7 +72,7 @@ ENTRYPOINT [ "/app/server" ]
 
 #---------- NodeJS -----------#
 # First stage (Builder):
-FROM node:stretch-slim AS authNodeJSBuild
+FROM vhiveease/node-slim:latest AS authNodeJSBuild
 WORKDIR /app/
 
 COPY ./utils/tracing/nodejs ./utils/tracing/nodejs

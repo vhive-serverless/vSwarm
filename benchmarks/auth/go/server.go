@@ -1,3 +1,25 @@
+// MIT License
+
+// Copyright (c) 2022 EASE lab
+
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+
+// The above copyright notice and this permission notice shall be included in all
+// copies or substantial portions of the Software.
+
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+// SOFTWARE.
+
 package main
 
 import (
@@ -7,11 +29,11 @@ import (
 	"os"
 	"syscall"
 
-	"google.golang.org/grpc"
-   	"google.golang.org/grpc/reflection"
+	tracing "github.com/ease-lab/vhive/utils/tracing/go"
 	log "github.com/sirupsen/logrus"
+	"google.golang.org/grpc"
 	pb "google.golang.org/grpc/examples/helloworld/helloworld"
-    tracing "github.com/ease-lab/vhive/utils/tracing/go"
+	"google.golang.org/grpc/reflection"
 )
 
 const (
@@ -66,7 +88,6 @@ type server struct {
 
 // SayHello implements helloworld.GreeterServer
 func (s *server) SayHello(ctx context.Context, in *pb.HelloRequest) (*pb.HelloReply, error) {
-	// log.Printf("Received: %v", in.GetName())
 	gid := syscall.Getgid()
 	token := in.GetName()
 	fakeMethodArn := "arn:aws:execute-api:{regionId}:{accountId}:{apiId}/{stage}/{httpVerb}/[{resource}/[{child-resources}]]"
@@ -89,20 +110,19 @@ func (s *server) SayHello(ctx context.Context, in *pb.HelloRequest) (*pb.HelloRe
 func main() {
 
 	var address string = ":"
-	// log.Printf("Start server: listen on : %s\n", address)
 	if port, ok := os.LookupEnv("GRPC_PORT"); ok {
 		address += port
 	} else {
 		address += default_port
 	}
 
-    if tracing.IsTracingEnabled(){
-        shutdown, err := tracing.InitBasicTracer("http://localhost:9411/api/v2/spans", "auth function")
-        if err != nil {
-            log.Warn(err)
-        }
-    defer shutdown()
-    }
+	if tracing.IsTracingEnabled() {
+		shutdown, err := tracing.InitBasicTracer("http://localhost:9411/api/v2/spans", "auth function")
+		if err != nil {
+			log.Warn(err)
+		}
+		defer shutdown()
+	}
 
 	lis, err := net.Listen("tcp", address)
 	if err != nil {
@@ -110,14 +130,14 @@ func main() {
 	}
 	log.Printf("Start server: listen on : %s\n", address)
 
-    var grpcServer *grpc.Server
-    if tracing.IsTracingEnabled(){
-        grpcServer = tracing.GetGRPCServerWithUnaryInterceptor()
-    } else {
-        grpcServer = grpc.NewServer()
-    }
-    pb.RegisterGreeterServer(grpcServer, &server{})
-   	reflection.Register(grpcServer)
+	var grpcServer *grpc.Server
+	if tracing.IsTracingEnabled() {
+		grpcServer = tracing.GetGRPCServerWithUnaryInterceptor()
+	} else {
+		grpcServer = grpc.NewServer()
+	}
+	pb.RegisterGreeterServer(grpcServer, &server{})
+	reflection.Register(grpcServer)
 
 	if err := grpcServer.Serve(lis); err != nil {
 		log.Fatalf("failed to serve: %v", err)

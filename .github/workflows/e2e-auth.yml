@@ -19,7 +19,7 @@ on:
       - "utils/*"
       - "tools/*"
       - "runner/*"
-      
+
 env:
   GOOS: linux
   GO111MODULE: on
@@ -52,14 +52,12 @@ jobs:
         uses: actions/setup-python@v3
         with:
           python-version: "3.8"
-          
+
       - name: Set up python dependencies
         working-directory: benchmarks/auth/python
         run: |
           python3 -m pip install --upgrade pip
-          python3 -m pip install wheel
-          python3 -m pip install setuptools==49.6.0
-          python3 -m pip install ez_setup
+          python3 -m pip install wheel ez_setup setuptools
           GRPC_PYTHON_BUILD_SYSTEM_ZLIB=true
           python3 -m pip install -r requirements.txt
 
@@ -70,7 +68,7 @@ jobs:
           unzip -o $PROTOC_ZIP.zip -d $HOME/.local
           chmod +x $HOME/.local/bin/protoc
           rm -f $PROTOC_ZIP.zip
-      
+
       - name: Build and push
         working-directory: benchmarks/auth
         env:
@@ -83,15 +81,22 @@ jobs:
           make all
           make push
 
-
   test-compose:
     name: Test Docker Compose
     needs: build-and-push
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-20.04
     strategy:
       fail-fast: false
       matrix:
-        file: [dc-auth-go.yaml,dc-auth-python.yaml,dc-auth-nodejs.yaml,dc-auth-go-tracing.yaml,dc-auth-python-tracing.yaml,dc-auth-nodejs-tracing.yaml]
+        file:
+          [
+            dc-auth-go.yaml,
+            dc-auth-python.yaml,
+            dc-auth-nodejs.yaml,
+            dc-auth-go-tracing.yaml,
+            dc-auth-python-tracing.yaml,
+            dc-auth-nodejs-tracing.yaml,
+          ]
 
     steps:
       - name: Check out code into the Go module directory
@@ -121,7 +126,6 @@ jobs:
       GOCACHE: /root/tmp/gocache
       GOPATH: /root/tmp/gopath
     runs-on: [self-hosted, stock-knative]
-#     runs-on: test-runner
     strategy:
       fail-fast: false
     steps:
@@ -144,7 +148,7 @@ jobs:
         run: |
           set -x
           go build ./test-client.go
-          
+
           NODEPORT=$(kubectl get svc kourier-ingress -n kourier-system -o=jsonpath='{.spec.ports[0].nodePort}')
           url_list=$(kn service list | awk '$2 ~ /http/ {sub(/http\:\/\//,""); print $2}')
           for url in $url_list
