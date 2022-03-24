@@ -34,8 +34,7 @@ COPY ./benchmarks/tuning-halving/${target}/* ./
 COPY ./benchmarks/tuning-halving/proto/tuning_pb2* ./
 COPY ./benchmarks/tuning-halving/proto/helloworld_pb2* ./
 RUN --mount=type=secret,id=GOPRIVATE_KEY \
-        git config --global url."https://ease-lab:$(cat /run/secrets/GOPRIVATE_KEY)@github.com/ease-lab/vhive-xdt".insteadOf "https://github.com/ease-lab/vhive-xdt"
-RUN git clone --depth 1 https://github.com/ease-lab/vhive-xdt /xdt
+    git clone --depth 1 https://ease-lab:$(cat /run/secrets/GOPRIVATE_KEY)@github.com/ease-lab/vhive-xdt /xdt
 
 FROM vhiveease/python-slim:latest
 COPY --from=builder /root/.local /root/.local
