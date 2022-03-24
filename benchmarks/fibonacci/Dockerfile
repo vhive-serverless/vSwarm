@@ -46,7 +46,7 @@ ENTRYPOINT [ "python", "/app/server.py" ]
 
 #---------- GoLang -----------#
 ## First stage (Builder):
-FROM golang:1.16-alpine AS fibonacciGoBuilder
+FROM vhiveease/golang-builder:latest AS fibonacciGoBuilder
 WORKDIR /app/app/
 RUN apk add --no-cache make git
 RUN apk add -U --no-cache ca-certificates
@@ -73,7 +73,7 @@ ENTRYPOINT [ "/app/server" ]
 
 #---------- NodeJS -----------#
 # First stage (Builder):
-FROM node:stretch-slim AS fibonacciNodeJSBuild
+FROM node-slim:latest AS fibonacciNodeJSBuild
 WORKDIR /app/
 
 COPY ./utils/tracing/nodejs ./utils/tracing/nodejs
@@ -85,7 +85,7 @@ RUN npm set progress=false && npm config set depth 0
 RUN npm install --only=production
 
 # Second stage (Runner):
-FROM node:stretch-slim AS fibonacciNodeJS
+FROM node-slim:latest AS fibonacciNodeJS
 WORKDIR /app/
 COPY --from=fibonacciNodeJSBuild /app/ .
 
