@@ -34,6 +34,7 @@ ASBD
 Asheim
 ASPLOS
 Atamel
+Auth
 autodetect
 autoscaling
 autostart
@@ -354,6 +355,7 @@ NOC
 NoCArc
 NOCOUT
 NOCS
+nodejs
 NodeJS
 noicon
 Novakovic
