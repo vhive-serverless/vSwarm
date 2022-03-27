@@ -1,4 +1,4 @@
-# AES Benchmark
+# AES benchmark
 
 The AES benchmark use the AES128 algorithm to encrypt a certain message string. As we are using the helloworld gRPC protocol for this benchmark the message will be the `name` variable. If you do not specify a name a default name is taken. You can change the default name with the argument `default-plaintext`.
 
