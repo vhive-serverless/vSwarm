@@ -31,8 +31,7 @@ import (
 	"path/filepath"
 
 	log "github.com/sirupsen/logrus"
-
-	. "github.com/ease-lab/vhive/examples/endpoint"
+	"github.com/ease-lab/vhive/examples/endpoint"
 )
 
 // Functions is an object for unmarshalled JSON with functions to deploy.
@@ -47,7 +46,7 @@ type functionType struct {
 	// number of functions to deploy from the same file (with different names)
 	Count int `json:"count"`
 
-	Eventing bool `json:"eventing"`
+	Eventing    bool   `json:"eventing"`
 	ApplyScript string `json:"applyScript"`
 }
 
@@ -138,9 +137,9 @@ func deployFunction(funcName, filePath string) {
 }
 
 func writeEndpoints(filePath string, urls []string) {
-	var endpoints []Endpoint
+	var endpoints []endpoint.Endpoint
 	for _, url := range urls {
-		endpoints = append(endpoints, Endpoint{
+		endpoints = append(endpoints, endpoint.Endpoint{
 			Hostname: url,
 			Eventing: false,
 			Matchers: nil,
