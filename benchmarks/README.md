@@ -1,6 +1,6 @@
 # Benchmark summary
 
-vSwarm currently supports two kinds of microbenchmarks. One is the "multi-function benchmark", which involves synchronous and asynchronous function composition. The other is "standalone function benchmark" where each function is a single function and not a composition of multiple functions (i.e. no producer-consumer functions).
+vSwarm currently supports two kinds of microbenchmarks. One is the **multi-function benchmark**, which involves synchronous and asynchronous function composition. The other is **standalone function benchmark** where each function is a single function and not a composition of multiple functions (i.e. no producer-consumer functions).
 
 ## Multi-function benchmark Summary
 
