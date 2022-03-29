@@ -35,7 +35,7 @@ import (
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/s3"
 	"github.com/aws/aws-sdk-go/service/s3/s3manager"
-	"github.com/go-redis/redis/v8"
+	redis "github.com/go-redis/redis/v8"
 	log "github.com/sirupsen/logrus"
 )
 
