@@ -27,11 +27,9 @@ import (
 	"context"
 	"crypto/aes"
 	"crypto/cipher"
-	"crypto/rand"
 	"encoding/hex"
 	"flag"
 	"fmt"
-	"io"
 
 	"net"
 
@@ -52,38 +50,38 @@ var (
 	default_name = flag.String("default-plaintext", "exampleplaintext", "Default plaintext when the function is called with the name world")
 )
 
-func AESModeCBC(plaintext []byte) []byte {
-	// Reference: cipher documentation
-	// https://golang.org/pkg/crypto/cipher/#BlockMode
+// func AESModeCBC(plaintext []byte) []byte {
+// 	// Reference: cipher documentation
+// 	// https://golang.org/pkg/crypto/cipher/#BlockMode
 
-	key, _ := hex.DecodeString(*key_string)
+// 	key, _ := hex.DecodeString(*key_string)
 
-	// CBC mode works on blocks so plaintexts may need to be padded to the
-	// next whole block. For an example of such padding, see
-	// https://tools.ietf.org/html/rfc5246#section-6.2.3.2.
-	var padding [aes.BlockSize]byte
-	if len(plaintext)%aes.BlockSize != 0 {
-		plaintext = append(plaintext, padding[(len(plaintext)%aes.BlockSize):]...)
-	}
+// 	// CBC mode works on blocks so plaintexts may need to be padded to the
+// 	// next whole block. For an example of such padding, see
+// 	// https://tools.ietf.org/html/rfc5246#section-6.2.3.2.
+// 	var padding [aes.BlockSize]byte
+// 	if len(plaintext)%aes.BlockSize != 0 {
+// 		plaintext = append(plaintext, padding[(len(plaintext)%aes.BlockSize):]...)
+// 	}
 
-	block, err := aes.NewCipher(key)
-	if err != nil {
-		panic(err)
-	}
+// 	block, err := aes.NewCipher(key)
+// 	if err != nil {
+// 		panic(err)
+// 	}
 
-	// The IV needs to be unique, but not secure. Therefore it's common to
-	// include it at the beginning of the ciphertext.
-	ciphertext := make([]byte, aes.BlockSize+len(plaintext))
-	iv := ciphertext[:aes.BlockSize]
-	if _, err := io.ReadFull(rand.Reader, iv); err != nil {
-		panic(err)
-	}
+// 	// The IV needs to be unique, but not secure. Therefore it's common to
+// 	// include it at the beginning of the ciphertext.
+// 	ciphertext := make([]byte, aes.BlockSize+len(plaintext))
+// 	iv := ciphertext[:aes.BlockSize]
+// 	if _, err := io.ReadFull(rand.Reader, iv); err != nil {
+// 		panic(err)
+// 	}
 
-	mode := cipher.NewCBCEncrypter(block, iv)
-	mode.CryptBlocks(ciphertext[aes.BlockSize:], plaintext)
+// 	mode := cipher.NewCBCEncrypter(block, iv)
+// 	mode.CryptBlocks(ciphertext[aes.BlockSize:], plaintext)
 
-	return ciphertext
-}
+// 	return ciphertext
+// }
 
 func AESModeCTR(plaintext []byte) []byte {
 	// Reference: cipher documentation

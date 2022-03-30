@@ -18,7 +18,7 @@ import (
 
 	"go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc"
 
-	tracing "github.com/ease-lab/vhive-benchmarking/utils/tracing/go"
+	tracing "github.com/ease-lab/vSwarm/utils/tracing/go"
 	pb "github.com/ease-lab/vhive/examples/protobuf/helloworld"
 )
 

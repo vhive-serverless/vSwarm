@@ -41,8 +41,8 @@ import (
 	"github.com/ease-lab/vhive-xdt/utils"
 	pb_helloworld "github.com/ease-lab/vhive/examples/protobuf/helloworld"
 
-	storage "github.com/ease-lab/vhive-benchmarking/utils/storage/go"
-	tracing "github.com/ease-lab/vhive-benchmarking/utils/tracing/go"
+	storage "github.com/ease-lab/vSwarm/utils/storage/go"
+	tracing "github.com/ease-lab/vSwarm/utils/tracing/go"
 )
 
 var (
