@@ -1,0 +1,194 @@
+
+
+syntax = "proto3";
+
+option go_package = "proto/hotel_reservation";
+
+package hotel_reservation;
+
+
+
+// ----------------- Geo service -----------------
+
+service Geo {
+  // Finds the hotels contained nearby the current lat/lon.
+  rpc Nearby(Request) returns (Result);
+}
+
+// The latitude and longitude of the current location.
+message GeoRequest {
+  float lat = 1;
+  float lon = 2;
+}
+
+message GeoResult {
+  repeated string hotelIds = 1;
+}
+
+
+
+// ---------------- Profile service ----------------
+
+service Profile {
+  rpc GetProfiles(Request) returns (Result);
+}
+
+message ProfileRequest {
+  repeated string hotelIds = 1;
+  string locale = 2;
+}
+
+message ProfileResult {
+  repeated Hotel hotels = 1;
+}
+
+message Hotel {
+  string id = 1;
+  string name = 2;
+  string phoneNumber = 3;
+  string description = 4;
+  Address address = 5;
+  repeated Image images = 6;
+}
+
+message Address {
+  string streetNumber = 1;
+  string streetName = 2;
+  string city = 3;
+  string state = 4;
+  string country = 5;
+  string postalCode = 6;
+  float lat = 7;
+  float lon = 8;
+}
+
+message Image {
+  string url = 1;
+  bool default = 2;
+}
+
+
+
+// ---------------- Rate service ----------------
+
+service Rate {
+  // GetRates returns rate codes for hotels for a given date range
+  rpc GetRates(Request) returns (Result);
+}
+
+message RateRequest {
+  repeated string hotelIds = 1;
+  string inDate = 2;
+  string outDate = 3;
+}
+
+message RateResult {
+  repeated RatePlan ratePlans = 1;
+}
+
+message RatePlan {
+  string hotelId = 1;
+  string code = 2;
+  string inDate = 3;
+  string outDate = 4;
+  RoomType roomType = 5;
+}
+
+message RoomType {
+  double bookableRate = 1;
+  double totalRate = 2;
+  double totalRateInclusive = 3;
+  string code = 4;
+  string currency = 5;
+  string roomDescription = 6;
+}
+
+
+// -------------- Recommondation service --------------
+
+service Recommendation {
+  // GetRecommendations returns recommended hotels for a given requirement
+  rpc GetRecommendations(Request) returns (Result);
+}
+
+// The requirement of the recommendation.
+message RecommendationRequest {
+  string require = 1;
+  double lat = 2;
+  double lon = 3;
+}
+
+message RecommendationResult {
+  repeated string HotelIds = 1;
+}
+
+
+
+
+// -------------- Reservation service --------------
+
+service Reservation {
+  // MakeReservation makes a reservation based on given information
+  rpc MakeReservation(Request) returns (Result);
+  // CheckAvailability checks if given information is available
+  rpc CheckAvailability(Request) returns (Result);
+}
+
+message ReservationRequest {
+  string customerName = 1;
+  repeated string hotelId = 2;
+  string inDate = 3;
+  string outDate = 4;
+  int32  roomNumber = 5;
+}
+
+message ReservationResult {
+  repeated string hotelId = 1;
+}
+
+
+
+// -------------- Search service --------------
+
+// Search service returns best hotel chocies for a user.
+service Search {
+  rpc Nearby(NearbyRequest) returns (SearchResult);
+  // rpc City(CityRequest) returns (SearchResult);
+}
+
+message SearchNearbyRequest {
+  float lat = 1;
+  float lon = 2;
+  string inDate = 3;
+  string outDate = 4;
+}
+
+// TODO(hw): add city search endpoint
+// message CityRequest {
+//   string city = 1;
+//   string inDate = 2;
+//   string outDate = 3;
+// }
+
+message SearchResult {
+  repeated string hotelIds = 1;
+}
+
+
+
+
+// -------------- User service --------------
+
+service User {
+  // CheckUser returns whether the username and password are correct
+  rpc CheckUser(Request) returns (Result);
+}
+
+message UserRequest {
+  string username = 1;
+  string password = 2;
+}
+
+message UserResult {
+  bool correct = 1;
+}

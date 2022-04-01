@@ -20,20 +20,20 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-version: "3.9"
-services:
-  aes-go:
-    image: vhiveease/aes-go:latest
-    container_name: aes-go
-    ports:
-      - published: 50052
-        target: 50051
+# First stage (Builder):
+FROM vhiveease/golang-builder:latest AS relayBuilder
+WORKDIR /app/app/
+RUN apt-get install git ca-certificates
 
-  relay:
-    image: vhiveease/relay:latest
-    entrypoint:
-      - /app/server
-      - --addr=0.0.0.0:50000
-      - --function-endpoint-url=0.0.0.0
-      - --function-endpoint-port=50052
-      - --function-name=aes-go
+COPY ./tools/relay/ ./
+
+RUN go mod tidy
+RUN CGO_ENABLED=0 GOOS=linux go build -v -o ./server *.go
+
+# Second stage (Runner):
+FROM scratch as relay
+WORKDIR /app/
+COPY --from=relayBuilder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
+COPY --from=relayBuilder /app/app/server .
+
+ENTRYPOINT [ "/app/server" ]
