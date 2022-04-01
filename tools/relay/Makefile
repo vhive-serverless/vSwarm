@@ -20,20 +20,42 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-version: "3.9"
-services:
-  aes-go:
-    image: vhiveease/aes-go:latest
-    container_name: aes-go
-    ports:
-      - published: 50052
-        target: 50051
 
-  relay:
-    image: vhiveease/relay:latest
-    entrypoint:
-      - /app/server
-      - --addr=0.0.0.0:50000
-      - --function-endpoint-url=0.0.0.0
-      - --function-endpoint-port=50052
-      - --function-name=aes-go
+clean: clean-proto
+
+
+ROOT = ../../
+
+.PHONY: proto
+
+all: relay
+
+relay:
+	DOCKER_BUILDKIT=1 \
+	docker build \
+	--tag vhiveease/relay:latest \
+	--target relay \
+	-f Dockerfile \
+	$(ROOT)
+
+
+## Push images
+push:
+	docker push docker.io/vhiveease/relay:latest
+
+## Pull images from docker hub
+pull:
+	docker pull docker.io/vhiveease/relay:latest
+
+
+
+## Protocol buffer
+proto: 
+	protoc --go_out=. \
+		--go_opt=paths=source_relative \
+		--go-grpc_out=. \
+		--go-grpc_opt=paths=source_relative proto/helloworld/*.proto
+
+
+clean-proto:
+	rm -f proto/*.go
