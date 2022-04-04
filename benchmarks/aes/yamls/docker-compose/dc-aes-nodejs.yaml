@@ -25,6 +25,23 @@ services:
   aes-nodejs:
     image: vhiveease/aes-nodejs:latest
     container_name: aes-nodejs
+    entrypoint:
+      - node
+      - server.js
+      - --addr=0.0.0.0
+      - --port=50061
     ports:
-      - published: 50051
-        target: 50051
+      - published: 50061
+        target: 50061
+
+  relay:
+    image: vhiveease/relay:latest
+    entrypoint:
+      - /app/server
+      - --addr=0.0.0.0:50000
+      - --function-endpoint-url=aes-nodejs
+      - --function-endpoint-port=50061
+      - --function-name=aes-nodejs
+    ports:
+        - published: 50000
+          target: 50000

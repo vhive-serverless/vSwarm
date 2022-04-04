@@ -69,6 +69,7 @@ ccNUMA
 cd
 celsius
 Changelog
+changelog
 Chunduri
 Clemente
 CloudEvent
@@ -197,6 +198,7 @@ Ghoshal
 github
 Golang
 golang
+gopls
 GOPRIVATE
 goroutine
 Gratz
@@ -495,6 +497,7 @@ specversion
 Sprintf
 SSD
 sslip
+stackoverflow
 StartExperiment
 stateful
 Stavros

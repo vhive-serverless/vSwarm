@@ -27,17 +27,22 @@ import (
 	"flag"
 	"net"
 	"os"
-	pb "helloworld/proto"
+
+	pb "github.com/ease-lab/vSwarm-proto/proto/helloworld"
 
 	log "github.com/sirupsen/logrus"
 
+	grpcClients "github.com/ease-lab/vSwarm-proto/grpcclient"
+
 	"google.golang.org/grpc"
-	. "relay/clients"
 )
 
 type server struct {
 	pb.UnimplementedGreeterServer
 }
+
+// Create a variable for the client here
+var grpcClient grpcClients.GrpcClient
 
 var address = flag.String("addr", "0.0.0.0:50000", "Specify the HOST:PORT for relay server to listen at")
 
@@ -46,12 +51,30 @@ var functionName = flag.String("function-name", "helloworld", "Specify the name 
 var functionEndpointURL = flag.String("function-endpoint-url", "0.0.0.0", "Specify the function endpoint URL (HOST) to call at")
 var functionEndpointPort = flag.String("function-endpoint-port", "50051", "Specify the function endpoint port to call at")
 
+func isDebuggingEnabled() bool {
+	if val, ok := os.LookupEnv("ENABLE_DEBUGGING"); !ok || val == "false" {
+		return false
+	} else if val == "true" {
+		return true
+	} else {
+		log.Fatalf("ENABLE_DEBUGGING has unexpected value: `%s`", val)
+		return false
+	}
+}
+
 func main() {
 	flag.Parse()
 
-	if os.Getenv("ENABLE_DEBUGGING") == "TRUE" {
+	if isDebuggingEnabled() {
 		log.SetLevel(log.DebugLevel)
+		log.Info("Debugging is enabled.")
 	}
+
+	// Establish and initialize connection to the downstream function
+	serviceName := grpcClients.FindServiceName(*functionName)
+	grpcClient = grpcClients.FindGrpcClient(serviceName)
+	grpcClient.Init(*functionEndpointURL, *functionEndpointPort)
+	defer grpcClient.Close()
 
 	// Register the Greeter Service with the server
 	var grpcServer = grpc.NewServer()
@@ -59,10 +82,10 @@ func main() {
 
 	// Start listening for invocations
 	var listener, err = net.Listen("tcp", *address)
-	defer listener.Close()
 	if err != nil {
 		log.Fatalf("Failed to listen at %v", err)
 	}
+	defer listener.Close()
 
 	log.Printf("Started relay server at %s", *address)
 
@@ -73,21 +96,15 @@ func main() {
 
 func (s *server) SayHello(ctx context.Context, in *pb.HelloRequest) (*pb.HelloReply, error) {
 	log.Info("Received: ", in.GetName())
-	log.Debug("Received: ", in.GetVHiveMetadata())
+	// log.Debug("Received: ", in.GetVHiveMetadata())
 
-	serviceName := FindServiceName(*functionName)
-	grpcClient := FindGrpcClient(serviceName)
-	replyBack := SendMessageToBenchmark(*functionEndpointURL, *functionEndpointPort, grpcClient, in)
+	replyBack := SendMessageToBenchmark(in)
 
 	return &pb.HelloReply{Message: replyBack}, nil
 }
 
-func SendMessageToBenchmark(functionURL string, functionPort string, grpcClient GrpcClient, in *pb.HelloRequest) string {
-	grpcClient.Init(functionURL, functionPort)
-	
+func SendMessageToBenchmark(in *pb.HelloRequest) string {
 	reply := grpcClient.Request(in.GetName())
-	log.Printf("%s", reply)
-	
-	defer grpcClient.Close()
+	log.Debug(reply)
 	return reply
 }

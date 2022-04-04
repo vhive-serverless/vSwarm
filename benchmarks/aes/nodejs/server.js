@@ -25,58 +25,64 @@ const process = require('process');
 const tracing = require('tracing')
 
 
-var PROTO_PATH = __dirname + '/helloworld.proto';
+var PROTO_PATH = __dirname + '/aes.proto';
 
 var grpc = require('@grpc/grpc-js');
 var protoLoader = require('@grpc/proto-loader');
 var packageDefinition = protoLoader.loadSync(
-    PROTO_PATH,
-    {keepCase: true,
-     longs: String,
-     enums: String,
-     defaults: true,
-     oneofs: true
-    });
-var hello_proto = grpc.loadPackageDefinition(packageDefinition).helloworld;
+  PROTO_PATH,
+  {
+    keepCase: true,
+    longs: String,
+    enums: String,
+    defaults: true,
+    oneofs: true
+  });
+var hello_proto = grpc.loadPackageDefinition(packageDefinition).aes;
 var CryptoJS = require("crypto-js");
 
 var key = "6368616e676520746869732070617373";
-var default_plaintext = "exampleplaintext";
+var default_plaintext = "defaultplaintext";
 var iv = "0000000000000000"
 
 /**
  * Argument parsing
  */
- function parsArgs() {
+function parsArgs() {
 
   var { argv } = require("yargs")
-  .scriptName("server")
-  .usage("Usage: $0 --addr <IP> --port <PORT> --zipkin <ZIPKIN URL>")
-  .example(
-    "$0 -p 50061",
-    "Starts AES gRPC server on localhost:50061"
-  )
-  .option("a", {alias: "addr", type: "string",
-    describe: "IP address",
-  })
-  .option("p", {alias: "port", type: "string",
-    describe: "Port the server listen to",
-  })
-  .option("z", {alias: "zipkin", type: "string",
-    describe: "Zipkin URL",
-  })
-  .option("k", {alias: "key", type: "string",
-    describe: "Secret key",
-  })
-  .option("default_plaintext", {type: "string",
-    describe: "Default plaintext",
-  })
-  .describe("help", "Show help.") // Override --help usage message.
-  .describe("version", "Show version number.") // Override --version usage message.
-  .epilog("copyright 2022");
+    .scriptName("server")
+    .usage("Usage: $0 --addr <IP> --port <PORT> --zipkin <ZIPKIN URL>")
+    .example(
+      "$0 -p 50061",
+      "Starts AES gRPC server on localhost:50061"
+    )
+    .option("a", {
+      alias: "addr", type: "string",
+      describe: "IP address",
+    })
+    .option("p", {
+      alias: "port", type: "string",
+      describe: "Port the server listen to",
+    })
+    .option("z", {
+      alias: "zipkin", type: "string",
+      describe: "Zipkin URL",
+    })
+    .option("k", {
+      alias: "key", type: "string",
+      describe: "Secret key",
+    })
+    .option("default_plaintext", {
+      type: "string",
+      describe: "Default plaintext",
+    })
+    .describe("help", "Show help.") // Override --help usage message.
+    .describe("version", "Show version number.") // Override --version usage message.
+    .epilog("copyright 2022");
 
   var addr = "0.0.0.0";
-  var port = "50051";
+  var port = "50061";
   var zipkin = "http://localhost:9411/api/v2/spans";
 
   if ('addr' in argv) { addr = argv.addr; }
@@ -85,11 +91,11 @@ var iv = "0000000000000000"
   if ('key' in argv) { key = argv.key; }
   if ('default_plaintext' in argv) { default_plaintext = argv.default_plaintext; }
 
-  return [ addr, port, zipkin ];
+  return [addr, port, zipkin];
 }
 
 var JsonFormatter = {
-  stringify: function(cipherParams) {
+  stringify: function (cipherParams) {
     // create json object with ciphertext
     var jsonObj = { ct: cipherParams.ciphertext.toString(CryptoJS.enc.Base64) };
     // optionally add iv or salt
@@ -102,7 +108,7 @@ var JsonFormatter = {
     // stringify json object
     return JSON.stringify(jsonObj);
   },
-  parse: function(jsonStr) {
+  parse: function (jsonStr) {
     // parse json string
     var jsonObj = JSON.parse(jsonStr);
     // extract ciphertext from json object, and create cipher params object
@@ -132,16 +138,16 @@ function AESModeCTR(plaintext) {
   var _key = CryptoJS.enc.Utf8.parse(key);
   //Get IV
   var _iv = CryptoJS.enc.Utf8.parse(iv);
-  var encrypted = CryptoJS.AES.encrypt(plaintext, _key,{ iv: _iv});
+  var encrypted = CryptoJS.AES.encrypt(plaintext, _key, { iv: _iv });
   //Encrypt string
   return encrypted.ciphertext.toString();
 }
 
 
 /**
- * Implements the SayHello RPC method.
+ * Implements the ShowEncryption RPC method.
  */
-function sayHello(call, callback) {
+function showEncryption(call, callback) {
 
   let span;
 
@@ -149,12 +155,10 @@ function sayHello(call, callback) {
     span = new tracing.Span()
   }
 
-
-  var plaintext = call.request.name
-  if (call.request.name == "" || call.request.name == "world") {
+  var plaintext = call.request.plaintext_message
+  if (call.request.plaintext_message == "" || call.request.plaintext_message == "world") {
     plaintext = default_plaintext
   }
-
   const ciphertext = AESModeCTR(plaintext)
   var msg = `fn: AES | plaintext: ${plaintext} ciphertext: ${ciphertext} | runtime: NodeJS`;
 
@@ -162,24 +166,24 @@ function sayHello(call, callback) {
     span.addEvent(msg);
     span.end();
   }
-  callback(null, {message: msg});
+  callback(null, { encryption_info: msg });
 }
 
 
 /**
- * Starts an RPC server that receives requests for the Greeter service at the
+ * Starts an RPC server that receives requests for the Aes service at the
  * sample server port
  */
 function main() {
 
-  const [ addr, port, zipkin ] = parsArgs();
+  const [addr, port, zipkin] = parsArgs();
 
   if (tracing.IsTracingEnabled()) {
-    tracing.InitTracer('aes-nodejs-server',zipkin);
+    tracing.InitTracer('aes-nodejs-server', zipkin);
   }
 
   var server = new grpc.Server();
-  server.addService(hello_proto.Greeter.service, {sayHello: sayHello});
+  server.addService(hello_proto.Aes.service, { showEncryption: showEncryption });
   address = `${addr}:${port}`
   server.bindAsync(
     address,

@@ -30,7 +30,8 @@ ROOT = ../../
 
 all: relay
 
-relay:
+relay: proto
+	go mod tidy
 	DOCKER_BUILDKIT=1 \
 	docker build \
 	--tag vhiveease/relay:latest \

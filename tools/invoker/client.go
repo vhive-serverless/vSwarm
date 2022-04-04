@@ -46,6 +46,8 @@ import (
 
 	"github.com/ease-lab/vSwarm/tools/endpoint"
 	tracing "github.com/ease-lab/vSwarm/utils/tracing/go"
+
+	pb "github.com/ease-lab/vSwarm/tools/invoker/proto"
 )
 
 const TimeseriesDBAddr = "10.96.0.84:90"
@@ -166,13 +168,13 @@ func SayHello(address, workflowID string) {
 	}
 	defer conn.Close()
 
-	c := NewGreeterClient(conn)
+	c := pb.NewGreeterClient(conn)
 
 	ctx, cancel := context.WithTimeout(context.Background(), grpcTimeout)
 	defer cancel()
 
-	_, err = c.SayHello(ctx, &HelloRequest{
-		Name: "faas",
+	_, err = c.SayHello(ctx, &pb.HelloRequest{
+		Name: "Invoke relay",
 		VHiveMetadata: vhivemetadata.MakeVHiveMetadata(
 			workflowID,
 			uuid.New().String(),

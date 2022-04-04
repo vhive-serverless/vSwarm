@@ -27,6 +27,7 @@ RUN apk add --no-cache make
 COPY ./utils/tracing/integ-tests/client-server/goclient ./
 COPY ./utils/tracing/go ./utils/tracing/go
 RUN mkdir /log
+RUN go mod edit -replace github.com/ease-lab/vSwarm/utils/tracing/go=./utils/tracing/go
 RUN go mod download && \
    CGO_ENABLED=0 GOOS=linux go build -v -o ./client-bin ./goclient.go
 

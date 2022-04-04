@@ -31,7 +31,7 @@ import (
 
 func main() {
 	// read flags
-	flagAddress := flag.String("addr", "localhost:50051", "Server IP address")
+	flagAddress := flag.String("addr", "localhost:50000", "Server IP address")
 	flagName := flag.String("name", "world", "The message that is passed on using gRPC")
 	flag.Parse()
 	// Set up a connection to the server.

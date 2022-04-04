@@ -1,25 +1,11 @@
-module relay
+module github.com/ease-lab/vSwarm/tools/relay
 
 go 1.18
-
-replace (
-	helloworld/proto => ./proto/helloworld
-	hipstershop/proto => ./proto/hipstershop
-	hotel_reserv/geo => ./proto/hotel_reserv/geo
-	hotel_reserv/profile => ./proto/hotel_reserv/profile
-	hotel_reserv/rate => ./proto/hotel_reserv/rate
-	hotel_reserv/recommendation => ./proto/hotel_reserv/recommendation
-	hotel_reserv/reservation => ./proto/hotel_reserv/reservation
-	hotel_reserv/search => ./proto/hotel_reserv/search
-	hotel_reserv/user => ./proto/hotel_reserv/user
-	relay/clients => ./clients
-)
 
 require (
 	github.com/sirupsen/logrus v1.8.1
 	google.golang.org/grpc v1.45.0
-	helloworld/proto v0.0.0-00010101000000-000000000000
-	relay/clients v0.0.0-00010101000000-000000000000
+	github.com/ease-lab/vSwarm-proto v0.0.0-20220413112514-c1c283b208f1
 )
 
 require (
@@ -29,12 +15,4 @@ require (
 	golang.org/x/text v0.3.0 // indirect
 	google.golang.org/genproto v0.0.0-20200526211855-cb27e3aa2013 // indirect
 	google.golang.org/protobuf v1.28.0 // indirect
-	hipstershop/proto v0.0.0-00010101000000-000000000000 // indirect
-	hotel_reserv/geo v0.0.0-00010101000000-000000000000 // indirect
-	hotel_reserv/profile v0.0.0-00010101000000-000000000000 // indirect
-	hotel_reserv/rate v0.0.0-00010101000000-000000000000 // indirect
-	hotel_reserv/recommendation v0.0.0-00010101000000-000000000000 // indirect
-	hotel_reserv/reservation v0.0.0-00010101000000-000000000000 // indirect
-	hotel_reserv/search v0.0.0-00010101000000-000000000000 // indirect
-	hotel_reserv/user v0.0.0-00010101000000-000000000000 // indirect
 )

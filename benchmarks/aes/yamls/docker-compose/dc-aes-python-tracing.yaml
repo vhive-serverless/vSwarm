@@ -44,3 +44,15 @@ services:
     ports:
       - published: 9411
         target: 9411
+
+  relay:
+    image: vhiveease/relay:latest
+    entrypoint:
+      - /app/server
+      - --addr=0.0.0.0:50000
+      - --function-endpoint-url=aes-python
+      - --function-endpoint-port=50051
+      - --function-name=aes-python
+    ports:
+        - published: 50000
+          target: 50000
