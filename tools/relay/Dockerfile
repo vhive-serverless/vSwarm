@@ -25,15 +25,16 @@ FROM vhiveease/golang-builder:latest AS relayBuilder
 WORKDIR /app/app/
 RUN apt-get install git ca-certificates
 
-COPY ./tools/relay/ ./
+COPY ./tools/relay/ ./tools/relay/
 
+WORKDIR /app/app/tools/relay
 RUN go mod tidy
-RUN CGO_ENABLED=0 GOOS=linux go build -v -o ./server *.go
+RUN CGO_ENABLED=0 GOOS=linux go build -v -o ./server github.com/ease-lab/vSwarm/tools/relay
 
 # Second stage (Runner):
 FROM scratch as relay
 WORKDIR /app/
 COPY --from=relayBuilder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
-COPY --from=relayBuilder /app/app/server .
+COPY --from=relayBuilder /app/app/tools/relay/server .
 
 ENTRYPOINT [ "/app/server" ]

@@ -29,10 +29,10 @@ services:
       - node
       - server.js
       - --addr=0.0.0.0
-      - --port=50051
+      - --port=50061
       - --zipkin=http://zipkin:9411/api/v2/spans
     ports:
-      - published: 50051
+      - published: 50061
         target: 50051
     environment:
       - ENABLE_TRACING=true
@@ -44,3 +44,15 @@ services:
     ports:
       - published: 9411
         target: 9411
+
+  relay:
+    image: vhiveease/relay:latest
+    entrypoint:
+      - /app/server
+      - --addr=0.0.0.0:50000
+      - --function-endpoint-url=aes-nodejs
+      - --function-endpoint-port=50061
+      - --function-name=aes-nodejs
+    ports:
+        - published: 50000
+          target: 50000

@@ -28,3 +28,15 @@ services:
     ports:
       - published: 50051
         target: 50051
+
+  relay:
+    image: vhiveease/relay:latest
+    entrypoint:
+      - /app/server
+      - --addr=0.0.0.0:50000
+      - --function-endpoint-url=aes-python
+      - --function-endpoint-port=50051
+      - --function-name=aes-python
+    ports:
+        - published: 50000
+          target: 50000

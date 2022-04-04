@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-option go_package = "/main";
+option go_package = "github.com/ease-lab/vSwarm/tools/invoker/proto";
 
 package helloworld;
 

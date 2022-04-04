@@ -1,6 +1,6 @@
 # AES benchmark
 
-The AES benchmark use the AES128 algorithm to encrypt a certain message string. As we are using the helloworld gRPC protocol for this benchmark the message will be the `name` variable. If you do not specify a name a default name is taken. You can change the default name with the argument `default-plaintext`.
+The AES benchmark use the AES128 algorithm to encrypt a certain message string. As we are using the aes gRPC protocol for this benchmark the message will be the `plaintext_message` variable. If you do not specify a plaintext_message a default plaintext_message is taken. You can change the default plaintext_message with the argument `default-plaintext`.
 
 AES requires a secret key for encryption. The functions use a default key but you can specify your own by passing it with the `key` argument to the function. See source code for more details.
 
@@ -15,9 +15,9 @@ The detailed and general description how to run benchmarks local you can find [h
    ```bash
    docker-compose -f yamls/docker-compose/dc-aes-<runtime>.yaml up
    ```
-3. In a new terminal, invoke the interface function with grpcurl. To provide the helloworld protocol explicitly we'll use `-import-path <path/to proto/dir> -proto helloworld.proto`.
+3. In a new terminal, invoke the interface function with grpcurl. To provide the aes protocol explicitly we'll use `-import-path <path/to proto/dir> -proto aes.proto`.
    ```bash
-   ../../tools/bin/grpcurl -plaintext -import-path proto -proto helloworld.proto localhost:50051 helloworld.Greeter.SayHello
+   ../../tools/bin/grpcurl -plaintext -import-path proto -proto aes.proto localhost:50051 aes.Aes.ShowEncryption
    ```
 4. Run the invoker
    ```bash
@@ -42,9 +42,9 @@ The detailed and general description how to run benchmarks on knative clusters y
    kn service apply -f ./knative_yamls/aes-python.yaml
    ```
 3. **Note the URL provided in the output. The part without the `http://` we'll call `$URL`. Replace any instance of `$URL` in the code below with it.**
-4. In a new terminal, invoke the interface function with grpcurl. To provide the helloworld protocol explicitly we'll use `-import-path <path/to proto/dir> -proto helloworld.proto`.
+4. In a new terminal, invoke the interface function with grpcurl. To provide the aes protocol explicitly we'll use `-import-path <path/to proto/dir> -proto aes.proto`.
    ```bash
-    ../../tools/bin/grpcurl -plaintext -import-path proto -proto helloworld.proto $URL:50051 helloworld.Greeter.SayHello
+    ../../tools/bin/grpcurl -plaintext -import-path proto -proto aes.proto $URL:50051 aes.Aes.ShowEncryption
    ```
 5. Run the invoker
    ```bash

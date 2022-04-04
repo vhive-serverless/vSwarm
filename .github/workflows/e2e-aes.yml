@@ -114,7 +114,7 @@ jobs:
 
       - name: invoke the chain
         run: |
-          ./tools/bin/grpcurl -plaintext -import-path ./benchmarks/aes/proto -proto helloworld.proto localhost:${{ env.PORT }} helloworld.Greeter.SayHello
+          ./tools/bin/grpcurl -plaintext -import-path ./tools/invoker/proto -proto helloworld.proto localhost:50000 helloworld.Greeter.SayHello
 
       - name: show docker-compose log
         run: cat benchmarks/aes/yamls/docker-compose/log_file
@@ -137,7 +137,7 @@ jobs:
 
       - uses: actions/setup-go@v3
         with:
-          go-version: 1.16
+          go-version: 1.18
 
       - name: Deploy knative
         working-directory: benchmarks
@@ -154,18 +154,24 @@ jobs:
           url_list=$(kn service list | awk '$2 ~ /http/ {sub(/http\:\/\//,""); print $2}')
           for url in $url_list
           do
-            ./test-client -addr $url:$NODEPORT
+            ./test-client --addr $url:$NODEPORT --name "Example text for AES CI"
           done
       - name: Print logs
         if: ${{ always() }}
         run: |
           set -x
-          kubectl logs -n default -c user-container -l serving.knative.dev/service=aes-go
-          kubectl logs -n default -c user-container -l serving.knative.dev/service=aes-go-tracing
-          kubectl logs -n default -c user-container -l serving.knative.dev/service=aes-python
-          kubectl logs -n default -c user-container -l serving.knative.dev/service=aes-python-tracing
-          kubectl logs -n default -c user-container -l serving.knative.dev/service=aes-nodejs
-          kubectl logs -n default -c user-container -l serving.knative.dev/service=aes-nodejs-tracing
+          kubectl logs -n default -c user-container-0 -l serving.knative.dev/service=aes-go
+          kubectl logs -n default -c user-container-1 -l serving.knative.dev/service=aes-go
+          kubectl logs -n default -c user-container-0 -l serving.knative.dev/service=aes-go-tracing
+          kubectl logs -n default -c user-container-1 -l serving.knative.dev/service=aes-go-tracing
+          kubectl logs -n default -c user-container-0 -l serving.knative.dev/service=aes-python
+          kubectl logs -n default -c user-container-1 -l serving.knative.dev/service=aes-python
+          kubectl logs -n default -c user-container-0 -l serving.knative.dev/service=aes-python-tracing
+          kubectl logs -n default -c user-container-1 -l serving.knative.dev/service=aes-python-tracing
+          kubectl logs -n default -c user-container-0 -l serving.knative.dev/service=aes-nodejs
+          kubectl logs -n default -c user-container-1 -l serving.knative.dev/service=aes-nodejs
+          kubectl logs -n default -c user-container-0 -l serving.knative.dev/service=aes-nodejs-tracing
+          kubectl logs -n default -c user-container-1 -l serving.knative.dev/service=aes-nodejs-tracing
 
       - name: Down
         if: ${{ always() }}

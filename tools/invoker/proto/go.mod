@@ -1,4 +1,4 @@
-module recommendation
+module github.com/ease-lab/vSwarm/tools/invoker/proto
 
 go 1.18
 

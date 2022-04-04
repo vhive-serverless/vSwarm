@@ -20,7 +20,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-// Package main implements a server for Greeter service.
+// Package main implements a server for Aes service.
 package main
 
 import (
@@ -35,7 +35,7 @@ import (
 
 	log "github.com/sirupsen/logrus"
 
-	pb "aes/proto"
+	pb "github.com/ease-lab/vSwarm/benchmarks/aes/proto"
 
 	tracing "github.com/ease-lab/vSwarm/utils/tracing/go"
 
@@ -44,10 +44,10 @@ import (
 )
 
 var (
-	zipkin       = flag.String("zipkin", "http://localhost:9411/api/v2/spans", "zipkin url")
-	address      = flag.String("addr", "0.0.0.0:50051", "Address:Port the grpc server is listening to")
-	key_string   = flag.String("key", "6368616e676520746869732070617373", "The key which is used for encryption")
-	default_name = flag.String("default-plaintext", "exampleplaintext", "Default plaintext when the function is called with the name world")
+	zipkin                    = flag.String("zipkin", "http://localhost:9411/api/v2/spans", "zipkin url")
+	address                   = flag.String("addr", "0.0.0.0:50051", "Address:Port the grpc server is listening to")
+	key_string                = flag.String("key", "6368616e676520746869732070617373", "The key which is used for encryption")
+	default_plaintext_message = flag.String("default-plaintext", "defaultplaintext", "Default plaintext when the function is called with the plaintext_message world")
 )
 
 // func AESModeCBC(plaintext []byte) []byte {
@@ -104,25 +104,25 @@ func AESModeCTR(plaintext []byte) []byte {
 	return ciphertext
 }
 
-// server is used to implement helloworld.GreeterServer.
+// server is used to implement aes.AesServer.
 type server struct {
-	pb.UnimplementedGreeterServer
+	pb.UnimplementedAesServer
 }
 
-// SayHello implements helloworld.GreeterServer
-func (s *server) SayHello(ctx context.Context, in *pb.HelloRequest) (*pb.HelloReply, error) {
-	// log.Printf("Received: %v", in.GetName())
+// ShowEncryption implements aes.AesServer
+func (s *server) ShowEncryption(ctx context.Context, in *pb.PlainTextMessage) (*pb.ReturnEncryptionInfo, error) {
+	// log.Printf("Received: %v", in.GetPlaintextMessage())
 
 	var plaintext, ciphertext []byte
-	if in.GetName() == "" || in.GetName() == "world" {
-		plaintext = []byte(*default_name)
+	if in.GetPlaintextMessage() == "" || in.GetPlaintextMessage() == "world" {
+		plaintext = []byte(*default_plaintext_message)
 	} else {
-		plaintext = []byte(in.GetName())
+		plaintext = []byte(in.GetPlaintextMessage())
 	}
 	// Do the encryption
 	ciphertext = AESModeCTR(plaintext)
 	resp := fmt.Sprintf("fn: AES | plaintext: %s | ciphertext: %x | runtime: golang", plaintext, ciphertext)
-	return &pb.HelloReply{Message: resp}, nil
+	return &pb.ReturnEncryptionInfo{EncryptionInfo: resp}, nil
 }
 
 func main() {
@@ -149,7 +149,7 @@ func main() {
 	} else {
 		grpcServer = grpc.NewServer()
 	}
-	pb.RegisterGreeterServer(grpcServer, &server{})
+	pb.RegisterAesServer(grpcServer, &server{})
 	reflection.Register(grpcServer)
 
 	if err := grpcServer.Serve(lis); err != nil {

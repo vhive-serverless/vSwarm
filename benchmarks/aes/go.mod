@@ -22,16 +22,37 @@
 
 module aes
 
-go 1.16
+go 1.18
 
 replace (
-	aes/proto => ./proto
+	github.com/ease-lab/vSwarm/benchmarks/aes/proto => ./proto
 	github.com/ease-lab/vSwarm/utils/tracing/go => ../../utils/tracing/go
 )
 
 require (
+	github.com/ease-lab/vSwarm/benchmarks/aes/proto v0.0.0-00010101000000-000000000000
 	github.com/ease-lab/vSwarm/utils/tracing/go v0.0.0-00010101000000-000000000000
 	github.com/sirupsen/logrus v1.8.1
 	google.golang.org/grpc v1.45.0
-	google.golang.org/protobuf v1.28.0
+)
+
+require (
+	cloud.google.com/go v0.81.0 // indirect
+	github.com/containerd/containerd v1.5.8 // indirect
+	github.com/go-logr/logr v1.2.3 // indirect
+	github.com/go-logr/stdr v1.2.2 // indirect
+	github.com/golang/protobuf v1.5.2 // indirect
+	github.com/openzipkin/zipkin-go v0.4.0 // indirect
+	go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc v0.31.0 // indirect
+	go.opentelemetry.io/otel v1.6.3 // indirect
+	go.opentelemetry.io/otel/exporters/zipkin v1.6.3 // indirect
+	go.opentelemetry.io/otel/sdk v1.6.3 // indirect
+	go.opentelemetry.io/otel/trace v1.6.3 // indirect
+	golang.org/x/net v0.0.0-20211216030914-fe4d6282115f // indirect
+	golang.org/x/oauth2 v0.0.0-20210402161424-2e8d93401602 // indirect
+	golang.org/x/sys v0.0.0-20220406163625-3f8b81556e12 // indirect
+	golang.org/x/text v0.3.7 // indirect
+	google.golang.org/appengine v1.6.7 // indirect
+	google.golang.org/genproto v0.0.0-20211208223120-3a66f561d7aa // indirect
+	google.golang.org/protobuf v1.28.0 // indirect
 )

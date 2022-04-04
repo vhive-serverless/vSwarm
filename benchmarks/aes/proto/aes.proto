@@ -9,8 +9,8 @@
 // copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
 //
-// The above copyright notice and this permission notice shall be included in all
-// copies or substantial portions of the Software.
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
 //
 // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 // IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -22,17 +22,19 @@
 
 syntax = "proto3";
 
-package helloworld;
+option go_package = "github.com/ease-lab/vSwarm/benchmarks/aes/proto";
 
-option go_package = "helloworld/proto";
+package aes;
 
-service Greeter {
-  rpc SayHello(HelloRequest) returns (HelloReply) {}
+// The AES service definition.
+service Aes {
+  // Performs encryption on received message and returns information about it
+  rpc ShowEncryption(PlainTextMessage) returns (ReturnEncryptionInfo) {}
 }
 
-message HelloRequest {
-  string name = 1;
-  bytes vHiveMetadata = 15;
-}
+// The plaintext message to be encrypted.
+message PlainTextMessage { string plaintext_message = 1; }
 
-message HelloReply { string message = 1; }
+// The response message containing the information about encrypted message
+// (runtime, plaintext, encrypted message)
+message ReturnEncryptionInfo { string encryption_info = 1; }

@@ -36,8 +36,8 @@ import sys
 # For local builds add protobuffer and
 # python tracing sources to the system path
 sys.path.insert(0, os.getcwd() + '/../proto')
-import helloworld_pb2
-import helloworld_pb2_grpc
+import aes_pb2
+import aes_pb2_grpc
 
 sys.path.insert(0, os.getcwd() + '/../../../utils/tracing/python')
 import tracing
@@ -47,7 +47,7 @@ parser.add_argument("-a", "--addr", dest="addr", default="0.0.0.0", help="IP add
 parser.add_argument("-p", "--port", dest="port", default="50051", help="serve port")
 parser.add_argument("-zipkin", "--zipkin", dest="url", default="http://0.0.0.0:9411/api/v2/spans", help="Zipkin endpoint url")
 parser.add_argument("-k", "--key", dest="KEY", default="6368616e676520746869732070617373", help="Secret key")
-parser.add_argument("--default_plaintext", default="exampleplaintext", help="Default plain text if name is empty or 'world'")
+parser.add_argument("--default_plaintext", default="defaultplaintext", help="Default plain text if plaintext_message is empty or 'world'")
 args = parser.parse_args()
 
 
@@ -86,25 +86,25 @@ def AESModeCBC(plaintext):
     return ciphertext.decode('UTF-8')
 
 
-class Greeter(helloworld_pb2_grpc.GreeterServicer):
+class Aes(aes_pb2_grpc.AesServicer):
 
-    def SayHello(self, request, context):
+    def ShowEncryption(self, request, context):
 
-        if request.name in ["", "world"]:
+        if request.plaintext_message in ["", "world"]:
             plaintext = args.default_plaintext
         else:
-            plaintext = request.name
+            plaintext = request.plaintext_message
 
         with tracing.Span("AES Encryption"):
             ciphertext = AESModeCTR(plaintext)
 
         msg = f"fn: AES | plaintext: {plaintext} | ciphertext: {ciphertext} | runtime: Python"
-        return helloworld_pb2.HelloReply(message=msg)
+        return aes_pb2.ReturnEncryptionInfo(encryption_info=msg)
 
 
 def serve():
     server = grpc.server(futures.ThreadPoolExecutor(max_workers=1))
-    helloworld_pb2_grpc.add_GreeterServicer_to_server(Greeter(), server)
+    aes_pb2_grpc.add_AesServicer_to_server(Aes(), server)
 
     address = (args.addr + ":" + args.port)
     server.add_insecure_port(address)
