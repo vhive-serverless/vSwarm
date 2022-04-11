@@ -96,7 +96,7 @@ jobs:
       - name: Checkout LFS objects
         run: git lfs checkout
       
-      - uses: actions/setup-go@v2
+      - uses: actions/setup-go@v3
         with:
           go-version: 1.16
 

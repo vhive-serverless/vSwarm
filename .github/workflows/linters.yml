@@ -48,7 +48,7 @@ jobs:
     name: Run golangci-lint
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/setup-go@v2
+      - uses: actions/setup-go@v3
       - uses: actions/checkout@v2
       - uses: golangci/golangci-lint-action@v3.1.0
         with:
