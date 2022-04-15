@@ -25,6 +25,7 @@ package main
 import (
 	"context"
 	"flag"
+	"fmt"
 	"net"
 	"os"
 
@@ -33,6 +34,7 @@ import (
 	log "github.com/sirupsen/logrus"
 
 	grpcClients "github.com/ease-lab/vSwarm-proto/grpcclient"
+	tracing "github.com/ease-lab/vSwarm/utils/tracing/go"
 
 	"google.golang.org/grpc"
 )
@@ -50,6 +52,7 @@ var address = flag.String("addr", "0.0.0.0:50000", "Specify the HOST:PORT for re
 var functionName = flag.String("function-name", "helloworld", "Specify the name of the function being invoked.")
 var functionEndpointURL = flag.String("function-endpoint-url", "0.0.0.0", "Specify the function endpoint URL (HOST) to call at")
 var functionEndpointPort = flag.String("function-endpoint-port", "50051", "Specify the function endpoint port to call at")
+var zipkin = flag.String("zipkin", "http://localhost:9411/api/v2/spans", "zipkin url")
 
 func isDebuggingEnabled() bool {
 	if val, ok := os.LookupEnv("ENABLE_DEBUGGING"); !ok || val == "false" {
@@ -70,6 +73,16 @@ func main() {
 		log.Info("Debugging is enabled.")
 	}
 
+	if tracing.IsTracingEnabled() {
+		log.Printf("Start tracing on : %s\n", *zipkin)
+		tracerName := fmt.Sprint("Relay server for ", *functionName)
+		shutdown, err := tracing.InitBasicTracer(*zipkin, tracerName)
+		if err != nil {
+			log.Warn(err)
+		}
+		defer shutdown()
+	}
+
 	// Establish and initialize connection to the downstream function
 	serviceName := grpcClients.FindServiceName(*functionName)
 	grpcClient = grpcClients.FindGrpcClient(serviceName)
@@ -77,7 +90,12 @@ func main() {
 	defer grpcClient.Close()
 
 	// Register the Greeter Service with the server
-	var grpcServer = grpc.NewServer()
+	var grpcServer *grpc.Server
+	if tracing.IsTracingEnabled() {
+		grpcServer = tracing.GetGRPCServerWithUnaryInterceptor()
+	} else {
+		grpcServer = grpc.NewServer()
+	}
 	pb.RegisterGreeterServer(grpcServer, &server{})
 
 	// Start listening for invocations
