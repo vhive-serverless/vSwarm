@@ -597,6 +597,7 @@ xml
 xyz
 xz
 yaml
+yamls
 yml
 YY
 zA

@@ -26,8 +26,7 @@ services:
     image: vhiveease/aes-python:latest
     container_name: aes-python
     ports:
-      - published: 50051
-        target: 50051
+      - target: 50051
 
   relay:
     image: vhiveease/relay:latest

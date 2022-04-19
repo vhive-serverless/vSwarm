@@ -30,7 +30,7 @@ import (
 	"time"
 
 	ctrdlog "github.com/containerd/containerd/log"
-	pb "github.com/ease-lab/vSwarm/examples/protobuf/helloworld"
+	pb "github.com/ease-lab/vSwarm-proto/proto/helloworld"
 
 	tracing "github.com/ease-lab/vSwarm/utils/tracing/go"
 	log "github.com/sirupsen/logrus"
