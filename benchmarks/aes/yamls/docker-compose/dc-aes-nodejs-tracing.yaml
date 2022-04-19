@@ -32,8 +32,7 @@ services:
       - --port=50051
       - --zipkin=http://zipkin:9411/api/v2/spans
     ports:
-      - published: 50051
-        target: 50051
+      - target: 50051
     environment:
       - ENABLE_TRACING=true
     depends_on:

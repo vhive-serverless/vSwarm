@@ -22,7 +22,7 @@
 
 module aes
 
-go 1.18
+go 1.16
 
 replace (
 	github.com/ease-lab/vSwarm/benchmarks/aes/proto => ./proto

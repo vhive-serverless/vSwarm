@@ -31,8 +31,7 @@ services:
       - --addr=0.0.0.0
       - --port=50051
     ports:
-      - published: 50051
-        target: 50051
+      - target: 50051
 
   relay:
     image: vhiveease/relay:latest

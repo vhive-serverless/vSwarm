@@ -113,7 +113,7 @@ func main() {
 }
 
 func (s *server) SayHello(ctx context.Context, in *pb.HelloRequest) (*pb.HelloReply, error) {
-	log.Info("Received: ", in.GetName())
+	log.Info("Received from invoker: ", in.GetName())
 	// log.Debug("Received: ", in.GetVHiveMetadata())
 
 	replyBack := SendMessageToBenchmark(in)
@@ -122,7 +122,10 @@ func (s *server) SayHello(ctx context.Context, in *pb.HelloRequest) (*pb.HelloRe
 }
 
 func SendMessageToBenchmark(in *pb.HelloRequest) string {
-	reply := grpcClient.Request(in.GetName())
+	var pkt grpcClients.Input
+	pkt.SetGenerator(grpcClients.Unique)
+	pkt.SetValue("Relay invokation.")
+	reply := grpcClient.Request(pkt)
 	log.Debug(reply)
 	return reply
 }

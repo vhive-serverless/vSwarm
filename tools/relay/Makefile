@@ -21,16 +21,15 @@
 # SOFTWARE.
 
 
-clean: clean-proto
-
-
 ROOT = ../../
 
-.PHONY: proto
+all: relay relay-docker
 
-all: relay
+relay:
+	go mod tidy
+	go build -v -o ./server github.com/ease-lab/vSwarm/tools/relay
 
-relay: proto
+relay-docker:
 	go mod tidy
 	DOCKER_BUILDKIT=1 \
 	docker build \
@@ -39,7 +38,6 @@ relay: proto
 	-f Dockerfile \
 	$(ROOT)
 
-
 ## Push images
 push:
 	docker push docker.io/vhiveease/relay:latest
@@ -47,7 +45,3 @@ push:
 ## Pull images from docker hub
 pull:
 	docker pull docker.io/vhiveease/relay:latest
-
-
-clean-proto:
-	rm -f proto/*.go

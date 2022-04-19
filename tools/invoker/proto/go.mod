@@ -1,6 +1,6 @@
 module github.com/ease-lab/vSwarm/tools/invoker/proto
 
-go 1.18
+go 1.16
 
 require (
 	google.golang.org/grpc v1.45.0

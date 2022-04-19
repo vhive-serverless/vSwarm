@@ -11,15 +11,24 @@ The same functionality is implemented in different runtimes, namely Python, Node
 
 The detailed and general description how to run benchmarks local you can find [here](../../docs/running_locally.md). The following steps show it on the aes-python function.
 1. Build or pull the function images using `make all-images` or `make pull`.
+### Invoke once
 2. Start the function with docker-compose
    ```bash
    docker-compose -f yamls/docker-compose/dc-aes-<runtime>.yaml up
    ```
-3. In a new terminal, invoke the interface function with grpcurl. To provide the aes protocol explicitly we'll use `-import-path <path/to proto/dir> -proto aes.proto`.
+#### Without relay
+In a new terminal, invoke the interface function with grpcurl. To provide the aes protocol explicitly we'll use `-import-path <path/to proto/dir> -proto aes.proto`.
    ```bash
    ../../tools/bin/grpcurl -plaintext -import-path proto -proto aes.proto localhost:50051 aes.Aes.ShowEncryption
    ```
-4. Run the invoker
+#### With relay
+In a new terminal, invoke the interface function with grpcurl. To provide the aes protocol explicitly we'll use `-import-path <path/to proto/dir> -proto aes.proto`.
+   ```bash
+   # Same steps, we just invoke the relay at port 50000 instead of AES server directly (50051 is not exposed anymore)
+   ../../tools/bin/grpcurl -plaintext -import-path proto -proto aes.proto localhost:50000 aes.Aes.ShowEncryption
+   ```
+### Invoke multiple times
+2. Run the invoker
    ```bash
    # build the invoker binary
    cd ../../tools/invoker
@@ -28,8 +37,8 @@ The detailed and general description how to run benchmarks local you can find [h
    # Specify the hostname through "endpoints.json"
    echo '[ { "hostname": "localhost" } ]' > endpoints.json
 
-   # Start the invoker with a chosen RPS rate and time
-   ./invoker -port 50051 -dbg -time 10 -rps 1
+   # Start the invoker with a chosen RPS rate and time (With relay)
+   ./invoker -port 50000 -dbg -time 10 -rps 1
    ```
 
 
@@ -42,11 +51,7 @@ The detailed and general description how to run benchmarks on knative clusters y
    kn service apply -f ./knative_yamls/aes-python.yaml
    ```
 3. **Note the URL provided in the output. The part without the `http://` we'll call `$URL`. Replace any instance of `$URL` in the code below with it.**
-4. In a new terminal, invoke the interface function with grpcurl. To provide the aes protocol explicitly we'll use `-import-path <path/to proto/dir> -proto aes.proto`.
-   ```bash
-    ../../tools/bin/grpcurl -plaintext -import-path proto -proto aes.proto $URL:50051 aes.Aes.ShowEncryption
-   ```
-5. Run the invoker
+4. Run the invoker
    ```bash
    # build the invoker binary
    cd ../../tools/invoker
@@ -56,7 +61,7 @@ The detailed and general description how to run benchmarks on knative clusters y
    echo '[ { "hostname": "$URL" } ]' > endpoints.json
 
    # Start the invoker with a chosen RPS rate and time
-   ./invoker -port 50051 -dbg -time 10 -rps 1
+   ./invoker -port 80 -dbg -time 10 -rps 1
    ```
 ## Tracing
 This Benchmark supports distributed tracing for all runtimes. For the general use see vSwarm docs for tracing [locally](../../docs/running_locally.md#tracing) and with [knative](../../docs/running_benchmarks.md#tracing).
