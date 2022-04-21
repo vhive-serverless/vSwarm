@@ -20,7 +20,7 @@ env:
 jobs:
   timeseriesdb_test:
     name: TimeseriesDB Tests
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-20.04
     defaults:
       run:
         working-directory: tools/benchmarking_eventing/timeseriesdb
@@ -38,7 +38,7 @@ jobs:
 
   module_tests:
     name: Module Tests
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-20.04
     strategy:
       fail-fast: false
       matrix:
@@ -71,7 +71,7 @@ jobs:
 
   bench-python-tracing:
     name: Python Tracing tests (docker-compose)
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-20.04
     defaults:
       run:
         working-directory: ./utils/tracing/integ-tests/client-server
