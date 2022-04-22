@@ -35,12 +35,11 @@ import (
 	"go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc"
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/attribute"
-	"go.opentelemetry.io/otel/exporters/trace/zipkin"
+	"go.opentelemetry.io/otel/exporters/zipkin"
 	"go.opentelemetry.io/otel/propagation"
 	"go.opentelemetry.io/otel/sdk/resource"
 	"go.opentelemetry.io/otel/sdk/trace"
-	"go.opentelemetry.io/otel/semconv"
-
+	semconv "go.opentelemetry.io/otel/semconv/v1.7.0"
 	"google.golang.org/grpc"
 )
 
@@ -67,10 +66,9 @@ func initTracer(tp *trace.TracerProvider) func() {
 }
 
 func newZipkinExporter(url string, logger *log.Logger) (*zipkin.Exporter, error) {
-	exporter, err := zipkin.NewRawExporter(
+	exporter, err := zipkin.New(
 		url,
 		zipkin.WithLogger(logger),
-		zipkin.WithSDKOptions(trace.WithSampler(trace.AlwaysSample())),
 	)
 	if err != nil {
 		log.Printf("warning: zipkin exporter experienced an error: %v", err)
@@ -100,7 +98,7 @@ func InitBasicTracer(url string, serviceName string) (func(), error) {
 	tp := trace.NewTracerProvider(
 		trace.WithSampler(trace.AlwaysSample()),
 		trace.WithSyncer(exporter),
-		trace.WithResource(resource.NewWithAttributes(
+		trace.WithResource(resource.NewSchemaless(
 			semconv.ServiceNameKey.String(fmt.Sprintf("%v@%v-FU", serviceName, hostname)),
 			attribute.Int64("ID", 1),
 		)),
@@ -127,7 +125,7 @@ func InitCustomTracer(url string, traceRate float64, logger *log.Logger, attr ..
 	tp := trace.NewTracerProvider(
 		trace.WithSampler(sampler),
 		trace.WithSyncer(exporter),
-		trace.WithResource(resource.NewWithAttributes(
+		trace.WithResource(resource.NewSchemaless(
 			attr...,
 		)),
 	)
