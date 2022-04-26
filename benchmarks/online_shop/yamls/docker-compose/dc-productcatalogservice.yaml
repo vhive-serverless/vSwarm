@@ -11,7 +11,21 @@ services:
       - PORT=3550
     entrypoint: ["/productcatalogservice/server"]
     ports:
-    - published: 8087
-      target: 3550
+    - target: 3550
     restart: always
     cpuset: "0-6"
+
+  relay:
+    image: vhiveease/relay:latest
+    entrypoint:
+      - /app/server
+      - --addr=0.0.0.0:50000
+      - --function-endpoint-url=productcatalogservice
+      - --function-endpoint-port=3550
+      - --function-name=productcatalogservice
+      - --generator=unique
+      - --value=loremipsum
+      - --function-method=ListProducts
+    ports:
+      - published: 50000
+        target: 50000

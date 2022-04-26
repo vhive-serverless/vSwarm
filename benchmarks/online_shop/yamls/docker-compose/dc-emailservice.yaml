@@ -9,7 +9,19 @@ services:
       dockerfile: ./Dockerfile
     entrypoint: ["python", "email_server.py" ]
     ports:
-    - published: 8085
-      target: 8080
+    - target: 8080
     restart: always
     cpuset: "0-6"
+
+  relay:
+    image: vhiveease/relay:latest
+    entrypoint:
+      - /app/server
+      - --addr=0.0.0.0:50000
+      - --function-endpoint-url=emailservice
+      - --function-endpoint-port=8080
+      - --function-name=emailservice
+      - --generator=unique
+    ports:
+      - published: 50000
+        target: 50000
