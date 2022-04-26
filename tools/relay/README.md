@@ -19,7 +19,7 @@ relay:
     - published: 50000
       target: 50000
 ```
-where FUNCTION_NAME is replaced by the name you have added to the `getclient.go` in the [vSwarm-proto repository](https://github.com/ease-lab/vSwarm-proto/blob/main/grpcclient/getclient.go). You can remove the published port of your benchmark server now (which is now FUNCTION_PORT). 
+where FUNCTION_NAME is replaced by the name you have added to the `getclient.go` in the [vSwarm-proto repository](https://github.com/ease-lab/vSwarm-proto/blob/main/grpcclient/getclient.go). You can remove the published port of your benchmark server now (the `CONTAINER_PORT` is now FUNCTION_PORT, see [docker networking](https://docs.docker.com/compose/networking/)).
 
 To understand the URL setting in detail check [here in docker docs](https://docs.docker.com/compose/networking/) to find out how docker network works.  
 Generally speaking in this case docker compose sets up a single network between the relay and the function container. Now the function container is reachable from the relay via the service/container name. See [docker networking](https://docs.docker.com/compose/networking/) or aes-go as an example
