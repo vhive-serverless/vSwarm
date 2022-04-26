@@ -54,6 +54,11 @@ var functionEndpointURL = flag.String("function-endpoint-url", "0.0.0.0", "Speci
 var functionEndpointPort = flag.String("function-endpoint-port", "50051", "Specify the function endpoint port to call at")
 var zipkin = flag.String("zipkin", "http://localhost:9411/api/v2/spans", "zipkin url")
 
+var lowerBound = flag.Int("lowerBound", 1, "Lower bound while generating input")
+var upperBound = flag.Int("upperBound", 10, "Upper bound while generating input")
+var generatorString = flag.String("generator", "unique", "Generator type (unique / linear / random)")
+var value = flag.String("value", "helloWorld", "String input to pass to benchmark")
+
 func isDebuggingEnabled() bool {
 	if val, ok := os.LookupEnv("ENABLE_DEBUGGING"); !ok || val == "false" {
 		return false
@@ -123,8 +128,19 @@ func (s *server) SayHello(ctx context.Context, in *pb.HelloRequest) (*pb.HelloRe
 
 func SendMessageToBenchmark(in *pb.HelloRequest) string {
 	var pkt grpcClients.Input
-	pkt.SetGenerator(grpcClients.Unique)
-	pkt.SetValue("Relay invokation.")
+	var generator grpcClients.GeneratorType
+	switch *generatorString {
+	case "unique":
+		generator = grpcClients.Unique
+	case "linear":
+		generator = grpcClients.Linear
+	case "random":
+		generator = grpcClients.Random
+	}
+	pkt.SetGenerator(generator)
+	pkt.SetValue(*value)
+	pkt.SetLowerBound(*lowerBound)
+	pkt.SetUpperBound(*upperBound)
 	reply := grpcClient.Request(pkt)
 	log.Debug(reply)
 	return reply
