@@ -24,12 +24,10 @@ package main
 import (
 	"context"
 	"encoding/base64"
-	"net/url"
 	"testing"
 	"time"
 
 	cloudevents "github.com/cloudevents/sdk-go/v2"
-	"github.com/cloudevents/sdk-go/v2/types"
 	"github.com/stretchr/testify/require"
 	"google.golang.org/protobuf/types/known/timestamppb"
 
@@ -39,14 +37,6 @@ import (
 
 const workflowId = "wfid"
 const SleepDuration = 200 * time.Millisecond
-
-func parseURIRef(s string) types.URIRef {
-	if u, err := url.Parse(s); err != nil {
-		panic(err)
-	} else {
-		return types.URIRef{URL: *u}
-	}
-}
 
 func TestDefaultEndToEnd(t *testing.T) {
 	var server Server
