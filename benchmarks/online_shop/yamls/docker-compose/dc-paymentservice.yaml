@@ -11,8 +11,21 @@ services:
       - PORT=50051
     entrypoint: [ "node", "index.js" ]
     ports:
-    - published: 8086
-      target: 50051
+    - target: 50051
     restart: always
     cpuset: "0-6"
 
+
+  relay:
+    image: vhiveease/relay:latest
+    entrypoint:
+      - /app/server
+      - --addr=0.0.0.0:50000
+      - --function-endpoint-url=paymentservice
+      - --function-endpoint-port=50051
+      - --function-name=paymentservice
+      - --generator=unique
+      - --value=100
+    ports:
+      - published: 50000
+        target: 50000

@@ -2,7 +2,7 @@ version: "3.9"
 services:
     
   cartservice:
-    image: davidschall/onlineshop-cartservice:latest
+    image: vhiveease/onlineshop-cartservice:latest
     container_name: 'cartservice'
     build:
       context: ./../../cartservice/
@@ -11,8 +11,22 @@ services:
     #   - PORT=9555
     entrypoint: ["/app/cartservice"]
     ports:
-    - published: 8082
-      target: 7070
+    - target: 7070
 
     restart: always
     cpuset: "0-6"
+
+  relay:
+    image: vhiveease/relay:latest
+    entrypoint:
+      - /app/server
+      - --addr=0.0.0.0:50000
+      - --function-endpoint-url=cartservice
+      - --function-endpoint-port=7070
+      - --function-name=cartservice
+      - --generator=unique
+      - --value=12345
+      - --function-method=AddItem
+    ports:
+      - published: 50000
+        target: 50000

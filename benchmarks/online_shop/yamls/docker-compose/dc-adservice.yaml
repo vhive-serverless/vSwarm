@@ -11,8 +11,21 @@ services:
       - PORT=9555
     entrypoint: /app/build/install/hipstershop/bin/AdService
     ports:
-    - published: 8081
-      target: 9555
+    - target: 9555
 
     restart: always
     cpuset: "0-6"
+
+  relay:
+    image: vhiveease/relay:latest
+    entrypoint:
+      - /app/server
+      - --addr=0.0.0.0:50000
+      - --function-endpoint-url=adservice
+      - --function-endpoint-port=9555
+      - --function-name=adservice
+      - --generator=unique
+      - --value=donuts
+    ports:
+      - published: 50000
+        target: 50000

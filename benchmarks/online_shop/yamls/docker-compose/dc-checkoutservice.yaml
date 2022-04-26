@@ -9,23 +9,15 @@ services:
       dockerfile: ./Dockerfile
     environment:
       - PORT=5050
-      - SHIPPING_SERVICE_ADDR=shipping:50051
-      - PRODUCT_CATALOG_SERVICE_ADDR=productcatalog:3550
-      - CART_SERVICE_ADDR=cart:7070
-      - CURRENCY_SERVICE_ADDR=currency:7000
-      - EMAIL_SERVICE_ADDR=email:8080
-      - PAYMENT_SERVICE_ADDR=payment:50051
+      - SHIPPING_SERVICE_ADDR=shippingservice:50051
+      - PRODUCT_CATALOG_SERVICE_ADDR=productcatalogservice:3550
+      - CART_SERVICE_ADDR=cartservice:7070
+      - CURRENCY_SERVICE_ADDR=currencyservice:7000
+      - EMAIL_SERVICE_ADDR=emailservice:8080
+      - PAYMENT_SERVICE_ADDR=paymentservice:50051
     entrypoint: ["/checkoutservice"]
     ports:
-    - published: 8083
-      target: 5050
-    links:
-      - "shippingservice:shipping"
-      - "productcatalogservice:productcatalog"
-      - "cartservice:cart"
-      - "currencyservice:currency"
-      - "emailservice:email"
-      - "paymentservice:payment"
+    - target: 5050
     depends_on:
       - shippingservice
       - productcatalogservice
@@ -35,3 +27,100 @@ services:
       - paymentservice
     restart: always
     cpuset: "0-6"
+
+  shippingservice:
+    image: vhiveease/onlineshop-shippingservice:latest
+    container_name: 'shippingservice'
+    build:
+      context: ./../../shippingservice/
+      dockerfile: ./Dockerfile
+    environment:
+      - PORT=50051
+    entrypoint: ["/shippingservice"]
+    ports:
+    - target: 50051
+    restart: always
+    cpuset: "0-6"
+
+  productcatalogservice:
+    image: vhiveease/onlineshop-productcatalogservice:latest
+    container_name: 'productcatalogservice'
+    build:
+      context: ./../../productcatalogservice/
+      dockerfile: ./Dockerfile
+    environment:
+      - PORT=3550
+    entrypoint: ["/productcatalogservice/server"]
+    ports:
+    - target: 3550
+    restart: always
+    cpuset: "0-6"
+
+  cartservice:
+    image: vhiveease/onlineshop-cartservice:latest
+    container_name: 'cartservice'
+    build:
+      context: ./../../cartservice/
+      dockerfile: ./Dockerfile
+    # environment: 
+    #   - PORT=9555
+    entrypoint: ["/app/cartservice"]
+    ports:
+    - target: 7070
+
+    restart: always
+    cpuset: "0-6"
+
+  currencyservice:
+    image: vhiveease/onlineshop-currencyservice:latest
+    container_name: 'currencyservice'
+    build:
+      context: ./../../currencyservice/
+      dockerfile: ./Dockerfile
+    environment:
+      - PORT=7000
+    entrypoint: [ "node", "server.js" ]
+    ports:
+    - target: 7000
+    restart: always
+    cpuset: "0-6"
+    
+  emailservice:
+    image: vhiveease/onlineshop-emailservice:latest
+    container_name: 'emailservice'
+    build:
+      context: ./../../emailservice/
+      dockerfile: ./Dockerfile
+    entrypoint: ["python", "email_server.py" ]
+    ports:
+    - target: 8080
+    restart: always
+    cpuset: "0-6"
+
+  paymentservice:
+    image: vhiveease/onlineshop-paymentservice:latest
+    container_name: 'paymentservice'
+    build:
+      context: ./../../paymentservice/
+      dockerfile: ./Dockerfile
+    environment:
+      - PORT=50051
+    entrypoint: [ "node", "index.js" ]
+    ports:
+    - target: 50051
+    restart: always
+    cpuset: "0-6"
+
+  relay:
+    image: vhiveease/relay:latest
+    entrypoint:
+      - /app/server
+      - --addr=0.0.0.0:50000
+      - --function-endpoint-url=checkoutservice
+      - --function-endpoint-port=5050
+      - --function-name=checkoutservice
+      - --generator=unique
+      - --value=12345
+    ports:
+      - published: 50000
+        target: 50000

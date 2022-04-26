@@ -11,8 +11,21 @@ services:
       - PORT=7000
     entrypoint: [ "node", "server.js" ]
     ports:
-    - published: 8084
-      target: 7000
+    - target: 7000
     restart: always
     cpuset: "0-6"
     
+  relay:
+    image: vhiveease/relay:latest
+    entrypoint:
+      - /app/server
+      - --addr=0.0.0.0:50000
+      - --function-endpoint-url=currencyservice
+      - --function-endpoint-port=7000
+      - --function-name=currencyservice
+      - --generator=unique
+      - --value=100
+      - --function-method=Convert
+    ports:
+      - published: 50000
+        target: 50000
