@@ -48,3 +48,14 @@ Simply use invoker on port 50000.
 echo '[ { "hostname": "0.0.0.0" } ]' > endpoints.json
 ./invoker -port 50000
 ```
+
+## Debugging
+
+You simply need to set the `ENABLE_DEBUGGING` shell environment variable to `true` to enable debug logging.
+
+In docker-compose file you can add
+
+```yaml
+    environment:
+      - ENABLE_DEBUGGING=true
+```
