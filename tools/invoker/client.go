@@ -39,6 +39,7 @@ import (
 	"github.com/google/uuid"
 	log "github.com/sirupsen/logrus"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials/insecure"
 
 	"go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc"
 
@@ -157,7 +158,8 @@ loop:
 }
 
 func SayHello(address, workflowID string) {
-	dialOptions := []grpc.DialOption{grpc.WithBlock(), grpc.WithInsecure()}
+	dialOptions := make([]grpc.DialOption, 0)
+	dialOptions = append(dialOptions, grpc.WithTransportCredentials(insecure.NewCredentials()), grpc.WithBlock())
 	if *withTracing {
 		dialOptions = append(dialOptions, grpc.WithUnaryInterceptor(otelgrpc.UnaryClientInterceptor()))
 	}

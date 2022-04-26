@@ -32,6 +32,7 @@ import (
 
 func TestMain(m *testing.M) {
 	m.Run()
+	os.Exit(0)
 }
 
 func TestS3(t *testing.T) {
