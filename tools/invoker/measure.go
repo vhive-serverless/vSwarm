@@ -9,6 +9,7 @@ import (
 	log "github.com/sirupsen/logrus"
 	"go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials/insecure"
 
 	"github.com/ease-lab/vSwarm/tools/benchmarking_eventing/proto"
 
@@ -52,7 +53,8 @@ func Start(tdbAddr string, endpoints []*endpoint.Endpoint, workflowIDs map[*endp
 		}
 	}
 
-	dialOptions := []grpc.DialOption{grpc.WithBlock(), grpc.WithInsecure()}
+	dialOptions := make([]grpc.DialOption, 0)
+	dialOptions = append(dialOptions, grpc.WithTransportCredentials(insecure.NewCredentials()), grpc.WithBlock())
 	if *withTracing {
 		dialOptions = append(dialOptions, grpc.WithUnaryInterceptor(otelgrpc.UnaryClientInterceptor()))
 	}

@@ -15,7 +15,10 @@ import (
 
 func TestMain(m *testing.M) {
 	cmd := exec.Command("docker", "pull", "openzipkin/zipkin")
-	cmd.CombinedOutput()
+	_, err := cmd.CombinedOutput()
+	if err != nil {
+		log.Fatalf("Could not create custom tracer: %v", err)
+	}
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 	if err := cmd.Start(); err != nil {
@@ -38,10 +41,15 @@ func TestMain(m *testing.M) {
 	if err := cmd.Start(); err != nil {
 		logrus.Print(err)
 	}
+
+	os.Exit(0)
 }
 
 func TestInitBasicTracer(t *testing.T) {
-	InitBasicTracer("http://localhost:9411/api/v2/spans", "test-tracer")
+	_, err := InitBasicTracer("http://localhost:9411/api/v2/spans", "test-tracer")
+	if err != nil {
+		log.Fatalf("Could not create basic tracer: %v", err)
+	}
 	tracer := otel.GetTracerProvider().Tracer("test-tracer")
 	_, traceSpan := tracer.Start(context.Background(), "test-span")
 	traceSpan.End()
@@ -49,7 +57,10 @@ func TestInitBasicTracer(t *testing.T) {
 
 func TestInitCustomTracer(t *testing.T) {
 	logger := log.New(os.Stderr, "tracer-log", log.Ldate|log.Ltime|log.Llongfile)
-	InitCustomTracer("http://localhost:9411/api/v2/spans", 1.0, logger, attribute.String("service.name", "custom tracer"))
+	_, err := InitCustomTracer("http://localhost:9411/api/v2/spans", 1.0, logger, attribute.String("service.name", "custom tracer"))
+	if err != nil {
+		log.Fatalf("Could not create custom tracer: %v", err)
+	}
 	tracer := otel.GetTracerProvider().Tracer("test-tracer")
 	_, traceSpan := tracer.Start(context.Background(), "test-span")
 	traceSpan.End()
@@ -57,7 +68,10 @@ func TestInitCustomTracer(t *testing.T) {
 
 func TestInitCustomTracerWithSampling(t *testing.T) {
 	logger := log.New(os.Stderr, "tracer-log", log.Ldate|log.Ltime|log.Llongfile)
-	InitCustomTracer("http://localhost:9411/api/v2/spans", 0.1, logger, attribute.String("service.name", "custom tracer"))
+	_, err := InitCustomTracer("http://localhost:9411/api/v2/spans", 0.1, logger, attribute.String("service.name", "custom tracer"))
+	if err != nil {
+		log.Fatalf("Could not create custom tracer with sampling: %v", err)
+	}
 	tracer := otel.GetTracerProvider().Tracer("test-tracer")
 	_, traceSpan := tracer.Start(context.Background(), "test-span")
 	traceSpan.End()

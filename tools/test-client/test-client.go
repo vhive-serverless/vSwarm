@@ -26,6 +26,7 @@ import (
 	"time"
 
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials/insecure"
 	pb "google.golang.org/grpc/examples/helloworld/helloworld"
 )
 
@@ -35,7 +36,11 @@ func main() {
 	flagName := flag.String("name", "world", "The message that is passed on using gRPC")
 	flag.Parse()
 	// Set up a connection to the server.
-	conn, err := grpc.Dial(*flagAddress, grpc.WithTimeout(5*time.Second), grpc.WithInsecure(), grpc.WithBlock())
+	greeterClientCtx, greeterClientErr := context.WithTimeout(context.Background(), 5*time.Second)
+	if greeterClientErr != nil {
+		log.Fatalf("Could not create context: %v", greeterClientErr)
+	}
+	conn, err := grpc.DialContext(greeterClientCtx, *flagAddress, grpc.WithTransportCredentials(insecure.NewCredentials()), grpc.WithBlock())
 	if err != nil {
 		log.Fatalf("did not connect: %v", err)
 	}

@@ -36,6 +36,7 @@ import (
 	log "github.com/sirupsen/logrus"
 	"go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials/insecure"
 )
 
 func main() {
@@ -61,7 +62,7 @@ func main() {
 	defer shutdown()
 
 	server := fmt.Sprintf("%v:%v", *address, *clientPort)
-	conn, err := grpc.Dial(server, grpc.WithBlock(), grpc.WithInsecure(),
+	conn, err := grpc.Dial(server, grpc.WithBlock(), grpc.WithTransportCredentials(insecure.NewCredentials()),
 		grpc.WithUnaryInterceptor(otelgrpc.UnaryClientInterceptor()))
 	if err != nil {
 		log.Fatalf("fail to dial: %s", err)
