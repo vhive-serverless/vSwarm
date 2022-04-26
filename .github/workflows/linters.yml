@@ -44,12 +44,3 @@ jobs:
         with:
           use-quiet-mode: "yes"
           config-file: ".github/configs/linkcheck.json"
-  golangci-lint:
-    name: Run golangci-lint
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/setup-go@v3
-      - uses: actions/checkout@v3
-      - uses: golangci/golangci-lint-action@v3.1.0
-        with:
-          only-new-issues: true
