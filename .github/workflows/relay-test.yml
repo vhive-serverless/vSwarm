@@ -1,0 +1,95 @@
+# MIT License
+#
+# Copyright (c) 2022 EASE lab
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
+
+name: Relay Tests
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+env:
+  GOOS: linux
+  GO111MODULE: on
+
+jobs:
+  integration-tests:
+    name: Relay Integration Tests
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v1
+        with:
+          username: ${{ secrets.DOCKER_HUB_USERNAME }}
+          password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
+
+      - name: Set up Docker Buildx
+        id: buildx
+        uses: docker/setup-buildx-action@v1
+    
+      - name: Install protoc
+        run: |
+          PROTOC_ZIP=protoc-3.14.0-linux-x86_64
+          curl -OL https://github.com/protocolbuffers/protobuf/releases/download/v3.14.0/$PROTOC_ZIP.zip
+          unzip -o $PROTOC_ZIP.zip -d $HOME/.local
+          chmod +x $HOME/.local/bin/protoc
+          rm -f $PROTOC_ZIP.zip
+
+      - name: Build relay
+        working-directory: tools/relay
+        run: |
+          set -x
+          go install google.golang.org/protobuf/cmd/protoc-gen-go@v1.26
+          go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@v1.1
+          chmod +x $(go env GOPATH)/bin/*
+          export PATH="$PATH:$(go env GOPATH)/bin"
+          
+          make all
+
+      - name: docker-compose up
+        working-directory: benchmarks/aes
+        run: |
+          set -x
+
+          docker-compose -f ./yamls/docker-compose/dc-aes-go.yml up &> log_file &
+          sleep 15
+
+      - name: Invoke
+        working-directory: tools/invoker
+        run: |
+          set -x
+          go install google.golang.org/protobuf/cmd/protoc-gen-go@v1.26
+          go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@v1.1
+          chmod +x $(go env GOPATH)/bin/*
+          export PATH="$PATH:$(go env GOPATH)/bin"
+
+          make invoker
+          echo '[ { "hostname": "localhost" } ]' > endpoints.json
+          ./invoker -port 50000 -dbg
+          cat rps*lat.csv
+      
+      - name: Show docker-compose log
+        run: cat benchmarks/chained-function-serving/log_file
