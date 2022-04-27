@@ -58,6 +58,7 @@ var lowerBound = flag.Int("lowerBound", 1, "Lower bound while generating input")
 var upperBound = flag.Int("upperBound", 10, "Upper bound while generating input")
 var generatorString = flag.String("generator", "unique", "Generator type (unique / linear / random)")
 var value = flag.String("value", "helloWorld", "String input to pass to benchmark")
+var functionMethod = flag.String("function-method", "default", "Which method of benchmark to invoke")
 
 func isDebuggingEnabled() bool {
 	if val, ok := os.LookupEnv("ENABLE_DEBUGGING"); !ok || val == "false" {
@@ -141,6 +142,7 @@ func SendMessageToBenchmark(in *pb.HelloRequest) string {
 	pkt.SetValue(*value)
 	pkt.SetLowerBound(*lowerBound)
 	pkt.SetUpperBound(*upperBound)
+	pkt.SetMethod(*functionMethod)
 	reply := grpcClient.Request(pkt)
 	log.Debug(reply)
 	return reply

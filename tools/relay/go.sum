@@ -313,6 +313,8 @@ github.com/eapache/go-xerial-snappy v0.0.0-20180814174437-776d5712da21/go.mod h1
 github.com/eapache/queue v1.1.0/go.mod h1:6eCeP0CKFpHLu8blIFXhExK/dRa7WDZfr6jVFPTqq+I=
 github.com/ease-lab/vSwarm-proto v0.0.0-20220425132824-72aa8060e781 h1:fvwfnS84LJplOTEO73mRpvayPkb0aQQBpR5EG88C2Ag=
 github.com/ease-lab/vSwarm-proto v0.0.0-20220425132824-72aa8060e781/go.mod h1:CZMjQ4jrHBB+PhKbgAsL9WGEja1PN/HqizfI1Hg3wmw=
+github.com/ease-lab/vSwarm-proto v0.0.0-20220427122029-56a3f1323dde h1:h7pkmnvXvYMG6obzUsjr1fsh7hUuP0zYY9YWyOr9zCU=
+github.com/ease-lab/vSwarm-proto v0.0.0-20220427122029-56a3f1323dde/go.mod h1:CZMjQ4jrHBB+PhKbgAsL9WGEja1PN/HqizfI1Hg3wmw=
 github.com/elazarl/goproxy v0.0.0-20180725130230-947c36da3153/go.mod h1:/Zj4wYkgs4iZTTu3o/KG3Itv/qCCa8VVMlb3i9OVuzc=
 github.com/emicklei/go-restful v0.0.0-20170410110728-ff4f55a20633/go.mod h1:otzb+WCGbkyDHkqmQmT5YD2WR4BBwUdeQoFo8l/7tVs=
 github.com/emicklei/go-restful v2.9.5+incompatible/go.mod h1:otzb+WCGbkyDHkqmQmT5YD2WR4BBwUdeQoFo8l/7tVs=
