@@ -78,7 +78,10 @@ func TestInitCustomTracerWithSampling(t *testing.T) {
 }
 
 func TestSpan(t *testing.T) {
-	InitBasicTracer("http://localhost:9411/api/v2/spans", "test-tracer")
+	_, err := InitBasicTracer("http://localhost:9411/api/v2/spans", "test-tracer")
+	if err != nil {
+		log.Fatalf("Could not create basic tracer: %v", err)
+	}
 	span := Span{SpanName: "test-span", TracerName: "test-tracer"}
 	span.StartSpan(context.Background())
 	time.Sleep(1 * time.Second)
