@@ -13,8 +13,6 @@ services:
     ports:
     - target: 7070
 
-    restart: always
-    cpuset: "0-6"
 
   relay:
     image: vhiveease/relay:latest

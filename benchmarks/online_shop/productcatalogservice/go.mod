@@ -1,6 +1,6 @@
 module github.com/lightstep/hipster-shop/productcatalogservice
 
-go 1.14
+go 1.16
 
 require (
 	github.com/GoogleCloudPlatform/microservices-demo v0.1.4
