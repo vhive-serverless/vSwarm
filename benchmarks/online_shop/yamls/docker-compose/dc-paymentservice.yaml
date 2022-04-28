@@ -12,9 +12,6 @@ services:
     entrypoint: [ "node", "index.js" ]
     ports:
     - target: 50051
-    restart: always
-    cpuset: "0-6"
-
 
   relay:
     image: vhiveease/relay:latest

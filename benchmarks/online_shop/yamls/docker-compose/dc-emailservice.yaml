@@ -10,8 +10,6 @@ services:
     entrypoint: ["python", "email_server.py" ]
     ports:
     - target: 8080
-    restart: always
-    cpuset: "0-6"
 
   relay:
     image: vhiveease/relay:latest

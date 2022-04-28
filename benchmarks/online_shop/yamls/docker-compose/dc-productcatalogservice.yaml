@@ -12,8 +12,6 @@ services:
     entrypoint: ["/productcatalogservice/server"]
     ports:
     - target: 3550
-    restart: always
-    cpuset: "0-6"
 
   relay:
     image: vhiveease/relay:latest

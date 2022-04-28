@@ -13,10 +13,8 @@ services:
     entrypoint: ["python", "/recommendationservice/recommendation_server.py"]
     ports:
     - target: 8080
-    restart: always
     depends_on:
       - productcatalogservice
-    cpuset: "0-6"
 
   productcatalogservice:
     image: vhiveease/onlineshop-productcatalogservice:latest
@@ -29,8 +27,6 @@ services:
     entrypoint: ["/productcatalogservice/server"]
     ports:
     - target: 3550
-    restart: always
-    cpuset: "0-6"
 
   relay:
     image: vhiveease/relay:latest

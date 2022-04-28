@@ -7,8 +7,61 @@ spec:
   template:
     spec:
       containers:
-        - image: docker.io/vhiveease/kn-checkoutservice:latest
-          imagePullPolicy: Always
+        - image: docker.io/vhiveease/relay:latest
           ports:
             - name: h2c
-              containerPort: 50051
+              containerPort: 50000
+          args:
+            - --addr=0.0.0.0:50000
+            - --function-endpoint-url=0.0.0.0
+            - --function-endpoint-port=5050
+            - --function-name=checkoutservice
+            - --generator=unique
+            - --value=12345
+
+        - image: vhiveease/onlineshop-shippingservice:latest
+          env:
+          - name: PORT
+            value: "50051"
+    
+        - image: vhiveease/onlineshop-productcatalogservice:latest
+          env:
+          - name: PORT
+            value: "3550"
+    
+        - image: vhiveease/onlineshop-cartservice:latest
+          env: 
+          - name: PORT
+            value: "7070"
+
+        - image: vhiveease/onlineshop-currencyservice:latest
+          env:
+          - name: PORT
+            value: "7000"
+    
+        - image: vhiveease/onlineshop-emailservice:latest
+          env:
+          - name: PORT
+            value: "8080"
+
+        - image: vhiveease/onlineshop-paymentservice:latest
+          env:
+          - name: PORT
+            value: "50052"
+
+        - image: docker.io/vhiveease/onlineshop-checkoutservice:latest
+          env:
+          - name: PORT
+            value: "5050"
+          - name: SHIPPING_SERVICE_ADDR
+            value: "0.0.0.0:50051"
+          - name: PRODUCT_CATALOG_SERVICE_ADDR
+            value: "0.0.0.0:3550"
+          - name: CART_SERVICE_ADDR
+            value: "0.0.0.0:7070"
+          - name: CURRENCY_SERVICE_ADDR
+            value: "0.0.0.0:7000"
+          - name: EMAIL_SERVICE_ADDR
+            value: "0.0.0.0:8080"
+          - name: PAYMENT_SERVICE_ADDR
+            value: "0.0.0.0:50052"

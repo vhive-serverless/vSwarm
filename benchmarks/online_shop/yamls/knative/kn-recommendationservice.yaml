@@ -7,8 +7,24 @@ spec:
   template:
     spec:
       containers:
-        - image: docker.io/vhiveease/kn-recommendationservice:latest
-          imagePullPolicy: Always
+        - image: docker.io/vhiveease/relay:latest
           ports:
             - name: h2c
-              containerPort: 50051
+              containerPort: 50000
+          args:
+            - --addr=0.0.0.0:50000
+            - --function-endpoint-url=0.0.0.0
+            - --function-endpoint-port=8080
+            - --function-name=recommendationservice
+            - --generator=unique
+            - --value=12345
+        - image: docker.io/vhiveease/onlineshop-recommendationservice:latest
+          env:
+          - name: PORT
+            value: "8080"
+          - name: PRODUCT_CATALOG_SERVICE_ADDR
+            value: "0.0.0.0:3550"
+        - image: docker.io/vhiveease/onlineshop-productcatalogservice:latest
+          env:
+          - name: PORT
+            value: "3550"

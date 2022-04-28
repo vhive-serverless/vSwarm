@@ -1,4 +1,4 @@
-FROM golang:1.14-alpine AS builder
+FROM golang:1.16-alpine AS builder
 
 ENV PROJECT github.com/GoogleCloudPlatform/microservices-demo/src/productcatalogservice
 WORKDIR /go/src/$PROJECT
