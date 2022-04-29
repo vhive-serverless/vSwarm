@@ -55,3 +55,7 @@ services:
     ports:
         - published: 50000
           target: 50000
+    environment:
+      - ENABLE_TRACING=true
+    depends_on:
+      - zipkin
