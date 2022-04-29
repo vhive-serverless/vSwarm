@@ -30,6 +30,10 @@ spec:
     spec:
       containers:
         - image: docker.io/vhiveease/relay:latest
+          env:
+            - name: ENABLE_TRACING
+              value: "true"
+          
           ports:
             - name: h2c
               containerPort: 50000
