@@ -30,8 +30,8 @@ COPY ./benchmarks/auth/python/requirements.txt ./
 RUN pip3 install --user -r requirements.txt
 COPY ./utils/tracing/python/tracing.py ./
 COPY ./benchmarks/auth/python/server.py ./
-COPY ./benchmarks/auth/proto/helloworld_pb2_grpc.py ./
-COPY ./benchmarks/auth/proto/helloworld_pb2.py ./
+COPY ./benchmarks/auth/proto/auth_pb2_grpc.py ./
+COPY ./benchmarks/auth/proto/auth_pb2.py ./
 
 # Second stage (Runner):
 FROM vhiveease/python-slim:latest as authPython
@@ -78,7 +78,7 @@ WORKDIR /app/
 COPY ./utils/tracing/nodejs ./utils/tracing/nodejs
 COPY ./benchmarks/auth/nodejs/package.json ./
 COPY ./benchmarks/auth/nodejs/server.js ./
-COPY ./benchmarks/auth/proto/helloworld.proto ./
+COPY ./benchmarks/auth/proto/auth.proto ./
 
 RUN npm set progress=false && npm config set depth 0
 RUN npm install --only=production

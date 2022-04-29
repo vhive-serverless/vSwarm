@@ -29,7 +29,7 @@ import (
 	"os"
 	"syscall"
 
-	tracing "github.com/ease-lab/vhive/utils/tracing/go"
+	tracing "github.com/ease-lab/vSwarm/utils/tracing/go"
 	log "github.com/sirupsen/logrus"
 	"google.golang.org/grpc"
 	pb "google.golang.org/grpc/examples/helloworld/helloworld"
@@ -81,12 +81,12 @@ func generatePolicy(principalId, effect, resource string) authResponse {
 	return authResponse
 }
 
-// server is used to implement helloworld.GreeterServer.
+// server is used to implement auth.GreeterServer.
 type server struct {
 	pb.UnimplementedGreeterServer
 }
 
-// SayHello implements helloworld.GreeterServer
+// SayHello implements auth.GreeterServer
 func (s *server) SayHello(ctx context.Context, in *pb.HelloRequest) (*pb.HelloReply, error) {
 	gid := syscall.Getgid()
 	token := in.GetName()

@@ -14,7 +14,7 @@ all_image: $(ALL_IMAGES)
 
 
 
-auth-python-image: Dockerfile proto/helloworld_pb2_grpc.py proto/helloworld_pb2.py python/server.py
+auth-python-image: Dockerfile proto/auth_pb2_grpc.py proto/auth_pb2.py python/server.py
 	DOCKER_BUILDKIT=1 docker build \
 	--tag $(DOCKER_HUB_ACCOUNT)/auth-python:latest \
 	--target authPython \
@@ -22,7 +22,7 @@ auth-python-image: Dockerfile proto/helloworld_pb2_grpc.py proto/helloworld_pb2.
 	$(ROOT)
 
 
-auth-nodejs-image: Dockerfile proto/helloworld.proto nodejs/server.js
+auth-nodejs-image: Dockerfile proto/auth.proto nodejs/server.js
 	DOCKER_BUILDKIT=1 docker build \
 	--tag $(DOCKER_HUB_ACCOUNT)/auth-nodejs:latest \
 	--target authNodeJS \
@@ -30,7 +30,7 @@ auth-nodejs-image: Dockerfile proto/helloworld.proto nodejs/server.js
 	$(ROOT)
 
 
-auth-go-image: Dockerfile proto/helloworld_grpc.pb.go proto/helloworld.pb.go go/server.go
+auth-go-image: Dockerfile proto/auth_grpc.pb.go proto/auth.pb.go go/server.go
 	DOCKER_BUILDKIT=1 docker build \
 	--tag $(DOCKER_HUB_ACCOUNT)/auth-go:latest \
 	--target authGo \
@@ -58,19 +58,19 @@ pull: $(addprefix pull-, $(FUNCTIONS))
 ## Protocol buffer
 proto: proto/_.py proto/_.go
 
-proto/%.py: proto/helloworld.proto
+proto/%.py: proto/auth.proto
 	pip install -r python/requirements.txt
 	cd proto && \
-	python -m grpc_tools.protoc -I. \
+	python3 -m grpc_tools.protoc -I. \
 		--python_out=. \
 		--grpc_python_out=. \
-		helloworld.proto
+		auth.proto
 
-proto/%.go: proto/helloworld.proto
+proto/%.go: proto/auth.proto
 	protoc --go_out=. \
 		--go_opt=paths=source_relative \
 		--go-grpc_out=. \
-		--go-grpc_opt=paths=source_relative proto/helloworld.proto
+		--go-grpc_opt=paths=source_relative proto/auth.proto
 
 
 clean-proto:
