@@ -36,10 +36,8 @@ func main() {
 	flagName := flag.String("name", "world", "The message that is passed on using gRPC")
 	flag.Parse()
 	// Set up a connection to the server.
-	greeterClientCtx, greeterClientErr := context.WithTimeout(context.Background(), 5*time.Second)
-	if greeterClientErr != nil {
-		log.Fatalf("Could not create context: %v", greeterClientErr)
-	}
+	greeterClientCtx, greeterClientCancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer greeterClientCancel()
 	conn, err := grpc.DialContext(greeterClientCtx, *flagAddress, grpc.WithTransportCredentials(insecure.NewCredentials()), grpc.WithBlock())
 	if err != nil {
 		log.Fatalf("did not connect: %v", err)
