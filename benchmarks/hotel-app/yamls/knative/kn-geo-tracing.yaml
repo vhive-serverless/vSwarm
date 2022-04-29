@@ -23,26 +23,32 @@
 apiVersion: serving.knative.dev/v1
 kind: Service
 metadata:
-  name: aes-go-tracing
+  name: hotel-app-geo-tracing
   namespace: default
 spec:
   template:
     spec:
       containers:
+        # Relay --------------
         - image: docker.io/vhiveease/relay:latest
-          env:
-            - name: ENABLE_TRACING
-              value: "true"
-
           ports:
             - name: h2c
               containerPort: 50000
           args:
             - --addr=0.0.0.0:50000
             - --function-endpoint-url=0.0.0.0
-            - --function-endpoint-port=50051
-            - --function-name=aes-go
-        - image: docker.io/vhiveease/aes-go:latest
+            - --function-endpoint-port=8083
+            - --function-name=geo
+          env:
+            - name: ENABLE_TRACING
+              value: "true"
+
+        # Function ------------
+        - image: docker.io/vhiveease/hotel-app-geo:latest
+          args:
+            - --url=0.0.0.0
+            - --port=8083
+            - --db_addr=hotel-app-database:27017
           env:
             - name: ENABLE_TRACING
               value: "true"

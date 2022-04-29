@@ -1,4 +1,4 @@
-name: AES End-to-End Tests
+name: Hotel-App End-to-End Tests
 
 on:
   workflow_dispatch:
@@ -7,7 +7,7 @@ on:
   push:
     branches: [main]
     paths:
-      - "benchmarks/aes/**"
+      - "benchmarks/hotel-app/**"
       - "utils/**"
       - "tools/**"
       - "runner/**"
@@ -15,7 +15,7 @@ on:
   pull_request:
     branches: [main]
     paths:
-      - "benchmarks/aes/**"
+      - "benchmarks/hotel-app/**"
       - "utils/**"
       - "tools/**"
       - "runner/**"
@@ -46,36 +46,11 @@ jobs:
         id: buildx
         uses: docker/setup-buildx-action@v1
 
-      - name: Set up Python version
-        uses: actions/setup-python@v3
-        with:
-          python-version: "3.8"
-
-      - name: Set up python dependencies
-        working-directory: benchmarks/aes/python
-        run: |
-          python3 -m pip install --upgrade pip
-          python3 -m pip install wheel ez_setup setuptools
-          GRPC_PYTHON_BUILD_SYSTEM_ZLIB=true
-          python3 -m pip install -r requirements.txt
-
-      - name: Install protoc
-        run: |
-          PROTOC_ZIP=protoc-3.14.0-linux-x86_64
-          curl -OL https://github.com/protocolbuffers/protobuf/releases/download/v3.14.0/$PROTOC_ZIP.zip
-          unzip -o $PROTOC_ZIP.zip -d $HOME/.local
-          chmod +x $HOME/.local/bin/protoc
-          rm -f $PROTOC_ZIP.zip
-
       - name: Build and push
-        working-directory: benchmarks/aes
+        working-directory: benchmarks/hotel-app
         env:
           GOPRIVATE_KEY: ${{ secrets.EASE_LAB_ACCESS_KEY }}
         run: |
-          go install google.golang.org/protobuf/cmd/protoc-gen-go@v1.26
-          go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@v1.1
-          chmod +x $(go env GOPATH)/bin/*
-          export PATH="$PATH:$(go env GOPATH)/bin"
           make all
           make push
 
@@ -88,12 +63,8 @@ jobs:
       matrix:
         service:
           [
-            dc-aes-go,
-            dc-aes-python,
-            dc-aes-nodejs,
-            dc-aes-go-tracing,
-            dc-aes-python-tracing,
-            dc-aes-nodejs-tracing,
+            dc-geo,
+            dc-geo-tracing,
           ]
 
     steps:
@@ -103,7 +74,7 @@ jobs:
           lfs: "true"
 
       - name: start docker-compose benchmark
-        working-directory: benchmarks/aes/yamls/docker-compose
+        working-directory: benchmarks/hotel-app/yamls/docker-compose
         run: |
           docker-compose -f ${{ matrix.service }}.yaml pull
           docker-compose -f ${{ matrix.service }}.yaml up &> log_file &
@@ -115,7 +86,7 @@ jobs:
           ./tools/bin/grpcurl -plaintext -import-path ./tools/invoker/proto -proto helloworld.proto localhost:50000 helloworld.Greeter.SayHello
 
       - name: show docker-compose log
-        run: cat benchmarks/aes/yamls/docker-compose/log_file
+        run: cat benchmarks/hotel-app/yamls/docker-compose/log_file
 
   test-knative:
     name: Test Knative Deployment
@@ -129,18 +100,10 @@ jobs:
       max-parallel: 2
       matrix:
         include:
-          - service: aes-go
-            file: kn-aes-go.yaml
-          - service: aes-python
-            file: kn-aes-python.yaml
-          - service: aes-nodejs
-            file: kn-aes-nodejs.yaml
-          - service: aes-go-tracing
-            file: kn-aes-go-tracing.yaml
-          - service: aes-python-tracing
-            file: kn-aes-python-tracing.yaml
-          - service: aes-nodejs-tracing
-            file: kn-aes-nodejs-tracing.yaml
+          - service: hotel-app-geo
+            file: kn-geo.yaml
+          - service: hotel-app-geo-tracing
+            file: kn-geo-tracing.yaml
     steps:
       - uses: actions/checkout@v3
         with:
@@ -152,9 +115,13 @@ jobs:
         with:
           go-version: 1.16
 
+      - name: Deploy database
+        working-directory: benchmarks
+        run: kubectl apply -f ./hotel-app/yamls/knative/database.yaml
+
       - name: Deploy knative
         working-directory: benchmarks
-        run: kn service apply -f ./aes/yamls/knative/${{ matrix.file }}
+        run: kn service apply -f ./hotel-app/yamls/knative/${{ matrix.file }}
 
       - name: Test invoking once
         working-directory: tools/test-client
@@ -167,7 +134,7 @@ jobs:
           url_list=$(kn service list | awk '$2 ~ /http/ {sub(/http\:\/\//,""); print $2}')
           for url in $url_list
           do
-            ./test-client --addr $url:$NODEPORT --name "Example text for AES CI"
+            ./test-client --addr $url:$NODEPORT  --name "Example text for Hotel CI"
           done
 
       - name: Print logs
@@ -179,6 +146,16 @@ jobs:
           do
             kubectl logs -n default -c $container_name -l serving.knative.dev/service=${{ matrix.service }}
           done
+
+      - name: Print logs from database
+        if: ${{ always() }}
+        run: |
+          set -x
+          kubectl logs deployment/hotel-app-database
+
       - name: Down
         if: ${{ always() }}
-        run: kn service delete --all --namespace default --wait
+        working-directory: benchmarks
+        run: |
+          kn service delete --all --namespace default --wait
+          kubectl delete -f ./hotel-app/yamls/knative/database.yaml
