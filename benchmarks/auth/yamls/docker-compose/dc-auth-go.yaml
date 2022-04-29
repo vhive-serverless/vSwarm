@@ -26,5 +26,16 @@ services:
     image: vhiveease/auth-go:latest
     container_name: auth-go
     ports:
-      - published: 50051
-        target: 50051
+      - target: 50051
+
+  relay:
+    image: vhiveease/relay:latest
+    entrypoint:
+      - /app/server
+      - --addr=0.0.0.0:50000
+      - --function-endpoint-url=auth-go
+      - --function-endpoint-port=50051
+      - --function-name=auth-go
+    ports:
+        - published: 50000
+          target: 50000

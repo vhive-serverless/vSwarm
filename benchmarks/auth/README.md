@@ -13,9 +13,9 @@ The detailed and general description how to run benchmarks local you can find [h
    ```bash
    docker-compose -f compose_yamls/docker-compose-auth-python.yaml up
    ```
-3. In a new terminal, invoke the interface function with grpcurl. To provide the helloworld protocol explicitly we'll use `-import-path <path/to proto/dir> -proto helloworld.proto`.
+3. In a new terminal, invoke the interface function with grpcurl. To provide the auth.protocol explicitly we'll use `-import-path <path/to proto/dir> -proto auth.proto`.
    ```bash
-   ../../tools/bin/grpcurl -plaintext -import-path proto -proto helloworld.proto localhost:50051 helloworld.Greeter.SayHello
+   ../../tools/bin/grpcurl -plaintext -import-path proto -proto auth.proto localhost:50051 auth.Greeter.SayHello
    ```
 4. Run the invoker
    ```bash
@@ -40,9 +40,9 @@ The detailed and general description how to run benchmarks on knative clusters y
    kn service apply -f ./knative_yamls/auth-python.yaml
    ```
 3. **Note the URL provided in the output. The part without the `http://` we'll call `$URL`. Replace any instance of `$URL` in the code below with it.**
-4. In a new terminal, invoke the interface function with grpcurl. To provide the helloworld protocol explicitly we'll use `-import-path <path/to proto/dir> -proto helloworld.proto`.
+4. In a new terminal, invoke the interface function with grpcurl. To provide the auth.protocol explicitly we'll use `-import-path <path/to proto/dir> -proto auth.proto`.
    ```bash
-    ../../tools/bin/grpcurl -plaintext -import-path proto -proto helloworld.proto $URL:50051 helloworld.Greeter.SayHello
+    ../../tools/bin/grpcurl -plaintext -import-path proto -proto auth.proto $URL:50051 auth.Greeter.SayHello
    ```
 5. Run the invoker
    ```bash

@@ -25,7 +25,7 @@ const process = require('process');
 const GRPC_PORT = process.env.GRPC_PORT || '50051'
 
 
-var PROTO_PATH = __dirname + '/helloworld.proto';  // '/../proto/helloworld.proto';
+var PROTO_PATH = __dirname + '/auth.proto';  // '/../proto/auth.proto';
 
 var grpc = require('@grpc/grpc-js');
 var protoLoader = require('@grpc/proto-loader');
@@ -37,7 +37,7 @@ var packageDefinition = protoLoader.loadSync(
      defaults: true,
      oneofs: true
     });
-var hello_proto = grpc.loadPackageDefinition(packageDefinition).helloworld;
+var auth_proto = grpc.loadPackageDefinition(packageDefinition).auth;
 
 
 
@@ -112,7 +112,7 @@ function sayHello(call, callback) {
  */
 function main() {
   var server = new grpc.Server();
-  server.addService(hello_proto.Greeter.service, {sayHello: sayHello});
+  server.addService(auth_proto.Greeter.service, {sayHello: sayHello});
   address = '0.0.0.0:' + GRPC_PORT
   server.bindAsync(
     address,

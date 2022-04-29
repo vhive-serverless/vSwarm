@@ -38,8 +38,8 @@ import argparse
 
 
 # sys.path.append('../proto')  # for local testing (i.e. not running in Docker-compose)
-import helloworld_pb2
-import helloworld_pb2_grpc
+import auth_pb2
+import auth_pb2_grpc
 
 import ctypes
 libc = ctypes.CDLL(None)
@@ -90,7 +90,7 @@ def generatePolicy(principalId, effect, resource):
 
 
 
-class Greeter(helloworld_pb2_grpc.GreeterServicer):
+class Greeter(auth_pb2_grpc.GreeterServicer):
 
     def SayHello(self, request, context):
 
@@ -107,12 +107,12 @@ class Greeter(helloworld_pb2_grpc.GreeterServicer):
 
             gid = syscall(104)
             msg = "Serve Function: Python.%s: from GID: %i" % (msg, gid)
-        return helloworld_pb2.HelloReply(message=msg)
+        return auth_pb2.HelloReply(message=msg)
 
 
 def serve():
     server = grpc.server(futures.ThreadPoolExecutor(max_workers=1))
-    helloworld_pb2_grpc.add_GreeterServicer_to_server(Greeter(), server)
+    auth_pb2_grpc.add_GreeterServicer_to_server(Greeter(), server)
 
     address = ('[::]:' + GRPC_PORT_ADDRESS if GRPC_PORT_ADDRESS else  '[::]:50051')
     server.add_insecure_port(address) 
