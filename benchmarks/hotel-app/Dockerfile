@@ -1,4 +1,3 @@
-# MIT License
 
 # Copyright (c) 2022 EASE lab
 
@@ -20,29 +19,28 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-apiVersion: serving.knative.dev/v1
-kind: Service
-metadata:
-  name: aes-go-tracing
-  namespace: default
-spec:
-  template:
-    spec:
-      containers:
-        - image: docker.io/vhiveease/relay:latest
-          env:
-            - name: ENABLE_TRACING
-              value: "true"
 
-          ports:
-            - name: h2c
-              containerPort: 50000
-          args:
-            - --addr=0.0.0.0:50000
-            - --function-endpoint-url=0.0.0.0
-            - --function-endpoint-port=50051
-            - --function-name=aes-go
-        - image: docker.io/vhiveease/aes-go:latest
-          env:
-            - name: ENABLE_TRACING
-              value: "true"
+
+#---------- GoLang -----------#
+# First stage (Builder):
+FROM vhiveease/golang-builder:latest AS hotelBuilder
+WORKDIR /app/app/
+ARG SERVICE=geo
+
+RUN apt-get install git ca-certificates
+
+COPY ./utils/tracing/go ../../utils/tracing/go
+COPY ./benchmarks/hotel-app/go.mod ./
+COPY ./benchmarks/hotel-app/go.sum ./
+COPY ./benchmarks/hotel-app/$SERVICE ./
+
+RUN go mod tidy
+RUN CGO_ENABLED=0 GOOS=linux go build -v -o ./server .
+
+# Second stage (Runner):
+FROM scratch
+WORKDIR /app/
+COPY --from=hotelBuilder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
+COPY --from=hotelBuilder /app/app/server .
+
+ENTRYPOINT [ "/app/server" ]

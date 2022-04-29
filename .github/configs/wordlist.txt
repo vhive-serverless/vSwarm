@@ -122,6 +122,8 @@ DBG
 dbg
 DCNs
 De
+DeathStarBench
+DeathStarBenchs
 debian
 deployer
 deps
@@ -190,6 +192,8 @@ FunctionBench
 Fytraki
 Gavrielatos
 GECCO
+geo
+Geo
 GetGRPCServerWithUnaryInterceptor
 GFM
 gg
@@ -324,6 +328,10 @@ microarchitectural
 Microarchitecture
 microbenchmark
 microbenchmarks
+microservice
+microservices
+Microservice
+Microservices
 microVMs
 minio
 MinIO
@@ -442,6 +450,7 @@ rebase
 rebasing
 recog
 Recog
+recommender
 repo
 Repos
 roadmap

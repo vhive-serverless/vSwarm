@@ -20,29 +20,43 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-apiVersion: serving.knative.dev/v1
-kind: Service
-metadata:
-  name: aes-go-tracing
-  namespace: default
-spec:
-  template:
-    spec:
-      containers:
-        - image: docker.io/vhiveease/relay:latest
-          env:
-            - name: ENABLE_TRACING
-              value: "true"
 
-          ports:
-            - name: h2c
-              containerPort: 50000
-          args:
-            - --addr=0.0.0.0:50000
-            - --function-endpoint-url=0.0.0.0
-            - --function-endpoint-port=50051
-            - --function-name=aes-go
-        - image: docker.io/vhiveease/aes-go:latest
-          env:
-            - name: ENABLE_TRACING
-              value: "true"
+clean: clean-proto
+
+
+ROOT = ../../
+
+.PHONY: proto geo
+
+FUNCTIONS = geo
+ALL_IMAGES = $(addsuffix -image, $(FUNCTIONS))
+
+all: all_image
+all_image: $(ALL_IMAGES)
+
+
+
+
+%-image: Dockerfile go.mod %/*
+	$(eval func := $(subst -image,,$@))
+	DOCKER_BUILDKIT=1 \
+	docker build \
+	--tag vhiveease/hotel-app-$(func):latest \
+	--build-arg SERVICE=$(func) \
+	-f Dockerfile \
+	$(ROOT)
+
+
+
+## Push images
+push-%: %-image
+	docker push docker.io/vhiveease/hotel-app-$(subst push-,,$@):latest
+
+push: $(addprefix push-, $(FUNCTIONS))
+
+## Pull images from docker hub
+pull-%:
+	docker pull docker.io/vhiveease/hotel-app-$(subst push-,,$@):latest
+
+pull: $(addprefix pull-, $(FUNCTIONS))
+

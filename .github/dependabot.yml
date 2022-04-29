@@ -5,9 +5,14 @@ updates:
     directory: "/"
     schedule:
       interval: "weekly"
-      
+
   - package-ecosystem: "gomod"
     directory: "/benchmarks/aes"
+    schedule:
+      interval: "weekly"
+
+  - package-ecosystem: "gomod"
+    directory: "/benchmarks/hotel-app"
     schedule:
       interval: "weekly"
 
