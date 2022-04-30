@@ -43,22 +43,27 @@ type server struct {
 	pb.UnimplementedGreeterServer
 }
 
-// Create a variable for the client here
-var grpcClient grpcClients.GrpcClient
+var (
+	// Arguments for the relay configuration
+	address = flag.String("addr", "0.0.0.0:50000", "Specify the HOST:PORT for relay server to listen at")
+	zipkin  = flag.String("zipkin", "http://localhost:9411/api/v2/spans", "zipkin url")
 
-var address = flag.String("addr", "0.0.0.0:50000", "Specify the HOST:PORT for relay server to listen at")
+	// For downstream function
+	// proto = flag.String("proto", "proto/helloworld.proto", "Specify the protocol file to use")
+	functionName         = flag.String("function-name", "helloworld", "Specify the name of the function being invoked.")
+	functionEndpointURL  = flag.String("function-endpoint-url", "0.0.0.0", "Specify the function endpoint URL (HOST) to call at")
+	functionEndpointPort = flag.String("function-endpoint-port", "50051", "Specify the function endpoint port to call at")
 
-// var proto = flag.String("proto", "proto/helloworld.proto", "Specify the protocol file to use")
-var functionName = flag.String("function-name", "helloworld", "Specify the name of the function being invoked.")
-var functionEndpointURL = flag.String("function-endpoint-url", "0.0.0.0", "Specify the function endpoint URL (HOST) to call at")
-var functionEndpointPort = flag.String("function-endpoint-port", "50051", "Specify the function endpoint port to call at")
-var zipkin = flag.String("zipkin", "http://localhost:9411/api/v2/spans", "zipkin url")
+	lowerBound      = flag.Int("lowerBound", 1, "Lower bound while generating input")
+	upperBound      = flag.Int("upperBound", 10, "Upper bound while generating input")
+	generatorString = flag.String("generator", "unique", "Generator type (unique / linear / random)")
+	value           = flag.String("value", "helloWorld", "String input to pass to benchmark")
+	functionMethod  = flag.String("function-method", "default", "Which method of benchmark to invoke")
 
-var lowerBound = flag.Int("lowerBound", 1, "Lower bound while generating input")
-var upperBound = flag.Int("upperBound", 10, "Upper bound while generating input")
-var generatorString = flag.String("generator", "unique", "Generator type (unique / linear / random)")
-var value = flag.String("value", "helloWorld", "String input to pass to benchmark")
-var functionMethod = flag.String("function-method", "default", "Which method of benchmark to invoke")
+	// Client
+	grpcClient     grpcClients.GrpcClient
+	inputGenerator grpcClients.Generator
+)
 
 func isDebuggingEnabled() bool {
 	if val, ok := os.LookupEnv("ENABLE_DEBUGGING"); !ok || val == "false" {
@@ -95,6 +100,21 @@ func main() {
 	grpcClient.Init(*functionEndpointURL, *functionEndpointPort)
 	defer grpcClient.Close()
 
+	// Configure the Input generator
+	inputGenerator = grpcClient.GetGenerator()
+	switch *generatorString {
+	case "unique":
+		inputGenerator.SetGenerator(grpcClients.Unique)
+	case "linear":
+		inputGenerator.SetGenerator(grpcClients.Linear)
+	case "random":
+		inputGenerator.SetGenerator(grpcClients.Random)
+	}
+	inputGenerator.SetValue(*value)
+	inputGenerator.SetLowerBound(*lowerBound)
+	inputGenerator.SetUpperBound(*upperBound)
+	inputGenerator.SetMethod(*functionMethod)
+
 	// Register the Greeter Service with the server
 	var grpcServer *grpc.Server
 	if tracing.IsTracingEnabled() {
@@ -120,30 +140,12 @@ func main() {
 
 func (s *server) SayHello(ctx context.Context, in *pb.HelloRequest) (*pb.HelloReply, error) {
 	log.Info("Received from invoker: ", in.GetName())
-	// log.Debug("Received: ", in.GetVHiveMetadata())
 
-	replyBack := SendMessageToBenchmark(in)
-
-	return &pb.HelloReply{Message: replyBack}, nil
-}
-
-func SendMessageToBenchmark(in *pb.HelloRequest) string {
-	var pkt grpcClients.Input
-	var generator grpcClients.GeneratorType
-	switch *generatorString {
-	case "unique":
-		generator = grpcClients.Unique
-	case "linear":
-		generator = grpcClients.Linear
-	case "random":
-		generator = grpcClients.Random
-	}
-	pkt.SetGenerator(generator)
-	pkt.SetValue(*value)
-	pkt.SetLowerBound(*lowerBound)
-	pkt.SetUpperBound(*upperBound)
-	pkt.SetMethod(*functionMethod)
+	// Create new packet
+	pkt := inputGenerator.Next()
+	log.Debug("Send to func: ", pkt)
 	reply := grpcClient.Request(pkt)
-	log.Debug(reply)
-	return reply
+	log.Debug("Recv from func: ", reply)
+
+	return &pb.HelloReply{Message: reply}, nil
 }
