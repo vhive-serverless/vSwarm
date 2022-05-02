@@ -49,7 +49,7 @@ jobs:
       - name: Set up Docker Buildx
         id: buildx
         uses: docker/setup-buildx-action@v1
-    
+
       - name: Install protoc
         run: |
           PROTOC_ZIP=protoc-3.14.0-linux-x86_64
@@ -66,7 +66,7 @@ jobs:
           go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@v1.1
           chmod +x $(go env GOPATH)/bin/*
           export PATH="$PATH:$(go env GOPATH)/bin"
-          
+
           make all
 
       - name: docker-compose up
@@ -74,7 +74,7 @@ jobs:
         run: |
           set -x
 
-          docker-compose -f ./yamls/docker-compose/dc-aes-go.yml up &> log_file &
+          docker-compose -f ./yamls/docker-compose/dc-aes-go.yaml up &> log_file &
           sleep 15
 
       - name: Invoke
@@ -90,6 +90,7 @@ jobs:
           echo '[ { "hostname": "localhost" } ]' > endpoints.json
           ./invoker -port 50000 -dbg
           cat rps*lat.csv
-      
+
       - name: Show docker-compose log
-        run: cat benchmarks/chained-function-serving/log_file
+        working-directory: benchmarks/aes
+        run: cat log_file
