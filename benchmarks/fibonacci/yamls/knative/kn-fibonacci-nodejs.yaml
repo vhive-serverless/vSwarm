@@ -29,8 +29,14 @@ spec:
   template:
     spec:
       containers:
-        - image: docker.io/vhiveease/fibonacci-nodejs:latest
-          imagePullPolicy: Always
+        - image: docker.io/vhiveease/relay:latest
           ports:
             - name: h2c
+              containerPort: 50000
+          args:
+            - --addr=0.0.0.0:50000
+            - --function-endpoint-url=0.0.0.0
+            - --function-endpoint-port=50051
+            - --function-name=fibonacci-nodejs
+        - image: docker.io/vhiveease/fibonacci-nodejs:latest
               containerPort: 50051

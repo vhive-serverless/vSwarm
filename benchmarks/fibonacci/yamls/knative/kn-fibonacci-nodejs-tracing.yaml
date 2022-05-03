@@ -29,11 +29,19 @@ spec:
   template:
     spec:
       containers:
-        - image: docker.io/vhiveease/fibonacci-nodejs:latest
-          imagePullPolicy: Always
+        - image: docker.io/vhiveease/relay:latest
           env:
             - name: ENABLE_TRACING
               value: "true"
           ports:
             - name: h2c
-              containerPort: 50051
+              containerPort: 50000
+          args:
+            - --addr=0.0.0.0:50000
+            - --function-endpoint-url=0.0.0.0
+            - --function-endpoint-port=50051
+            - --function-name=fibonacci-nodejs
+        - image: docker.io/vhiveease/fibonacci-nodejs:latest
+          env:
+            - name: ENABLE_TRACING
+              value: "true"

@@ -21,11 +21,21 @@
 # SOFTWARE.
 
 version: "3.9"
-
 services:
   fibonacci-nodejs:
     image: vhiveease/fibonacci-nodejs:latest
     container_name: fibonacci-nodejs
     ports:
-      - published: 50051
-        target: 50051
+      - target: 50051
+
+  relay:
+    image: vhiveease/relay:latest
+    entrypoint:
+      - /app/server
+      - --addr=0.0.0.0:50000
+      - --function-endpoint-url=fibonacci-nodejs
+      - --function-endpoint-port=50051
+      - --function-name=fibonacci-nodejs
+    ports:
+        - published: 50000
+          target: 50000

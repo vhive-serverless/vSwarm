@@ -29,8 +29,8 @@ import argparse
 import grpc
 import string
 
-import helloworld_pb2
-import helloworld_pb2_grpc
+import fibonacci_pb2
+import fibonacci_pb2_grpc
 
 import os
 import sys
@@ -70,7 +70,7 @@ def fibonacci(num):
 
 
 
-class Greeter(helloworld_pb2_grpc.GreeterServicer):
+class Greeter(fibonacci_pb2_grpc.GreeterServicer):
 
     def SayHello(self, request, context):
 
@@ -80,22 +80,22 @@ class Greeter(helloworld_pb2_grpc.GreeterServicer):
 
         gid = syscall(104)
         msg = "Hello: this is GID: %i Invoke python fib: y = fib(x) | x: %i y: %.1f" % (gid,x,y)
-        return helloworld_pb2.HelloReply(message=msg)
+        return fibonacci_pb2.HelloReply(message=msg)
 
 
 def serve():
     server = grpc.server(futures.ThreadPoolExecutor(max_workers=1))
-    helloworld_pb2_grpc.add_GreeterServicer_to_server(Greeter(), server)
+    fibonacci_pb2_grpc.add_GreeterServicer_to_server(Greeter(), server)
 
     address = ('[::]:' + GRPC_PORT_ADDRESS if GRPC_PORT_ADDRESS else  '[::]:50051')
     server.add_insecure_port(address) 
 
-    print("Start server: listen on : " + address)
+    logging.info("Start server: listen on : " + address)
 
     server.start()
     server.wait_for_termination()
 
 
 if __name__ == '__main__':
-    logging.basicConfig()
+    logging.basicConfig(level=logging.INFO)
     serve()

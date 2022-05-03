@@ -26,7 +26,7 @@ const GRPC_PORT = process.env.GRPC_PORT || '50051'
 const version = process.version
 
 
-var PROTO_PATH = __dirname + '/helloworld.proto';
+var PROTO_PATH = __dirname + '/fibonacci.proto';
 
 var grpc = require('@grpc/grpc-js');
 var protoLoader = require('@grpc/proto-loader');
@@ -38,7 +38,7 @@ var packageDefinition = protoLoader.loadSync(
      defaults: true,
      oneofs: true
     });
-var hello_proto = grpc.loadPackageDefinition(packageDefinition).helloworld;
+var hello_proto = grpc.loadPackageDefinition(packageDefinition).fibonacci;
 
 
 
