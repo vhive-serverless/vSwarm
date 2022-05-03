@@ -20,13 +20,15 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-module server
+module fibonacci
 
 go 1.16
 
+replace github.com/ease-lab/vSwarm/benchmarks/fibonacci/proto => ./proto
+
 require (
-	github.com/ease-lab/vhive/utils/tracing/go v0.0.0-20220315183234-1c8a70fc7019
+	github.com/ease-lab/vSwarm/benchmarks/fibonacci/proto v0.0.0-00010101000000-000000000000
+	github.com/ease-lab/vSwarm/utils/tracing/go v0.0.0-20220502160750-39d19cf90ca3
 	github.com/sirupsen/logrus v1.8.1
-	google.golang.org/grpc v1.39.0
-	google.golang.org/grpc/examples v0.0.0-20210803221256-6ba56c814be7
+	google.golang.org/grpc v1.46.0
 )

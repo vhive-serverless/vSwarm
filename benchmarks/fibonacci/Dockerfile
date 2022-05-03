@@ -30,8 +30,8 @@ COPY ./benchmarks/fibonacci/python/requirements.txt ./
 RUN pip3 install --user -r requirements.txt
 COPY ./utils/tracing/python/tracing.py ./
 COPY ./benchmarks/fibonacci/python/server.py ./
-COPY ./benchmarks/fibonacci/proto/helloworld_pb2_grpc.py ./
-COPY ./benchmarks/fibonacci/proto/helloworld_pb2.py ./
+COPY ./benchmarks/fibonacci/proto/fibonacci_pb2_grpc.py ./
+COPY ./benchmarks/fibonacci/proto/fibonacci_pb2.py ./
 
 # Second stage (Runner):
 FROM vhiveease/python-slim:latest as fibonacciPython
@@ -48,8 +48,7 @@ ENTRYPOINT [ "python", "/app/server.py" ]
 ## First stage (Builder):
 FROM vhiveease/golang-builder:latest AS fibonacciGoBuilder
 WORKDIR /app/app/
-RUN apk add --no-cache make git
-RUN apk add -U --no-cache ca-certificates
+RUN apt-get install git ca-certificates
 
 COPY ./utils/tracing/go ../../utils/tracing/go
 COPY ./benchmarks/fibonacci/go.mod ./
@@ -73,19 +72,18 @@ ENTRYPOINT [ "/app/server" ]
 
 #---------- NodeJS -----------#
 # First stage (Builder):
-FROM node-slim:latest AS fibonacciNodeJSBuild
+FROM vhiveease/node-slim:latest AS fibonacciNodeJSBuild
 WORKDIR /app/
 
 COPY ./utils/tracing/nodejs ./utils/tracing/nodejs
-COPY ./benchmarks/fibonacci/nodejs/package.json ./
-COPY ./benchmarks/fibonacci/nodejs/server.js ./
-COPY ./benchmarks/fibonacci/proto/helloworld.proto ./
+COPY ./benchmarks/fibonacci/nodejs/ ./
+COPY ./benchmarks/fibonacci/proto/fibonacci.proto ./
 
 RUN npm set progress=false && npm config set depth 0
 RUN npm install --only=production
 
 # Second stage (Runner):
-FROM node-slim:latest AS fibonacciNodeJS
+FROM vhiveease/node-slim:latest AS fibonacciNodeJS
 WORKDIR /app/
 COPY --from=fibonacciNodeJSBuild /app/ .
 
@@ -100,12 +98,12 @@ WORKDIR /app/
 COPY ./benchmarks/fibonacci/cpp/* ./
 COPY ./benchmarks/fibonacci/proto/* ./proto/
 
-RUN apt update && apt install -y protobuf-compiler protobuf-compiler-grpc libgrpc++-dev
+RUN apt-get update && apt-get install -y protobuf-compiler protobuf-compiler-grpc libgrpc++-dev
 RUN ls -lR
 RUN mkdir gen && \
-    protoc --proto_path=/app/proto --cpp_out=gen helloworld.proto && \
-    protoc --proto_path=/app/proto --grpc_out=gen --plugin=protoc-gen-grpc=`which grpc_cpp_plugin` helloworld.proto
-RUN g++ -O3 -flto main.cpp gen/helloworld.grpc.pb.cc gen/helloworld.pb.cc -Igen -lgrpc++ -lprotobuf -lgrpc
+    protoc --proto_path=/app/proto --cpp_out=gen fibonacci.proto && \
+    protoc --proto_path=/app/proto --grpc_out=gen --plugin=protoc-gen-grpc=`which grpc_cpp_plugin` fibonacci.proto
+RUN g++ -O3 -flto main.cpp gen/fibonacci.grpc.pb.cc gen/fibonacci.pb.cc -Igen -lgrpc++ -lprotobuf -lgrpc
 
 FROM gcc:10 AS fibonacciCPP
 WORKDIR /app/

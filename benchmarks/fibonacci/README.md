@@ -13,9 +13,9 @@ The detailed and general description how to run benchmarks local you can find [h
    ```bash
    docker-compose -f compose_yamls/docker-compose-fibonacci-python.yaml up
    ```
-3. In a new terminal, invoke the interface function with grpcurl. To provide the helloworld protocol explicitly we'll use `-import-path <path/to proto/dir> -proto helloworld.proto`.
+3. In a new terminal, invoke the interface function with grpcurl. To provide the fibonacci protocol explicitly we'll use `-import-path <path/to proto/dir> -proto fibonacci.proto`.
    ```bash
-    ../../tools/bin/grpcurl -plaintext -import-path proto -proto helloworld.proto -d '{name: 12}' localhost:50051 helloworld.Greeter.SayHello
+    ../../tools/bin/grpcurl -plaintext -import-path proto -proto fibonacci.proto -d '{name: 12}' localhost:50051 fibonacci.Greeter.SayHello
    ```
 4. Modify the invoker.
     - `cd ../../tools/invoker`
@@ -41,9 +41,9 @@ The detailed and general description how to run benchmarks on knative clusters y
    kn service apply -f ./knative_yamls/fibonacci-python.yaml
    ```
 3. **Note the URL provided in the output. The part without the `http://` we'll call `$URL`. Replace any instance of `$URL` in the code below with it.**
-4. In a new terminal, invoke the interface function with grpcurl. To provide the helloworld protocol explicitly we'll use `-import-path <path/to proto/dir> -proto helloworld.proto`.
+4. In a new terminal, invoke the interface function with grpcurl. To provide the fibonacci protocol explicitly we'll use `-import-path <path/to proto/dir> -proto fibonacci.proto`.
    ```bash
-    ../../tools/bin/grpcurl -plaintext -import-path proto -proto helloworld.proto -d '{name: 12}' $URL:50051 helloworld.Greeter.SayHello
+    ../../tools/bin/grpcurl -plaintext -import-path proto -proto fibonacci.proto -d '{name: 12}' $URL:50051 fibonacci.Greeter.SayHello
    ```
 5. Modify the invoker.
     - `cd ../../tools/invoker`

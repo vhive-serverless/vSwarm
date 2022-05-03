@@ -31,10 +31,10 @@ import (
 	"strconv"
 	"syscall"
 
-	tracing "github.com/ease-lab/vhive/utils/tracing/go"
+	pb "github.com/ease-lab/vSwarm/benchmarks/fibonacci/proto"
+	tracing "github.com/ease-lab/vSwarm/utils/tracing/go"
 	log "github.com/sirupsen/logrus"
 	"google.golang.org/grpc"
-	pb "google.golang.org/grpc/examples/helloworld/helloworld"
 	"google.golang.org/grpc/reflection"
 )
 
@@ -54,12 +54,12 @@ func fibonacci(num int) float64 {
 	return num1
 }
 
-// server is used to implement helloworld.GreeterServer.
+// server is used to implement fibonacci.GreeterServer.
 type server struct {
 	pb.UnimplementedGreeterServer
 }
 
-// SayHello implements helloworld.GreeterServer
+// SayHello implements fibonacci.GreeterServer
 func (s *server) SayHello(ctx context.Context, in *pb.HelloRequest) (*pb.HelloReply, error) {
 	// log.Printf("Received: %v", in.GetName())
 	gid := syscall.Getgid()

@@ -36,9 +36,9 @@
 #include <ctime>
 
 #ifdef BAZEL_BUILD
-#include "examples/protos/helloworld.grpc.pb.h"
+#include "examples/protos/fibonacci.grpc.pb.h"
 #else
-#include "helloworld.grpc.pb.h"
+#include "fibonacci.grpc.pb.h"
 #endif
 
 using grpc::Server;
@@ -47,9 +47,9 @@ using grpc::ServerBuilder;
 using grpc::ServerContext;
 using grpc::ServerCompletionQueue;
 using grpc::Status;
-using helloworld::HelloRequest;
-using helloworld::HelloReply;
-using helloworld::Greeter;
+using fibonacci::HelloRequest;
+using fibonacci::HelloReply;
+using fibonacci::Greeter;
 
 
 class Function {
