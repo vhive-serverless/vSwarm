@@ -1,5 +1,5 @@
 DOCKER_HUB_ACCOUNT=vhiveease
-FUNCTIONS = adservice cartservice checkoutservice currencyservice emailservice paymentservice productcatalogservice recommendationservice shippingservice 
+FUNCTIONS = adservice cartservice checkoutservice currencyservice emailservice paymentservice productcatalogservice recommendationservice shippingservice
 ALL_IMAGES = $(addsuffix -image, $(FUNCTIONS))
 
 ROOT = .
@@ -14,11 +14,11 @@ adservice-image: ./adservice/Dockerfile
 	-f ./adservice/Dockerfile \
 	$(ROOT)/adservice/
 
-cartservice-image: ./cartservice/Dockerfile
+cartservice-image: ./cartservice/src/Dockerfile
 	DOCKER_BUILDKIT=1 docker build \
 	--tag $(DOCKER_HUB_ACCOUNT)/onlineshop-cartservice:latest \
-	-f ./cartservice/Dockerfile \
-	$(ROOT)/cartservice/
+	-f ./cartservice/src/Dockerfile \
+	$(ROOT)/cartservice/src/
 
 checkoutservice-image: ./checkoutservice/Dockerfile
 	DOCKER_BUILDKIT=1 docker build \

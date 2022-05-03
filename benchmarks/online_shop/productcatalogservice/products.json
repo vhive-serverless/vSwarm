@@ -2,130 +2,111 @@
     "products": [
         {
             "id": "OLJCESPC7Z",
-            "name": "Coffee",
-            "description": "Beans with a smooth and flowery chocolate finish.",
-            "picture": "/static/img/products/coffee-beans.jpg",
+            "name": "Sunglasses",
+            "description": "Add a modern touch to your outfits with these sleek aviator sunglasses.",
+            "picture": "/static/img/products/sunglasses.jpg",
+            "priceUsd": {
+                "currencyCode": "USD",
+                "units": 19,
+                "nanos": 990000000
+            },
+            "categories": ["accessories"]
+        },
+        {
+            "id": "66VCHSJNUP",
+            "name": "Tank Top",
+            "description": "Perfectly cropped cotton tank, with a scooped neckline.",
+            "picture": "/static/img/products/tank-top.jpg",
             "priceUsd": {
                 "currencyCode": "USD",
                 "units": 18,
                 "nanos": 990000000
             },
-            "categories": [
-                "coffee"
-            ]
-        },
-        {
-            "id": "66VCHSJNUP",
-            "name": "Rainbow Delight",
-            "description": "All the colours of the rainbow!",
-            "picture": "/static/img/products/donut-rainbow.jpg",
-            "priceUsd": {
-                "currencyCode": "USD",
-                "units": 4,
-                "nanos": 490000000
-            },
-            "categories": [
-                "donuts"
-            ]
+            "categories": ["clothing", "tops"]
         },
         {
             "id": "1YMWWN1N4O",
-            "name": "Home Barista Kit",
-            "description": "Always wanted to brew coffee with Chemex and Aeropress at home?",
-            "picture": "/static/img/products/barista-kit.jpg",
+            "name": "Watch",
+            "description": "This gold-tone stainless steel watch will work with most of your outfits.",
+            "picture": "/static/img/products/watch.jpg",
             "priceUsd": {
                 "currencyCode": "USD",
-                "units": 124
+                "units": 109,
+                "nanos": 990000000
             },
-            "categories": [
-                "cookware",
-                "coffee"
-            ]
+            "categories": ["accessories"]
         },
         {
             "id": "L9ECAV7KIM",
-            "name": "Cookie Crumble",
-            "description": "Imagine your favourite cookie smashed onto a donut, here it is.",
-            "picture": "/static/img/products/donut-cookie.jpg",
+            "name": "Loafers",
+            "description": "A neat addition to your summer wardrobe.",
+            "picture": "/static/img/products/loafers.jpg",
             "priceUsd": {
                 "currencyCode": "USD",
-                "units": 5,
-                "nanos": 250000000
+                "units": 89,
+                "nanos": 990000000
             },
-            "categories": [
-                "donuts"
-            ]
+            "categories": ["footwear"]
         },
         {
-            "id": "0PUK6V6EV0",
-            "name": "Chocolate Supreme",
-            "description": "So. Much. Chocolate.",
-            "picture": "/static/img/products/donut-chocolate.jpg",
-            "priceUsd": {
-                "currencyCode": "USD",
-                "units": 5,
-                "nanos": 900000000
-            },
-            "categories": [
-                "donuts"
-            ]
-        },
-        {
-            "id": "LS4PSXUNUM",
-            "name": "Metal Camping Mug",
-            "description": "You probably don't go camping that often but this is better than plastic cups.",
-            "picture": "/static/img/products/camp-mug.jpg",
+            "id": "2ZYFJ3GM2N",
+            "name": "Hairdryer",
+            "description": "This lightweight hairdryer has 3 heat and speed settings. It's perfect for travel.",
+            "picture": "/static/img/products/hairdryer.jpg",
             "priceUsd": {
                 "currencyCode": "USD",
                 "units": 24,
-                "nanos": 330000000
+                "nanos": 990000000
             },
-            "categories": [
-                "cookware",
-                "coffee"
-            ]
+            "categories": ["hair", "beauty"]
         },
         {
-            "id": "6E92ZMYYKL",
-            "name": "Strawberry & Cream",
-            "description": "Delicious strawberry and cream glaze.",
-            "picture": "/static/img/products/donut-strawberry.jpg",
+            "id": "0PUK6V6EV0",
+            "name": "Candle Holder",
+            "description": "This small but intricate candle holder is an excellent gift.",
+            "picture": "/static/img/products/candle-holder.jpg",
             "priceUsd": {
                 "currencyCode": "USD",
-                "units": 3,
-                "nanos": 500000000
+                "units": 18,
+                "nanos": 990000000
             },
-            "categories": [
-                "donuts"
-            ]
+            "categories": ["decor", "home"]
         },
         {
-            "id": "3R92ZMYYKL",
-            "name": "Powdered",
-            "description": "Light and fluffy, best enjoyed with a delicious coffee.",
-            "picture": "/static/img/products/donut-powdered.jpg",
+            "id": "LS4PSXUNUM",
+            "name": "Salt & Pepper Shakers",
+            "description": "Add some flavor to your kitchen.",
+            "picture": "/static/img/products/salt-and-pepper-shakers.jpg",
             "priceUsd": {
                 "currencyCode": "USD",
-                "units": 2,
-                "nanos": 250000000
+                "units": 18,
+                "nanos": 490000000
             },
-            "categories": [
-                "donuts"
-            ]
+            "categories": ["kitchen"]
         },
         {
-            "id": "3R92ZDDYKL",
-            "name": "Old Fashioned",
-            "description": "A classic hits the spot every time",
-            "picture": "/static/img/products/donut-old-fashioned.jpg",
+            "id": "9SIQT8TOJO",
+            "name": "Bamboo Glass Jar",
+            "description": "This bamboo glass jar can hold 57 oz (1.7 l) and is perfect for any kitchen.",
+            "picture": "/static/img/products/bamboo-glass-jar.jpg",
             "priceUsd": {
                 "currencyCode": "USD",
-                "units": 3,
-                "nanos": 200000000
+                "units": 5,
+                "nanos": 490000000
             },
-            "categories": [
-                "donuts"
-            ]
+            "categories": ["kitchen"]
+        },
+        {
+            "id": "6E92ZMYYFZ",
+            "name": "Mug",
+            "description": "A simple mug with a mustard interior.",
+            "picture": "/static/img/products/mug.jpg",
+            "priceUsd": {
+                "currencyCode": "USD",
+                "units": 8,
+                "nanos": 990000000
+            },
+            "categories": ["kitchen"]
         }
     ]
 }
