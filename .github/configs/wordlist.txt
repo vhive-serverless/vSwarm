@@ -65,6 +65,7 @@ boris
 Bugnion
 BuMP
 callee
+cartservice
 Cansu
 CCKVS
 CCNoC
@@ -117,6 +118,7 @@ CRI
 csv
 ctrdlog
 Ctrl
+currencyservice
 Daglis
 datacenter
 Datacenter
@@ -158,6 +160,7 @@ eba
 Edouard
 edu
 ef
+emailservice
 EndExperiment
 endian
 endpointsFile
@@ -270,6 +273,7 @@ Jesalpura
 Jevdjic
 Joshi
 jpg
+js
 json
 jsonpath
 Kafka
@@ -398,6 +402,7 @@ Ozer
 PageMaker
 params
 Passwordless
+paymentservice
 pc
 pdf
 Pejman
@@ -448,6 +453,7 @@ pvc
 qO
 QoS
 QOS
+QPS
 quickstart
 RackOut
 RACKOUT
@@ -464,6 +470,7 @@ rebasing
 recog
 Recog
 recommender
+recommendationservice
 repo
 Repos
 roadmap
@@ -495,6 +502,7 @@ SGD
 sha
 shahab
 Shahab
+shippingservice
 Shyam
 siavash
 Siavash

@@ -10,7 +10,9 @@ services:
     environment:
       - PORT=8080
       - PRODUCT_CATALOG_SERVICE_ADDR=productcatalogservice:3550
-    entrypoint: ["python", "/recommendationservice/recommendation_server.py"]
+      - DISABLE_PROFILER=true
+      - DISABLE_DEBUGGER=true
+      - DISABLE_TRACING=true
     ports:
     - target: 8080
     depends_on:
@@ -24,7 +26,9 @@ services:
       dockerfile: ./Dockerfile
     environment:
       - PORT=3550
-    entrypoint: ["/productcatalogservice/server"]
+      - DISABLE_PROFILER=true
+      - DISABLE_DEBUGGER=true
+      - DISABLE_TRACING=true
     ports:
     - target: 3550
 

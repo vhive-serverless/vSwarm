@@ -9,9 +9,12 @@ services:
       dockerfile: ./Dockerfile
     environment:
       - PORT=9555
-    entrypoint: /app/build/install/hipstershop/bin/AdService
+      - DISABLE_PROFILER=true
+      - DISABLE_DEBUGGER=true
+      - DISABLE_TRACING=true
     ports:
-    - target: 9555
+    - published: 9555
+      target: 9555
 
 
   relay:

@@ -21,19 +21,21 @@ import (
 	"os"
 	"time"
 
-	pb "github.com/GoogleCloudPlatform/microservices-demo/src/checkoutservice/genproto"
-	"github.com/GoogleCloudPlatform/microservices-demo/src/checkoutservice/money"
+	"cloud.google.com/go/profiler"
+	"contrib.go.opencensus.io/exporter/jaeger"
+	"contrib.go.opencensus.io/exporter/stackdriver"
 	"github.com/google/uuid"
-	"github.com/lightstep/otel-launcher-go/launcher"
 	"github.com/sirupsen/logrus"
-	grpcotel "go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc"
-	"go.opentelemetry.io/otel"
-	"go.opentelemetry.io/otel/label"
-	"go.opentelemetry.io/otel/metric"
+	"go.opencensus.io/plugin/ocgrpc"
+	"go.opencensus.io/stats/view"
+	"go.opencensus.io/trace"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
-	healthpb "google.golang.org/grpc/health/grpc_health_v1"
 	"google.golang.org/grpc/status"
+
+	pb "github.com/GoogleCloudPlatform/microservices-demo/src/checkoutservice/genproto"
+	money "github.com/GoogleCloudPlatform/microservices-demo/src/checkoutservice/money"
+	healthpb "google.golang.org/grpc/health/grpc_health_v1"
 )
 
 const (
@@ -41,11 +43,7 @@ const (
 	usdCurrency = "USD"
 )
 
-var (
-	log        *logrus.Logger
-	meter      = otel.Meter("checkoutservice/metrics")
-	orderCount = metric.Must(meter).NewInt64Counter("checkoutservice.order")
-)
+var log *logrus.Logger
 
 func init() {
 	log = logrus.New()
@@ -71,8 +69,19 @@ type checkoutService struct {
 }
 
 func main() {
-	// otel := initLightstepTracing(log)
-	// defer otel.Shutdown()
+	if os.Getenv("DISABLE_TRACING") == "" {
+		log.Info("Tracing enabled.")
+		go initTracing()
+	} else {
+		log.Info("Tracing disabled.")
+	}
+
+	if os.Getenv("DISABLE_PROFILER") == "" {
+		log.Info("Profiling enabled.")
+		go initProfiling("checkoutservice", "1.0.0")
+	} else {
+		log.Info("Profiling disabled.")
+	}
 
 	port := listenPort
 	if os.Getenv("PORT") != "" {
@@ -94,10 +103,14 @@ func main() {
 		log.Fatal(err)
 	}
 
-	srv := grpc.NewServer(
-		grpc.UnaryInterceptor(grpcotel.UnaryServerInterceptor()),
-		grpc.StreamInterceptor(grpcotel.StreamServerInterceptor()),
-	)
+	var srv *grpc.Server
+	if os.Getenv("DISABLE_STATS") == "" {
+		log.Info("Stats enabled.")
+		srv = grpc.NewServer(grpc.StatsHandler(&ocgrpc.ServerHandler{}))
+	} else {
+		log.Info("Stats disabled.")
+		srv = grpc.NewServer()
+	}
 	pb.RegisterCheckoutServiceServer(srv, svc)
 	healthpb.RegisterHealthServer(srv, svc)
 	log.Infof("starting to listen on tcp: %q", lis.Addr().String())
@@ -105,16 +118,85 @@ func main() {
 	log.Fatal(err)
 }
 
-func initLightstepTracing(log logrus.FieldLogger) launcher.Launcher {
-	launcher := launcher.ConfigureOpentelemetry(
-		launcher.WithServiceVersion("5.3.1"),
-		launcher.WithLogLevel("debug"),
-		launcher.WithSpanExporterEndpoint(fmt.Sprintf("%s:%s",
-			os.Getenv("LIGHTSTEP_HOST"), os.Getenv("LIGHTSTEP_PORT"))),
-		launcher.WithLogger(log),
-	)
-	log.Info("Initialized Lightstep OpenTelemetry launcher")
-	return launcher
+func initJaegerTracing() {
+	svcAddr := os.Getenv("JAEGER_SERVICE_ADDR")
+	if svcAddr == "" {
+		log.Info("jaeger initialization disabled.")
+		return
+	}
+
+	// Register the Jaeger exporter to be able to retrieve
+	// the collected spans.
+	exporter, err := jaeger.NewExporter(jaeger.Options{
+		Endpoint: fmt.Sprintf("http://%s", svcAddr),
+		Process: jaeger.Process{
+			ServiceName: "checkoutservice",
+		},
+	})
+	if err != nil {
+		log.Fatal(err)
+	}
+	trace.RegisterExporter(exporter)
+	log.Info("jaeger initialization completed.")
+}
+
+func initStats(exporter *stackdriver.Exporter) {
+	view.SetReportingPeriod(60 * time.Second)
+	view.RegisterExporter(exporter)
+	if err := view.Register(ocgrpc.DefaultServerViews...); err != nil {
+		log.Warn("Error registering default server views")
+	} else {
+		log.Info("Registered default server views")
+	}
+}
+
+func initStackdriverTracing() {
+	// TODO(ahmetb) this method is duplicated in other microservices using Go
+	// since they are not sharing packages.
+	for i := 1; i <= 3; i++ {
+		exporter, err := stackdriver.NewExporter(stackdriver.Options{})
+		if err != nil {
+			log.Infof("failed to initialize stackdriver exporter: %+v", err)
+		} else {
+			trace.RegisterExporter(exporter)
+			log.Info("registered Stackdriver tracing")
+
+			// Register the views to collect server stats.
+			initStats(exporter)
+			return
+		}
+		d := time.Second * 10 * time.Duration(i)
+		log.Infof("sleeping %v to retry initializing Stackdriver exporter", d)
+		time.Sleep(d)
+	}
+	log.Warn("could not initialize Stackdriver exporter after retrying, giving up")
+}
+
+func initTracing() {
+	initJaegerTracing()
+	initStackdriverTracing()
+}
+
+func initProfiling(service, version string) {
+	// TODO(ahmetb) this method is duplicated in other microservices using Go
+	// since they are not sharing packages.
+	for i := 1; i <= 3; i++ {
+		if err := profiler.Start(profiler.Config{
+			Service:        service,
+			ServiceVersion: version,
+			// ProjectID must be set if not running on GCP.
+			// ProjectID: "my-project",
+		}); err != nil {
+			log.Warnf("failed to start profiler: %+v", err)
+		} else {
+			log.Info("started Stackdriver profiler")
+			return
+		}
+		d := time.Second * 10 * time.Duration(i)
+		log.Infof("sleeping %v to retry initializing Stackdriver profiler", d)
+		time.Sleep(d)
+	}
+	log.Warn("could not initialize Stackdriver profiler after retrying, giving up")
 }
 
 func mustMapEnv(target *string, envKey string) {
@@ -126,9 +208,6 @@ func mustMapEnv(target *string, envKey string) {
 }
 
 func (cs *checkoutService) Check(ctx context.Context, req *healthpb.HealthCheckRequest) (*healthpb.HealthCheckResponse, error) {
-	if os.Getenv("HIPSTER_SICK") == "true" {
-		time.Sleep(3 * time.Second)
-	}
 	return &healthpb.HealthCheckResponse{Status: healthpb.HealthCheckResponse_SERVING}, nil
 }
 
@@ -137,18 +216,15 @@ func (cs *checkoutService) Watch(req *healthpb.HealthCheckRequest, ws healthpb.H
 }
 
 func (cs *checkoutService) PlaceOrder(ctx context.Context, req *pb.PlaceOrderRequest) (*pb.PlaceOrderResponse, error) {
-	// count orders
 	log.Infof("[PlaceOrder] user_id=%q user_currency=%q", req.UserId, req.UserCurrency)
 
 	orderID, err := uuid.NewUUID()
 	if err != nil {
-		orderCount.Add(ctx, 1, label.String("status", "internalError"))
 		return nil, status.Errorf(codes.Internal, "failed to generate order uuid")
 	}
 
 	prep, err := cs.prepareOrderItemsAndShippingQuoteFromCart(ctx, req.UserId, req.UserCurrency, req.Address)
 	if err != nil {
-		orderCount.Add(ctx, 1, label.String("status", "internalError"))
 		return nil, status.Errorf(codes.Internal, err.Error())
 	}
 
@@ -157,19 +233,18 @@ func (cs *checkoutService) PlaceOrder(ctx context.Context, req *pb.PlaceOrderReq
 		Nanos: 0}
 	total = money.Must(money.Sum(total, *prep.shippingCostLocalized))
 	for _, it := range prep.orderItems {
-		total = money.Must(money.Sum(total, *it.Cost))
+		multPrice := money.MultiplySlow(*it.Cost, uint32(it.GetItem().GetQuantity()))
+		total = money.Must(money.Sum(total, multPrice))
 	}
 
 	txID, err := cs.chargeCard(ctx, &total, req.CreditCard)
 	if err != nil {
-		orderCount.Add(ctx, 1, label.String("status", "chargeError"))
 		return nil, status.Errorf(codes.Internal, "failed to charge card: %+v", err)
 	}
 	log.Infof("payment went through (transaction_id: %s)", txID)
 
 	shippingTrackingID, err := cs.shipOrder(ctx, req.Address, prep.cartItems)
 	if err != nil {
-		orderCount.Add(ctx, 1, label.String("status", "shippingError"))
 		return nil, status.Errorf(codes.Unavailable, "shipping error: %+v", err)
 	}
 
@@ -189,7 +264,6 @@ func (cs *checkoutService) PlaceOrder(ctx context.Context, req *pb.PlaceOrderReq
 		log.Infof("order confirmation email sent to %q", req.Email)
 	}
 	resp := &pb.PlaceOrderResponse{Order: orderResult}
-	orderCount.Add(ctx, 1, label.String("status", "ok"))
 	return resp, nil
 }
 
@@ -225,7 +299,9 @@ func (cs *checkoutService) prepareOrderItemsAndShippingQuoteFromCart(ctx context
 }
 
 func (cs *checkoutService) quoteShipping(ctx context.Context, address *pb.Address, items []*pb.CartItem) (*pb.Money, error) {
-	conn, err := getConnection(ctx, cs.shippingSvcAddr)
+	conn, err := grpc.DialContext(ctx, cs.shippingSvcAddr,
+		grpc.WithInsecure(),
+		grpc.WithStatsHandler(&ocgrpc.ClientHandler{}))
 	if err != nil {
 		return nil, fmt.Errorf("could not connect shipping service: %+v", err)
 	}
@@ -242,7 +318,7 @@ func (cs *checkoutService) quoteShipping(ctx context.Context, address *pb.Addres
 }
 
 func (cs *checkoutService) getUserCart(ctx context.Context, userID string) ([]*pb.CartItem, error) {
-	conn, err := getConnection(ctx, cs.cartSvcAddr)
+	conn, err := grpc.DialContext(ctx, cs.cartSvcAddr, grpc.WithInsecure(), grpc.WithStatsHandler(&ocgrpc.ClientHandler{}))
 	if err != nil {
 		return nil, fmt.Errorf("could not connect cart service: %+v", err)
 	}
@@ -256,7 +332,7 @@ func (cs *checkoutService) getUserCart(ctx context.Context, userID string) ([]*p
 }
 
 func (cs *checkoutService) emptyUserCart(ctx context.Context, userID string) error {
-	conn, err := getConnection(ctx, cs.cartSvcAddr)
+	conn, err := grpc.DialContext(ctx, cs.cartSvcAddr, grpc.WithInsecure(), grpc.WithStatsHandler(&ocgrpc.ClientHandler{}))
 	if err != nil {
 		return fmt.Errorf("could not connect cart service: %+v", err)
 	}
@@ -270,7 +346,8 @@ func (cs *checkoutService) emptyUserCart(ctx context.Context, userID string) err
 
 func (cs *checkoutService) prepOrderItems(ctx context.Context, items []*pb.CartItem, userCurrency string) ([]*pb.OrderItem, error) {
 	out := make([]*pb.OrderItem, len(items))
-	conn, err := getConnection(ctx, cs.productCatalogSvcAddr)
+
+	conn, err := grpc.DialContext(ctx, cs.productCatalogSvcAddr, grpc.WithInsecure(), grpc.WithStatsHandler(&ocgrpc.ClientHandler{}))
 	if err != nil {
 		return nil, fmt.Errorf("could not connect product catalog service: %+v", err)
 	}
@@ -294,7 +371,7 @@ func (cs *checkoutService) prepOrderItems(ctx context.Context, items []*pb.CartI
 }
 
 func (cs *checkoutService) convertCurrency(ctx context.Context, from *pb.Money, toCurrency string) (*pb.Money, error) {
-	conn, err := getConnection(ctx, cs.currencySvcAddr)
+	conn, err := grpc.DialContext(ctx, cs.currencySvcAddr, grpc.WithInsecure(), grpc.WithStatsHandler(&ocgrpc.ClientHandler{}))
 	if err != nil {
 		return nil, fmt.Errorf("could not connect currency service: %+v", err)
 	}
@@ -309,8 +386,7 @@ func (cs *checkoutService) convertCurrency(ctx context.Context, from *pb.Money, 
 }
 
 func (cs *checkoutService) chargeCard(ctx context.Context, amount *pb.Money, paymentInfo *pb.CreditCardInfo) (string, error) {
-	conn, err := getConnection(ctx, cs.paymentSvcAddr)
-
+	conn, err := grpc.DialContext(ctx, cs.paymentSvcAddr, grpc.WithInsecure(), grpc.WithStatsHandler(&ocgrpc.ClientHandler{}))
 	if err != nil {
 		return "", fmt.Errorf("failed to connect payment service: %+v", err)
 	}
@@ -326,7 +402,7 @@ func (cs *checkoutService) chargeCard(ctx context.Context, amount *pb.Money, pay
 }
 
 func (cs *checkoutService) sendOrderConfirmation(ctx context.Context, email string, order *pb.OrderResult) error {
-	conn, err := getConnection(ctx, cs.emailSvcAddr)
+	conn, err := grpc.DialContext(ctx, cs.emailSvcAddr, grpc.WithInsecure(), grpc.WithStatsHandler(&ocgrpc.ClientHandler{}))
 	if err != nil {
 		return fmt.Errorf("failed to connect email service: %+v", err)
 	}
@@ -338,7 +414,7 @@ func (cs *checkoutService) sendOrderConfirmation(ctx context.Context, email stri
 }
 
 func (cs *checkoutService) shipOrder(ctx context.Context, address *pb.Address, items []*pb.CartItem) (string, error) {
-	conn, err := getConnection(ctx, cs.shippingSvcAddr)
+	conn, err := grpc.DialContext(ctx, cs.shippingSvcAddr, grpc.WithInsecure(), grpc.WithStatsHandler(&ocgrpc.ClientHandler{}))
 	if err != nil {
 		return "", fmt.Errorf("failed to connect email service: %+v", err)
 	}
@@ -353,12 +429,3 @@ func (cs *checkoutService) shipOrder(ctx context.Context, address *pb.Address, i
 }
 
 // TODO: Dial and create client once, reuse.
-
-func getConnection(ctx context.Context, target string) (conn *grpc.ClientConn, err error) {
-	return grpc.DialContext(ctx,
-		target,
-		grpc.WithInsecure(),
-		grpc.WithUnaryInterceptor(grpcotel.UnaryClientInterceptor()),
-		grpc.WithStreamInterceptor(grpcotel.StreamClientInterceptor()),
-	)
-}

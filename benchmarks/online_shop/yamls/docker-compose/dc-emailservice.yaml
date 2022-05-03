@@ -7,7 +7,10 @@ services:
     build:
       context: ./../../emailservice/
       dockerfile: ./Dockerfile
-    entrypoint: ["python", "email_server.py" ]
+    environment:
+      - DISABLE_PROFILER=true
+      - DISABLE_DEBUGGER=true
+      - DISABLE_TRACING=true
     ports:
     - target: 8080
 

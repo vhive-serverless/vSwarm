@@ -9,7 +9,9 @@ services:
       dockerfile: ./Dockerfile
     environment:
       - PORT=50051
-    entrypoint: [ "node", "index.js" ]
+      - DISABLE_PROFILER=true
+      - DISABLE_DEBUGGER=true
+      - DISABLE_TRACING=true
     ports:
     - target: 50051
 

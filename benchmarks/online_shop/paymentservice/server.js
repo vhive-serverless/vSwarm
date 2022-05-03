@@ -12,9 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-const opentelemetry = require('@opentelemetry/api');
 const path = require('path');
-const grpc = require('grpc');
+const grpc = require('@grpc/grpc-js');
 const pino = require('pino');
 const protoLoader = require('@grpc/proto-loader');
 
@@ -46,27 +45,32 @@ class HipsterShopServer {
    * @param {*} callback  fn(err, ChargeResponse)
    */
   static ChargeServiceHandler(call, callback) {
-    const span = opentelemetry.getSpan(opentelemetry.context.active());
-    opentelemetry.context.with(opentelemetry.setSpan(opentelemetry.ROOT_CONTEXT, span), () => {
-      try {
-        logger.info(`PaymentService#Charge invoked with request ${JSON.stringify(call.request)}`);
-        const response = charge(call.request);
-        callback(null, response);
-      } catch (err) {
-        console.warn(err);
-        callback(err);
-      }
-    });
+    try {
+      logger.info(`PaymentService#Charge invoked with request ${JSON.stringify(call.request)}`);
+      const response = charge(call.request);
+      callback(null, response);
+    } catch (err) {
+      console.warn(err);
+      callback(err);
+    }
   }
 
   static CheckHandler(call, callback) {
     callback(null, { status: 'SERVING' });
   }
 
+
   listen() {
-    this.server.bind(`0.0.0.0:${this.port}`, grpc.ServerCredentials.createInsecure());
-    logger.info(`PaymentService grpc server listening on ${this.port}`);
-    this.server.start();
+    const server = this.server 
+    const port = this.port
+    server.bindAsync(
+      `0.0.0.0:${port}`,
+      grpc.ServerCredentials.createInsecure(),
+      function () {
+        logger.info(`PaymentService gRPC server started on port ${port}`);
+        server.start();
+      }
+    );
   }
 
   loadProto(path) {

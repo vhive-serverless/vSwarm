@@ -111,6 +111,7 @@ jobs:
     runs-on: [self-hosted, stock-knative]
     strategy:
       fail-fast: false
+      max-parallel: 1
       matrix:
         service:
           [
@@ -137,7 +138,20 @@ jobs:
 
       - name: Deploy knative
         working-directory: benchmarks
-        run: ../tools/kn_deploy.sh ./online_shop/yamls/knative/${{ matrix.service }}.yaml
+        run:  kn service apply -f ./online_shop/yamls/knative/${{ matrix.service }}.yaml
+
+      - name: Check if service is ready
+        working-directory: benchmarks
+        run: |
+          sleep 5
+          kn service list
+          if [ "$( kn service list ${{ matrix.service }} | awk '{if (NR!=1) {print $9}}')" == "True" ] ;
+          then
+            echo Service ${{ matrix.service }} is running;
+          else
+            echo Service ${{ matrix.service }} is not ready.. wait 15 more seconds;
+            sleep 15
+          fi;
 
       - name: Test invoking once
         working-directory: tools/test-client

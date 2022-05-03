@@ -1,15 +1,17 @@
 version: "3.9"
 services:
-    
+
   cartservice:
     image: vhiveease/onlineshop-cartservice:latest
     container_name: 'cartservice'
     build:
       context: ./../../cartservice/
       dockerfile: ./Dockerfile
-    # environment: 
-    #   - PORT=9555
-    entrypoint: ["/app/cartservice"]
+    environment:
+      # - PORT=9555
+      - DISABLE_PROFILER=true
+      - DISABLE_DEBUGGER=true
+      - DISABLE_TRACING=true
     ports:
     - target: 7070
 

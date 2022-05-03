@@ -15,7 +15,9 @@ services:
       - CURRENCY_SERVICE_ADDR=currencyservice:7000
       - EMAIL_SERVICE_ADDR=emailservice:8080
       - PAYMENT_SERVICE_ADDR=paymentservice:50051
-    entrypoint: ["/checkoutservice"]
+      - DISABLE_PROFILER=true
+      - DISABLE_DEBUGGER=true
+      - DISABLE_TRACING=true
     ports:
     - target: 5050
     depends_on:
@@ -34,7 +36,9 @@ services:
       dockerfile: ./Dockerfile
     environment:
       - PORT=50051
-    entrypoint: ["/shippingservice"]
+      - DISABLE_PROFILER=true
+      - DISABLE_DEBUGGER=true
+      - DISABLE_TRACING=true
     ports:
     - target: 50051
 
@@ -46,7 +50,9 @@ services:
       dockerfile: ./Dockerfile
     environment:
       - PORT=3550
-    entrypoint: ["/productcatalogservice/server"]
+      - DISABLE_PROFILER=true
+      - DISABLE_DEBUGGER=true
+      - DISABLE_TRACING=true
     ports:
     - target: 3550
 
@@ -56,9 +62,11 @@ services:
     build:
       context: ./../../cartservice/
       dockerfile: ./Dockerfile
-    # environment: 
-    #   - PORT=9555
-    entrypoint: ["/app/cartservice"]
+    environment:
+      # - PORT=9555
+      - DISABLE_PROFILER=true
+      - DISABLE_DEBUGGER=true
+      - DISABLE_TRACING=true
     ports:
     - target: 7070
 
@@ -71,17 +79,22 @@ services:
       dockerfile: ./Dockerfile
     environment:
       - PORT=7000
-    entrypoint: [ "node", "server.js" ]
+      - DISABLE_PROFILER=true
+      - DISABLE_DEBUGGER=true
+      - DISABLE_TRACING=true
     ports:
     - target: 7000
-    
+
   emailservice:
     image: vhiveease/onlineshop-emailservice:latest
     container_name: 'emailservice'
     build:
       context: ./../../emailservice/
       dockerfile: ./Dockerfile
-    entrypoint: ["python", "email_server.py" ]
+    environment:
+      - DISABLE_PROFILER=true
+      - DISABLE_DEBUGGER=true
+      - DISABLE_TRACING=true
     ports:
     - target: 8080
 
@@ -93,7 +106,9 @@ services:
       dockerfile: ./Dockerfile
     environment:
       - PORT=50051
-    entrypoint: [ "node", "index.js" ]
+      - DISABLE_PROFILER=true
+      - DISABLE_DEBUGGER=true
+      - DISABLE_TRACING=true
     ports:
     - target: 50051
 
