@@ -123,7 +123,9 @@ jobs:
 
       - name: Deploy knative
         working-directory: benchmarks
-        run: kn service apply -f ./hotel-app/yamls/knative/${{ matrix.file }}
+        run: |
+          kubectl apply -f ./hotel-app/yamls/knative/${{ matrix.file }}
+          sleep 5
 
       - name: Test invoking once
         working-directory: tools/test-client
