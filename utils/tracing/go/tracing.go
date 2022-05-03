@@ -151,3 +151,7 @@ func DialGRPCWithUnaryInterceptor(addr string, opts ...grpc.DialOption) (*grpc.C
 func GetServerInterceptor() grpc.ServerOption {
 	return grpc.UnaryInterceptor(otelgrpc.UnaryServerInterceptor())
 }
+
+func GetClientInterceptor() grpc.DialOption {
+	return grpc.WithUnaryInterceptor(otelgrpc.UnaryClientInterceptor())
+}
