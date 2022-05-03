@@ -29,10 +29,11 @@ import (
 	"os"
 	"syscall"
 
+	pb "github.com/ease-lab/vSwarm/benchmarks/auth/proto"
+
 	tracing "github.com/ease-lab/vSwarm/utils/tracing/go"
 	log "github.com/sirupsen/logrus"
 	"google.golang.org/grpc"
-	pb "google.golang.org/grpc/examples/helloworld/helloworld"
 	"google.golang.org/grpc/reflection"
 )
 
