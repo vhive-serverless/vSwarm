@@ -115,9 +115,11 @@ jobs:
         with:
           go-version: 1.16
 
-      - name: Deploy database
+      - name: Deploy database and memcached
         working-directory: benchmarks
-        run: kubectl apply -f ./hotel-app/yamls/knative/database.yaml
+        run: |
+          kubectl apply -f ./hotel-app/yamls/knative/database.yaml
+          kubectl apply -f ./hotel-app/yamls/knative/memcached.yaml
 
       - name: Deploy knative
         working-directory: benchmarks
@@ -147,11 +149,12 @@ jobs:
             kubectl logs -n default -c $container_name -l serving.knative.dev/service=${{ matrix.service }}
           done
 
-      - name: Print logs from database
+      - name: Print logs from database and mmc
         if: ${{ always() }}
         run: |
           set -x
           kubectl logs deployment/hotel-app-database
+          kubectl logs deployment/hotel-app-mmc
 
       - name: Down
         if: ${{ always() }}
@@ -159,3 +162,4 @@ jobs:
         run: |
           kn service delete --all --namespace default --wait
           kubectl delete -f ./hotel-app/yamls/knative/database.yaml
+          kubectl delete -f ./hotel-app/yamls/knative/memcached.yaml

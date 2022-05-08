@@ -24,10 +24,10 @@ module github.com/ease-lab/vSwarm/benchmarks/hotel-app
 
 go 1.16
 
-// github.com/ease-lab/vSwarm/benchmarks/hotel-app/proto => ./proto
 replace github.com/ease-lab/vSwarm/utils/tracing/go => ../../utils/tracing/go
 
 require (
+	github.com/bradfitz/gomemcache v0.0.0-20220106215444-fb4bf637b56d
 	github.com/ease-lab/vSwarm-proto v0.0.0-20220428102506-7b5de12d00b8
 	github.com/ease-lab/vSwarm/utils/tracing/go v0.0.0-20220427112636-f8f3fc171804
 	github.com/hailocab/go-geoindex v0.0.0-20160127134810-64631bfe9711
