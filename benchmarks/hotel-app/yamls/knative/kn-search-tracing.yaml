@@ -23,7 +23,7 @@
 apiVersion: serving.knative.dev/v1
 kind: Service
 metadata:
-  name: hotel-app-geo-tracing
+  name: hotel-app-search-tracing
   namespace: default
 spec:
   template:
@@ -39,18 +39,71 @@ spec:
             - --addr=0.0.0.0:50000
             - --function-endpoint-url=0.0.0.0
             - --function-endpoint-port=8083
-            - --function-name=geo
+            - --function-name=search
+            - --value=hello
           env:
             - name: ENABLE_TRACING
               value: "true"
 
         # Function ------------
         - name: function
-          image: docker.io/vhiveease/hotel-app-geo:latest
+          image: docker.io/vhiveease/hotel-app-search:latest
+          args:
+            - --url=0.0.0.0
+            - --port=8083
+            - --geoaddr=hotel-app-search-geo.default.svc.cluster.local:80
+            - --rateaddr=hotel-app-search-rate.default.svc.cluster.local:80
+          env:
+            - name: ENABLE_TRACING
+              value: "true"
+
+
+# Dependant Functions ------------
+---
+apiVersion: serving.knative.dev/v1
+kind: Service
+metadata:
+  name: hotel-app-search-geo
+  namespace: default
+spec:
+  template:
+    spec:
+      containers:
+        # Function
+        - image: docker.io/vhiveease/hotel-app-geo:latest
           args:
             - --url=0.0.0.0
             - --port=8083
             - --db_addr=hotel-app-database:27017
+          ports:
+            - name: h2c
+              containerPort: 8083
           env:
             - name: ENABLE_TRACING
               value: "true"
+
+---
+apiVersion: serving.knative.dev/v1
+kind: Service
+metadata:
+  name: hotel-app-search-rate
+  namespace: default
+spec:
+  template:
+    spec:
+      containers:
+        # Function
+        - image: docker.io/vhiveease/hotel-app-rate:latest
+          args:
+            - --url=0.0.0.0
+            - --port=8083
+            - --db_addr=hotel-app-database:27017
+            - --memcached_addr=hotel-app-mmc:11211
+          ports:
+            - name: h2c
+              containerPort: 8083
+          env:
+            - name: ENABLE_TRACING
+              value: "true"
+
+

@@ -39,9 +39,9 @@ services:
       - database
 
 
-  ## Data base ##
+  ## Database ##
   database:
-    image: mongo:4.2
+    image: vhiveease/mongodb
     container_name: recommendation-db
 
 

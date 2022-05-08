@@ -26,9 +26,9 @@ clean: clean-proto
 
 ROOT = ../../
 
-.PHONY: proto geo
+.PHONY: geo profile rate recommendation reservation user search
 
-FUNCTIONS = geo
+FUNCTIONS = geo profile rate recommendation reservation user search
 ALL_IMAGES = $(addsuffix -image, $(FUNCTIONS))
 
 all: all_image

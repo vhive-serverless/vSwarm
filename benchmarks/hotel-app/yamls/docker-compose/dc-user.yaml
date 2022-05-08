@@ -41,7 +41,7 @@ services:
 
   ## Data base ##
   database:
-    image: mongo:4.2
+    image: vhiveease/mongodb
     container_name: user-db
 
 

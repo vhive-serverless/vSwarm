@@ -20,7 +20,6 @@
 # SOFTWARE.
 
 
-
 #---------- GoLang -----------#
 # First stage (Builder):
 FROM vhiveease/golang-builder:latest AS hotelBuilder

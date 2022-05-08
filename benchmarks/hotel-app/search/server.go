@@ -33,6 +33,7 @@ import (
 
 	"golang.org/x/net/context"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials/insecure"
 	"google.golang.org/grpc/keepalive"
 	"google.golang.org/grpc/reflection"
 
@@ -112,7 +113,7 @@ func dial(address string) (*grpc.ClientConn, error) {
 			Timeout:             120 * time.Second,
 			PermitWithoutStream: true,
 		}),
-		grpc.WithInsecure(),
+		grpc.WithTransportCredentials(insecure.NewCredentials()),
 	}
 
 	if tracing.IsTracingEnabled() {
@@ -173,7 +174,7 @@ func (s *Server) Nearby(ctx context.Context, req *pb.NearbyRequest) (*pb.SearchR
 		InDate:  req.InDate,
 		OutDate: req.OutDate,
 	}
-	fmt.Printf("%+v", r)
+
 	rates, err := s.rateClient.GetRates(ctx, &r)
 	if err != nil {
 		fmt.Printf("rates error: %v", err)

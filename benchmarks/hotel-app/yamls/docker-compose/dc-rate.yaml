@@ -43,11 +43,11 @@ services:
 
   ## Data base ##
   database:
-    image: mongo:4.2
+    image: vhiveease/mongodb
     container_name: rate-db
   ## Memcached ##
   memcached:
-    image: memcached
+    image: vhiveease/memcached
     container_name: 'rate-mmc'
     environment:
       - MEMCACHED_CACHE_SIZE=128

@@ -26,6 +26,7 @@ import (
 	"fmt"
 
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 
 	"net"
@@ -171,7 +172,7 @@ func (s *Server) lookUpDB(username string) (User, bool) {
 
 	// unmarshal json profiles
 	var user User
-	filter := bson.D{{"username", username}}
+	filter := bson.D{primitive.E{Key: "username", Value: username}}
 	// filter := bson.M{{"username": username}}
 	err := collection.FindOne(context.Background(), filter).Decode(&user)
 	if err != nil {
@@ -179,24 +180,4 @@ func (s *Server) lookUpDB(username string) (User, bool) {
 		return user, false
 	}
 	return user, true
-}
-
-func listAll(coll *mongo.Collection) {
-
-	// Find all documents in which the "username" field is "Bob".
-	// Find all documents.
-	cursor, err := coll.Find(context.TODO(), bson.D{})
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	// Get a list of all returned documents and print them out.
-	// See the mongo.Cursor documentation for more examples of using cursors.
-	var results []bson.M
-	if err = cursor.All(context.TODO(), &results); err != nil {
-		log.Fatal(err)
-	}
-	for _, result := range results {
-		fmt.Println(result)
-	}
 }

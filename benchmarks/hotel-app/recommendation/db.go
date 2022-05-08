@@ -49,7 +49,9 @@ func initializeDatabase(url string) *mgo.Session {
 
 	c := session.DB("recommendation-db").C("recommendation")
 	// First we clear the collection to have always a new one
-	c.DropCollection()
+	if err = c.DropCollection(); err != nil {
+		log.Print("DropCollection: ", err)
+	}
 
 	count, err := c.Find(&bson.M{"hotelid": "1"}).Count()
 	if err != nil {
@@ -120,7 +122,7 @@ func initializeDatabase(url string) *mgo.Session {
 	// add up to 80 hotels
 	for i := 7; i <= 80; i++ {
 		hotel_id := strconv.Itoa(i)
-		count, err = c.Find(&bson.M{"hotelid": hotel_id}).Count()
+		_, err = c.Find(&bson.M{"hotelid": hotel_id}).Count()
 		if err != nil {
 			log.Fatal(err)
 		}
