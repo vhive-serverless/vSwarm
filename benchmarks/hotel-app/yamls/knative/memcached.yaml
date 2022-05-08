@@ -39,7 +39,7 @@ spec:
     spec:
       containers:
       - name: memcached
-        image: vhiveease/memcached
+        image: docker.io/vhiveease/memcached
         ports:
         - containerPort: 11211
         env:

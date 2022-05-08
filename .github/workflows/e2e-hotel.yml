@@ -65,6 +65,13 @@ jobs:
           [
             dc-geo,
             dc-geo-tracing,
+            dc-profile,
+            dc-rate,
+            dc-recommendation,
+            dc-reservation,
+            dc-user,
+            dc-search,
+            dc-search-tracing,
           ]
 
     steps:
@@ -104,6 +111,20 @@ jobs:
             file: kn-geo.yaml
           - service: hotel-app-geo-tracing
             file: kn-geo-tracing.yaml
+          - service: hotel-app-profile
+            file: kn-profile.yaml
+          - service: hotel-app-rate
+            file: kn-rate.yaml
+          - service: hotel-app-recommendation
+            file: kn-recommendation.yaml
+          - service: hotel-app-reservation
+            file: kn-reservation.yaml
+          - service: hotel-app-user
+            file: kn-user.yaml
+          - service: hotel-app-search
+            file: kn-search.yaml
+          - service: hotel-app-search-tracing
+            file: kn-search-tracing.yaml
     steps:
       - uses: actions/checkout@v3
         with:
@@ -125,7 +146,7 @@ jobs:
         working-directory: benchmarks
         run: |
           kubectl apply -f ./hotel-app/yamls/knative/${{ matrix.file }}
-          sleep 5
+          kubectl wait --for=condition=Ready -f ./hotel-app/yamls/knative/${{ matrix.file }} --timeout 120s
 
       - name: Test invoking once
         working-directory: tools/test-client

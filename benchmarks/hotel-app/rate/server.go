@@ -119,7 +119,9 @@ func (s *Server) GetRates(ctx context.Context, req *pb.Request) (*pb.Result, err
 			for _, rate_str := range rate_strs {
 				if len(rate_str) != 0 {
 					rate_p := new(pb.RatePlan)
-					json.Unmarshal(item.Value, rate_p)
+					if err = json.Unmarshal(item.Value, rate_p); err != nil {
+						log.Warn(err)
+					}
 					ratePlans = append(ratePlans, rate_p)
 				}
 			}
@@ -152,8 +154,10 @@ func (s *Server) GetRates(ctx context.Context, req *pb.Request) (*pb.Result, err
 			}
 
 			// write to memcached
-			s.MemcClient.Set(&memcache.Item{Key: hotelID, Value: []byte(memc_str)})
-
+			err = s.MemcClient.Set(&memcache.Item{Key: hotelID, Value: []byte(memc_str)})
+			if err != nil {
+				log.Warn("MMC error: ", err)
+			}
 		} else {
 			fmt.Printf("Memmcached error = %s\n", err)
 			panic(err)

@@ -118,7 +118,9 @@ func (s *Server) GetProfiles(ctx context.Context, req *pb.Request) (*pb.Result, 
 			// fmt.Println(profile_str)
 
 			hotel_prof := new(pb.Hotel)
-			json.Unmarshal(item.Value, hotel_prof)
+			if err = json.Unmarshal(item.Value, hotel_prof); err != nil {
+				log.Warn(err)
+			}
 			hotels = append(hotels, hotel_prof)
 
 		} else if err == memcache.ErrCacheMiss {
@@ -140,11 +142,16 @@ func (s *Server) GetProfiles(ctx context.Context, req *pb.Request) (*pb.Result, 
 			hotels = append(hotels, hotel_prof)
 
 			prof_json, err := json.Marshal(hotel_prof)
+			if err != nil {
+				log.Warn(err)
+			}
 			memc_str := string(prof_json)
 
 			// write to memcached
-			s.MemcClient.Set(&memcache.Item{Key: i, Value: []byte(memc_str)})
-
+			err = s.MemcClient.Set(&memcache.Item{Key: i, Value: []byte(memc_str)})
+			if err != nil {
+				log.Warn("MMC error: ", err)
+			}
 		} else {
 			fmt.Printf("Memmcached error = %s\n", err)
 			panic(err)

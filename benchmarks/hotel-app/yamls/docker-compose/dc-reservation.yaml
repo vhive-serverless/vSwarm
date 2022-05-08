@@ -40,13 +40,13 @@ services:
       - database
       - memcached
 
-  ## Data base ##
+  ## Database ##
   database:
-    image: mongo:4.2
+    image: vhiveease/mongodb
     container_name: reservation-db
   ## Memcached ##
   memcached:
-    image: memcached
+    image: vhiveease/memcached
     container_name: 'reservation-mmc'
     environment:
       - MEMCACHED_CACHE_SIZE=128

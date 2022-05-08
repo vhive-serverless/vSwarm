@@ -176,7 +176,10 @@ func (s *Server) MakeReservation(ctx context.Context, req *pb.Request) (*pb.Resu
 			hotel_cap = int(num.Number)
 
 			// write to memcache
-			s.MemcClient.Set(&memcache.Item{Key: memc_cap_key, Value: []byte(strconv.Itoa(hotel_cap))})
+			err = s.MemcClient.Set(&memcache.Item{Key: memc_cap_key, Value: []byte(strconv.Itoa(hotel_cap))})
+			if err != nil {
+				log.Warn("MMC error: ", err)
+			}
 		} else {
 			fmt.Printf("Memmcached error = %s\n", err)
 			panic(err)
@@ -191,7 +194,10 @@ func (s *Server) MakeReservation(ctx context.Context, req *pb.Request) (*pb.Resu
 
 	// only update reservation number cache after check succeeds
 	for key, val := range memc_date_num_map {
-		s.MemcClient.Set(&memcache.Item{Key: key, Value: []byte(strconv.Itoa(val))})
+		err := s.MemcClient.Set(&memcache.Item{Key: key, Value: []byte(strconv.Itoa(val))})
+		if err != nil {
+			log.Warn("MMC error: ", err)
+		}
 	}
 
 	inDate, _ = time.Parse(
@@ -272,12 +278,15 @@ func (s *Server) CheckAvailability(ctx context.Context, req *pb.Request) (*pb.Re
 					panic(err)
 				}
 				for _, r := range reserve {
-					fmt.Printf("reservation check reservation number = %d\n", hotelId)
+					fmt.Printf("reservation check reservation number = %s\n", hotelId)
 					count += r.Number
 				}
 
 				// update memcached
-				s.MemcClient.Set(&memcache.Item{Key: memc_key, Value: []byte(strconv.Itoa(count))})
+				err = s.MemcClient.Set(&memcache.Item{Key: memc_key, Value: []byte(strconv.Itoa(count))})
+				if err != nil {
+					log.Warn("MMC error: ", err)
+				}
 			} else {
 				fmt.Printf("Memmcached error = %s\n", err)
 				panic(err)
@@ -301,7 +310,10 @@ func (s *Server) CheckAvailability(ctx context.Context, req *pb.Request) (*pb.Re
 				}
 				hotel_cap = int(num.Number)
 				// update memcached
-				s.MemcClient.Set(&memcache.Item{Key: memc_cap_key, Value: []byte(strconv.Itoa(hotel_cap))})
+				err = s.MemcClient.Set(&memcache.Item{Key: memc_cap_key, Value: []byte(strconv.Itoa(hotel_cap))})
+				if err != nil {
+					log.Warn("MMC error: ", err)
+				}
 			} else {
 				fmt.Printf("Memmcached error = %s\n", err)
 				panic(err)

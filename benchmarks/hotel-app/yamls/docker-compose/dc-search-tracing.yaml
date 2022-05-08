@@ -49,9 +49,14 @@ services:
       - --port=8083
       - --geoaddr=geo:8084
       - --rateaddr=rate:8085
-    ports:
-      - "8083:8083"
+      - --zipkin=http://zipkin:9411/api/v2/spans
+    # ports:
+    # - published: 8083
+    #   target: 8083
+    environment:
+      - ENABLE_TRACING=true
     depends_on:
+      - zipkin
       - geo
       - rate
 
@@ -65,7 +70,11 @@ services:
       - --url=0.0.0.0
       - --port=8084
       - --db_addr=geo-db:27017
+      - --zipkin=http://zipkin:9411/api/v2/spans
+    environment:
+      - ENABLE_TRACING=true
     depends_on:
+      - zipkin
       - geo-db
 
   ## Database ##
@@ -84,7 +93,11 @@ services:
       - --port=8085
       - --db_addr=rate-db:27017
       - --memcached_addr=rate-mmc:11211
+      - --zipkin=http://zipkin:9411/api/v2/spans
+    environment:
+      - ENABLE_TRACING=true
     depends_on:
+      - zipkin
       - rate-db
       - rate-mmc
 
@@ -103,3 +116,10 @@ services:
     logging:
       options:
         max-size: 50m
+
+
+  zipkin:
+    image: openzipkin/zipkin
+    ports:
+      - published: 9411
+        target: 9411

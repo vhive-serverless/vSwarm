@@ -41,7 +41,9 @@ func initializeDatabase(url string) *mgo.Session {
 
 	c := session.DB("reservation-db").C("reservation")
 	// First we clear the collection to have always a new one
-	c.DropCollection()
+	if err = c.DropCollection(); err != nil {
+		log.Print("DropCollection: ", err)
+	}
 
 	count, err := c.Find(&bson.M{"hotelid": "4"}).Count()
 	if err != nil {

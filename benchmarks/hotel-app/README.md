@@ -18,9 +18,15 @@ The app is broken down in the individual microservice to be able to run as stand
 
 ## Standalone functions benchmark summary
 
-| Benchmark | Knative infra | tracing | Runtimes            | Languages implemented  |
-|-----------|---------------|---------|---------------------|------------------------|
-| Geo       | Serving       | ✓       | docker, knative     | golang |
+| Benchmark | Dependent on | Knative infra | Tracing | Gem5 support | Runtimes | Languages implemented  |
+|---|---|---|---|---|---|---|
+| Geo            | Serving | database | ✓ | ✓ | docker, knative | golang |
+| Profile        | Serving | database, memcached |✓ | ✓ | docker, knative | golang |
+| Rate           | Serving | database, memcached | ✓ | ✓ | docker, knative | golang |
+| Recommendation | Serving | database | ✓ | ✓ | docker, knative | golang |
+| Reservation    | Serving | database, memcached | ✓ | ✓ | docker, knative | golang |
+| User           | Serving | database | ✓ | ✓ | docker, knative | golang |
+| Search         | Serving | Geo, Profile, Rate | ✓ | ✕ | docker, knative | golang |
 
 
 
@@ -43,7 +49,7 @@ Furthermore it will start the relay container which provides the common interfac
 ### Invoking the function
 
 #### Directly without relay
-In a new terminal, invoke the interface function with grpcurl. You need use the [geo](https://github.com/ease-lab/vSwarm-proto/proto/hotel_reserv/geo/geo.proto) protocol. The geo service implements the [reflection](https://github.com/fullstorydev/grpcurl#server-reflection) so you do not need to provide `grpcurl` with the proto file.
+In a new terminal, invoke the interface function with grpcurl. You need use the [geo](https://github.com/ease-lab/vSwarm-proto/blob/main/proto/hotel_reserv/geo/geo.proto) protocol. The geo service implements the [reflection](https://github.com/fullstorydev/grpcurl#server-reflection) so you do not need to provide `grpcurl` with the proto file.
 
 Call the Method _Nearby_ with latitude 37.7 and longitude -122.4
    ```bash
@@ -73,13 +79,24 @@ In a new terminal, invoke the interface function with grpcurl.
 ## Running this benchmark (using knative)
 
 The detailed and general description how to run benchmarks on knative clusters you can find [here](../../docs/running_benchmarks.md). The following steps show it on the geo function.
+
 1. Build or pull the function images using `make all-images` or `make pull`.
-2. Start the function with knative
+
+1. Deploy database.
+
+   Geo depend on a database to be running. Deploy it first
    ```bash
-   kn service apply -f ./knative_yamls/kn-geo.yaml
+   kubectl apply -f ./yamls/knative/database.yaml
    ```
-3. **Note the URL provided in the output. The part without the `http://` we'll call `$URL`. Replace any instance of `$URL` in the code below with it.**
-4. Run the invoker
+
+1. Start the function with knative
+   ```bash
+   kubectl apply -f ./yamls/knative/kn-geo.yaml
+   ```
+
+1. **Note the URL provided in the output. The part without the `http://` we'll call `$URL`. Replace any instance of `$URL` in the code below with it.**
+
+1. Run the invoker
    ```bash
    # build the invoker binary
    cd ../../tools/invoker

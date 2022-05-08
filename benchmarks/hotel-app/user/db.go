@@ -25,9 +25,7 @@ package main
 import (
 	"context"
 	"crypto/sha256"
-	"encoding/json"
 	"fmt"
-	"io/ioutil"
 	"log"
 
 	"strconv"
@@ -69,7 +67,10 @@ func initializeDatabase(ctx context.Context, c *mongo.Client) {
 	// Insert in Database
 	coll := c.Database("user-db").Collection("user")
 	// Clear any existing data
-	coll.Drop(ctx)
+
+	if err := coll.Drop(ctx); err != nil {
+		log.Print("DropCollection: ", err)
+	}
 
 	// u := User{"Hello", "test"}
 	// res, err := coll.InsertOne(ctx, u)
@@ -98,34 +99,34 @@ func initializeDatabase(ctx context.Context, c *mongo.Client) {
 	// listCollection(ctx, coll)
 }
 
-func listCollection(ctx context.Context, coll *mongo.Collection) {
+// func listCollection(ctx context.Context, coll *mongo.Collection) {
 
-	// Find all documents in which the "username" field is "Bob".
-	// Find all documents.
-	cursor, err := coll.Find(ctx, bson.D{})
-	if err != nil {
-		log.Fatal(err)
-	}
+// 	// Find all documents in which the "username" field is "Bob".
+// 	// Find all documents.
+// 	cursor, err := coll.Find(ctx, bson.D{})
+// 	if err != nil {
+// 		log.Fatal(err)
+// 	}
 
-	// Get a list of all returned documents and print them out.
-	// See the mongo.Cursor documentation for more examples of using cursors.
-	var results []bson.M
-	if err = cursor.All(ctx, &results); err != nil {
-		log.Fatal(err)
-	}
-	for _, result := range results {
-		fmt.Println(result)
-	}
-}
+// 	// Get a list of all returned documents and print them out.
+// 	// See the mongo.Cursor documentation for more examples of using cursors.
+// 	var results []bson.M
+// 	if err = cursor.All(ctx, &results); err != nil {
+// 		log.Fatal(err)
+// 	}
+// 	for _, result := range results {
+// 		fmt.Println(result)
+// 	}
+// }
 
-func readJson(data interface{}, filename string) {
-	content, err := ioutil.ReadFile(filename)
-	if err != nil {
-		log.Fatalln(err)
-	}
+// func readJson(data interface{}, filename string) {
+// 	content, err := ioutil.ReadFile(filename)
+// 	if err != nil {
+// 		log.Fatalln(err)
+// 	}
 
-	err = json.Unmarshal(content, data)
-	if err != nil {
-		log.Fatalln("error:", err)
-	}
-}
+// 	err = json.Unmarshal(content, data)
+// 	if err != nil {
+// 		log.Fatalln("error:", err)
+// 	}
+// }

@@ -42,8 +42,7 @@ func initializeDatabase(url string) *mgo.Session {
 
 	c := session.DB("geo-db").C("geo")
 	// First we clear the collection to have always a new one
-	err = c.DropCollection()
-	if err != nil {
+	if err = c.DropCollection(); err != nil {
 		log.Print("DropCollection: ", err)
 	}
 
