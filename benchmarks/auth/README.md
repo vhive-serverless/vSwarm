@@ -1,6 +1,7 @@
 # Auth Benchmark
 
-The auth benchmark ...
+The auth benchmark is a simple token-based authorizer example to demonstrate how to use an authorization token to allow or deny a request. In this example, the caller named 'user' is allowed to invoke a request if the client-supplied token value is 'allow'. The caller is not allowed to invoke the request if the token value is 'deny'. If the token value is 'unauthorized' or an empty string, the authorizer function returns an HTTP 401 status code. For any other token value, the authorizer returns an HTTP 500 status code.
+Note that token values are case-sensitive.
 
 The same functionality is implemented in different runtimes, namely Python, NodeJS and golang.
 
@@ -57,8 +58,3 @@ The detailed and general description how to run benchmarks on knative clusters y
    ./invoker -port 50051 -dbg -time 10 -rps 1
    ```
 6. To use tracing, see [vSwarm docs here](../../docs/running_benchmarks.md#tracing)
-
-
-### *getgid*-syscall
-
-We instrumented each image with a *getgid()*-syscall. All syscalls can be traced using linux **perf**. With this we can easily see when the function is executed and how often. This was for development and will be removed most likely soon.

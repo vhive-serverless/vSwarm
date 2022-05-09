@@ -7,18 +7,18 @@ on:
   push:
     branches: [main]
     paths:
-      - "benchmarks/auth/*"
-      - "utils/*"
-      - "tools/*"
-      - "runner/*"
+      - "benchmarks/auth/**"
+      - "utils/**"
+      - "tools/**"
+      - "runner/**"
 
   pull_request:
     branches: [main]
     paths:
-      - "benchmarks/auth/*"
-      - "utils/*"
-      - "tools/*"
-      - "runner/*"
+      - "benchmarks/auth/**"
+      - "utils/**"
+      - "tools/**"
+      - "runner/**"
 
 env:
   GOOS: linux
@@ -59,23 +59,13 @@ jobs:
           GRPC_PYTHON_BUILD_SYSTEM_ZLIB=true
           python3 -m pip install -r requirements.txt
 
-      - name: Install protoc
-        run: |
-          PROTOC_ZIP=protoc-3.14.0-linux-x86_64
-          curl -OL https://github.com/protocolbuffers/protobuf/releases/download/v3.14.0/$PROTOC_ZIP.zip
-          unzip -o $PROTOC_ZIP.zip -d $HOME/.local
-          chmod +x $HOME/.local/bin/protoc
-          rm -f $PROTOC_ZIP.zip
-
       - name: Build and push
         working-directory: benchmarks/auth
         env:
           GOPRIVATE_KEY: ${{ secrets.EASE_LAB_ACCESS_KEY }}
         run: |
-          go get -u google.golang.org/protobuf/cmd/protoc-gen-go@v1.26
-          go get -u google.golang.org/grpc/cmd/protoc-gen-go-grpc@v1.1
-          chmod +x $(go env GOPATH)/bin/*
-          export PATH="$PATH:$(go env GOPATH)/bin"
+          go install google.golang.org/protobuf/cmd/protoc-gen-go@v1.26
+          go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@v1.1
           make all
           make push
 
@@ -125,6 +115,7 @@ jobs:
       GOPATH: /root/tmp/gopath
     runs-on: [self-hosted, stock-knative]
     strategy:
+      max-parallel: 1
       fail-fast: false
       matrix:
         service:
@@ -150,7 +141,7 @@ jobs:
 
       - name: Deploy knative
         working-directory: benchmarks
-        run: ../tools/kn_deploy.sh ./auth/yamls/knative/${{ matrix.service }}.yaml
+        run:  kn service apply -f ./auth/yamls/knative/${{ matrix.service }}.yaml
 
       - name: Test invoking once
         working-directory: tools/test-client
