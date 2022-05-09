@@ -22,6 +22,7 @@
 
 from concurrent import futures
 import logging
+from pprint import pprint
 
 import grpc
 
@@ -37,13 +38,9 @@ import tracing
 import argparse
 
 
-# sys.path.append('../proto')  # for local testing (i.e. not running in Docker-compose)
-import auth_pb2
+# sys.path.append('./proto/auth')  # for local testing (i.e. not running in Docker-compose)
+from proto.auth import auth_pb2
 import auth_pb2_grpc
-
-import ctypes
-libc = ctypes.CDLL(None)
-syscall = libc.syscall
 
 print("python version: %s" % sys.version)
 print("Server has PID: %d" % os.getpid())
@@ -98,15 +95,13 @@ class Greeter(auth_pb2_grpc.GreeterServicer):
         fakeMethodArn = "arn:aws:execute-api:{regionId}:{accountId}:{apiId}/{stage}/{httpVerb}/[{resource}/[{child-resources}]]"
         
         with tracing.Span("Generate Policy"):
-            if '.f2' in token:
-                generatePolicy('user', 'Allow', fakeMethodArn)
-                msg = 'auth.f2'
+            if 'allow' in token:
+                ret = generatePolicy('user', 'Allow', fakeMethodArn)
             else:
-                generatePolicy('user', 'Deny', fakeMethodArn)
-                msg = 'auth.f1'
+                ret = generatePolicy('user', 'Deny', fakeMethodArn)
 
-            gid = syscall(104)
-            msg = "Serve Function: Python.%s: from GID: %i" % (msg, gid)
+        resp = ret.__dict__
+        msg = "fn: Auth | token: {token} | resp: {resp} | runtime: python".format(token=token, resp=str(resp))
         return auth_pb2.HelloReply(message=msg)
 
 

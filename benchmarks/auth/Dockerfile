@@ -30,8 +30,9 @@ COPY ./benchmarks/auth/python/requirements.txt ./
 RUN pip3 install --user -r requirements.txt
 COPY ./utils/tracing/python/tracing.py ./
 COPY ./benchmarks/auth/python/server.py ./
-COPY ./benchmarks/auth/proto/auth_pb2_grpc.py ./
-COPY ./benchmarks/auth/proto/auth_pb2.py ./
+ADD https://raw.githubusercontent.com/ease-lab/vSwarm-proto/v0.1.2/proto/auth/auth_pb2_grpc.py ./
+ADD https://raw.githubusercontent.com/ease-lab/vSwarm-proto/v0.1.2/proto/auth/auth_pb2.py ./proto/auth/
+ADD https://raw.githubusercontent.com/ease-lab/vSwarm-proto/v0.1.2/proto/auth/auth.proto ./
 
 # Second stage (Runner):
 FROM vhiveease/python-slim:latest as authPython
@@ -53,7 +54,6 @@ RUN apt-get install git ca-certificates
 COPY ./utils/tracing/go ../../utils/tracing/go
 COPY ./benchmarks/auth/go.mod ./
 COPY ./benchmarks/auth/go.sum ./
-COPY ./benchmarks/auth/proto ./proto
 COPY ./benchmarks/auth/go/server.go ./
 
 RUN go mod tidy
@@ -78,7 +78,7 @@ WORKDIR /app/
 COPY ./utils/tracing/nodejs ./utils/tracing/nodejs
 COPY ./benchmarks/auth/nodejs/package.json ./
 COPY ./benchmarks/auth/nodejs/server.js ./
-COPY ./benchmarks/auth/proto/auth.proto ./
+ADD https://raw.githubusercontent.com/ease-lab/vSwarm-proto/v0.1.2/proto/auth/auth.proto ./
 
 RUN npm set progress=false && npm config set depth 0
 RUN npm install --only=production

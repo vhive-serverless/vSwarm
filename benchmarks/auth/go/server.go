@@ -27,9 +27,8 @@ import (
 	"fmt"
 	"net"
 	"os"
-	"syscall"
 
-	pb "github.com/ease-lab/vSwarm/benchmarks/auth/proto"
+	pb "github.com/ease-lab/vSwarm-proto/proto/auth"
 
 	tracing "github.com/ease-lab/vSwarm/utils/tracing/go"
 	log "github.com/sirupsen/logrus"
@@ -89,22 +88,21 @@ type server struct {
 
 // SayHello implements auth.GreeterServer
 func (s *server) SayHello(ctx context.Context, in *pb.HelloRequest) (*pb.HelloReply, error) {
-	gid := syscall.Getgid()
 	token := in.GetName()
 	fakeMethodArn := "arn:aws:execute-api:{regionId}:{accountId}:{apiId}/{stage}/{httpVerb}/[{resource}/[{child-resources}]]"
 	var msg string
 	var ret authResponse
 
 	switch token {
-	case ".f2":
+	case "allow":
 		ret = generatePolicy("user", "Allow", fakeMethodArn)
-		msg = "auth.f2"
+		msg = fmt.Sprintf("%+v", ret)
 	default: // case ".f1":
 		ret = generatePolicy("user", "Deny", fakeMethodArn)
-		msg = "auth.f1"
+		msg = fmt.Sprintf("%+v", ret)
 	}
 
-	resp := fmt.Sprintf("Serve Function: Golang.%s, from GID: %d.  Additional message: %s", msg, gid, ret.context.stringKey)
+	resp := fmt.Sprintf("fn: Auth | token: %s | resp: %+v | runtime: golang", token, msg)
 	return &pb.HelloReply{Message: resp}, nil
 }
 

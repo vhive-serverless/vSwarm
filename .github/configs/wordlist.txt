@@ -36,6 +36,7 @@ ASPLOS
 Atamel
 Auth
 auth
+authorizer
 autodetect
 autoscaling
 autostart
@@ -195,6 +196,7 @@ Gavrielatos
 GECCO
 geo
 Geo
+getgid
 GetGRPCServerWithUnaryInterceptor
 GFM
 gg

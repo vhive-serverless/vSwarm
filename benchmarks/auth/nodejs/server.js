@@ -86,23 +86,17 @@ function sayHello(call, callback) {
   var fakeMethodArn = "arn:aws:execute-api:{regionId}:{accountId}:{apiId}/{stage}/{httpVerb}/[{resource}/[{child-resources}]]";
   var msg1, ret;
   switch (token) {
-      case '.f2':
+      case 'allow':
           ret = generatePolicy('user', 'Allow', fakeMethodArn);
-          msg1 = 'auth.f2';
+          msg1 = JSON.stringify(ret, null, 2);
           break;
-      default:  // case '.f1':
+          default:  // case '.f1':
           ret = generatePolicy('user', 'Deny', fakeMethodArn);
-          msg1 = 'auth.f1';
+          msg1 = JSON.stringify(ret, null, 2);
           break;
-      // case 'unauthorized':
-      //     callback("Unauthorized");   // Return a 401 Unauthorized response
-      //     break;
-      // default:
-      //     callback("Error: Invalid token"); // Return a 500 Invalid token response
   }
 
-  var gid = process.getgid();
-  var msg = `Hello: this is: ${gid}. Invoke NodeJS.${msg1}. Additional message: ${ret.context.stringKey}`;
+  var msg = `fn: Auth | token: ${token} | resp: ${msg1} | runtime: nodejs`;
   callback(null, {message: msg});
 }
 
