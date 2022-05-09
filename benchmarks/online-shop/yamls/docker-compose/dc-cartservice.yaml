@@ -12,6 +12,7 @@ services:
       - DISABLE_PROFILER=true
       - DISABLE_DEBUGGER=true
       - DISABLE_TRACING=true
+      - REDIS_ADDR=redis:6379
     ports:
     - target: 7070
 
@@ -30,3 +31,9 @@ services:
     ports:
       - published: 50000
         target: 50000
+
+    # Database
+  redis:
+    image: redis:alpine
+    ports:
+    - target: 6379

@@ -332,6 +332,7 @@ matchers
 maxVMNum
 md
 MECS
+memcached
 metadata
 Metatrainer
 metatrainer

@@ -7,7 +7,7 @@ on:
   push:
     branches: [main]
     paths:
-      - 'benchmarks/online_shop/*'
+      - 'benchmarks/online-shop/*'
       - "utils/*"
       - "tools/*"
       - "runner/*"
@@ -15,7 +15,7 @@ on:
   pull_request:
     branches: [main]
     paths:
-      - 'benchmarks/online_shop/*'
+      - 'benchmarks/online-shop/*'
       - "utils/*"
       - "tools/*"
       - "runner/*"
@@ -37,29 +37,20 @@ jobs:
           lfs: "true"
 
       - name: Login to Docker Hub
-        uses: docker/login-action@v1
+        uses: docker/login-action@v2
         with:
           username: ${{ secrets.DOCKER_HUB_USERNAME }}
           password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
 
       - name: Set up Docker Buildx
         id: buildx
-        uses: docker/setup-buildx-action@v1
-
-      - name: Set up Python version
-        uses: actions/setup-python@v3
-        with:
-          python-version: "3.8"
+        uses: docker/setup-buildx-action@v2
 
       - name: Build and push
-        working-directory: benchmarks/online_shop/
+        working-directory: benchmarks/online-shop/
         env:
           GOPRIVATE_KEY: ${{ secrets.EASE_LAB_ACCESS_KEY }}
         run: |
-          go get -u google.golang.org/protobuf/cmd/protoc-gen-go@v1.26
-          go get -u google.golang.org/grpc/cmd/protoc-gen-go-grpc@v1.1
-          chmod +x $(go env GOPATH)/bin/*
-          export PATH="$PATH:$(go env GOPATH)/bin"
           make all
           make push
 
@@ -90,17 +81,19 @@ jobs:
           lfs: "true"
 
       - name: start docker-compose benchmark
-        working-directory: benchmarks/online_shop/yamls/docker-compose
+        working-directory: benchmarks/online-shop/yamls/docker-compose
         run: |
           docker-compose -f ${{ matrix.file }} pull
           docker-compose -f ${{ matrix.file }} up &> log_file &
           sleep 60s
           cat log_file
+
       - name: invoke the chain
         run: |
           ./tools/bin/grpcurl -plaintext -import-path ./tools/invoker/proto -proto helloworld.proto localhost:50000 helloworld.Greeter.SayHello
+
       - name: show docker-compose log
-        run: cat benchmarks/online_shop/yamls/docker-compose/log_file
+        run: cat benchmarks/online-shop/yamls/docker-compose/log_file
 
   test-knative:
     name: Test Knative Deployment
@@ -111,20 +104,29 @@ jobs:
     runs-on: [self-hosted, stock-knative]
     strategy:
       fail-fast: false
-      max-parallel: 1
+      max-parallel: 5
       matrix:
-        service:
-          [
-            kn-adservice,
-            kn-cartservice,
-            kn-checkoutservice,
-            kn-currencyservice,
-            kn-emailservice,
-            kn-paymentservice,
-            kn-productcatalogservice,
-            kn-recommendationservice,
-            kn-shippingservice,
-          ]
+        include:
+          - service: adservice
+            file: kn-adservice.yaml
+          - service: cartservice
+            file: kn-cartservice.yaml
+            database: yes
+          - service: checkoutservice
+            file: kn-checkoutservice.yaml
+          - service: currencyservice
+            file: kn-currencyservice.yaml
+          - service: emailservice
+            file: kn-emailservice.yaml
+          - service: paymentservice
+            file: kn-paymentservice.yaml
+          - service: productcatalogservice
+            file: kn-productcatalogservice.yaml
+          - service: recommendationservice
+            file: kn-recommendationservice.yaml
+          - service: shippingservice
+            file: kn-shippingservice.yaml
+
     steps:
       - uses: actions/checkout@v3
         with:
@@ -136,40 +138,37 @@ jobs:
         with:
           go-version: 1.16
 
+      - name: Deploy database if needed
+        working-directory: benchmarks
+        if: matrix.database == 'yes'
+        run: |
+          kubectl apply -f ./online-shop/yamls/knative/database.yaml
+
       - name: Deploy knative
         working-directory: benchmarks
-        run:  kn service apply -f ./online_shop/yamls/knative/${{ matrix.service }}.yaml
+        run: |
+          kubectl apply -f ./online-shop/yamls/knative/${{ matrix.file }}
+          kubectl wait --for=condition=Ready -f ./online-shop/yamls/knative/${{ matrix.file }} --timeout 200s
 
       - name: Check if service is ready
         working-directory: benchmarks
         run: |
-          sleep 5
           kn service list
-          if [ "$( kn service list ${{ matrix.service }} | awk '{if (NR!=1) {print $9}}')" == "True" ] ;
-          then
-            echo Service ${{ matrix.service }} is running;
-          else
-            echo Service ${{ matrix.service }} is not ready.. wait 15 more seconds;
-            sleep 15
-          fi;
 
       - name: Test invoking once
         working-directory: tools/test-client
         run: |
           set -x
           go build ./test-client.go
-
           NODEPORT=$(kubectl get svc kourier-ingress -n kourier-system -o=jsonpath='{.spec.ports[0].nodePort}')
-          url_list=$(kn service list | awk '$2 ~ /http/ {sub(/http\:\/\//,""); print $2}')
-          for url in $url_list
-          do
-            ./test-client -addr $url:$NODEPORT -name "Example text for Online Shop CI"
-          done
+          url=$(kn service describe ${{ matrix.service }} -o url | awk '$1 {sub(/http\:\/\//,""); print $1}')
+          ./test-client --addr $url:$NODEPORT  --name "Example text for Online Shop CI"
+
       - name: Print logs
         if: ${{ always() }}
         run: |
           set -x
-          container_list=$(kubectl get pods -n default -o jsonpath="{.items[*].spec.containers[*].name}")
+          container_list=$(kn service export ${{ matrix.service }} -o jsonpath="{.spec.service.spec.template.spec.containers[*].name}")
           for container_name in $container_list
           do
             kubectl logs -n default -c $container_name -l serving.knative.dev/service=${{ matrix.service }}
@@ -177,3 +176,15 @@ jobs:
       - name: Down
         if: ${{ always() }}
         run: kn service delete --all --namespace default --wait
+
+      - name: Print logs from database
+        if: matrix.database == 'yes'
+        run: |
+          set -x
+          kubectl logs deployment/online-shop-database
+
+      - name: Down
+        working-directory: benchmarks
+        if: matrix.database == 'yes'
+        run: |
+          kubectl delete -f ./online-shop/yamls/knative/database.yaml
