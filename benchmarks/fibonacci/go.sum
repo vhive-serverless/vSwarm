@@ -311,6 +311,9 @@ github.com/dustin/go-humanize v1.0.0/go.mod h1:HtrtbFcZ19U5GC7JDqmcUSB87Iq5E25Kn
 github.com/eapache/go-resiliency v1.2.0/go.mod h1:kFI+JgMyC7bLPUVY133qvEBtVayf5mFgVsvEsIPBvNs=
 github.com/eapache/go-xerial-snappy v0.0.0-20180814174437-776d5712da21/go.mod h1:+020luEh2TKB4/GOp8oxxtq0Daoen/Cii55CzbTV6DU=
 github.com/eapache/queue v1.1.0/go.mod h1:6eCeP0CKFpHLu8blIFXhExK/dRa7WDZfr6jVFPTqq+I=
+github.com/ease-lab/vSwarm-proto v0.1.2 h1:kguVPuKo6vJUH/83cln41WiAI1KsWiX9WKplNjJoDS8=
+github.com/ease-lab/vSwarm-proto v0.1.2/go.mod h1:zc7JibDJiX/H7plx3xq5OAC/qp1yiL+O6dZH9GnSzao=
+github.com/ease-lab/vSwarm/utils/tracing/go v0.0.0-20220427112636-f8f3fc171804/go.mod h1:NVtCylPFGKJUf2/ptgU8ZczyDZPa+yUhCT7kLtE+4Xs=
 github.com/ease-lab/vSwarm/utils/tracing/go v0.0.0-20220502160750-39d19cf90ca3 h1:UZ7zmiwXGKhEOYX0i523giFMyfekuPWPd6Dy0ikwPNA=
 github.com/ease-lab/vSwarm/utils/tracing/go v0.0.0-20220502160750-39d19cf90ca3/go.mod h1:NVtCylPFGKJUf2/ptgU8ZczyDZPa+yUhCT7kLtE+4Xs=
 github.com/elazarl/goproxy v0.0.0-20180725130230-947c36da3153/go.mod h1:/Zj4wYkgs4iZTTu3o/KG3Itv/qCCa8VVMlb3i9OVuzc=

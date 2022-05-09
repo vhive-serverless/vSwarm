@@ -36,6 +36,10 @@ services:
       - --function-endpoint-url=fibonacci-nodejs
       - --function-endpoint-port=50051
       - --function-name=fibonacci-nodejs
+      - --value=10
+      - --generator=linear
+      - --lowerBound=1
+      - --upperBound=10
     ports:
         - published: 50000
           target: 50000

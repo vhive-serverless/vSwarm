@@ -29,9 +29,8 @@ import (
 	"net"
 	"os"
 	"strconv"
-	"syscall"
 
-	pb "github.com/ease-lab/vSwarm/benchmarks/fibonacci/proto"
+	pb "github.com/ease-lab/vSwarm-proto/proto/fibonacci"
 	tracing "github.com/ease-lab/vSwarm/utils/tracing/go"
 	log "github.com/sirupsen/logrus"
 	"google.golang.org/grpc"
@@ -62,10 +61,9 @@ type server struct {
 // SayHello implements fibonacci.GreeterServer
 func (s *server) SayHello(ctx context.Context, in *pb.HelloRequest) (*pb.HelloReply, error) {
 	// log.Printf("Received: %v", in.GetName())
-	gid := syscall.Getgid()
 	x, _ := strconv.ParseInt(in.GetName(), 10, 64)
 	var y = fibonacci(int(x))
-	resp := fmt.Sprintf("Hello: this is: %d. Invoke GoLang Fib y = fib(x) | x: %d y: %.1f", gid, x, y)
+	resp := fmt.Sprintf("Hello. Invoke GoLang Fib y = fib(x) | x: %d y: %.1f", x, y)
 	return &pb.HelloReply{Message: resp}, nil
 }
 

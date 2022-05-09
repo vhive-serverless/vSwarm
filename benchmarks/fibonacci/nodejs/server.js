@@ -65,10 +65,9 @@ function fibonacci(num)
  */
 function sayHello(call, callback) {
   
-  var gid = process.getgid()
   var x = parseInt(call.request.name)
   var y = fibonacci(x)
-  var msg = `Hello: this is: ${gid}. Invoke NodeJS Fib y = fib(x) | x: ${x} y: ${y}`
+  var msg = `Hello. Invoke NodeJS Fib y = fib(x) | x: ${x} y: ${y}`
   callback(null, {message: msg});
 }
 

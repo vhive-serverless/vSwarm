@@ -60,8 +60,3 @@ The detailed and general description how to run benchmarks on knative clusters y
    ./invoker -port 50051 -dbg -time 10 -rps 1
    ```
 7. To use tracing, see [vSwarm docs here](../../docs/running_benchmarks.md#tracing)
-
-
-### *getgid*-syscall
-
-We instrumented each image with a *getgid()*-syscall. All syscalls can be traced using linux **perf**. With this we can easily see when the function is executed and how often. This was for development and will be removed most likely soon.

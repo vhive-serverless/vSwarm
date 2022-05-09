@@ -7,18 +7,18 @@ on:
   push:
     branches: [main]
     paths:
-      - "benchmarks/fibonacci/*"
-      - "utils/*"
-      - "tools/*"
-      - "runner/*"
+      - "benchmarks/fibonacci/**"
+      - "utils/**"
+      - "tools/**"
+      - "runner/**"
 
   pull_request:
     branches: [main]
     paths:
-      - "benchmarks/fibonacci/*"
-      - "utils/*"
-      - "tools/*"
-      - "runner/*"
+      - "benchmarks/fibonacci/**"
+      - "utils/**"
+      - "tools/**"
+      - "runner/**"
 
 env:
   GOOS: linux
@@ -44,7 +44,7 @@ jobs:
 
       - name: Set up Docker Buildx
         id: buildx
-        uses: docker/setup-buildx-action@v1
+        uses: docker/setup-buildx-action@v2
 
       - name: Set up Python version
         uses: actions/setup-python@v3
@@ -59,23 +59,13 @@ jobs:
           GRPC_PYTHON_BUILD_SYSTEM_ZLIB=true
           python3 -m pip install -r requirements.txt
 
-      - name: Install protoc
-        run: |
-          PROTOC_ZIP=protoc-3.14.0-linux-x86_64
-          curl -OL https://github.com/protocolbuffers/protobuf/releases/download/v3.14.0/$PROTOC_ZIP.zip
-          unzip -o $PROTOC_ZIP.zip -d $HOME/.local
-          chmod +x $HOME/.local/bin/protoc
-          rm -f $PROTOC_ZIP.zip
-
       - name: Build and push
         working-directory: benchmarks/fibonacci
         env:
           GOPRIVATE_KEY: ${{ secrets.EASE_LAB_ACCESS_KEY }}
         run: |
-          go get -u google.golang.org/protobuf/cmd/protoc-gen-go@v1.26
-          go get -u google.golang.org/grpc/cmd/protoc-gen-go-grpc@v1.1
-          chmod +x $(go env GOPATH)/bin/*
-          export PATH="$PATH:$(go env GOPATH)/bin"
+          go install google.golang.org/protobuf/cmd/protoc-gen-go@v1.26
+          go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@v1.1
           make all
           make push
 
@@ -123,9 +113,9 @@ jobs:
       GOCACHE: /root/tmp/gocache
       GOPATH: /root/tmp/gopath
     runs-on: [self-hosted, stock-knative]
-    #     runs-on: test-runner
     strategy:
       fail-fast: false
+      max-parallel: 1
       matrix:
         service:
           [
@@ -135,7 +125,6 @@ jobs:
             kn-fibonacci-go-tracing,
             kn-fibonacci-python-tracing,
             kn-fibonacci-nodejs-tracing,
-
           ]
     steps:
       - uses: actions/checkout@v3
@@ -150,7 +139,7 @@ jobs:
 
       - name: Deploy knative
         working-directory: benchmarks
-        run: ../tools/kn_deploy.sh ./fibonacci/yamls/knative/${{ matrix.service }}.yaml
+        run: kn service apply -f ./fibonacci/yamls/knative/${{ matrix.service }}.yaml
 
       - name: Test invoking once
         working-directory: tools/test-client
