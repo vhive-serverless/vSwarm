@@ -87,19 +87,23 @@ function sayHello(call, callback) {
   var msg1, ret;
   switch (token) {
       case 'allow':
-          ret = generatePolicy('user', 'Allow', fakeMethodArn);
-          msg1 = JSON.stringify(ret, null, 2);
-          break;
-          default:  // case '.f1':
-          ret = generatePolicy('user', 'Deny', fakeMethodArn);
-          msg1 = JSON.stringify(ret, null, 2);
-          break;
+        ret = generatePolicy('user', 'Allow', fakeMethodArn);
+        msg1 = JSON.stringify(ret, null, 2);
+        break;
+      case 'deny':
+        ret = generatePolicy('user', 'Deny', fakeMethodArn);
+        msg1 = JSON.stringify(ret, null, 2);
+        break;
+      case 'unauthorized':
+        msg1 = "Unauthorized";   // Return a 401 Unauthorized response
+        break;
+      default:
+        msg1 = "Error: Invalid token"; // Return a 500 Invalid token response
   }
-
   var msg = `fn: Auth | token: ${token} | resp: ${msg1} | runtime: nodejs`;
   callback(null, {message: msg});
-}
 
+}
 /**
  * Starts an RPC server that receives requests for the Greeter service at the
  * sample server port

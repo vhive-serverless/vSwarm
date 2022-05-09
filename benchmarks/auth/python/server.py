@@ -97,11 +97,17 @@ class Greeter(auth_pb2_grpc.GreeterServicer):
         with tracing.Span("Generate Policy"):
             if 'allow' in token:
                 ret = generatePolicy('user', 'Allow', fakeMethodArn)
+                resp = ret.__dict__
+                msg = "fn: Auth | token: {token} | resp: {resp} | runtime: python".format(token=token, resp=str(resp))
+            elif 'deny' in token:
+                ret = generatePolicy('user', 'Deny', fakeMethodArn) 
+                resp = ret.__dict__
+                msg = "fn: Auth | token: {token} | resp: {resp} | runtime: python".format(token=token, resp=str(resp))
+            elif 'unauthorized':
+                msg = "Unauthorized"   # Return a 401 Unauthorized response
             else:
-                ret = generatePolicy('user', 'Deny', fakeMethodArn)
-
-        resp = ret.__dict__
-        msg = "fn: Auth | token: {token} | resp: {resp} | runtime: python".format(token=token, resp=str(resp))
+                msg = "Error: Invalid token" # Return a 500 Invalid token response    
+            
         return auth_pb2.HelloReply(message=msg)
 
 

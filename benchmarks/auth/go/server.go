@@ -97,9 +97,13 @@ func (s *server) SayHello(ctx context.Context, in *pb.HelloRequest) (*pb.HelloRe
 	case "allow":
 		ret = generatePolicy("user", "Allow", fakeMethodArn)
 		msg = fmt.Sprintf("%+v", ret)
-	default: // case ".f1":
+	case "deny":
 		ret = generatePolicy("user", "Deny", fakeMethodArn)
 		msg = fmt.Sprintf("%+v", ret)
+	case "unauthorized":
+		msg = "Unauthorized"
+	default:
+		msg = "Error: Invalid token"
 	}
 
 	resp := fmt.Sprintf("fn: Auth | token: %s | resp: %+v | runtime: golang", token, msg)
