@@ -67,7 +67,7 @@ function sayHello(call, callback) {
   
   var x = parseInt(call.request.name)
   var y = fibonacci(x)
-  var msg = `Hello. Invoke NodeJS Fib y = fib(x) | x: ${x} y: ${y}`
+  var msg = `fn: Fib: y = fib(x) | x: ${x} y: ${y} | runtime: NodeJS`
   callback(null, {message: msg});
 }
 

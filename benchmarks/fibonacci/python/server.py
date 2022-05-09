@@ -79,7 +79,7 @@ class Greeter(fibonacci_pb2_grpc.GreeterServicer):
             y = fibonacci(x)
 
         gid = syscall(104)
-        msg = "Hello: this is GID: %i Invoke python fib: y = fib(x) | x: %i y: %.1f" % (gid,x,y)
+        msg = "fn: Fib: y = fib(x) | x: %i y: %.1f | runtime: python" % (x,y)
         return fibonacci_pb2.HelloReply(message=msg)
 
 
