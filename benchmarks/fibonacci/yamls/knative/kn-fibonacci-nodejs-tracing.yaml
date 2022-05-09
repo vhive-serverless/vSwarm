@@ -41,6 +41,10 @@ spec:
             - --function-endpoint-url=0.0.0.0
             - --function-endpoint-port=50051
             - --function-name=fibonacci-nodejs
+            - --value=10
+            - --generator=linear
+            - --lowerBound=1
+            - --upperBound=10
         - image: docker.io/vhiveease/fibonacci-nodejs:latest
           env:
             - name: ENABLE_TRACING

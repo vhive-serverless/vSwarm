@@ -40,6 +40,10 @@ services:
       - --function-endpoint-url=fibonacci-go
       - --function-endpoint-port=50051
       - --function-name=fibonacci-go
+      - --value=10
+      - --generator=linear
+      - --lowerBound=1
+      - --upperBound=10
     ports:
         - published: 50000
           target: 50000

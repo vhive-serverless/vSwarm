@@ -30,8 +30,8 @@ COPY ./benchmarks/fibonacci/python/requirements.txt ./
 RUN pip3 install --user -r requirements.txt
 COPY ./utils/tracing/python/tracing.py ./
 COPY ./benchmarks/fibonacci/python/server.py ./
-COPY ./benchmarks/fibonacci/proto/fibonacci_pb2_grpc.py ./
-COPY ./benchmarks/fibonacci/proto/fibonacci_pb2.py ./
+ADD https://raw.githubusercontent.com/ease-lab/vSwarm-proto/v0.1.2/proto/fibonacci/fibonacci_pb2_grpc.py ./
+ADD https://raw.githubusercontent.com/ease-lab/vSwarm-proto/v0.1.2/proto/fibonacci/fibonacci_pb2.py ./proto/fibonacci/
 
 # Second stage (Runner):
 FROM vhiveease/python-slim:latest as fibonacciPython
@@ -53,7 +53,6 @@ RUN apt-get install git ca-certificates
 COPY ./utils/tracing/go ../../utils/tracing/go
 COPY ./benchmarks/fibonacci/go.mod ./
 COPY ./benchmarks/fibonacci/go.sum ./
-COPY ./benchmarks/fibonacci/proto ./proto
 COPY ./benchmarks/fibonacci/go/server.go ./
 
 RUN go mod tidy
@@ -77,7 +76,7 @@ WORKDIR /app/
 
 COPY ./utils/tracing/nodejs ./utils/tracing/nodejs
 COPY ./benchmarks/fibonacci/nodejs/ ./
-COPY ./benchmarks/fibonacci/proto/fibonacci.proto ./
+ADD https://raw.githubusercontent.com/ease-lab/vSwarm-proto/v0.1.2/proto/fibonacci/fibonacci.proto ./
 
 RUN npm set progress=false && npm config set depth 0
 RUN npm install --only=production
@@ -88,25 +87,3 @@ WORKDIR /app/
 COPY --from=fibonacciNodeJSBuild /app/ .
 
 ENTRYPOINT [ "node", "server.js" ]
-
-
-#---------- CPP -----------#
-# First stage (Builder):
-FROM gcc:10 AS fibonacciCPPBuild
-WORKDIR /app/
-
-COPY ./benchmarks/fibonacci/cpp/* ./
-COPY ./benchmarks/fibonacci/proto/* ./proto/
-
-RUN apt-get update && apt-get install -y protobuf-compiler protobuf-compiler-grpc libgrpc++-dev
-RUN ls -lR
-RUN mkdir gen && \
-    protoc --proto_path=/app/proto --cpp_out=gen fibonacci.proto && \
-    protoc --proto_path=/app/proto --grpc_out=gen --plugin=protoc-gen-grpc=`which grpc_cpp_plugin` fibonacci.proto
-RUN g++ -O3 -flto main.cpp gen/fibonacci.grpc.pb.cc gen/fibonacci.pb.cc -Igen -lgrpc++ -lprotobuf -lgrpc
-
-FROM gcc:10 AS fibonacciCPP
-WORKDIR /app/
-COPY --from=fibonacciCPPBuild /app/ .
-
-ENTRYPOINT ["/app/a.out"]

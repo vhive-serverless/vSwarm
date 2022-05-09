@@ -21,20 +21,18 @@
 # SOFTWARE.
 
 DOCKER_HUB_ACCOUNT=vhiveease
-FUNCTIONS = fibonacci-python fibonacci-nodejs fibonacci-go fibonacci-cpp
+FUNCTIONS = fibonacci-python fibonacci-nodejs fibonacci-go
 ALL_IMAGES = $(addsuffix -image, $(FUNCTIONS))
 
 clean: clean-proto
 
 ROOT = ../../
 
-.PHONY: proto
-
 all: all_image
 
 all_image: $(ALL_IMAGES)
 
-fibonacci-python-image:  Dockerfile proto/fibonacci_pb2_grpc.py proto/fibonacci_pb2.py python/server.py
+fibonacci-python-image:  Dockerfile python/server.py
 	DOCKER_BUILDKIT=1 docker build \
 	--tag $(DOCKER_HUB_ACCOUNT)/fibonacci-python:latest \
 	--target fibonacciPython \
@@ -42,24 +40,17 @@ fibonacci-python-image:  Dockerfile proto/fibonacci_pb2_grpc.py proto/fibonacci_
 	$(ROOT)
 
 
-fibonacci-nodejs-image: Dockerfile proto/fibonacci.proto nodejs/server.js
+fibonacci-nodejs-image: Dockerfile nodejs/server.js
 	DOCKER_BUILDKIT=1 docker build \
 	--tag $(DOCKER_HUB_ACCOUNT)/fibonacci-nodejs:latest \
 	--target fibonacciNodeJS \
 	-f ./Dockerfile \
 	$(ROOT)
 
-fibonacci-go-image: Dockerfile proto/fibonacci_grpc.pb.go proto/fibonacci.pb.go go/server.go
+fibonacci-go-image: Dockerfile go/server.go
 	DOCKER_BUILDKIT=1 docker build \
 	--tag $(DOCKER_HUB_ACCOUNT)/fibonacci-go:latest \
 	--target fibonacciGo \
-	-f ./Dockerfile \
-	$(ROOT)
-	
-fibonacci-cpp-image: Dockerfile proto/fibonacci.proto cpp/main.cpp
-	DOCKER_BUILDKIT=1 docker build \
-	--tag $(DOCKER_HUB_ACCOUNT)/fibonacci-cpp:latest \
-	--target fibonacciCPP \
 	-f ./Dockerfile \
 	$(ROOT)
 
@@ -74,25 +65,3 @@ pull-%:
 	docker pull docker.io/$(DOCKER_HUB_ACCOUNT)/$(subst pull-,,$@):latest
 
 pull: $(addprefix pull-, $(FUNCTIONS))
-
-## Protocol buffer
-proto: proto/_.py proto/_.go
-
-proto/%.py: proto/fibonacci.proto
-	pip install -r python/requirements.txt
-	cd proto && \
-	python3 -m grpc_tools.protoc -I. \
-		--python_out=. \
-		--grpc_python_out=. \
-		fibonacci.proto
-
-proto/%.go: proto/fibonacci.proto
-	protoc --go_out=. \
-		--go_opt=paths=source_relative \
-		--go-grpc_out=. \
-		--go-grpc_opt=paths=source_relative proto/fibonacci.proto
-
-
-clean-proto:
-	rm -f proto/*.py
-	rm -f proto/*.go

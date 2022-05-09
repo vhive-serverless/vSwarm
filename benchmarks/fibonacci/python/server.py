@@ -29,7 +29,7 @@ import argparse
 import grpc
 import string
 
-import fibonacci_pb2
+from proto.fibonacci import fibonacci_pb2
 import fibonacci_pb2_grpc
 
 import os
