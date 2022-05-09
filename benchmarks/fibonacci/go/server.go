@@ -63,7 +63,7 @@ func (s *server) SayHello(ctx context.Context, in *pb.HelloRequest) (*pb.HelloRe
 	// log.Printf("Received: %v", in.GetName())
 	x, _ := strconv.ParseInt(in.GetName(), 10, 64)
 	var y = fibonacci(int(x))
-	resp := fmt.Sprintf("Hello. Invoke GoLang Fib y = fib(x) | x: %d y: %.1f", x, y)
+	resp := fmt.Sprintf("fn: Fib: y = fib(x) | x: %d y: %.1f | runtime: GoLang", x, y)
 	return &pb.HelloReply{Message: resp}, nil
 }
 
