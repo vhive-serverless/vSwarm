@@ -54,7 +54,7 @@ function InitTracer(serviceName='', url='http://localhost:9411/api/v2/spans') {
     ],
     });
 
-    process.stdout.write(`Tracing enabled for: ${serviceName}, url: \n`);
+    process.stdout.write(`Tracing enabled for: ${serviceName}, url: ${url}\n`);
     tracer = opentelemetry.trace.getTracer('grpc-tracer');
 }
 
