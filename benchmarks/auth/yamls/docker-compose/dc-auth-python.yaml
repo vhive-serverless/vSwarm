@@ -25,6 +25,11 @@ services:
   auth-python:
     image: vhiveease/auth-python:latest
     container_name: auth-python
+    entrypoint:
+      - python
+      - /app/server.py
+      - --addr=0.0.0.0
+      - --port=50051
     ports:
       - target: 50051
 

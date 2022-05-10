@@ -193,7 +193,7 @@ function main() {
     address,
     grpc.ServerCredentials.createInsecure(),
     (err, port) => {
-      process.stdout.write(`Server started on ${address}\n`);
+      process.stdout.write(`Start AES-nodejs. Listen on ${address}\n`);
       server.start();
     }
   );

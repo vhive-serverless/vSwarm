@@ -25,14 +25,31 @@ services:
   auth-python:
     image: vhiveease/auth-python:latest
     container_name: auth-python
-    ports:
-      - target: 50051
     entrypoint:
       - python
       - /app/server.py
       - --addr=0.0.0.0
       - --port=50051
       - -zipkin=http://zipkin:9411/api/v2/spans
+    ports:
+      - target: 50051
+    environment:
+      - ENABLE_TRACING=true
+    depends_on:
+      - zipkin
+
+  relay:
+    image: vhiveease/relay:latest
+    entrypoint:
+      - /app/server
+      - --addr=0.0.0.0:50000
+      - --function-endpoint-url=auth-python
+      - --function-endpoint-port=50051
+      - --function-name=auth-python
+      - --zipkin=http://zipkin:9411/api/v2/spans
+    ports:
+        - published: 50000
+          target: 50000
     environment:
       - ENABLE_TRACING=true
     depends_on:
@@ -43,19 +60,3 @@ services:
     ports:
       - published: 9411
         target: 9411
-
-  relay:
-    image: vhiveease/relay:latest
-    entrypoint:
-      - /app/server
-      - --addr=0.0.0.0:50000
-      - --function-endpoint-url=auth-python
-      - --function-endpoint-port=50051
-      - --function-name=auth-python
-    ports:
-        - published: 50000
-          target: 50000
-    environment:
-      - ENABLE_TRACING=true
-    depends_on:
-      - zipkin

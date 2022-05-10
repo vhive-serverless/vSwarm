@@ -39,6 +39,7 @@ sys.path.insert(0, os.getcwd() + '/../proto')
 import aes_pb2
 import aes_pb2_grpc
 
+# adding python tracing sources to the system path
 sys.path.insert(0, os.getcwd() + '/../../../utils/tracing/python')
 import tracing
 

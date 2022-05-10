@@ -38,12 +38,6 @@ services:
     depends_on:
       - zipkin
 
-  zipkin:
-    image: openzipkin/zipkin
-    ports:
-      - published: 9411
-        target: 9411
-
   relay:
     image: vhiveease/relay:latest
     entrypoint:
@@ -52,6 +46,17 @@ services:
       - --function-endpoint-url=aes-nodejs
       - --function-endpoint-port=50051
       - --function-name=aes-nodejs
+      - --zipkin=http://zipkin:9411/api/v2/spans
     ports:
         - published: 50000
           target: 50000
+    environment:
+      - ENABLE_TRACING=true
+    depends_on:
+      - zipkin
+
+  zipkin:
+    image: openzipkin/zipkin
+    ports:
+      - published: 9411
+        target: 9411

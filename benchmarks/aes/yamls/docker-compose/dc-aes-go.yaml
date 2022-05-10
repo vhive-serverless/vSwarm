@@ -25,8 +25,9 @@ services:
   aes-go:
     image: vhiveease/aes-go:latest
     container_name: aes-go
-    environment:
-      - COMPOSE_PROJECT_NAME=aes-go
+    entrypoint:
+      - /app/server
+      - --addr=0.0.0.0:50051
     ports:
       - target: 50051
 

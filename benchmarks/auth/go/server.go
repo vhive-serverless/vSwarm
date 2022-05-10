@@ -24,9 +24,9 @@ package main
 
 import (
 	"context"
+	"flag"
 	"fmt"
 	"net"
-	"os"
 
 	pb "github.com/ease-lab/vSwarm-proto/proto/auth"
 
@@ -36,8 +36,9 @@ import (
 	"google.golang.org/grpc/reflection"
 )
 
-const (
-	default_port = "50051"
+var (
+	zipkin  = flag.String("zipkin", "http://localhost:9411/api/v2/spans", "zipkin url")
+	address = flag.String("addr", "0.0.0.0:50051", "Address:Port the grpc server is listening to")
 )
 
 type Statement struct {
@@ -111,27 +112,21 @@ func (s *server) SayHello(ctx context.Context, in *pb.HelloRequest) (*pb.HelloRe
 }
 
 func main() {
-
-	var address string = ":"
-	if port, ok := os.LookupEnv("GRPC_PORT"); ok {
-		address += port
-	} else {
-		address += default_port
-	}
-
+	flag.Parse()
 	if tracing.IsTracingEnabled() {
-		shutdown, err := tracing.InitBasicTracer("http://localhost:9411/api/v2/spans", "auth function")
+		log.Printf("Start tracing on : %s\n", *zipkin)
+		shutdown, err := tracing.InitBasicTracer(*zipkin, "auth function")
 		if err != nil {
 			log.Warn(err)
 		}
 		defer shutdown()
 	}
 
-	lis, err := net.Listen("tcp", address)
+	lis, err := net.Listen("tcp", *address)
 	if err != nil {
 		log.Fatalf("failed to listen: %v", err)
 	}
-	log.Printf("Start server: listen on : %s\n", address)
+	log.Printf("Start Auth-go server: listen on : %s\n", *address)
 
 	var grpcServer *grpc.Server
 	if tracing.IsTracingEnabled() {

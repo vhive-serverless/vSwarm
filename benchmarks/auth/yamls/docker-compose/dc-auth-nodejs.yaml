@@ -25,6 +25,11 @@ services:
   auth-nodejs:
     image: vhiveease/auth-nodejs:latest
     container_name: auth-nodejs
+    entrypoint:
+      - node
+      - server.js
+      - --addr=0.0.0.0
+      - --port=50051
     ports:
       - target: 50051
 

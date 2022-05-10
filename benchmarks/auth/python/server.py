@@ -29,31 +29,38 @@ import grpc
 import random
 import string
 
+import argparse
 import os
 import sys
-
-# adding python tracing sources to the system path
-sys.path.insert(0, os.getcwd() + '/../../../../utils/tracing/python')
-import tracing
-import argparse
 
 
 # sys.path.append('./proto/auth')  # for local testing (i.e. not running in Docker-compose)
 from proto.auth import auth_pb2
 import auth_pb2_grpc
 
+# adding python tracing sources to the system path
+sys.path.insert(0, os.getcwd() + '/../../../../utils/tracing/python')
+import tracing
+
+
+
+
+
 print("python version: %s" % sys.version)
 print("Server has PID: %d" % os.getpid())
-GRPC_PORT_ADDRESS = os.getenv("GRPC_PORT")
+
+
+parser = argparse.ArgumentParser()
+parser.add_argument("-a", "--addr", dest="addr", default="0.0.0.0", help="IP address")
+parser.add_argument("-p", "--port", dest="port", default="50051", help="serve port")
+parser.add_argument("-zipkin", "--zipkin", dest="url", default="http://0.0.0.0:9411/api/v2/spans", help="Zipkin endpoint url")
+args = parser.parse_args()
+
 
 if tracing.IsTracingEnabled():
-    parser = argparse.ArgumentParser()
-    parser.add_argument("-a", "--addr", dest="addr", default="0.0.0.0", help="IP address")
-    parser.add_argument("-p", "--port", dest="port", default="50051", help="serve port")
-    parser.add_argument("-zipkin", "--zipkin", dest="url", default="http://0.0.0.0:9411/api/v2/spans", help="Zipkin endpoint url")
 
-    args = parser.parse_args()
-    tracing.initTracer("auth", url=args.url)
+
+    tracing.initTracer("auth-python", url=args.url)
     tracing.grpcInstrumentClient()
     tracing.grpcInstrumentServer()
 
@@ -74,7 +81,7 @@ def generatePolicy(principalId, effect, resource):
         statementOne.Resource = resource
         policyDocument.Statement[0] = statementOne
         authResponse.policyDocument = policyDocument
-    
+
     # Optional output with custom properties of the String, Number or Boolean type.
     authResponse.context = {
       "stringKey": "stringval",
@@ -93,21 +100,21 @@ class Greeter(auth_pb2_grpc.GreeterServicer):
 
         token = request.name
         fakeMethodArn = "arn:aws:execute-api:{regionId}:{accountId}:{apiId}/{stage}/{httpVerb}/[{resource}/[{child-resources}]]"
-        
+
         with tracing.Span("Generate Policy"):
             if 'allow' in token:
                 ret = generatePolicy('user', 'Allow', fakeMethodArn)
                 resp = ret.__dict__
                 msg = "fn: Auth | token: {token} | resp: {resp} | runtime: python".format(token=token, resp=str(resp))
             elif 'deny' in token:
-                ret = generatePolicy('user', 'Deny', fakeMethodArn) 
+                ret = generatePolicy('user', 'Deny', fakeMethodArn)
                 resp = ret.__dict__
                 msg = "fn: Auth | token: {token} | resp: {resp} | runtime: python".format(token=token, resp=str(resp))
             elif 'unauthorized':
                 msg = "Unauthorized"   # Return a 401 Unauthorized response
             else:
-                msg = "Error: Invalid token" # Return a 500 Invalid token response    
-            
+                msg = "Error: Invalid token" # Return a 500 Invalid token response
+
         return auth_pb2.HelloReply(message=msg)
 
 
@@ -115,9 +122,9 @@ def serve():
     server = grpc.server(futures.ThreadPoolExecutor(max_workers=1))
     auth_pb2_grpc.add_GreeterServicer_to_server(Greeter(), server)
 
-    address = ('[::]:' + GRPC_PORT_ADDRESS if GRPC_PORT_ADDRESS else  '[::]:50051')
-    server.add_insecure_port(address) 
-    print("Start server: listen on : " + address)
+    address = (args.addr + ":" + args.port)
+    server.add_insecure_port(address)
+    print("Start Auth-python server. Addr: " + address)
 
     server.start()
     server.wait_for_termination()

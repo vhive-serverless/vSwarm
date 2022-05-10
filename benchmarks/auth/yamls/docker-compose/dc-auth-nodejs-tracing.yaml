@@ -33,6 +33,10 @@ services:
       - --zipkin=http://zipkin:9411/api/v2/spans
     ports:
       - target: 50051
+    environment:
+      - ENABLE_TRACING=true
+    depends_on:
+      - zipkin
 
   relay:
     image: vhiveease/relay:latest
@@ -42,11 +46,12 @@ services:
       - --function-endpoint-url=auth-nodejs
       - --function-endpoint-port=50051
       - --function-name=auth-nodejs
+      - --zipkin=http://zipkin:9411/api/v2/spans
     ports:
         - published: 50000
           target: 50000
-    environment:
-      - ENABLE_TRACING=true
+    # environment:
+    #   - ENABLE_TRACING=true
     depends_on:
       - zipkin
 

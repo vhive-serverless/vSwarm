@@ -22,7 +22,7 @@
 
 // Include process module
 const process = require('process');
-const GRPC_PORT = process.env.GRPC_PORT || '50051'
+const tracing = require('tracing')
 
 
 var PROTO_PATH = __dirname + '/auth.proto';  // '/../proto/auth.proto';
@@ -40,34 +40,75 @@ var packageDefinition = protoLoader.loadSync(
 var auth_proto = grpc.loadPackageDefinition(packageDefinition).auth;
 
 
+/**
+ * Argument parsing
+ */
+ function parsArgs() {
+
+  var { argv } = require("yargs")
+    .scriptName("server")
+    .usage("Usage: $0 --addr <IP> --port <PORT> --zipkin <ZIPKIN URL>")
+    .example(
+      "$0 -p 50051",
+      "Starts AES gRPC server on localhost:50051"
+    )
+    .option("a", {
+      alias: "addr", type: "string",
+      describe: "IP address",
+    })
+    .option("p", {
+      alias: "port", type: "string",
+      describe: "Port the server listen to",
+    })
+    .option("z", {
+      alias: "zipkin", type: "string",
+      describe: "Zipkin URL",
+    })
+    .describe("help", "Show help.") // Override --help usage message.
+    .describe("version", "Show version number.") // Override --version usage message.
+    .epilog("copyright 2022");
+
+  var addr = "0.0.0.0";
+  var port = "50051";
+  var zipkin = "http://localhost:9411/api/v2/spans";
+
+  if ('addr' in argv) { addr = argv.addr; }
+  if ('port' in argv) { port = argv.port; }
+  if ('zipkin' in argv) { zipkin = argv.zipkin; }
+
+  return [addr, port, zipkin];
+}
+
+
+
 
 
 // https://docs.aws.amazon.com/apigateway/latest/developerguide/apigateway-use-lambda-authorizer.html#api-gateway-lambda-authorizer-create
-// A simple token-based authorizer example to demonstrate how to use an authorization token 
-// to allow or deny a request. In this example, the caller named 'user' is allowed to invoke 
-// a request if the client-supplied token value is 'allow'. The caller is not allowed to invoke 
+// A simple token-based authorizer example to demonstrate how to use an authorization token
+// to allow or deny a request. In this example, the caller named 'user' is allowed to invoke
+// a request if the client-supplied token value is 'allow'. The caller is not allowed to invoke
 // the request if the token value is 'deny'. If the token value is 'unauthorized' or an empty
-// string, the authorizer function returns an HTTP 401 status code. For any other token value, 
-// the authorizer returns an HTTP 500 status code. 
+// string, the authorizer function returns an HTTP 401 status code. For any other token value,
+// the authorizer returns an HTTP 500 status code.
 // Note that token values are case-sensitive.
 
 // Help function to generate an IAM policy
 var generatePolicy = function(principalId, effect, resource) {
   var authResponse = {};
-  
+
   authResponse.principalId = principalId;
   if (effect && resource) {
       var policyDocument = {};
-      policyDocument.Version = '2012-10-17'; 
+      policyDocument.Version = '2012-10-17';
       policyDocument.Statement = [];
       var statementOne = {};
-      statementOne.Action = 'execute-api:Invoke'; 
+      statementOne.Action = 'execute-api:Invoke';
       statementOne.Effect = effect;
       statementOne.Resource = resource;
       policyDocument.Statement[0] = statementOne;
       authResponse.policyDocument = policyDocument;
   }
-  
+
   // Optional output with custom properties of the String, Number or Boolean type.
   authResponse.context = {
       "stringKey": "stringval",
@@ -81,7 +122,7 @@ var generatePolicy = function(principalId, effect, resource) {
  * Implements the SayHello RPC method.
  */
 function sayHello(call, callback) {
-  
+
   var token = call.request.name;
   var fakeMethodArn = "arn:aws:execute-api:{regionId}:{accountId}:{apiId}/{stage}/{httpVerb}/[{resource}/[{child-resources}]]";
   var msg1, ret;
@@ -109,14 +150,24 @@ function sayHello(call, callback) {
  * sample server port
  */
 function main() {
+
+  const [addr, port, zipkin] = parsArgs();
+
+  if (tracing.IsTracingEnabled()) {
+    process.stdout.write(`Tracing enabled\n`);
+    tracing.InitTracer('auth-nodejs-server', zipkin);
+  } else {
+    process.stdout.write(`Tracing disabled\n`);
+  }
+
   var server = new grpc.Server();
   server.addService(auth_proto.Greeter.service, {sayHello: sayHello});
-  address = '0.0.0.0:' + GRPC_PORT
+  address = `${addr}:${port}`
   server.bindAsync(
     address,
     grpc.ServerCredentials.createInsecure(),
     (err, port) => {
-      process.stdout.write(`Server started on ${address}`);
+      process.stdout.write(`Start Auth-nodejs. Listen on ${address}\n`);
       server.start();
     }
   );

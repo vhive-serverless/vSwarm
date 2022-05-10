@@ -27,10 +27,14 @@ services:
     container_name: auth-go
     entrypoint:
       - /app/server
-      - -addr=0.0.0.0:50051
-      - -zipkin=http://zipkin:9411/api/v2/spans
+      - --addr=0.0.0.0:50051
+      - --zipkin=http://zipkin:9411/api/v2/spans
     ports:
       - target: 50051
+    environment:
+      - ENABLE_TRACING=true
+    depends_on:
+      - zipkin
 
   relay:
     image: vhiveease/relay:latest
@@ -40,6 +44,7 @@ services:
       - --function-endpoint-url=auth-go
       - --function-endpoint-port=50051
       - --function-name=auth-go
+      - --zipkin=http://zipkin:9411/api/v2/spans
     ports:
         - published: 50000
           target: 50000
