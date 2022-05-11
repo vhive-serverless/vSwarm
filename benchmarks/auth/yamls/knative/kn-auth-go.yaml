@@ -39,3 +39,5 @@ spec:
             - --function-endpoint-port=50051
             - --function-name=auth-go
         - image: docker.io/vhiveease/auth-go:latest
+          args:
+            - --addr=0.0.0.0:50051

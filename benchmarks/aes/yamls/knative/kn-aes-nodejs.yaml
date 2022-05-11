@@ -39,4 +39,6 @@ spec:
             - --function-endpoint-port=50051
             - --function-name=aes-nodejs
         - image: docker.io/vhiveease/aes-nodejs:latest
-        
+          args:
+            - --addr=0.0.0.0
+            - --port=50051
