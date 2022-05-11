@@ -14,7 +14,7 @@ The detailed and general description how to run benchmarks local you can find [h
    ```bash
    docker-compose -f ./yamls/docker-compose/dc-fibonacci-python.yaml up
    ```
-3. In a new terminal, invoke the interface function with grpcurl. To provide the fibonacci protocol explicitly we'll use `-import-path <path/to proto/dir> -proto fibonacci.proto`.
+3. In a new terminal, invoke the interface function with grpcurl.
    ```bash
    ./tools/bin/grpcurl -plaintext -import-path ./tools/invoker/proto -proto helloworld.proto localhost:50000 helloworld.Greeter.SayHello
    ```
@@ -39,9 +39,15 @@ The detailed and general description how to run benchmarks on knative clusters y
 1. Build or pull the function images using `make all-images` or `make pull`.
 2. Start the function with knative
    ```bash
-   kn service apply -f ./tamls/knative/kn-fibonacci-python.yaml
+   kn service apply -f ./yamls/knative/kn-fibonacci-python.yaml
    ```
 3. **Note the URL provided in the output. The part without the `http://` we'll call `$URL`. Replace any instance of `$URL` in the code below with it.**
+### Invoke once
+4. In a new terminal, invoke the interface function with test-client.
+   ```bash
+   ./test-client --addr $URL:80 --name "Example text for Fibonacci"
+   ```
+### Invoke multiple times
 4. Run the invoker
    ```bash
    # build the invoker binary
@@ -54,6 +60,5 @@ The detailed and general description how to run benchmarks on knative clusters y
    # Start the invoker with a chosen RPS rate and time
    ./invoker -port 80 -dbg -time 10 -rps 1
    ```
-   
 ## Tracing
 This Benchmark supports distributed tracing for all runtimes. For the general use see vSwarm docs for tracing [locally](../../docs/running_locally.md#tracing) and with [knative](../../docs/running_benchmarks.md#tracing).
