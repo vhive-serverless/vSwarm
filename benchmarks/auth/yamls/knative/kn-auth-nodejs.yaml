@@ -39,3 +39,6 @@ spec:
             - --function-endpoint-port=50051
             - --function-name=auth-nodejs
         - image: docker.io/vhiveease/auth-nodejs:latest
+          args:
+            - --addr=0.0.0.0
+            - --port=50051
