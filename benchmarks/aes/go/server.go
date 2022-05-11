@@ -35,7 +35,7 @@ import (
 
 	log "github.com/sirupsen/logrus"
 
-	pb "github.com/ease-lab/vSwarm/benchmarks/aes/proto"
+	pb "github.com/ease-lab/vSwarm-proto/proto/aes"
 
 	tracing "github.com/ease-lab/vSwarm/utils/tracing/go"
 

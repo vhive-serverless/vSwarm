@@ -29,8 +29,8 @@ COPY ./benchmarks/aes/python/requirements.txt ./
 RUN pip3 install --user -r requirements.txt
 COPY ./utils/tracing/python/tracing.py ./
 COPY ./benchmarks/aes/python/server.py ./
-COPY ./benchmarks/aes/proto/aes_pb2_grpc.py ./
-COPY ./benchmarks/aes/proto/aes_pb2.py ./
+ADD https://raw.githubusercontent.com/ease-lab/vSwarm-proto/v0.1.2/proto/aes/aes_pb2_grpc.py ./
+ADD https://raw.githubusercontent.com/ease-lab/vSwarm-proto/v0.1.2/proto/aes/aes_pb2.py ./proto/aes/
 
 # Second stage (Runner):
 FROM vhiveease/python-slim:latest as aesPython
@@ -52,7 +52,6 @@ RUN apt-get install git ca-certificates
 COPY ./utils/tracing/go ../../utils/tracing/go
 COPY ./benchmarks/aes/go.mod ./
 COPY ./benchmarks/aes/go.sum ./
-COPY ./benchmarks/aes/proto ./proto
 COPY ./benchmarks/aes/go/server.go ./
 
 RUN go mod tidy
@@ -80,7 +79,7 @@ RUN npm set progress=false && npm config set depth 0
 RUN npm install --only=production
 
 COPY ./benchmarks/aes/nodejs/server.js ./
-COPY ./benchmarks/aes/proto/aes.proto ./
+ADD https://raw.githubusercontent.com/ease-lab/vSwarm-proto/v0.1.2/proto/aes/aes.proto ./
 
 # Second stage (Runner):
 FROM vhiveease/node-slim:latest AS aesNodeJS
