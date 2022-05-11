@@ -25,6 +25,11 @@ services:
   fibonacci-nodejs:
     image: vhiveease/fibonacci-nodejs:latest
     container_name: fibonacci-nodejs
+    entrypoint:
+      - node
+      - server.js
+      - --addr=0.0.0.0
+      - --port=50051
     ports:
       - target: 50051
 

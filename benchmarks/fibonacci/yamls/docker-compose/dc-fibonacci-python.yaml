@@ -25,6 +25,11 @@ services:
   fibonacci-python:
     image: vhiveease/fibonacci-python:latest
     container_name: fibonacci-python
+    entrypoint:
+      - python
+      - /app/server.py
+      - --addr=0.0.0.0
+      - --port=50051
     ports:
       - target: 50051
 
