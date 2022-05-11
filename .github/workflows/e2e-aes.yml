@@ -1,9 +1,9 @@
 name: AES End-to-End Tests
 
 on:
+  schedule:
+    - cron: "0 9 * * 1"
   workflow_dispatch:
-    schedule:
-      - cron: "0 9 * * 1"
   push:
     branches: [main]
     paths:
@@ -59,14 +59,6 @@ jobs:
           GRPC_PYTHON_BUILD_SYSTEM_ZLIB=true
           python3 -m pip install -r requirements.txt
 
-      - name: Install protoc
-        run: |
-          PROTOC_ZIP=protoc-3.14.0-linux-x86_64
-          curl -OL https://github.com/protocolbuffers/protobuf/releases/download/v3.14.0/$PROTOC_ZIP.zip
-          unzip -o $PROTOC_ZIP.zip -d $HOME/.local
-          chmod +x $HOME/.local/bin/protoc
-          rm -f $PROTOC_ZIP.zip
-
       - name: Build and push
         working-directory: benchmarks/aes
         env:
@@ -74,8 +66,6 @@ jobs:
         run: |
           go install google.golang.org/protobuf/cmd/protoc-gen-go@v1.26
           go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@v1.1
-          chmod +x $(go env GOPATH)/bin/*
-          export PATH="$PATH:$(go env GOPATH)/bin"
           make all
           make push
 

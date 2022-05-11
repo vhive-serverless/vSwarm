@@ -32,7 +32,6 @@ COPY ./utils/tracing/python/tracing.py ./
 COPY ./benchmarks/auth/python/server.py ./
 ADD https://raw.githubusercontent.com/ease-lab/vSwarm-proto/v0.1.2/proto/auth/auth_pb2_grpc.py ./
 ADD https://raw.githubusercontent.com/ease-lab/vSwarm-proto/v0.1.2/proto/auth/auth_pb2.py ./proto/auth/
-ADD https://raw.githubusercontent.com/ease-lab/vSwarm-proto/v0.1.2/proto/auth/auth.proto ./
 
 # Second stage (Runner):
 FROM vhiveease/python-slim:latest as authPython

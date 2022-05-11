@@ -35,8 +35,8 @@ import sys
 
 # For local builds add protobuffer and
 # python tracing sources to the system path
-sys.path.insert(0, os.getcwd() + '/../proto')
-import aes_pb2
+# sys.path.insert(0, os.getcwd() + '/../proto')
+from proto.aes import aes_pb2
 import aes_pb2_grpc
 
 # adding python tracing sources to the system path

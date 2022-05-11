@@ -26,8 +26,6 @@ clean: clean-proto
 
 ROOT = ../../
 
-.PHONY: proto
-
 FUNCTIONS = aes-python aes-nodejs aes-go
 ALL_IMAGES = $(addsuffix -image, $(FUNCTIONS))
 
@@ -36,7 +34,7 @@ all: all_image
 all_image: $(ALL_IMAGES)
 
 
-aes-python-image: Dockerfile proto/aes_pb2_grpc.py proto/aes_pb2.py python/server.py
+aes-python-image: Dockerfile python/server.py
 	DOCKER_BUILDKIT=1 docker build \
 	--tag vhiveease/aes-python:latest \
 	--target aesPython \
@@ -44,7 +42,7 @@ aes-python-image: Dockerfile proto/aes_pb2_grpc.py proto/aes_pb2.py python/serve
 	$(ROOT)
 
 
-aes-nodejs-image: Dockerfile proto/aes.proto nodejs/server.js
+aes-nodejs-image: Dockerfile nodejs/server.js
 	DOCKER_BUILDKIT=1 docker build --progress=plain \
 	--tag vhiveease/aes-nodejs:latest \
 	--target aesNodeJS \
@@ -52,7 +50,7 @@ aes-nodejs-image: Dockerfile proto/aes.proto nodejs/server.js
 	$(ROOT)
 
 
-aes-go-image: Dockerfile proto/aes_grpc.pb.go proto/aes.pb.go go/server.go
+aes-go-image: Dockerfile go/server.go
 	DOCKER_BUILDKIT=1 \
 	docker build \
 	--tag vhiveease/aes-go:latest \
@@ -74,27 +72,3 @@ pull-%:
 	docker pull docker.io/vhiveease/$(subst pull-,,$@):latest
 
 pull: $(addprefix pull-, $(FUNCTIONS))
-
-
-
-## Protocol buffer
-proto: proto/_.py proto/_.go
-
-proto/%.py: proto/aes.proto
-	python3 -m pip install -r python/requirements.txt
-	cd proto && \
-	python3 -m grpc_tools.protoc -I. \
-		--python_out=. \
-		--grpc_python_out=. \
-		aes.proto
-
-proto/%.go: proto/aes.proto
-	protoc --go_out=. \
-		--go_opt=paths=source_relative \
-		--go-grpc_out=. \
-		--go-grpc_opt=paths=source_relative proto/aes.proto
-
-
-clean-proto:
-	rm -f proto/*.py
-	rm -f proto/*.go
