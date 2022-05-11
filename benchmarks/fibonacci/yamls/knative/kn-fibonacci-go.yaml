@@ -43,3 +43,5 @@ spec:
             - --lowerBound=1
             - --upperBound=10
         - image: docker.io/vhiveease/fibonacci-go:latest
+          args:
+            - --addr=0.0.0.0:50051

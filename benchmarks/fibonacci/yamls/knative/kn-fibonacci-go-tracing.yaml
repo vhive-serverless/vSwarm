@@ -49,3 +49,6 @@ spec:
           env:
             - name: ENABLE_TRACING
               value: "true"
+          args:
+            - --addr=0.0.0.0:50051
+            - --zipkin=http://zipkin:9411/api/v2/spans
