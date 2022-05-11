@@ -123,6 +123,11 @@ var generatePolicy = function(principalId, effect, resource) {
  */
 function sayHello(call, callback) {
 
+  let span;
+  if (tracing.IsTracingEnabled()) {
+    span = new tracing.Span()
+  }
+
   var token = call.request.name;
   var fakeMethodArn = "arn:aws:execute-api:{regionId}:{accountId}:{apiId}/{stage}/{httpVerb}/[{resource}/[{child-resources}]]";
   var msg1, ret;
@@ -142,6 +147,12 @@ function sayHello(call, callback) {
         msg1 = "Error: Invalid token"; // Return a 500 Invalid token response
   }
   var msg = `fn: Auth | token: ${token} | resp: ${msg1} | runtime: nodejs`;
+
+  if (tracing.IsTracingEnabled()) {
+    span.addEvent(msg);
+    span.end();
+  }
+
   callback(null, {message: msg});
 
 }
