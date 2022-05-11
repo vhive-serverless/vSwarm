@@ -14,18 +14,11 @@ The detailed and general description how to run benchmarks local you can find [h
 ### Invoke once
 2. Start the function with docker-compose
    ```bash
-   docker-compose -f yamls/docker-compose/dc-aes-<runtime>.yaml up
+   docker-compose -f yamls/docker-compose/dc-aes-python.yaml up
    ```
-#### Without relay
-In a new terminal, invoke the interface function with grpcurl. To provide the aes protocol explicitly we'll use `-import-path <path/to proto/dir> -proto aes.proto`.
+3. In a new terminal, invoke the interface function with grpcurl.
    ```bash
-   ../../tools/bin/grpcurl -plaintext -import-path proto -proto aes.proto localhost:50051 aes.Aes.ShowEncryption
-   ```
-#### With relay
-In a new terminal, invoke the interface function with grpcurl. To provide the aes protocol explicitly we'll use `-import-path <path/to proto/dir> -proto aes.proto`.
-   ```bash
-   # Same steps, we just invoke the relay at port 50000 instead of AES server directly (50051 is not exposed anymore)
-   ../../tools/bin/grpcurl -plaintext -import-path proto -proto aes.proto localhost:50000 aes.Aes.ShowEncryption
+   ./tools/bin/grpcurl -plaintext -import-path ./tools/invoker/proto -proto helloworld.proto localhost:50000 helloworld.Greeter.SayHello
    ```
 ### Invoke multiple times
 2. Run the invoker
@@ -37,20 +30,26 @@ In a new terminal, invoke the interface function with grpcurl. To provide the ae
    # Specify the hostname through "endpoints.json"
    echo '[ { "hostname": "localhost" } ]' > endpoints.json
 
-   # Start the invoker with a chosen RPS rate and time (With relay)
+   # Start the invoker with a chosen RPS rate and time
    ./invoker -port 50000 -dbg -time 10 -rps 1
    ```
 
 
 ## Running this benchmark (using knative)
 
-The detailed and general description how to run benchmarks on knative clusters you can find [here](../../docs/running_benchmarks.md). The following steps show it on the aes-python function.
+The detailed and general description on how to run benchmarks on knative clusters you can find [here](../../docs/running_benchmarks.md). The following steps show it on the aes-python function.
 1. Build or pull the function images using `make all-images` or `make pull`.
 2. Start the function with knative
    ```bash
-   kn service apply -f ./knative_yamls/aes-python.yaml
+   kn service apply -f ./yamls/knative/kn-aes-python.yaml
    ```
 3. **Note the URL provided in the output. The part without the `http://` we'll call `$URL`. Replace any instance of `$URL` in the code below with it.**
+### Invoke once
+4. In a new terminal, invoke the interface function with test-client.
+   ```bash
+   ./test-client --addr $URL:80 --name "Example text for AES"
+   ```
+### Invoke multiple times
 4. Run the invoker
    ```bash
    # build the invoker binary
