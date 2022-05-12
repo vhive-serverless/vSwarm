@@ -31,6 +31,10 @@ services:
       - -zipkin=http://zipkin:9411/api/v2/spans
     ports:
       - target: 50051
+    environment:
+      - ENABLE_TRACING=true
+    depends_on:
+      - zipkin
 
   relay:
     image: vhiveease/relay:latest
@@ -40,6 +44,7 @@ services:
       - --function-endpoint-url=fibonacci-go
       - --function-endpoint-port=50051
       - --function-name=fibonacci-go
+      - --zipkin=http://zipkin:9411/api/v2/spans
       - --value=10
       - --generator=linear
       - --lowerBound=1

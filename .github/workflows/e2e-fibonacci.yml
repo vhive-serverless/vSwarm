@@ -117,15 +117,19 @@ jobs:
       fail-fast: false
       max-parallel: 1
       matrix:
-        service:
-          [
-            kn-fibonacci-go,
-            kn-fibonacci-python,
-            kn-fibonacci-nodejs,
-            kn-fibonacci-go-tracing,
-            kn-fibonacci-python-tracing,
-            kn-fibonacci-nodejs-tracing,
-          ]
+        include:
+            - service: fibonacci-go
+              file: kn-fibonacci-go.yaml,
+            - service: fibonacci-python
+              file: kn-fibonacci-python.yaml,
+            - service: fibonacci-nodejs
+              file: kn-fibonacci-nodejs.yaml,
+            - service: fibonacci-go-tracing
+              file: kn-fibonacci-go-tracing.yaml,
+            - service: fibonacci-python-tracing
+              file: kn-fibonacci-python-tracing.yaml,
+            - service: fibonacci-nodejs-tracing
+              file: kn-fibonacci-nodejs-tracing.yaml,
     steps:
       - uses: actions/checkout@v3
         with:
@@ -139,7 +143,7 @@ jobs:
 
       - name: Deploy knative
         working-directory: benchmarks
-        run: kn service apply -f ./fibonacci/yamls/knative/${{ matrix.service }}.yaml
+        run: kn service apply -f ./fibonacci/yamls/knative/${{ matrix.file }}
 
       - name: Test invoking once
         working-directory: tools/test-client
@@ -159,7 +163,7 @@ jobs:
         run: |
           set -x
           
-          container_list=$(kubectl get pods -n default -o jsonpath="{.items[*].spec.containers[*].name}")
+          container_list=$(kn service export ${{ matrix.service }} -o jsonpath="{.spec.service.spec.template.spec.containers[*].name}")
           
           for container_name in $container_list
           do

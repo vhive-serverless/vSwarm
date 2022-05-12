@@ -47,13 +47,13 @@ print("python version: %s" % sys.version)
 print("Server has PID: %d" % os.getpid())
 GRPC_PORT_ADDRESS = os.getenv("GRPC_PORT")
 
-if tracing.IsTracingEnabled():
-    parser = argparse.ArgumentParser()
-    parser.add_argument("-a", "--addr", dest="addr", default="0.0.0.0", help="IP address")
-    parser.add_argument("-p", "--port", dest="port", default="50051", help="serve port")
-    parser.add_argument("-zipkin", "--zipkin", dest="url", default="http://0.0.0.0:9411/api/v2/spans", help="Zipkin endpoint url")
+parser = argparse.ArgumentParser()
+parser.add_argument("-a", "--addr", dest="addr", default="0.0.0.0", help="IP address")
+parser.add_argument("-p", "--port", dest="port", default="50051", help="serve port")
+parser.add_argument("-zipkin", "--zipkin", dest="url", default="http://0.0.0.0:9411/api/v2/spans", help="Zipkin endpoint url")
+args = parser.parse_args()
 
-    args = parser.parse_args()
+if tracing.IsTracingEnabled():
     tracing.initTracer("fibonacci", url=args.url)
     tracing.grpcInstrumentClient()
     tracing.grpcInstrumentServer()

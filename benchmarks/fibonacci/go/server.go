@@ -25,9 +25,9 @@ package main
 
 import (
 	"context"
+	"flag"
 	"fmt"
 	"net"
-	"os"
 	"strconv"
 
 	pb "github.com/ease-lab/vSwarm-proto/proto/fibonacci"
@@ -37,8 +37,9 @@ import (
 	"google.golang.org/grpc/reflection"
 )
 
-const (
-	default_port = "50051"
+var (
+	zipkin  = flag.String("zipkin", "http://localhost:9411/api/v2/spans", "zipkin url")
+	address = flag.String("addr", "0.0.0.0:50051", "Address:Port the grpc server is listening to")
 )
 
 func fibonacci(num int) float64 {
@@ -68,15 +69,7 @@ func (s *server) SayHello(ctx context.Context, in *pb.HelloRequest) (*pb.HelloRe
 }
 
 func main() {
-
-	var address string = ":"
-	// log.Printf("Start server: listen on : %s\n", address)
-	if port, ok := os.LookupEnv("GRPC_PORT"); ok {
-		address += port
-	} else {
-		address += default_port
-	}
-
+	flag.Parse()
 	if tracing.IsTracingEnabled() {
 		shutdown, err := tracing.InitBasicTracer("http://localhost:9411/api/v2/spans", "fibonacci function")
 		if err != nil {
@@ -85,11 +78,11 @@ func main() {
 		defer shutdown()
 	}
 
-	lis, err := net.Listen("tcp", address)
+	lis, err := net.Listen("tcp", *address)
 	if err != nil {
 		log.Fatalf("failed to listen: %v", err)
 	}
-	log.Printf("Start server: listen on : %s\n", address)
+	log.Printf("Start fibonacci-go server. Addr : %s\n", *address)
 
 	var grpcServer *grpc.Server
 	if tracing.IsTracingEnabled() {

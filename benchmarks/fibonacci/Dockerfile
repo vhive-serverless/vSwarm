@@ -30,8 +30,8 @@ COPY ./benchmarks/fibonacci/python/requirements.txt ./
 RUN pip3 install --user -r requirements.txt
 COPY ./utils/tracing/python/tracing.py ./
 COPY ./benchmarks/fibonacci/python/server.py ./
-ADD https://raw.githubusercontent.com/ease-lab/vSwarm-proto/v0.1.2/proto/fibonacci/fibonacci_pb2_grpc.py ./
-ADD https://raw.githubusercontent.com/ease-lab/vSwarm-proto/v0.1.2/proto/fibonacci/fibonacci_pb2.py ./proto/fibonacci/
+ADD https://raw.githubusercontent.com/ease-lab/vSwarm-proto/v0.1.3/proto/fibonacci/fibonacci_pb2_grpc.py ./
+ADD https://raw.githubusercontent.com/ease-lab/vSwarm-proto/v0.1.3/proto/fibonacci/fibonacci_pb2.py ./proto/fibonacci/
 
 # Second stage (Runner):
 FROM vhiveease/python-slim:latest as fibonacciPython
@@ -76,7 +76,7 @@ WORKDIR /app/
 
 COPY ./utils/tracing/nodejs ./utils/tracing/nodejs
 COPY ./benchmarks/fibonacci/nodejs/ ./
-ADD https://raw.githubusercontent.com/ease-lab/vSwarm-proto/v0.1.2/proto/fibonacci/fibonacci.proto ./
+ADD https://raw.githubusercontent.com/ease-lab/vSwarm-proto/v0.1.3/proto/fibonacci/fibonacci.proto ./
 
 RUN npm set progress=false && npm config set depth 0
 RUN npm install --only=production
