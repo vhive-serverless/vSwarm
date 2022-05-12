@@ -119,17 +119,17 @@ jobs:
       matrix:
         include:
             - service: fibonacci-go
-              file: kn-fibonacci-go.yaml,
+              file: kn-fibonacci-go.yaml
             - service: fibonacci-python
-              file: kn-fibonacci-python.yaml,
+              file: kn-fibonacci-python.yaml
             - service: fibonacci-nodejs
-              file: kn-fibonacci-nodejs.yaml,
+              file: kn-fibonacci-nodejs.yaml
             - service: fibonacci-go-tracing
-              file: kn-fibonacci-go-tracing.yaml,
+              file: kn-fibonacci-go-tracing.yaml
             - service: fibonacci-python-tracing
-              file: kn-fibonacci-python-tracing.yaml,
+              file: kn-fibonacci-python-tracing.yaml
             - service: fibonacci-nodejs-tracing
-              file: kn-fibonacci-nodejs-tracing.yaml,
+              file: kn-fibonacci-nodejs-tracing.yaml
     steps:
       - uses: actions/checkout@v3
         with:
@@ -152,6 +152,7 @@ jobs:
           go build ./test-client.go
 
           NODEPORT=$(kubectl get svc kourier-ingress -n kourier-system -o=jsonpath='{.spec.ports[0].nodePort}')
+
           url_list=$(kn service list | awk '$2 ~ /http/ {sub(/http\:\/\//,""); print $2}')
           
           for url in $url_list

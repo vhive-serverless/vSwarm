@@ -69,12 +69,15 @@ services:
       - --function-endpoint-url=rate
       - --function-endpoint-port=8083
       - --function-name=rate
+      - --zipkin=http://zipkin:9411/api/v2/spans
       - --value=1
     ports:
         - published: 50000
           target: 50000
-    # environment:
-    #   - ENABLE_DEBUGGING=true
+    environment:
+      - ENABLE_TRACING=true
+    depends_on:
+      - zipkin
 
   zipkin:
     image: openzipkin/zipkin

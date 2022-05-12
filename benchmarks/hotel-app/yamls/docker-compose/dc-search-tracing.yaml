@@ -32,10 +32,14 @@ services:
       - --function-endpoint-url=search
       - --function-endpoint-port=8083
       - --function-name=search
+      - --zipkin=http://zipkin:9411/api/v2/spans
     ports:
         - published: 50000
           target: 50000
+    environment:
+      - ENABLE_TRACING=true
     depends_on:
+      - zipkin
       - search
 
 
