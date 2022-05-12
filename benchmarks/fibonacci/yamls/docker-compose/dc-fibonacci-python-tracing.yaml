@@ -52,6 +52,7 @@ services:
       - --function-endpoint-url=fibonacci-python
       - --function-endpoint-port=50051
       - --function-name=fibonacci-python
+      - --zipkin=http://zipkin:9411/api/v2/spans
       - --value=10
       - --generator=linear
       - --lowerBound=1
