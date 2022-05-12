@@ -71,7 +71,7 @@ func (s *server) SayHello(ctx context.Context, in *pb.HelloRequest) (*pb.HelloRe
 func main() {
 	flag.Parse()
 	if tracing.IsTracingEnabled() {
-		shutdown, err := tracing.InitBasicTracer("http://localhost:9411/api/v2/spans", "fibonacci function")
+		shutdown, err := tracing.InitBasicTracer(*zipkin, "fibonacci function")
 		if err != nil {
 			log.Warn(err)
 		}

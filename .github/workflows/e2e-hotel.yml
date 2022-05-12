@@ -153,14 +153,9 @@ jobs:
         run: |
           set -x
           go build ./test-client.go
-
           NODEPORT=$(kubectl get svc kourier-ingress -n kourier-system -o=jsonpath='{.spec.ports[0].nodePort}')
-
-          url_list=$(kn service list | awk '$2 ~ /http/ {sub(/http\:\/\//,""); print $2}')
-          for url in $url_list
-          do
-            ./test-client --addr $url:$NODEPORT  --name "Example text for Hotel CI"
-          done
+          url=$(kn service describe ${{ matrix.service }} -o url | awk '$1 {sub(/http\:\/\//,""); print $1}')
+          ./test-client --addr $url:$NODEPORT  --name "Example text for Online Shop CI"
 
       - name: Print logs
         if: ${{ always() }}
