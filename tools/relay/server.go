@@ -37,6 +37,7 @@ import (
 	tracing "github.com/ease-lab/vSwarm/utils/tracing/go"
 
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/reflection"
 )
 
 type server struct {
@@ -123,6 +124,9 @@ func main() {
 		grpcServer = grpc.NewServer()
 	}
 	pb.RegisterGreeterServer(grpcServer, &server{})
+
+	// Register reflection service on gRPC server.
+	reflection.Register(grpcServer)
 
 	// Start listening for invocations
 	var listener, err = net.Listen("tcp", *address)
