@@ -18,7 +18,7 @@ The detailed and general description how to run benchmarks local you can find [h
    ```
 3. In a new terminal, invoke the interface function with grpcurl.
    ```bash
-   ./tools/bin/grpcurl -plaintext -import-path ./tools/invoker/proto -proto helloworld.proto localhost:50000 helloworld.Greeter.SayHello
+   ./tools/bin/grpcurl -plaintext localhost:50000 helloworld.Greeter.SayHello
    ```
 ### Invoke multiple times
 2. Run the invoker
