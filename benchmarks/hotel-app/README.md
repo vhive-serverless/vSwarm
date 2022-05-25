@@ -18,17 +18,15 @@ The app is broken down in the individual microservice to be able to run as stand
 
 ## Standalone functions benchmark summary
 
-| Benchmark | Dependent on | Knative infra | Tracing | Gem5 support | Runtimes | Languages implemented  |
-|---|---|---|---|---|---|---|
-| Geo            | Serving | database | ✓ | ✓ | docker, knative | golang |
-| Profile        | Serving | database, memcached |✓ | ✓ | docker, knative | golang |
-| Rate           | Serving | database, memcached | ✓ | ✓ | docker, knative | golang |
-| Recommendation | Serving | database | ✓ | ✓ | docker, knative | golang |
-| Reservation    | Serving | database, memcached | ✓ | ✓ | docker, knative | golang |
-| User           | Serving | database | ✓ | ✓ | docker, knative | golang |
-| Search         | Serving | Geo, Profile, Rate | ✓ | ✕ | docker, knative | golang |
-
-
+| Benchmark      | Knative infra | Dependent on        | Tracing | Runtimes        | Languages Implemented | gem5 support |
+| -------------- | ------------- | ------------------- | :-----: | --------------- | --------------------- | :----------: |
+| Geo            | Serving       | database            |    ✓    | docker, knative | Golang                |      ✓       |
+| Profile        | Serving       | database, memcached |    ✓    | docker, knative | Golang                |      ✓       |
+| Rate           | Serving       | database, memcached |    ✓    | docker, knative | Golang                |      ✓       |
+| Recommendation | Serving       | database            |    ✓    | docker, knative | Golang                |      ✓       |
+| Reservation    | Serving       | database, memcached |    ✓    | docker, knative | Golang                |      ✓       |
+| User           | Serving       | database            |    ✓    | docker, knative | Golang                |      ✓       |
+| Search         | Serving       | Geo, Profile, Rate  |    ✓    | docker, knative | Golang                |      ✕       |
 
 ## Running one of the benchmarks locally (using docker)
 

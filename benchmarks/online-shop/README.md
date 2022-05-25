@@ -19,18 +19,17 @@ We took the 9 microservices implementing the functionality of the application an
 
 ## Functions summary
 
-| Benchmark | Language | tracing | Knative infra |  Runtimes | gem5 support | Description |
-|---|---|---|---|---|---|---|
-| cartservice | C# | ✕ | Serving | docker, knative | ✕ | Stores the items in the user's shopping cart in Redis and retrieves it.|
-| productcatalogservice | Go | ✕ | Serving | docker, knative | ✓ | Provides the list of products from a JSON file and ability to search products and get individual products.|
-|currencyservice| Node.js | ✕ | Serving | docker, knative | ✓ | Converts one money amount to another currency. Uses real values fetched from European Central Bank. It's the highest QPS service. |
-| paymentservice | Node.js | ✕ | Serving | docker, knative | ✓ | Charges the given credit card info (mock) with the given amount and returns a transaction ID. |
-| shippingservice | Go | ✕ | Serving | docker, knative | ✓ | Gives shipping cost estimates based on the shopping cart. Ships items to the given address (mock) |
-| emailservice | Python | ✕ | Serving | docker, knative | ✓ | Sends users an order confirmation email (mock). |
-| checkoutservice | Go | ✕ | Serving | docker, knative | ✕ | Retrieves user cart, prepares order and orchestrates the payment, shipping and the email notification. |
-| recommendationservice | Python | ✕ | Serving | docker, knative | ✓ | Recommends other products based on what's given in the cart.|
-| adservice | Java | ✕ | Serving | docker, knative | ✕ | Provides text ads based on given context words.|
-
+| Benchmark               | Knative infra | Tracing | Runtimes        | Languages Implemented | gem5 support | Description                                                                                                                       |
+| ----------------------- | ------------- | :-----: | --------------- | --------------------- | :----------: | --------------------------------------------------------------------------------------------------------------------------------- |
+| Cart Service            | Serving       |    ✕    | docker, knative | C#                    |      ✕       | Stores the items in the user's shopping cart in Redis and retrieves it.                                                           |
+| Product Catalog Service | Serving       |    ✕    | docker, knative | Golang                |      ✓       | Provides the list of products from a JSON file and ability to search products and get individual products.                        |
+| Currency Service        | Serving       |    ✕    | docker, knative | Node.js               |      ✓       | Converts one money amount to another currency. Uses real values fetched from European Central Bank. It's the highest QPS service. |
+| Payment Service         | Serving       |    ✕    | docker, knative | Node.js               |      ✓       | Charges the given credit card info (mock) with the given amount and returns a transaction ID.                                     |
+| Shipping Service        | Serving       |    ✕    | docker, knative | Golang                |      ✓       | Gives shipping cost estimates based on the shopping cart. Ships items to the given address (mock)                                 |
+| Email Service           | Serving       |    ✕    | docker, knative | Python                |      ✓       | Sends users an order confirmation email (mock).                                                                                   |
+| Checkout Service        | Serving       |    ✕    | docker, knative | Golang                |      ✕       | Retrieves user cart, prepares order and orchestrates the payment, shipping and the email notification.                            |
+| Recommendation Service  | Serving       |    ✕    | docker, knative | Python                |      ✓       | Recommends other products based on what's given in the cart.                                                                      |
+| Ad Service              | Serving       |    ✕    | docker, knative | Java                  |      ✕       | Provides text ads based on given context words.                                                                                   |
 
 ## Running one of the benchmarks locally (using docker)
 
