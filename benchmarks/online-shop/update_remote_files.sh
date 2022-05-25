@@ -59,8 +59,6 @@ do
 
   # Invoke it
   ./../../tools/bin/grpcurl -plaintext \
-                -import-path ./../../tools/invoker/proto/ \
-                -proto helloworld.proto \
                 localhost:50000 helloworld.Greeter.SayHello
 
   sleep 1

@@ -102,7 +102,7 @@ jobs:
 
       - name: invoke the chain
         run: |
-          ./tools/bin/grpcurl -plaintext -import-path ./tools/invoker/proto -proto helloworld.proto localhost:50000 helloworld.Greeter.SayHello
+          ./tools/bin/grpcurl -plaintext localhost:50000 helloworld.Greeter.SayHello
 
       - name: show docker-compose log
         run: cat benchmarks/auth/yamls/docker-compose/log_file
