@@ -98,7 +98,8 @@ func main() {
 	// Establish and initialize connection to the downstream function
 	serviceName := grpcClients.FindServiceName(*functionName)
 	grpcClient = grpcClients.FindGrpcClient(serviceName)
-	grpcClient.Init(*functionEndpointURL, *functionEndpointPort)
+	ctx := context.Background()
+	grpcClient.Init(ctx, *functionEndpointURL, *functionEndpointPort)
 	defer grpcClient.Close()
 
 	// Configure the Input generator
@@ -148,7 +149,7 @@ func (s *server) SayHello(ctx context.Context, in *pb.HelloRequest) (*pb.HelloRe
 	// Create new packet
 	pkt := inputGenerator.Next()
 	log.Debug("Send to func: ", pkt)
-	reply := grpcClient.Request(pkt)
+	reply := grpcClient.Request(ctx, pkt)
 	log.Debug("Recv from func: ", reply)
 
 	return &pb.HelloReply{Message: reply}, nil
