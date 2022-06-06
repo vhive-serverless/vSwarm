@@ -10,7 +10,7 @@ replace (
 )
 
 require (
-	github.com/containerd/containerd v1.6.2
+	github.com/containerd/containerd v1.6.5
 	github.com/ease-lab/vSwarm/tools/benchmarking_eventing v0.0.0-00010101000000-000000000000
 	github.com/ease-lab/vSwarm/tools/endpoint v0.0.0-00010101000000-000000000000
 	github.com/ease-lab/vSwarm/tools/invoker/proto v0.0.0-00010101000000-000000000000
