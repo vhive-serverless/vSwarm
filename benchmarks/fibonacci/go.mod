@@ -25,8 +25,10 @@ module fibonacci
 go 1.16
 
 require (
-	github.com/ease-lab/vSwarm-proto v0.1.3
+	cloud.google.com/go v0.99.0 // indirect
+	github.com/ease-lab/vSwarm-proto v0.2.0
 	github.com/ease-lab/vSwarm/utils/tracing/go v0.0.0-20220502160750-39d19cf90ca3
 	github.com/sirupsen/logrus v1.8.1
-	google.golang.org/grpc v1.46.0
+	golang.org/x/net v0.0.0-20220425223048-2871e0cb64e4 // indirect
+	google.golang.org/grpc v1.47.0
 )
