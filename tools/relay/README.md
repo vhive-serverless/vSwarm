@@ -2,7 +2,13 @@
 
 Relay will act as an interface between invoker and the benchmark server, allowing the user of a function to supply a custom form of input than a strict Helloworld format (see `aes.proto` for example). This way, to add a function benchmark you would not be restricted to the helloworld proto but can use any arbitrary proto file of your choice.
 
-## Adding relay
+## How relay works
+
+On receiving a `SayHello` gRPC call from the invoker, relay sends a packet to the benchmark, each time generated new (for a series of inputs) by the `inputGenerator.Next()` call. Then to call the benchmark, it calls the `grpcClient.Request()` function where it passes the packet (`pkt`) as a parameter, which handles the actual sending of message through a gRPC call, which can be different for each benchmark.
+
+The Next, Request (and some other) methods are different for each benchmark and thus have to be implemented in [grpcclient in vSwarm-proto](https://github.com/ease-lab/vSwarm-proto/blob/main/grpcclient). The instructions to implement them are given in the [vSwarm-proto README](https://github.com/ease-lab/vSwarm-proto/blob/main/README.md).
+
+## Adding relay to your benchmark
 
 For docker compose files, add the following snippet
 

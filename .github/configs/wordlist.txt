@@ -221,6 +221,7 @@ grot
 Grot
 gRPC
 grpc
+grpcclient
 grpcServer
 grpcurl
 gz
