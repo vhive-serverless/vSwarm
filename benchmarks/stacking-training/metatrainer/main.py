@@ -125,21 +125,31 @@ class MetatrainerServicer(stacking_pb2_grpc.TrainerServicer):
         elif transferType == XDT:
             if XDTconfig is None:
                 log.fatal("Empty XDT config")
+            self.XDTclient = XDTsrc.XDTclient(XDTconfig)
             self.XDTconfig = XDTconfig
 
     def get_inputs(self, request) -> dict:
         inputs: dict = {}
-        inputs['dataset'] = storage.get(request.dataset_key)
-        inputs['meta_features'] = storage.get(request.meta_features_key)
-        inputs['models'] = storage.get(request.models_key)
+        if self.transferType == S3:
+            inputs['dataset'] = storage.get(request.dataset_key)
+            inputs['meta_features'] = storage.get(request.meta_features_key)
+            inputs['models'] = storage.get(request.models_key)
+        elif self.transferType == XDT:
+            inputs['dataset'] = pickle.loads(XDTdst.Get(request.dataset_key, self.XDTconfig))
+            inputs['meta_features'] = pickle.loads(XDTdst.Get(request.meta_features_key, self.XDTconfig))
+            inputs['models'] = pickle.loads(XDTdst.Get(request.models_key, self.XDTconfig))
         return inputs
 
     def put_outputs(self, meta_predictions, model_full):
         model_full_key = 'model_full_key'
         meta_predictions_key = 'meta_predictions_key'
 
-        meta_predictions_key = storage.put(meta_predictions_key, meta_predictions)
-        model_full_key = storage.put(model_full_key, model_full)
+        if self.transferType == S3:
+            meta_predictions_key = storage.put(meta_predictions_key, meta_predictions)
+            model_full_key = storage.put(model_full_key, model_full)
+        elif self.transferType == XDT:
+            meta_predictions_key = self.XDTclient.Put(payload=pickle.dumps(meta_predictions))
+            model_full_key = self.XDTclient.Put(payload=pickle.dumps(model_full))
 
         return meta_predictions_key, model_full_key
 
@@ -182,21 +192,24 @@ class MetatrainerServicer(stacking_pb2_grpc.TrainerServicer):
 
 def serve():
     transferType = os.getenv('TRANSFER_TYPE', S3)
+    XDTconfig = dict()
     if transferType == S3:
         storage.init("S3", 'vhive-stacking')
-        log.info("Using inline or s3 transfers")
-        max_workers = int(os.getenv("MAX_SERVER_THREADS", 10))
-        server = grpc.server(futures.ThreadPoolExecutor(max_workers=max_workers))
-        stacking_pb2_grpc.add_MetatrainerServicer_to_server(
-            MetatrainerServicer(transferType=transferType), server)
-        server.add_insecure_port('[::]:' + args.sp)
-        server.start()
-        server.wait_for_termination()
+        log.info("Using s3 transfers")
     elif transferType == XDT:
-        log.fatal("XDT not yet supported")
         XDTconfig = XDTutil.loadConfig()
+        log.info("XDT config:")
+        log.info(XDTconfig)
     else:
         log.fatal("Invalid Transfer type")
+
+    max_workers = int(os.getenv("MAX_SERVER_THREADS", 10))
+    server = grpc.server(futures.ThreadPoolExecutor(max_workers=max_workers))
+    stacking_pb2_grpc.add_MetatrainerServicer_to_server(
+        MetatrainerServicer(transferType=transferType, XDTconfig=XDTconfig), server)
+    server.add_insecure_port('[::]:' + args.sp)
+    server.start()
+    server.wait_for_termination()
 
 
 if __name__ == '__main__':

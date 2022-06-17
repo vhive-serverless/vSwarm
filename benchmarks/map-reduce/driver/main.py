@@ -156,7 +156,8 @@ class GreeterServicer(helloworld_pb2_grpc.GreeterServicer):
             grpc_keys.key = key_string
             req.keys.append(grpc_keys)
 
-        resp = stub.Map(req)
+        with tracing.Span("Invoke mapper"):
+            resp = stub.Map(req)
         log.info(f"mapper reply: {resp}")
         return resp.keys
 
@@ -184,7 +185,8 @@ class GreeterServicer(helloworld_pb2_grpc.GreeterServicer):
             grpc_keys.key = key_string
             req.keys.append(grpc_keys)
 
-        resp = stub.Reduce(req)
+        with tracing.Span("Invoke reducer"):
+            resp = stub.Reduce(req)
         log.info(f"reducer reply: {resp}")
 
     # Driver code below
@@ -207,20 +209,21 @@ class GreeterServicer(helloworld_pb2_grpc.GreeterServicer):
 
         # for task in map_tasks:
         #     self.call_mapper(task)
-        mapper_responses=[]
-        ex = futures.ThreadPoolExecutor(max_workers=NUM_MAPPERS)
-        all_result_futures = ex.map(self.call_mapper, map_tasks)
+        with tracing.Span("Invoke all mappers"):
+            mapper_responses=[]
+            ex = futures.ThreadPoolExecutor(max_workers=NUM_MAPPERS)
+            all_result_futures = ex.map(self.call_mapper, map_tasks)
 
-        reduce_input_keys = {}
-        for i in range(NUM_REDUCERS):
-            reduce_input_keys[i] = []
-
-        for result_keys in all_result_futures: #this is just to wait for all futures to complete
+            reduce_input_keys = {}
             for i in range(NUM_REDUCERS):
-                reduce_input_keys[i].append(result_keys[i].key)
+                reduce_input_keys[i] = []
 
-        log.info("calling mappers done")
-        # print(mapper_responses)
+            for result_keys in all_result_futures: #this is just to wait for all futures to complete
+                for i in range(NUM_REDUCERS):
+                    reduce_input_keys[i].append(result_keys[i].key)
+
+            log.info("calling mappers done")
+            # print(mapper_responses)
 
         # reduce_input_keys = ["map_" + str(x) for x in range(NUM_MAPPERS)] # this list is the same for
                                                                         # all reducers as each of them has to read 
@@ -243,12 +246,13 @@ class GreeterServicer(helloworld_pb2_grpc.GreeterServicer):
         # for task in reducer_tasks:
         #     self.call_reducer(task)
         reducer_responses=[]
-        ex = futures.ThreadPoolExecutor(max_workers=NUM_REDUCERS)
-        all_result_futures = ex.map(self.call_reducer, reducer_tasks)
-        for result in all_result_futures:
-            reducer_responses.append(result)
-        log.info("calling reducers done")
-        #print(reducer_responses)
+        with tracing.Span("Invoke all reducers"):
+            ex = futures.ThreadPoolExecutor(max_workers=NUM_REDUCERS)
+            all_result_futures = ex.map(self.call_reducer, reducer_tasks)
+            for result in all_result_futures:
+                reducer_responses.append(result)
+            log.info("calling reducers done")
+            #print(reducer_responses)
 
         return helloworld_pb2.HelloReply(message="jobs done")
 

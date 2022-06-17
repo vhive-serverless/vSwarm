@@ -126,13 +126,17 @@ class TrainerServicer(stacking_pb2_grpc.TrainerServicer):
         elif transferType == XDT:
             if XDTconfig is None:
                 log.fatal("Empty XDT config")
+            self.XDTclient = XDTsrc.XDTclient(XDTconfig)
             self.XDTconfig = XDTconfig
 
     def Train(self, request, context):
         self.trainer_id = request.trainer_id
         log.info(f"Trainer {self.trainer_id} is invoked")
 
-        dataset = storage.get(request.dataset_key)
+        if self.transferType == S3:
+            dataset = storage.get(request.dataset_key)
+        elif self.transferType == XDT:
+            dataset = pickle.loads(XDTdst.BroadcastGet(request.dataset_key, self.XDTconfig))
 
         with tracing.Span("Training a model"):
             model_config = pickle.loads(request.model_config)
@@ -150,8 +154,12 @@ class TrainerServicer(stacking_pb2_grpc.TrainerServicer):
         model_key = f"model_{self.trainer_id}"
         pred_key = f"pred_model_{self.trainer_id}"
 
-        model_key = storage.put(model_key, model)
-        pred_key = storage.put(pred_key, y_pred)
+        if self.transferType == S3:
+            model_key = storage.put(model_key, model)
+            pred_key = storage.put(pred_key, y_pred)
+        elif self.transferType == XDT:
+            model_key = self.XDTclient.Put(payload=pickle.dumps(model))
+            pred_key = self.XDTclient.Put(payload=pickle.dumps(y_pred))
 
         return stacking_pb2.TrainReply(
             model=b'',
@@ -162,21 +170,25 @@ class TrainerServicer(stacking_pb2_grpc.TrainerServicer):
 
 def serve():
     transferType = os.getenv('TRANSFER_TYPE', S3)
+    XDTconfig = dict()
     if transferType == S3:
         storage.init("S3", 'vhive-stacking')
-        log.info("Using inline or s3 transfers")
-        max_workers = int(os.getenv("MAX_SERVER_THREADS", 10))
-        server = grpc.server(futures.ThreadPoolExecutor(max_workers=max_workers))
-        stacking_pb2_grpc.add_TrainerServicer_to_server(
-            TrainerServicer(transferType=transferType), server)
-        server.add_insecure_port('[::]:' + args.sp)
-        server.start()
-        server.wait_for_termination()
+        log.info("Using s3 transfers")
     elif transferType == XDT:
-        log.fatal("XDT not yet supported")
+        log.info("XDT using config")
         XDTconfig = XDTutil.loadConfig()
+        log.info("XDT config:")
+        log.info(XDTconfig)
     else:
         log.fatal("Invalid Transfer type")
+
+    max_workers = int(os.getenv("MAX_SERVER_THREADS", 10))
+    server = grpc.server(futures.ThreadPoolExecutor(max_workers=max_workers))
+    stacking_pb2_grpc.add_TrainerServicer_to_server(
+        TrainerServicer(transferType=transferType, XDTconfig=XDTconfig), server)
+    server.add_insecure_port('[::]:' + args.sp)
+    server.start()
+    server.wait_for_termination()
 
 
 if __name__ == '__main__':

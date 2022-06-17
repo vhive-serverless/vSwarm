@@ -37,7 +37,7 @@ import (
 
 	pb_video "tests/video_analytics/proto"
 
-	pb_helloworld "github.com/ease-lab/vSwarm/examples/protobuf/helloworld"
+	pb_helloworld "github.com/ease-lab/vSwarm/utils/protobuf/helloworld"
 	sdk "github.com/ease-lab/vhive-xdt/sdk/golang"
 	"github.com/ease-lab/vhive-xdt/utils"
 

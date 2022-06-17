@@ -32,7 +32,10 @@ COPY ./utils/storage/python/storage.py ./
 COPY ./benchmarks/video-analytics/object_recognition/* ./
 COPY ./benchmarks/video-analytics/proto/videoservice_pb2_grpc.py ./
 COPY ./benchmarks/video-analytics/proto/videoservice_pb2.py ./
-RUN --mount=type=secret,id=GOPRIVATE_KEY git clone --depth 1 https://$(cat /run/secrets/GOPRIVATE_KEY)@github.com/ease-lab/vhive-xdt /xdt
+RUN --mount=type=secret,id=GOPRIVATE_KEY \
+        git config --global url."https://ease-lab:$(cat /run/secrets/GOPRIVATE_KEY)@github.com/ease-lab/vhive-xdt".insteadOf "https://github.com/ease-lab/vhive-xdt"
+RUN curl https://$(cat /run/secrets/GOPRIVATE_KEY):x-oauth-basic@api.github.com/repos/ease-lab/vhive-xdt/git/refs/heads/eliminate_sQP_memcopy -o version.json
+RUN git clone --depth 1 -b eliminate_sQP_memcopy https://github.com/ease-lab/vhive-xdt /xdt
 
 FROM vhiveease/python-slim:latest as recog
 COPY --from=recogBuilder /root/.local /root/.local
@@ -59,7 +62,10 @@ COPY ./benchmarks/video-analytics/decoder/decode.py ./
 RUN mkdir frames
 COPY ./benchmarks/video-analytics/proto/videoservice_pb2_grpc.py ./
 COPY ./benchmarks/video-analytics/proto/videoservice_pb2.py ./
-RUN --mount=type=secret,id=GOPRIVATE_KEY git clone --depth 1 https://$(cat /run/secrets/GOPRIVATE_KEY)@github.com/ease-lab/vhive-xdt /xdt
+RUN --mount=type=secret,id=GOPRIVATE_KEY \
+        git config --global url."https://ease-lab:$(cat /run/secrets/GOPRIVATE_KEY)@github.com/ease-lab/vhive-xdt".insteadOf "https://github.com/ease-lab/vhive-xdt"
+RUN curl https://$(cat /run/secrets/GOPRIVATE_KEY):x-oauth-basic@api.github.com/repos/ease-lab/vhive-xdt/git/refs/heads/eliminate_sQP_memcopy -o version.json
+RUN git clone --depth 1 -b eliminate_sQP_memcopy https://github.com/ease-lab/vhive-xdt /xdt
 
 FROM vhiveease/python-slim:latest as decode
 RUN apt update && apt-get install ffmpeg libsm6 libxext6  -y
@@ -86,6 +92,7 @@ COPY ./benchmarks/video-analytics/go.sum ./
 COPY ./benchmarks/video-analytics/proto ./proto
 COPY ./utils/storage/go ../../utils/storage/go
 COPY ./utils/tracing/go ../../utils/tracing/go
+COPY ./utils/protobuf/helloworld ../../utils/protobuf/helloworld
 RUN --mount=type=secret,id=GOPRIVATE_KEY \
     git config --global url."https://$(cat /run/secrets/GOPRIVATE_KEY)@github.com/ease-lab/vhive-xdt".insteadOf "https://github.com/ease-lab/vhive-xdt"
 RUN go env -w GOPRIVATE=github.com/ease-lab/vhive-xdt

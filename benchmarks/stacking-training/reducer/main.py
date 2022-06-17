@@ -116,6 +116,7 @@ class ReducerServicer(stacking_pb2_grpc.ReducerServicer):
         elif transferType == XDT:
             if XDTconfig is None:
                 log.fatal("Empty XDT config")
+            self.XDTclient = XDTsrc.XDTclient(XDTconfig)
             self.XDTconfig = XDTconfig
 
     def Reduce(self, request, context):
@@ -126,16 +127,24 @@ class ReducerServicer(stacking_pb2_grpc.ReducerServicer):
 
         for i, model_pred_tuple in enumerate(request.model_pred_tuples):
             with tracing.Span(f"Reducer gets model {i} from S3"):
-                models.append(storage.get(model_pred_tuple.model_key))
-                predictions.append(storage.get(model_pred_tuple.pred_key))
+                if self.transferType == S3:
+                    models.append(storage.get(model_pred_tuple.model_key))
+                    predictions.append(storage.get(model_pred_tuple.pred_key))
+                elif self.transferType == XDT:
+                    models.append(pickle.loads(XDTdst.Get(model_pred_tuple.model_key, self.XDTconfig)))
+                    predictions.append(pickle.loads(XDTdst.Get(model_pred_tuple.pred_key, self.XDTconfig)))
 
         meta_features = np.transpose(np.array(predictions))
 
         meta_features_key = 'meta_features'
         models_key = 'models'
-        meta_features_key = storage.put(meta_features_key, meta_features)
 
-        models_key = storage.put(models_key, models)
+        if self.transferType == S3:
+            meta_features_key = storage.put(meta_features_key, meta_features)
+            models_key = storage.put(models_key, models)
+        elif self.transferType == XDT:
+            meta_features_key = self.XDTclient.Put(payload=pickle.dumps(meta_features))
+            models_key = self.XDTclient.Put(payload=pickle.dumps(models))
 
 
         return stacking_pb2.ReduceReply(
@@ -148,21 +157,24 @@ class ReducerServicer(stacking_pb2_grpc.ReducerServicer):
 
 def serve():
     transferType = os.getenv('TRANSFER_TYPE', S3)
+    XDTconfig = dict()
     if transferType == S3:
         storage.init("S3", 'vhive-stacking')
-        log.info("Using inline or s3 transfers")
-        max_workers = int(os.getenv("MAX_SERVER_THREADS", 10))
-        server = grpc.server(futures.ThreadPoolExecutor(max_workers=max_workers))
-        stacking_pb2_grpc.add_ReducerServicer_to_server(
-            ReducerServicer(transferType=transferType), server)
-        server.add_insecure_port('[::]:' + args.sp)
-        server.start()
-        server.wait_for_termination()
+        log.info("Using s3 transfers")
     elif transferType == XDT:
-        log.fatal("XDT not yet supported")
         XDTconfig = XDTutil.loadConfig()
+        log.info("XDT config:")
+        log.info(XDTconfig)
     else:
         log.fatal("Invalid Transfer type")
+
+    max_workers = int(os.getenv("MAX_SERVER_THREADS", 10))
+    server = grpc.server(futures.ThreadPoolExecutor(max_workers=max_workers))
+    stacking_pb2_grpc.add_ReducerServicer_to_server(
+        ReducerServicer(transferType=transferType, XDTconfig=XDTconfig), server)
+    server.add_insecure_port('[::]:' + args.sp)
+    server.start()
+    server.wait_for_termination()
 
 
 if __name__ == '__main__':
