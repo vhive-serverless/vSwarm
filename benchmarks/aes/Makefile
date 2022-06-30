@@ -29,21 +29,25 @@ ROOT = ../../
 FUNCTIONS = aes-python aes-nodejs aes-go
 ALL_IMAGES = $(addsuffix -image, $(FUNCTIONS))
 
+PLATFORMS := linux/amd64,linux/arm64
+
 all: all_image
 
 all_image: $(ALL_IMAGES)
 
 
 aes-python-image: Dockerfile python/server.py
-	DOCKER_BUILDKIT=1 docker build \
+	DOCKER_BUILDKIT=1 docker buildx build \
 	--tag vhiveease/aes-python:latest \
 	--target aesPython \
+	--platform ${PLATFORMS} \
+	--push \
 	-f Dockerfile \
 	$(ROOT)
 
 
 aes-nodejs-image: Dockerfile nodejs/server.js
-	DOCKER_BUILDKIT=1 docker build --progress=plain \
+	DOCKER_BUILDKIT=1 docker buildx build --progress=plain \
 	--tag vhiveease/aes-nodejs:latest \
 	--target aesNodeJS \
 	-f Dockerfile \
@@ -51,10 +55,11 @@ aes-nodejs-image: Dockerfile nodejs/server.js
 
 
 aes-go-image: Dockerfile go/server.go
-	DOCKER_BUILDKIT=1 \
-	docker build \
+	DOCKER_BUILDKIT=1 docker buildx build \
 	--tag vhiveease/aes-go:latest \
 	--target aesGo \
+	--platform ${PLATFORMS} \
+	--push \
 	-f Dockerfile \
 	$(ROOT)
 
