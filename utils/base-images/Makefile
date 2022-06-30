@@ -77,6 +77,7 @@ IMAGES := golang-builder-image
 	--tag docker.io/vhiveease/$(subst -image,,$@):latest \
 	--platform ${PLATFORMS} \
 	--target $(subst -image,,$@) \
+	--push \
 	-f Dockerfile \
 	.
 
