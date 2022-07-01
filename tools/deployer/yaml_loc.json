@@ -1,148 +1,38 @@
 {
-    "functions": [
-        {
-            "name": "aes-go",
-            "file": "aes/yamls/knative/kn-aes-go.yaml"
-        },
-        {
-            "name": "aes-go-tracing",
-            "file": "aes/yamls/knative/kn-aes-go-tracing.yaml"
-        },
-        {
-            "name": "aes-python",
-            "file": "aes/yamls/knative/kn-aes-python.yaml"
-        },
-        {
-            "name": "aes-python-tracing",
-            "file": "aes/yamls/knative/kn-aes-python-tracing.yaml"
-        },
-        {
-            "name": "aes-nodejs",
-            "file": "aes/yamls/knative/kn-aes-nodejs.yaml"
-        },
-        {
-            "name": "aes-nodejs-tracing",
-            "file": "auth/yamls/knative/kn-auth-nodejs-tracing.yaml"
-        },
-        {
-            "name": "auth-go",
-            "file": "auth/yamls/knative/kn-auth-go.yaml"
-        },
-        {
-            "name": "auth-go-tracing",
-            "file": "auth/yamls/knative/kn-auth-go-tracing.yaml"
-        },
-        {
-            "name": "auth-python",
-            "file": "auth/yamls/knative/kn-auth-python.yaml"
-        },
-        {
-            "name": "auth-python-tracing",
-            "file": "auth/yamls/knative/kn-auth-python-tracing.yaml"
-        },
-        {
-            "name": "auth-nodejs",
-            "file": "auth/yamls/knative/kn-auth-nodejs.yaml"
-        },
-        {
-            "name": "auth-nodejs-tracing",
-            "file": "auth/yamls/knative/kn-auth-nodejs-tracing.yaml"
-        },
-        {
-            "name": "fibonacci-go",
-            "file": "fibonacci/yamls/knative/kn-fibonacci-go.yaml"
-        },
-        {
-            "name": "fibonacci-go-tracing",
-            "file": "fibonacci/yamls/knative/kn-fibonacci-go-tracing.yaml"
-        },
-        {
-            "name": "fibonacci-python",
-            "file": "fibonacci/yamls/knative/kn-fibonacci-python.yaml"
-        },
-        {
-            "name": "fibonacci-python-tracing",
-            "file": "fibonacci/yamls/knative/kn-fibonacci-python-tracing.yaml"
-        },
-        {
-            "name": "fibonacci-nodejs",
-            "file": "fibonacci/yamls/knative/kn-fibonacci-nodejs.yaml"
-        },
-        {
-            "name": "fibonacci-nodejs-tracing",
-            "file": "fibonacci/yamls/knative/kn-fibonacci-nodejs-tracing.yaml"
-        },
-        {
-            "name": "geo",
-            "file": "hotel-app/yamls/knative/kn-geo.yaml"
-        },
-        {
-            "name": "geo-tracing",
-            "file": "hotel-app/yamls/knative/kn-geo-tracing.yaml"
-        },
-        {
-            "name": "profile",
-            "file": "hotel-app/yamls/knative/kn-profile.yaml"
-        },
-        {
-            "name": "rate",
-            "file": "hotel-app/yamls/knative/kn-rate.yaml"
-        },
-        {
-            "name": "recommendation",
-            "file": "hotel-app/yamls/knative/kn-recommendation.yaml"
-        },
-        {
-            "name": "reservation",
-            "file": "hotel-app/yamls/knative/kn-reservation.yaml"
-        },
-        {
-            "name": "user",
-            "file": "hotel-app/yamls/knative/kn-user.yaml"
-        },
-        {
-            "name": "search",
-            "file": "hotel-app/yamls/knative/kn-search.yaml"
-        },
-        {
-            "name": "search-tracing",
-            "file": "hotel-app/yamls/knative/kn-search-tracing.yaml"
-        },
-        {
-            "name": "adservice",
-            "file": "online-shop/yamls/knative/kn-adservice.yaml"
-        },
-        {
-            "name": "cartservice",
-            "file": "online-shop/yamls/knative/kn-cartservice.yaml"
-        },
-        {
-            "name": "checkoutservice",
-            "file": "online-shop/yamls/knative/kn-checkoutservice.yaml"
-        },
-        {
-            "name": "currencyservice",
-            "file": "online-shop/yamls/knative/kn-currencyservice.yaml"
-        },
-        {
-            "name": "emailservice",
-            "file": "online-shop/yamls/knative/kn-emailservice.yaml"
-        },
-        {
-            "name": "paymentservice",
-            "file": "online-shop/yamls/knative/kn-paymentservice.yaml"
-        },
-        {
-            "name": "productcatalogservice",
-            "file": "online-shop/yamls/knative/kn-productcatalogservice.yaml"
-        },
-        {
-            "name": "recommendationservice",
-            "file": "online-shop/yamls/knative/kn-recommendationservice.yaml"
-        },
-        {
-            "name": "shippingservice",
-            "file": "online-shop/yamls/knativ/kn-shippingservice.yaml"
-        }
-    ]
+    "aes-go": "aes/yamls/knative/kn-aes-go.yaml",
+    "aes-go-tracing": "aes/yamls/knative/kn-aes-go-tracing.yaml",
+    "aes-python": "aes/yamls/knative/kn-aes-python.yaml",
+    "aes-python-tracing": "aes/yamls/knative/kn-aes-python-tracing.yaml",
+    "aes-nodejs": "aes/yamls/knative/kn-aes-nodejs.yaml",
+    "aes-nodejs-tracing": "auth/yamls/knative/kn-auth-nodejs-tracing.yaml",
+    "auth-go": "auth/yamls/knative/kn-auth-go.yaml",
+    "auth-go-tracing": "auth/yamls/knative/kn-auth-go-tracing.yaml",
+    "auth-python": "auth/yamls/knative/kn-auth-python.yaml",
+    "auth-python-tracing": "auth/yamls/knative/kn-auth-python-tracing.yaml",
+    "auth-nodejs": "auth/yamls/knative/kn-auth-nodejs.yaml",
+    "auth-nodejs-tracing": "auth/yamls/knative/kn-auth-nodejs-tracing.yaml",
+    "fibonacci-go": "fibonacci/yamls/knative/kn-fibonacci-go.yaml",
+    "fibonacci-go-tracing": "fibonacci/yamls/knative/kn-fibonacci-go-tracing.yaml",
+    "fibonacci-python": "fibonacci/yamls/knative/kn-fibonacci-python.yaml",
+    "fibonacci-python-tracing": "fibonacci/yamls/knative/kn-fibonacci-python-tracing.yaml",
+    "fibonacci-nodejs": "fibonacci/yamls/knative/kn-fibonacci-nodejs.yaml",
+    "fibonacci-nodejs-tracing": "fibonacci/yamls/knative/kn-fibonacci-nodejs-tracing.yaml",
+    "geo": "hotel-app/yamls/knative/kn-geo.yaml",
+    "geo-tracing": "hotel-app/yamls/knative/kn-geo-tracing.yaml",
+    "profile": "hotel-app/yamls/knative/kn-profile.yaml",
+    "rate": "hotel-app/yamls/knative/kn-rate.yaml",
+    "recommendation": "hotel-app/yamls/knative/kn-recommendation.yaml",
+    "reservation": "hotel-app/yamls/knative/kn-reservation.yaml",
+    "user": "hotel-app/yamls/knative/kn-user.yaml",
+    "search": "hotel-app/yamls/knative/kn-search.yaml",
+    "search-tracing": "hotel-app/yamls/knative/kn-search-tracing.yaml",
+    "adservice": "online-shop/yamls/knative/kn-adservice.yaml",
+    "cartservice": "online-shop/yamls/knative/kn-cartservice.yaml",
+    "checkoutservice": "online-shop/yamls/knative/kn-checkoutservice.yaml",
+    "currencyservice": "online-shop/yamls/knative/kn-currencyservice.yaml",
+    "emailservice": "online-shop/yamls/knative/kn-emailservice.yaml",
+    "paymentservice": "online-shop/yamls/knative/kn-paymentservice.yaml",
+    "productcatalogservice": "online-shop/yamls/knative/kn-productcatalogservice.yaml",
+    "recommendationservice": "online-shop/yamls/knative/kn-recommendationservice.yaml",
+    "shippingservice": "online-shop/yamls/knativ/kn-shippingservice.yamle"
 }

@@ -34,19 +34,19 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-// Functions is an object for unmarshalled JSON with functions to deploy.
+// Functions is an object for unmarshalled JSON with functions to deploy
 type Functions struct {
 	Functions []functionType `json:"functions"`
 }
 
 type functionType struct {
 	Name string `json:"name"`
-	File string `json:"file"`
 }
 
 var (
 	gatewayURL            = flag.String("gatewayURL", "192.168.1.240.sslip.io", "URL of the gateway")
 	knativeYamlPaths      = flag.String("knativeYamlFile", "yaml_loc.json", "JSON file that contains the locations of all benchmarks")
+	deployFunctionPath    = flag.String("deployFunctionPath", "deploy_functions.json", "JSON file that contains the locations of all benchmarks")
 	namespaceName         = flag.String("namespace", "default", "name of namespace in which services exists")
 	endpointsFile         = flag.String("endpointsFile", "endpoints.json", "File with endpoints' metadata")
 	deploymentConcurrency = flag.Int("conc", 5, "Number of functions to deploy concurrently (for serving)")
@@ -71,7 +71,7 @@ func main() {
 
 	flag.Parse()
 
-	funcSlice := getFuncSlice(*knativeYamlPaths)
+	funcSlice := getFuncSlice(*deployFunctionPath)
 
 	urls := deploy(funcSlice, *deploymentConcurrency)
 
@@ -84,11 +84,11 @@ func getFuncSlice(file string) []functionType {
 	log.Debug("Opening JSON file with functions: ", file)
 	byteValue, err := ioutil.ReadFile(file)
 	if err != nil {
-		log.Fatalf("Error while reading file: %s", err)
+		log.Fatalf("Error while reading func slice file: %s", err)
 	}
 	var functions Functions
 	if err := json.Unmarshal(byteValue, &functions); err != nil {
-		log.Fatalf("Error while Unmarshalling: %s", err)
+		log.Fatalf("Error while Unmarshalling func slice: %s", err)
 	}
 	return functions.Functions
 }
@@ -103,14 +103,24 @@ func deploy(funcSlice []functionType, deploymentConcurrency int) []string {
 		}
 		log.Debugf("Currently working in %s", pwd)
 	}
+
+	// Read locations of yaml files
+	var locs map[string]interface{}
+
+	byteValue, err := ioutil.ReadFile(*knativeYamlPaths)
+	if err != nil {
+		log.Fatalf("Error while reading knative yaml file: %s", err)
+	}
+	if err := json.Unmarshal(byteValue, &locs); err != nil {
+		log.Fatalf("Error while Unmarshalling knative yaml: %s", err)
+	}
+
 	for _, fType := range funcSlice {
 		sem <- true
 		funcName := fType.Name
 		url := fmt.Sprintf("%s.%s.%s", funcName, *namespaceName, *gatewayURL)
 		urls = append(urls, url)
-
-		filePath := fType.File
-
+		filePath := locs[fType.Name].(string)
 		go func(funcName, filePath string) {
 			defer func() { <-sem }()
 

@@ -1,0 +1,13 @@
+{
+    "functions": [
+        {
+            "name": "aes-go"
+        },
+        {
+            "name": "auth-nodejs"
+        },
+        {
+            "name": "fibonacci-python"
+        }
+    ]
+}
