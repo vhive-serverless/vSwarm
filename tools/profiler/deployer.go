@@ -27,8 +27,8 @@ import (
 	"flag"
 	"fmt"
 	"io/ioutil"
-	"os"
 	"os/exec"
+	"path/filepath"
 
 	"github.com/ease-lab/vSwarm/tools/endpoint"
 	log "github.com/sirupsen/logrus"
@@ -42,80 +42,73 @@ type Functions struct {
 type functionType struct {
 	Name string `json:"name"`
 	File string `json:"file"`
+
+	// number of functions to deploy from the same file (with different names)
+	Count int `json:"count"`
+
+	Eventing    bool   `json:"eventing"`
+	ApplyScript string `json:"applyScript"`
 }
 
 var (
-	gatewayURL            = flag.String("gatewayURL", "192.168.1.240.sslip.io", "URL of the gateway")
-	knativeYamlPaths      = flag.String("knativeYamlFile", "yaml_loc.json", "JSON file that contains the locations of all benchmarks")
-	namespaceName         = flag.String("namespace", "default", "name of namespace in which services exists")
-	endpointsFile         = flag.String("endpointsFile", "endpoints.json", "File with endpoints' metadata")
-	deploymentConcurrency = flag.Int("conc", 5, "Number of functions to deploy concurrently (for serving)")
+	gatewayURL      = flag.String("gatewayURL", "192.168.1.240.sslip.io", "URL of the gateway")
+	knativeYamlFile = flag.String("knativeYamlFile", "yaml_loc.json", "JSON file that contains the locations of all benchmarks")
+	namespaceName   = flag.String("namespace", "default", "name of namespace in which services exists")
 )
 
-func isDebuggingEnabled() bool {
-	if val, ok := os.LookupEnv("ENABLE_DEBUGGING"); !ok || val == "false" {
-		return false
-	} else if val == "true" {
-		return true
-	} else {
-		log.Fatalf("ENABLE_DEBUGGING has unexpected value: `%s`", val)
-		return false
-	}
-}
+// func main() {
+// 	funcPath := flag.String("funcPath", "./configs/knative_workloads", "Path to the folder with *.yml files")
+// 	funcJSONFile := flag.String("jsonFile", "./examples/deployer/functions.json", "Path to the JSON file with functions to deploy")
+// 	endpointsFile := flag.String("endpointsFile", "endpoints.json", "File with endpoints' metadata")
+// 	deploymentConcurrency := flag.Int("conc", 5, "Number of functions to deploy concurrently (for serving)")
 
-func main() {
-	if isDebuggingEnabled() {
-		log.SetLevel(log.DebugLevel)
-		log.Info("Debugging is enabled.")
-	}
+// 	flag.Parse()
 
-	flag.Parse()
+// 	log.Debug("Function files are taken from ", *funcPath)
 
-	funcSlice := getFuncSlice(*knativeYamlPaths)
+// 	funcSlice := getFuncSlice(*funcJSONFile)
 
-	urls := deploy(funcSlice, *deploymentConcurrency)
+// 	urls := deploy(*funcPath, funcSlice, *deploymentConcurrency)
 
-	writeEndpoints(*endpointsFile, urls)
+// 	writeEndpoints(*endpointsFile, urls)
 
-	log.Infoln("Deployment finished")
-}
+// 	log.Infoln("Deployment finished")
+// }
 
 func getFuncSlice(file string) []functionType {
 	log.Debug("Opening JSON file with functions: ", file)
 	byteValue, err := ioutil.ReadFile(file)
 	if err != nil {
-		log.Fatalf("Error while reading file: %s", err)
+		log.Fatal(err)
 	}
 	var functions Functions
 	if err := json.Unmarshal(byteValue, &functions); err != nil {
-		log.Fatalf("Error while Unmarshalling: %s", err)
+		log.Fatal(err)
 	}
 	return functions.Functions
 }
 
-func deploy(funcSlice []functionType, deploymentConcurrency int) []string {
+func deploy(funcPath string, funcSlice []functionType, deploymentConcurrency int) []string {
 	var urls []string
 	sem := make(chan bool, deploymentConcurrency) // limit the number of parallel deployments
-	if isDebuggingEnabled() {
-		pwd, err := exec.Command("pwd").Output()
-		if err != nil {
-			log.Warn(err)
-		}
-		log.Debugf("Currently working in %s", pwd)
-	}
+
 	for _, fType := range funcSlice {
-		sem <- true
-		funcName := fType.Name
-		url := fmt.Sprintf("%s.%s.%s", funcName, *namespaceName, *gatewayURL)
-		urls = append(urls, url)
+		for i := 0; i < fType.Count; i++ {
 
-		filePath := fType.File
+			sem <- true
 
-		go func(funcName, filePath string) {
-			defer func() { <-sem }()
+			funcName := fmt.Sprintf("%s-%d", fType.Name, i)
+			url := fmt.Sprintf("%s.%s.%s", funcName, *namespaceName, *gatewayURL)
+			urls = append(urls, url)
 
-			deployFunction(funcName, filePath)
-		}(funcName, filePath)
+			filePath := filepath.Join(funcPath, fType.File)
+
+			go func(funcName, filePath string) {
+				defer func() { <-sem }()
+
+				deployFunction(funcName, filePath)
+			}(funcName, filePath)
+		}
 	}
 
 	for i := 0; i < cap(sem); i++ {
@@ -136,7 +129,6 @@ func deployFunction(funcName, filePath string) {
 		"--concurrency-target",
 		"1",
 	)
-	cmd.Dir = "../../benchmarks"
 	stdoutStderr, err := cmd.CombinedOutput()
 	if err != nil {
 		log.Warnf("Failed to deploy function %s, %s: %v\n%s\n", funcName, filePath, err, stdoutStderr)

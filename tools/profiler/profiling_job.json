@@ -1,0 +1,29 @@
+{
+    "profiling_jobs": [
+        {
+            "instr_id": 1,
+            "job_type": "invokation",
+            "func_name": "aes-go"
+        },
+        {
+            "instr_id": 2,
+            "job_type": "invokation",
+            "func_name": "aes-python"
+        },
+        {
+            "instr_id": 3,
+            "job_type": "invokation",
+            "func_name": "aes-go"
+        },
+        {
+            "instr_id": 4,
+            "job_type": "invokation",
+            "func_name": "aes-go"
+        },
+        {
+            "instr_id": 5,
+            "job_type": "invokation",
+            "func_name": "aes-go"
+        }
+    ]
+}
