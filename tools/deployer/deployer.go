@@ -25,7 +25,6 @@ package deployer
 import (
 	"encoding/json"
 	"flag"
-	"fmt"
 	"io/ioutil"
 	"os"
 	"os/exec"
@@ -44,11 +43,11 @@ type functionType struct {
 }
 
 var (
-	gatewayURL            = flag.String("gatewayURL", "192.168.1.240.sslip.io", "URL of the gateway")
-	knativeYamlPathsFile  = flag.String("knativeYamlFile", "yaml_loc.json", "JSON file that contains the locations of all benchmarks")
-	deployFunctionPath    = flag.String("deployFunctionPath", "deploy_functions.json", "JSON file that contains the locations of all benchmarks")
-	namespaceName         = flag.String("namespace", "default", "name of namespace in which services exists")
-	endpointsFile         = flag.String("endpointsFile", "endpoints.json", "File with endpoints' metadata")
+	// gatewayURL            = flag.String("gatewayURL", "192.168.1.240.sslip.io", "URL of the gateway")
+	knativeYamlPathsFile = flag.String("knativeYamlFile", "yaml_loc.json", "JSON file that contains the locations of all benchmarks")
+	deployFunctionPath   = flag.String("deployFunctionPath", "deploy_functions.json", "JSON file that contains the locations of all benchmarks")
+	// namespaceName         = flag.String("namespace", "default", "name of namespace in which services exists")
+	// endpointsFile         = flag.String("endpointsFile", "endpoints.json", "File with endpoints' metadata")
 	deploymentConcurrency = flag.Int("conc", 5, "Number of functions to deploy concurrently (for serving)")
 )
 
@@ -93,29 +92,29 @@ func getFuncSlice(file string) []functionType {
 	return functions.Functions
 }
 
-func deploy(funcSlice []functionType, deploymentConcurrency int) []string {
-	var urls []string
-	sem := make(chan bool, deploymentConcurrency) // limit the number of parallel deployments
+// func deploy(funcSlice []functionType, deploymentConcurrency int) []string {
+// 	var urls []string
+// 	sem := make(chan bool, deploymentConcurrency) // limit the number of parallel deployments
 
-	for _, fType := range funcSlice {
-		sem <- true
-		funcName := fType.Name
-		url := fmt.Sprintf("%s.%s.%s", funcName, *namespaceName, *gatewayURL)
-		urls = append(urls, url)
+// 	for _, fType := range funcSlice {
+// 		sem <- true
+// 		funcName := fType.Name
+// 		url := fmt.Sprintf("%s.%s.%s", funcName, *namespaceName, *gatewayURL)
+// 		urls = append(urls, url)
 
-		go func(funcName string) {
-			defer func() { <-sem }()
+// 		go func(funcName string) {
+// 			defer func() { <-sem }()
 
-			DeployFunction(funcName, *knativeYamlPathsFile)
-		}(funcName)
-	}
+// 			DeployFunction(funcName, *knativeYamlPathsFile)
+// 		}(funcName)
+// 	}
 
-	for i := 0; i < cap(sem); i++ {
-		sem <- true
-	}
+// 	for i := 0; i < cap(sem); i++ {
+// 		sem <- true
+// 	}
 
-	return urls
-}
+// 	return urls
+// }
 
 func DeployFunction(funcName string, knativePathFile string) {
 	if isDebuggingEnabled() {
