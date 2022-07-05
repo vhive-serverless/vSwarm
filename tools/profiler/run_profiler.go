@@ -6,7 +6,8 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
-	deployer "github.com/ease-lab/vSwarm/tools/deployer"
+
+	"github.com/ease-lab/vSwarm/tools/deployer"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -17,7 +18,7 @@ type ProfilingJobs struct {
 type ProfilingJob struct {
 	Instruction_id int    `json:"instr_id"`
 	JobType        string `json:"job_type"`
-	FunctionType   string `json:"func_name"`
+	FunctionName   string `json:"func_name"`
 }
 
 var (
@@ -56,17 +57,17 @@ func main() {
 	var profilingJobs ProfilingJobs
 
 	json.Unmarshal(byteValue, &profilingJobs)
-	listFunctions := map[string]bool{}
+	listFunctionsRunning := map[string]bool{}
 	log.Debugf("Start to read each job...")
 
 	for i := 0; i < len(profilingJobs.ProfilingJobs); i++ {
 		job := profilingJobs.ProfilingJobs[i]
-		if _, exists := listFunctions[job.FunctionType]; exists {
+		if _, exists := listFunctionsRunning[job.FunctionName]; exists {
 			log.Debugf("Function is already running.")
 		} else {
-			deployer.deploy("", [], 0)
-			log.Debugf("Function %s started", job.FunctionType)
-			listFunctions[job.FunctionType] = true
+			deployer.DeployFunction(job.FunctionName, "../deployer/yaml_loc.json")
+			log.Debugf("Function %s started", job.FunctionName)
+			listFunctionsRunning[job.FunctionName] = true
 		}
 	}
 }
