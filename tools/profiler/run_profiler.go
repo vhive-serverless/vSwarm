@@ -109,14 +109,17 @@ func main() {
 
 		// Wait for knative to get deployed
 		waitForDeployCmd := exec.Command(
-			"kubectl wait --for=condition=Ready -f",
+			"kubectl",
+			"wait",
+			"--for=condition=Ready",
+			"-f",
 			locs[job.FunctionName].(string),
 			"--timeout 120s",
 		)
 		waitForDeployCmd.Dir = "../../benchmarks"
 		stdoutStderr, err := waitForDeployCmd.CombinedOutput()
 		if err != nil {
-			log.Warnf("Failed to make invoker: %v, %s", err, stdoutStderr)
+			log.Warnf("Failed to wait for deployment: %v, %s", err, stdoutStderr)
 		}
 		callInvoker(job.Rps, job.RunDuration)
 
@@ -151,6 +154,6 @@ func makeInvoker() {
 	log.Debug("Building invoker")
 	stdoutStderr, err := cmd.CombinedOutput()
 	if err != nil {
-		log.Warnf("Failed to make invoker: %v, %s", err, stdoutStderr)
+		log.Fatalf("Failed to make invoker: %v, %s", err, stdoutStderr)
 	}
 }
