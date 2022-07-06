@@ -114,10 +114,11 @@ func main() {
 			"--for=condition=Ready",
 			"-f",
 			locs[job.FunctionName].(string),
-			"--timeout 120s",
+			"--timeout=120s",
 		)
 		waitForDeployCmd.Dir = "../../benchmarks"
 		stdoutStderr, err := waitForDeployCmd.CombinedOutput()
+		log.Debug(string(stdoutStderr))
 		if err != nil {
 			log.Warnf("Failed to wait for deployment: %v, %s", err, stdoutStderr)
 		}
@@ -140,6 +141,7 @@ func callInvoker(rps int, runDuration int) {
 	)
 	cmd.Dir = "../invoker"
 	stdoutStderr, err := cmd.CombinedOutput()
+	log.Debug(string(stdoutStderr))
 	if err != nil {
 		log.Warnf("Failed to call invoker: %v, %s", err, stdoutStderr)
 	}
@@ -153,6 +155,7 @@ func makeInvoker() {
 	cmd.Dir = "../invoker"
 	log.Debug("Building invoker")
 	stdoutStderr, err := cmd.CombinedOutput()
+	log.Debug(string(stdoutStderr))
 	if err != nil {
 		log.Fatalf("Failed to make invoker: %v, %s", err, stdoutStderr)
 	}
