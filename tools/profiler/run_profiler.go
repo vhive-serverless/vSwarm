@@ -122,25 +122,28 @@ func main() {
 		if err != nil {
 			log.Warnf("Failed to wait for deployment: %v, %s", err, stdoutStderr)
 		}
-		callInvoker(job.Rps, job.RunDuration)
+		callInvoker(job.Rps, job.RunDuration, job.FunctionName+"_"+fmt.Sprint(i))
 
 	}
 
 }
 
-func callInvoker(rps int, runDuration int) {
+func callInvoker(rps int, runDuration int, fname string) {
 	// Call invoker
 	cmd := exec.Command(
 		"./invoker",
 		"-port",
-		"50051",
+		"80",
 		"-rps",
 		strconv.Itoa(rps),
 		"-time",
 		strconv.Itoa(runDuration),
+		"--latf",
+		fname,
 	)
 	cmd.Dir = "../invoker"
 	stdoutStderr, err := cmd.CombinedOutput()
+	log.Debug("Invoking command: ", cmd.Args)
 	log.Debug(string(stdoutStderr))
 	if err != nil {
 		log.Warnf("Failed to call invoker: %v, %s", err, stdoutStderr)
