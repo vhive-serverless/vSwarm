@@ -1,4 +1,26 @@
-package plotter
+// MIT License
+//
+// Copyright (c) 2022 Dohyun Park and EASE lab
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in all
+// copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+// SOFTWARE.
+
+package main
 
 import (
 	"fmt"
@@ -7,21 +29,17 @@ import (
 
 	log "github.com/sirupsen/logrus"
 
-	"github.com/ease-lab/vSwarm/tools/trace-plotter/models"
-
 	"github.com/go-echarts/go-echarts/v2/charts"
 	"github.com/go-echarts/go-echarts/v2/opts"
 	"github.com/gonum/stat"
 )
 
-func ParseTraces(traces []models.Trace) ([]*models.Trace, []float64) {
+func ParseTraces(traces []Trace, latencyType string) ([]*Trace, []float64) {
 
-	m := make(map[string]*models.Trace)
+	m := make(map[string]*Trace)
 
 	for i := range traces {
-		if traces[i].Name != "probe" {
-			m[traces[i].ID] = &traces[i]
-		}
+		m[traces[i].ID] = &traces[i]
 	}
 
 	for i := range traces {
@@ -30,26 +48,44 @@ func ParseTraces(traces []models.Trace) ([]*models.Trace, []float64) {
 		}
 	}
 
-	rootTraces := []*models.Trace{}
+	parsedTraces := []*Trace{}
 	for _, trace := range m {
 		if m[trace.ParentID] == nil {
-			rootTraces = append(rootTraces, trace)
+			deepestLeaf, _ := trace.DeepestLeaf()
+			trace.SystemDuration = trace.Duration - deepestLeaf.Duration
+
+			parsedTraces = append(parsedTraces, trace)
 		}
 	}
 
-	sort.Slice(rootTraces, func(i, j int) bool {
-		return rootTraces[i].Duration < rootTraces[j].Duration
-	})
-
-	durations := make([]float64, len(rootTraces))
-	for i, trace := range rootTraces {
-		durations[i] = float64(trace.Duration)
+	switch latencyType {
+	case "e2e":
+		sort.Slice(parsedTraces, func(i, j int) bool {
+			return parsedTraces[i].Duration < parsedTraces[j].Duration
+		})
+	case "system":
+		sort.Slice(parsedTraces, func(i, j int) bool {
+			return parsedTraces[i].SystemDuration < parsedTraces[j].SystemDuration
+		})
 	}
 
-	return rootTraces, durations
+	durations := make([]float64, len(parsedTraces))
+	for i, trace := range parsedTraces {
+		switch latencyType {
+		case "e2e":
+			durations[i] = float64(trace.Duration)
+		case "system":
+			if float64(trace.SystemDuration) > 0 {
+				durations[i] = float64(trace.SystemDuration)
+			} else {
+				durations[i] = 1e-12 // avoid 0 or negative value
+			}
+		}
+	}
+	return parsedTraces, durations
 }
 
-func getPercentiles(rootTraces []*models.Trace, durations []float64) map[string]float64 {
+func getPercentiles(durations []float64) map[string]float64 {
 	if len(durations) == 0 { // no traces
 		return map[string]float64{
 			"Mean":   0,
@@ -79,15 +115,15 @@ func getPercentiles(rootTraces []*models.Trace, durations []float64) map[string]
 
 }
 
-func PlotGraph(rootTraces []*models.Trace, durations []float64, zipkinURL string) *charts.Scatter {
+func PlotGraph(traces []*Trace, durations []float64, zipkinURL string) *charts.Scatter {
 	successItems := make([]opts.ScatterData, 0)
 	errorItems := make([]opts.ScatterData, 0)
-	for _, trace := range rootTraces {
+	for i, trace := range traces {
 		resp, err := strconv.Atoi(trace.Tags.HTTPStatusCode)
 		if err != nil || resp > 300 {
 			errorItems = append(errorItems, opts.ScatterData{
 				Name:         trace.TraceID,
-				Value:        []interface{}{trace.Duration, stat.CDF(float64(trace.Duration), stat.Empirical, durations, nil)},
+				Value:        []interface{}{durations[i], stat.CDF(float64(durations[i]), stat.Empirical, durations, nil)},
 				Symbol:       "roundRect",
 				SymbolSize:   10,
 				SymbolRotate: 0,
@@ -95,7 +131,7 @@ func PlotGraph(rootTraces []*models.Trace, durations []float64, zipkinURL string
 		} else {
 			successItems = append(successItems, opts.ScatterData{
 				Name:         trace.TraceID,
-				Value:        []interface{}{trace.Duration, stat.CDF(float64(trace.Duration), stat.Empirical, durations, nil)},
+				Value:        []interface{}{durations[i], stat.CDF(float64(durations[i]), stat.Empirical, durations, nil)},
 				Symbol:       "roundRect",
 				SymbolSize:   10,
 				SymbolRotate: 0,
@@ -159,7 +195,7 @@ func PlotGraph(rootTraces []*models.Trace, durations []float64, zipkinURL string
 		}),
 		charts.WithLegendOpts(opts.Legend{Show: true}),
 	)
-	percentiles := getPercentiles(rootTraces, durations)
+	percentiles := getPercentiles(durations)
 
 	scatter.
 		AddSeries("Successful Traces Latency", successItems, charts.WithItemStyleOpts(opts.ItemStyle{Color: "blue"})).

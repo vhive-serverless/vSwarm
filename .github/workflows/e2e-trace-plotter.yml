@@ -1,0 +1,109 @@
+# MIT License
+#
+# Copyright (c) 2022 Dohyun Park and EASE lab
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
+
+name: Trace Plotter End-to-End Tests
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "0 9 * * 1"
+  push:
+    branches: [main]
+    paths:
+      - "tools/trace-plotter/*"
+  pull_request:
+    branches: [main]
+    paths:
+      - "tools/trace-plotter/*"
+
+jobs:
+  e2e-test-trace-plotter:
+    name: Test Trace Plotter
+    runs-on: ubuntu-20.04
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Helm
+        uses: azure/setup-helm@v1
+        with:
+          version: v3.9.1
+
+      - name: Create kind cluster
+        uses: helm/kind-action@v1.2.0
+
+      - name: Deploy Elasticsearch
+        working-directory: tools/trace-plotter
+        run: |
+          helm repo add bitnami https://charts.bitnami.com/bitnami
+          helm pull --untar bitnami/elasticsearch
+          kubectl create namespace elasticsearch
+          helm upgrade --install --wait -f ./values/es-example.values.yaml -n elasticsearch elasticsearch ./elasticsearch
+          nohup kubectl port-forward --namespace elasticsearch svc/elasticsearch 9200:9200 > elasticsearch.log &
+          sleep 5
+
+      - name: Deploy Zipkin
+        working-directory: tools/trace-plotter
+        run: |
+          helm repo add openzipkin https://openzipkin.github.io/zipkin
+          helm pull --untar openzipkin/zipkin
+          kubectl create namespace zipkin
+          helm upgrade --install --wait -f ./values/zipkin-example.values.yaml -n zipkin zipkin ./zipkin
+          nohup kubectl port-forward --namespace zipkin deployment/zipkin 9411:9411  > zipkin.log &
+          sleep 5
+
+      - name: Insert Fake Trace
+        run: |
+          curl -X POST "http://127.0.0.1:9411/api/v2/spans" \
+            -H  "accept: application/json" \
+            -H  "Content-Type: application/json" \
+            -d "[{
+              \"traceId\": \"942873c39eac4cebc6974ddc4089d545\",
+              \"parentId\": \"f71d0f393f736d42\",
+              \"id\": \"e0959e6c7ff6e43c\",
+              \"kind\": \"CLIENT\",
+              \"name\": \"/helloworld.greeter/sayhello\",
+              \"timestamp\": 1657031082559121,
+              \"duration\": 2962,
+              \"localEndpoint\": {
+                \"serviceName\": \"helloworld-0-00001-deployment-8d8b6574c-phchm\",
+                \"ipv4\": \"192.168.1.12\"
+              },
+              \"tags\": {
+                \"http.host\": \"helloworld-0.default.192.168.1.123.sslip.io:80\",
+                \"http.method\": \"POST\",
+                \"http.path\": \"/helloworld.Greeter/SayHello\",
+                \"http.status_code\": \"200\",
+                \"http.url\": \"http://190.128.0.34:50051/helloworld.Greeter/SayHello\",
+                \"http.user_agent\": \"grpc-go/1.39.0\",
+                \"opencensus.status_description\": \"OK\"
+              }
+            }]"
+
+      - uses: actions/setup-go@v3
+        with:
+          go-version: 1.16
+
+      - name: Run Trace Plotter
+        working-directory: tools/trace-plotter
+        run: |
+          go build && ./trace-plotter -zipkinURL http://127.0.0.1:9411

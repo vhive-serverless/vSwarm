@@ -1,4 +1,26 @@
-package models
+// MIT License
+//
+// Copyright (c) 2022 Dohyun Park and EASE lab
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in all
+// copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+// SOFTWARE.
+
+package main
 
 type EsResponse struct {
 	Hits     Hits   `json:"hits"`
@@ -30,7 +52,8 @@ type Trace struct {
 	Annotations     []Annotation  `json:"annotations,omitempty"`
 	Tags            *Tags         `json:"tags,omitempty"`
 
-	Child []*Trace
+	SystemDuration int64
+	Child          []*Trace
 }
 
 type Annotation struct {
@@ -58,9 +81,16 @@ type Total struct {
 	Relation string `json:"relation"`
 }
 
-type Shards struct {
-	Total      int64 `json:"total"`
-	Successful int64 `json:"successful"`
-	Skipped    int64 `json:"skipped"`
-	Failed     int64 `json:"failed"`
+func (trace *Trace) DeepestLeaf() (deapest *Trace, depth int) {
+	if len(trace.Child) == 0 {
+		return trace, 1
+	}
+	for _, child := range trace.Child {
+		child, d := child.DeepestLeaf()
+		if d > depth {
+			depth = d
+			deapest = child
+		}
+	}
+	return deapest, depth + 1
 }
