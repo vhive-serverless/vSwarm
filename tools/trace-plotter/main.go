@@ -1,6 +1,6 @@
 // MIT License
 //
-// Copyright (c) 2022 Dohyun Park and EASE lab
+// Copyright (c) 2022 Dohyun Park and EASL lab
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -24,10 +24,12 @@ package main
 
 import (
 	"flag"
+	"io"
 	"os"
 	"path/filepath"
 
 	elasticsearch "github.com/elastic/go-elasticsearch/v7"
+	"github.com/go-echarts/go-echarts/v2/components"
 
 	log "github.com/sirupsen/logrus"
 )
@@ -37,17 +39,10 @@ var (
 	pageSize         = flag.Int("pageSize", 100, "The number of traces to fetch per page while paginating")
 	zipkinURL        = flag.String("zipkinURL", "http://127.0.0.1:8080", "Zipkin URL")
 	fileName         = flag.String("fileName", "plot.html", "output file name")
-	latencyType      = flag.String("latencyType", "e2e", "which latency type to plot, e2e or system(e2e - leaf trace execution time)")
 )
 
 func main() {
 	flag.Parse()
-	switch *latencyType {
-	case "e2e", "system":
-	default:
-		log.Fatalf("latencyType must be one of e2e or system")
-	}
-
 	es, err := elasticsearch.NewClient(elasticsearch.Config{
 		Addresses: []string{*elasticsearchURL},
 	})
@@ -59,14 +54,21 @@ func main() {
 	var traces []Trace
 	l.GetTraces(*pageSize, &traces)
 
-	parsedTraces, durations := ParseTraces(traces, *latencyType)
-	scatter := PlotGraph(parsedTraces, durations, *zipkinURL)
+	page := components.NewPage()
+	page.PageTitle = "Trace Plots"
+
+	parsedE2ETraces, e2eDurations := ParseTraces(traces, "e2e")
+	parsedSystemTraces, systemDurations := ParseTraces(traces, "system")
+	page.AddCharts(
+		PlotGraph(parsedE2ETraces, e2eDurations, *zipkinURL, "e2e"),
+		PlotGraph(parsedSystemTraces, systemDurations, *zipkinURL, "system"),
+	)
 
 	if filepath.Ext(*fileName) != ".html" {
 		*fileName += ".html"
 	}
 	f, _ := os.Create(*fileName)
-	if err := scatter.Render(f); err != nil {
+	if err := page.Render(io.MultiWriter(f)); err != nil {
 		log.Errorf("Error rendering plot: %s", err)
 	}
 }
