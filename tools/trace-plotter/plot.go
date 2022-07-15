@@ -115,7 +115,7 @@ func getPercentiles(durations []float64) map[string]float64 {
 
 }
 
-func PlotGraph(traces []*Trace, durations []float64, zipkinURL string) *charts.Scatter {
+func PlotGraph(traces []*Trace, durations []float64, zipkinURL string, latencyType string) *charts.Scatter {
 	successItems := make([]opts.ScatterData, 0)
 	errorItems := make([]opts.ScatterData, 0)
 	for i, trace := range traces {
@@ -152,7 +152,7 @@ func PlotGraph(traces []*Trace, durations []float64, zipkinURL string) *charts.S
 	`, zipkinURL)
 
 	scatter := charts.NewScatter()
-	scatter.PageTitle = "Zipkin Traces"
+	scatter.PageTitle = latencyType + " traces"
 
 	scatter.SetGlobalOptions(
 		charts.WithTitleOpts(opts.Title{Title: scatter.PageTitle}),
