@@ -11,6 +11,6 @@ require (
 	github.com/kelseyhightower/envconfig v1.4.0
 	go.uber.org/atomic v1.9.0 // indirect
 	go.uber.org/zap v1.17.0 // indirect
-	google.golang.org/grpc v1.45.0
+	google.golang.org/grpc v1.48.0
 	google.golang.org/protobuf v1.28.0
 )
