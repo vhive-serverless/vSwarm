@@ -24,11 +24,23 @@ env:
   GOOS: linux
   GO111MODULE: on
   PORT: 50051
+  PLATFORMS: linux/amd64,linux/arm64
 
 jobs:
   build-and-push:
     name: Build and push all images
     runs-on: ubuntu-20.04
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - service: aes-go
+            target: aesGo
+          - service: aes-python
+            target: aesPython
+          - service: aes-nodejs
+            target: aesNodeJS
+
     steps:
       - name: Check out code into the Go module directory
         uses: actions/checkout@v3
@@ -40,6 +52,9 @@ jobs:
         with:
           username: ${{ secrets.DOCKER_HUB_USERNAME }}
           password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v2
 
       - name: Set up Docker Buildx
         id: buildx
@@ -58,15 +73,25 @@ jobs:
           GRPC_PYTHON_BUILD_SYSTEM_ZLIB=true
           python3 -m pip install -r requirements.txt
 
-      - name: Build and push
+      - name: Setup go dependencies
         working-directory: benchmarks/aes
         env:
           GOPRIVATE_KEY: ${{ secrets.EASE_LAB_ACCESS_KEY }}
         run: |
           go install google.golang.org/protobuf/cmd/protoc-gen-go@v1.26
           go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@v1.1
-          make all
-          make push
+
+      - name: Build and push
+        uses: docker/build-push-action@v3
+        with:
+          push: true
+          file: benchmarks/aes/Dockerfile
+          platforms: ${{ env.PLATFORMS }}
+          target: ${{ matrix.target }}
+          tags: vhiveease/${{ matrix.service }}:latest
+          context: .
+
+
 
 
   test-compose:
