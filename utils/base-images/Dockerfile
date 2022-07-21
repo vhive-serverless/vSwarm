@@ -31,3 +31,24 @@
 #---------- golang-builder -----------#
 FROM golang:1.16 AS golang-builder
 LABEL maintainer="https://github.com/ease-lab"
+
+
+#---------- python-builder -----------#
+FROM  python:3.8-slim AS python-slim
+LABEL maintainer="https://github.com/ease-lab"
+
+
+#---------- nodejs-builder -----------#
+FROM  node:18.6-slim AS node-slim
+LABEL maintainer="https://github.com/ease-lab"
+
+
+
+#---------- MongoDB -----------#
+FROM  mongo:4.2 AS mongodb
+LABEL maintainer="https://github.com/ease-lab"
+
+#---------- Memcached -----------#
+FROM  memcached:1.6 AS memcached
+LABEL maintainer="https://github.com/ease-lab"
+

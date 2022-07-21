@@ -21,78 +21,19 @@
 # SOFTWARE.
 
 
-clean: clean-proto
+.PHONY: all
 
-
-ROOT = ../../
-
-# FUNCTIONS = aes-python aes-nodejs aes-go
-# ALL_IMAGES = $(addsuffix -image, $(FUNCTIONS))
-
-all: all_image
-
-# all_image: $(ALL_IMAGES)
-
-
-# aes-python-image: Dockerfile python/server.py
-# 	DOCKER_BUILDKIT=1 docker build \
-# 	--tag vhiveease/aes-python:latest \
-# 	--target aesPython \
-# 	-f Dockerfile \
-# 	$(ROOT)
-
-
-# aes-nodejs-image: Dockerfile nodejs/server.js
-# 	DOCKER_BUILDKIT=1 docker build --progress=plain \
-# 	--tag vhiveease/aes-nodejs:latest \
-# 	--target aesNodeJS \
-# 	-f Dockerfile \
-# 	$(ROOT)
-
-
-# aes-go-image: Dockerfile go/server.go
-# 	DOCKER_BUILDKIT=1 \
-# 	docker build \
-# 	--tag vhiveease/aes-go:latest \
-# 	--target aesGo \
-# 	-f Dockerfile \
-# 	$(ROOT)
-
-# golang-builder: Dockerfile
-# 	DOCKER_BUILDKIT=1 \
-# 	docker buildx \
-# 	--tag vhiveease/golang-builder:latest \
-# 	--target golang-builder \
-# 	-f Dockerfile \
-# 	$(ROOT)
-
-
-PLATFORMS := linux/amd64,linux/arm64
-IMAGES := golang-builder-image
+IMAGES 	  ?= golang-builder python-slim node-slim mongodb memcached
 
 
 #### Build the base images
-%-image: Dockerfile
-	DOCKER_BUILDKIT=1 docker buildx build \
-	--tag docker.io/vhiveease/$(subst -image,,$@):latest \
-	--platform ${PLATFORMS} \
-	--target $(subst -image,,$@) \
-	--push \
+%: Dockerfile
+	DOCKER_BUILDKIT=1 docker build \
+	--tag docker.io/vhiveease/$@:latest \
+	--target $@ \
 	-f Dockerfile \
 	.
 
-build: $(IMAGES)
 
-# ## Push images
+all: $(IMAGES)
 
-# push-%: %-image
-# 	docker push docker.io/vhiveease/$(subst push-,,$@):latest
-
-# push: $(addprefix push-, $(FUNCTIONS))
-
-# ## Pull images from docker hub
-
-# pull-%:
-# 	docker pull docker.io/vhiveease/$(subst pull-,,$@):latest
-
-# pull: $(addprefix pull-, $(FUNCTIONS))
