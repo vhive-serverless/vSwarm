@@ -36,6 +36,16 @@ done
 popd
 
 
+
+##################
+## Manual fixes ##
+
+# No support for google cloud debugger at the moment for arm.
+sed -i 's|google-python-cloud-debugger|#google-python-cloud-debugger|g' recommendationservice/requirements.txt
+sed -i 's|import googleclouddebugger|#import googleclouddebugger|g' recommendationservice/recommendation_server.py
+##################
+
+
 # 3. Check if everything still builds
 for s in $SERVICES ;
 do

@@ -24,11 +24,27 @@ env:
   GOOS: linux
   GO111MODULE: on
   PORT: 50000
+  PLATFORMS: linux/amd64,linux/arm64
 
 jobs:
   build-and-push:
     name: Build and push all images
     runs-on: ubuntu-20.04
+    strategy:
+      fail-fast: false
+      matrix:
+        service:
+          [
+            adservice,
+            cartservice,
+            checkoutservice,
+            currencyservice,
+            emailservice,
+            paymentservice,
+            productcatalogservice,
+            recommendationservice,
+            shippingservice,
+          ]
     steps:
       - name: Check out code into the Go module directory
         uses: actions/checkout@v3
@@ -41,17 +57,34 @@ jobs:
           username: ${{ secrets.DOCKER_HUB_USERNAME }}
           password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
 
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v2
+
       - name: Set up Docker Buildx
         id: buildx
         uses: docker/setup-buildx-action@v2
 
+
       - name: Build and push
-        working-directory: benchmarks/online-shop/
-        env:
-          GOPRIVATE_KEY: ${{ secrets.EASE_LAB_ACCESS_KEY }}
-        run: |
-          make all
-          make push
+        if: matrix.service != 'cartservice'
+        uses: docker/build-push-action@v3
+        with:
+          push: true
+          file: benchmarks/online-shop/${{ matrix.service }}/Dockerfile
+          platforms: ${{ env.PLATFORMS }}
+          tags: vhiveease/onlineshop-${{ matrix.service }}:latest
+          context: ./benchmarks/online-shop/${{ matrix.service }}/
+
+      - name: Build and push
+        if: matrix.service == 'cartservice'
+        uses: docker/build-push-action@v3
+        with:
+          push: true
+          file: benchmarks/online-shop/${{ matrix.service }}/src/Dockerfile
+          platforms: ${{ env.PLATFORMS }}
+          tags: vhiveease/onlineshop-${{ matrix.service }}:latest
+          context: ./benchmarks/online-shop/${{ matrix.service }}/src/
+
 
   test-compose:
     name: Test Docker Compose
