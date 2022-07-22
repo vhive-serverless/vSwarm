@@ -20,13 +20,6 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-# #---------- python-slim -----------#
-# # First stage (Builder):
-
-# FROM vhiveease/python-slim:latest as
-
-
-
 
 #---------- golang-builder -----------#
 FROM golang:1.16 AS golang-builder
