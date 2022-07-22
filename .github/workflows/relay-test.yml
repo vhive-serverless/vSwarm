@@ -32,10 +32,11 @@ on:
 env:
   GOOS: linux
   GO111MODULE: on
+  PLATFORMS: linux/amd64,linux/arm64
 
 jobs:
-  integration-tests:
-    name: Relay Integration Tests
+  build-image:
+    name: Relay build
     runs-on: ubuntu-20.04
     steps:
       - uses: actions/checkout@v3
@@ -46,36 +47,56 @@ jobs:
           username: ${{ secrets.DOCKER_HUB_USERNAME }}
           password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
 
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v2
+
       - name: Set up Docker Buildx
         id: buildx
         uses: docker/setup-buildx-action@v2
 
-      - name: Install protoc
-        run: |
-          PROTOC_ZIP=protoc-3.14.0-linux-x86_64
-          curl -OL https://github.com/protocolbuffers/protobuf/releases/download/v3.14.0/$PROTOC_ZIP.zip
-          unzip -o $PROTOC_ZIP.zip -d $HOME/.local
-          chmod +x $HOME/.local/bin/protoc
-          rm -f $PROTOC_ZIP.zip
+      - name: Install Protoc
+        uses: arduino/setup-protoc@v1
+        with:
+          version: '3.20'
 
-      - name: Build relay
-        working-directory: tools/relay
+      - name: Setup go dependencies
         run: |
-          set -x
           go install google.golang.org/protobuf/cmd/protoc-gen-go@v1.26
           go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@v1.1
-          chmod +x $(go env GOPATH)/bin/*
-          export PATH="$PATH:$(go env GOPATH)/bin"
+          # chmod +x $(go env GOPATH)/bin/*
+          # export PATH="$PATH:$(go env GOPATH)/bin"
 
-          make all
+      - name: Build and push
+        uses: docker/build-push-action@v3
+        with:
+          push: true
+          file: tools/relay/Dockerfile
+          platforms: ${{ env.PLATFORMS }}
+          target: relay
+          tags: vhiveease/relay:latest
+          context: .
 
-      - name: docker-compose up
+
+
+  integration-tests:
+    name: Relay Integration Tests
+    needs: build-image
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Start container
         working-directory: benchmarks/aes
         run: |
           set -x
 
           docker-compose -f ./yamls/docker-compose/dc-aes-go.yaml up &> log_file &
           sleep 15
+
+      - name: Install Protoc
+        uses: arduino/setup-protoc@v1
+        with:
+          version: '3.20'
 
       - name: Invoke
         working-directory: tools/invoker

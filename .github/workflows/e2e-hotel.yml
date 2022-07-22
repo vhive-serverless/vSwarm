@@ -62,10 +62,10 @@ jobs:
           push: true
           file: benchmarks/hotel-app/Dockerfile
           platforms: ${{ env.PLATFORMS }}
+          target: ${{ matrix.target }}
           tags: vhiveease/hotel-app-${{ matrix.service }}:latest
           build-args: SERVICE=${{ matrix.service }}
           context: .
-
 
 
 
