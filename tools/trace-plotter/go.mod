@@ -12,6 +12,6 @@ require (
 	github.com/gonum/lapack v0.0.0-20181123203213-e4cdc5a0bff9 // indirect
 	github.com/gonum/matrix v0.0.0-20181209220409-c518dec07be9 // indirect
 	github.com/gonum/stat v0.0.0-20181125101827-41a0da705a5b
-	github.com/sirupsen/logrus v1.8.1
-	golang.org/x/sys v0.0.0-20220704084225-05e143d24a9e // indirect
+	github.com/sirupsen/logrus v1.9.0
+	golang.org/x/sys v0.0.0-20220722155257-8c9f86f7a55f // indirect
 )

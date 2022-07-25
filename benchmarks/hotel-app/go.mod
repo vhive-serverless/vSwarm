@@ -29,11 +29,16 @@ replace github.com/ease-lab/vSwarm/utils/tracing/go => ../../utils/tracing/go
 require (
 	github.com/bradfitz/gomemcache v0.0.0-20220106215444-fb4bf637b56d
 	github.com/ease-lab/vSwarm-proto v0.2.0
-	github.com/ease-lab/vSwarm/utils/tracing/go v0.0.0-20220427112636-f8f3fc171804
+	github.com/ease-lab/vSwarm/utils/tracing/go v0.0.0-20220719164711-8782cc0ff194
 	github.com/hailocab/go-geoindex v0.0.0-20160127134810-64631bfe9711
-	github.com/sirupsen/logrus v1.8.1
-	go.mongodb.org/mongo-driver v1.9.1
-	golang.org/x/net v0.0.0-20220425223048-2871e0cb64e4
-	google.golang.org/grpc v1.47.0
+	github.com/klauspost/compress v1.15.9 // indirect
+	github.com/montanaflynn/stats v0.6.6 // indirect
+	github.com/sirupsen/logrus v1.9.0
+	github.com/youmark/pkcs8 v0.0.0-20201027041543-1326539a0a0a // indirect
+	go.mongodb.org/mongo-driver v1.10.0
+	golang.org/x/crypto v0.0.0-20220722155217-630584e8d5aa // indirect
+	golang.org/x/net v0.0.0-20220722155237-a158d28d115b
+	golang.org/x/sync v0.0.0-20220722155255-886fb9371eb4 // indirect
+	google.golang.org/grpc v1.48.0
 	gopkg.in/mgo.v2 v2.0.0-20190816093944-a6b53ec6cb22
 )
