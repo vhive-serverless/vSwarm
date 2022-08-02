@@ -25,8 +25,10 @@ package main
 import (
 	"flag"
 	"io"
+	"net/http"
 	"os"
 	"path/filepath"
+	"sync"
 
 	elasticsearch "github.com/elastic/go-elasticsearch/v7"
 	"github.com/go-echarts/go-echarts/v2/components"
@@ -39,6 +41,7 @@ var (
 	pageSize         = flag.Int("pageSize", 100, "The number of traces to fetch per page while paginating")
 	zipkinURL        = flag.String("zipkinURL", "http://127.0.0.1:8080", "Zipkin URL")
 	fileName         = flag.String("fileName", "plot.html", "output file name")
+	download         = flag.String("download", "", "Download all JSON trace files and save them to provided dir")
 )
 
 func main() {
@@ -64,6 +67,10 @@ func main() {
 		PlotGraph(parsedSystemTraces, systemDurations, *zipkinURL, "system"),
 	)
 
+	if *download != "" {
+		downloadTraces(parsedE2ETraces)
+	}
+
 	if filepath.Ext(*fileName) != ".html" {
 		*fileName += ".html"
 	}
@@ -71,4 +78,54 @@ func main() {
 	if err := page.Render(io.MultiWriter(f)); err != nil {
 		log.Errorf("Error rendering plot: %s", err)
 	}
+}
+
+func downloadTraces(traces []*Trace) {
+	var wg sync.WaitGroup
+	wg.Add(len(traces))
+
+	if _, err := os.Stat(*download); os.IsNotExist(err) {
+		err := os.MkdirAll(*download, 0700)
+		if err != nil {
+			panic(err)
+		}
+	}
+
+	for _, trace := range traces {
+		t := trace
+
+		go func() {
+			defer wg.Done()
+
+			traceID := t.TraceID
+			url := *zipkinURL + "/zipkin/api/v2/trace/" + traceID
+
+			downloadLocation := *download + "/" + traceID + ".json"
+
+			err := DownloadFile(downloadLocation, url)
+			if err != nil {
+				panic(err)
+			}
+		}()
+	}
+
+	wg.Wait()
+}
+
+func DownloadFile(filepath string, url string) error {
+	resp, err := http.Get(url)
+	if err != nil {
+		return err
+	}
+	defer resp.Body.Close()
+
+	out, err := os.Create(filepath)
+	if err != nil {
+		return err
+	}
+	defer out.Close()
+
+	_, err = io.Copy(out, resp.Body)
+
+	return err
 }
