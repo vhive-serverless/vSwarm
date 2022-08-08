@@ -24,7 +24,6 @@ env:
   GOOS: linux
   GO111MODULE: on
   PORT: 50051
-  KUBECONFIG: /etc/kubernetes/admin.conf
 
 jobs:
   build-and-push:
@@ -69,21 +68,24 @@ jobs:
           make all
           make push
 
+
   test-compose:
     name: Test Docker Compose
     needs: build-and-push
+    env:
+      YAML_DIR: benchmarks/aes/yamls/docker-compose/
     runs-on: ubuntu-20.04
     strategy:
       fail-fast: false
       matrix:
         service:
           [
-            dc-aes-go,
-            dc-aes-python,
-            dc-aes-nodejs,
-            dc-aes-go-tracing,
-            dc-aes-python-tracing,
-            dc-aes-nodejs-tracing,
+            aes-go,
+            aes-python,
+            aes-nodejs,
+            aes-go-tracing,
+            aes-python-tracing,
+            aes-nodejs-tracing,
           ]
 
     steps:
@@ -93,10 +95,9 @@ jobs:
           lfs: "true"
 
       - name: start docker-compose benchmark
-        working-directory: benchmarks/aes/yamls/docker-compose
         run: |
-          docker-compose -f ${{ matrix.service }}.yaml pull
-          docker-compose -f ${{ matrix.service }}.yaml up &> log_file &
+          docker-compose -f ${{ env.YAML_DIR }}/dc-${{ matrix.service }}.yaml pull
+          docker-compose -f ${{ env.YAML_DIR }}/dc-${{ matrix.service }}.yaml up &> log_file &
           sleep 60s
           cat log_file
 
@@ -105,32 +106,32 @@ jobs:
           ./tools/bin/grpcurl -plaintext localhost:50000 helloworld.Greeter.SayHello
 
       - name: show docker-compose log
-        run: cat benchmarks/aes/yamls/docker-compose/log_file
+        run: cat log_file
 
   test-knative:
     name: Test Knative Deployment
     needs: build-and-push
+    # env:
+    #   GOCACHE: /root/tmp/gocache
+    #   GOPATH: /root/tmp/gopath
     env:
-      GOCACHE: /root/tmp/gocache
-      GOPATH: /root/tmp/gopath
-    runs-on: [self-hosted, stock-knative]
+      KIND_VERSION: v0.14.0
+      K8S_VERSION: v1.22.10
+      KUBECONFIG: $HOME/.kube/admin.conf
+
+    runs-on: [ubuntu-20.04]
     strategy:
       fail-fast: false
-      max-parallel: 2
       matrix:
-        include:
-          - service: aes-go
-            file: kn-aes-go.yaml
-          - service: aes-python
-            file: kn-aes-python.yaml
-          - service: aes-nodejs
-            file: kn-aes-nodejs.yaml
-          - service: aes-go-tracing
-            file: kn-aes-go-tracing.yaml
-          - service: aes-python-tracing
-            file: kn-aes-python-tracing.yaml
-          - service: aes-nodejs-tracing
-            file: kn-aes-nodejs-tracing.yaml
+        service:
+          [
+            aes-go,
+            aes-python,
+            aes-nodejs,
+            aes-go-tracing,
+            aes-python-tracing,
+            aes-nodejs-tracing,
+          ]
     steps:
       - uses: actions/checkout@v3
         with:
@@ -140,11 +141,45 @@ jobs:
 
       - uses: actions/setup-go@v3
         with:
-          go-version: 1.16
+          go-version: 1.18
 
+      # - name: Create k8s Kind Cluster
+      #   uses: helm/kind-action@v1.3.0
+      #   with:
+      #     version: ${{ env.KIND_VERSION }}
+      #     kubectl_version: ${{ env.K8S_VERSION }}
+
+
+      - name: Install Kind
+        run: bash ./runner/scripts/01-kind.sh
+
+      - name: Install Serving
+        run: bash ./runner/scripts/02-serving.sh
+
+      - name: Install Kourier
+        run: bash ./runner/scripts/02-kourier.sh
+
+      - name: Setup domain
+        run: |
+          INGRESS_HOST="127.0.0.1"
+          KNATIVE_DOMAIN=$INGRESS_HOST.nip.io
+          kubectl patch configmap -n knative-serving config-domain -p "{\"data\": {\"$KNATIVE_DOMAIN\": \"\"}}"
+
+
+      # - name: Kubernetes KinD Cluster
+      #   uses: container-tools/kind-action@v1
+      #   with:
+      #     version: v0.14.0
+      #     kubectl_version: v1.22.10
+      #     knative_serving: v1.2.2
+      #     knative_kourier: v1.2.0
+      #     # knative_eventing: v1.0.0
+
+
+      ## Test the service
       - name: Deploy knative
         working-directory: benchmarks
-        run: kn service apply -f ./aes/yamls/knative/${{ matrix.file }}
+        run: kubectl apply -f ./aes/yamls/knative/${{ matrix.file }}
 
       - name: Test invoking once
         working-directory: tools/test-client
@@ -153,8 +188,9 @@ jobs:
           go build ./test-client.go
 
           NODEPORT=$(kubectl get svc kourier-ingress -n kourier-system -o=jsonpath='{.spec.ports[0].nodePort}')
+          kubectl get service
 
-          url_list=$(kn service list | awk '$2 ~ /http/ {sub(/http\:\/\//,""); print $2}')
+          url_list=$(kubectl get kservice | awk '$2 ~ /http/ {sub(/http\:\/\//,""); print $2}')
           for url in $url_list
           do
             ./test-client --addr $url:$NODEPORT --name "Example text for AES CI"
@@ -164,11 +200,13 @@ jobs:
         if: ${{ always() }}
         run: |
           set -x
-          container_list=$(kn service export ${{ matrix.service }} -o jsonpath="{.spec.service.spec.template.spec.containers[*].name}")
+          container_list=$(kubectl get pods -n default -o jsonpath="{.items[*].spec.containers[*].name}")
           for container_name in $container_list
           do
             kubectl logs -n default -c $container_name -l serving.knative.dev/service=${{ matrix.service }}
           done
+
       - name: Down
         if: ${{ always() }}
-        run: kn service delete --all --namespace default --wait
+        run: |
+          kubectl delete -f ${{ env.YAML_DIR }}/kn-${{ matrix.service }}.yaml --namespace default --wait
