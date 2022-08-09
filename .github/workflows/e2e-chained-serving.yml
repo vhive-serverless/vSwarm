@@ -67,7 +67,7 @@ jobs:
     - name: Build and Push 
       working-directory: benchmarks/chained-function-serving
       env:
-        GOPRIVATE_KEY: ${{ secrets.TEMP_EASE_LAB_SECRET }}
+        GOPRIVATE_KEY: ${{ secrets.XDT_REPO_ACCESS_KEY }}
       run: make all-image-push
 
   test-compose:

@@ -68,13 +68,13 @@ jobs:
     - name: Build and Push executor
       working-directory: benchmarks/gg
       env:
-        GOPRIVATE_KEY: ${{ secrets.VHIVE_SERVERLESS_ACCESS_KEY }}
+        GOPRIVATE_KEY: ${{ secrets.XDT_REPO_ACCESS_KEY }}
       run: sudo make gg-image-push
 
     - name: Build and Push driver
       working-directory: benchmarks/gg/benchmarks
       env:
-        GOPRIVATE_KEY: ${{ secrets.VHIVE_SERVERLESS_ACCESS_KEY }}
+        GOPRIVATE_KEY: ${{ secrets.XDT_REPO_ACCESS_KEY }}
       run: make gg-driver-fibonacci-image-push
 
   test-knative:

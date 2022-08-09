@@ -81,7 +81,7 @@ jobs:
       - name: Setup go dependencies
         working-directory: benchmarks/aes
         env:
-          GOPRIVATE_KEY: ${{ secrets.VHIVE_SERVERLESS_ACCESS_KEY }}
+          GOPRIVATE_KEY: ${{ secrets.XDT_REPO_ACCESS_KEY }}
         run: |
           go install google.golang.org/protobuf/cmd/protoc-gen-go@v1.26
           go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@v1.1
