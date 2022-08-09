@@ -28,6 +28,9 @@ jobs:
     strategy:
       matrix: ${{ fromJson(needs.resolve-modules.outputs.matrix) }}
       fail-fast: false
+    env:
+      GOPRIVATE_KEY: ${{ secrets.XDT_REPO_ACCESS_KEY }}
+      GOPRIVATE: "github.com/ease-lab/vhive-xdtx"
     steps:
       - name: Setup Go 1.16
         uses: actions/setup-go@v3
@@ -35,6 +38,7 @@ jobs:
           go-version: 1.16
       - name: Checkout code into go module directory
         uses: actions/checkout@v3
+      - run: git config --global url."https://ease-lab:$(echo $GOPRIVATE_KEY)@github.com/ease-lab/vhive-xdt".insteadOf "https://github.com/ease-lab/vhive-xdt"
       - name: Lint with golangci-lint
         uses: golangci/golangci-lint-action@v3.2.0
         with:
