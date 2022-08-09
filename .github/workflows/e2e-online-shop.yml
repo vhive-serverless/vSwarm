@@ -73,6 +73,8 @@ jobs:
         uses: docker/setup-buildx-action@v2
 
       - name: Build and push
+        env:
+            GOPRIVATE_KEY: ${{ secrets.XDT_REPO_ACCESS_KEY }}
         uses: docker/build-push-action@v3
         with:
           push: true
