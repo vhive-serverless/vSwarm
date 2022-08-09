@@ -86,6 +86,7 @@ COPY ./benchmarks/video-analytics/go.sum ./
 COPY ./benchmarks/video-analytics/proto ./proto
 COPY ./utils/storage/go ../../utils/storage/go
 COPY ./utils/tracing/go ../../utils/tracing/go
+COPY ./utils/protobuf ../../utils/protobuf
 RUN --mount=type=secret,id=GOPRIVATE_KEY \
     git config --global url."https://$(cat /run/secrets/GOPRIVATE_KEY)@github.com/ease-lab/vhive-xdt".insteadOf "https://github.com/ease-lab/vhive-xdt"
 RUN go env -w GOPRIVATE=github.com/ease-lab/vhive-xdt
