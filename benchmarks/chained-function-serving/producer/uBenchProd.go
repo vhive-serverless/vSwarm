@@ -25,25 +25,26 @@ package main
 import (
 	"context"
 	"fmt"
+	pb_client "tests/chained-functions-serving/proto"
+
 	"github.com/ease-lab/vhive-xdt/utils"
 	log "github.com/sirupsen/logrus"
-	pb_client "tests/chained-functions-serving/proto"
 )
 
-const(
-	FANOUT = "FANOUT"
-	FANIN = "FANIN"
+const (
+	FANOUT    = "FANOUT"
+	FANIN     = "FANIN"
 	BROADCAST = "BROADCAST"
 )
 
-func (s *ubenchServer) Benchmark(ctx context.Context, benchType *pb_client.BenchType) (*pb_client.BenchResponse, error){
+func (s *ubenchServer) Benchmark(ctx context.Context, benchType *pb_client.BenchType) (*pb_client.BenchResponse, error) {
 	addr := fmt.Sprintf("%v:%v", s.consumerAddr, s.consumerPort)
 	if benchType.Name == FANOUT {
 		s.fanOut(ctx, benchType.FanAmount, addr)
-	}else if benchType.Name == FANIN {
-		benchResponse,err := s.putData(ctx)
+	} else if benchType.Name == FANIN {
+		benchResponse, err := s.putData(ctx)
 		return &benchResponse, err
-	}else if benchType.Name == BROADCAST {
+	} else if benchType.Name == BROADCAST {
 		s.broadcast(ctx, benchType.FanAmount, addr)
 	}
 	return &pb_client.BenchResponse{Ok: false}, nil
@@ -59,31 +60,31 @@ func (s *ubenchServer) putData(ctx context.Context) (pb_client.BenchResponse, er
 		if capability, err := s.XDTclient.Put(ctx, s.payloadData); err != nil {
 			log.Fatalf("SQP_to_dQP_data_transfer failed %v", err)
 			return pb_client.BenchResponse{Ok: false}, err
-		}else {
+		} else {
 			return pb_client.BenchResponse{Capability: capability, Ok: true}, nil
 		}
 	}
 	return pb_client.BenchResponse{Ok: false}, nil
 }
 
-func (s *ubenchServer) fanOut(ctx context.Context, fanAmount int64, addr string) pb_client.BenchResponse{
+func (s *ubenchServer) fanOut(ctx context.Context, fanAmount int64, addr string) pb_client.BenchResponse {
 	errorChannel := make(chan error, fanAmount)
 	if s.transferType == INLINE || s.transferType == S3 {
 		client, conn := getGRPCclient(addr)
 		defer conn.Close()
 		payloadToSend := s.payloadData
 
-		for i:=int64(0); i<fanAmount; i++ {
+		for i := int64(0); i < fanAmount; i++ {
 			go func(threadNumber int64) {
 				if s.transferType == S3 {
-					key := uploadToS3(ctx, s.payloadData, fmt.Sprintf("%s-%d",s.randomStr, threadNumber))
+					key := uploadToS3(ctx, s.payloadData, fmt.Sprintf("%s-%d", s.randomStr, threadNumber))
 					payloadToSend = []byte(key)
 				}
 				ack, err := client.ConsumeByte(ctx, &pb_client.ConsumeByteRequest{Value: payloadToSend})
 				if err != nil {
 					log.Fatalf("[producer] client error in string consumption: %s", err)
 					errorChannel <- err
-				}else {
+				} else {
 					errorChannel <- nil
 					log.Printf("[producer] (single) Ack: %v\n", ack.Value)
 				}
@@ -94,8 +95,8 @@ func (s *ubenchServer) fanOut(ctx context.Context, fanAmount int64, addr string)
 			FunctionName: "HelloXDT",
 			Data:         s.payloadData,
 		}
-		for i:=int64(0); i<fanAmount; i++ {
-			go func(){
+		for i := int64(0); i < fanAmount; i++ {
+			go func() {
 				if _, _, err := s.XDTclient.Invoke(ctx, addr, payloadToSend); err != nil {
 					log.Errorf("data_transfer failed %v", err)
 					errorChannel <- err
@@ -106,19 +107,17 @@ func (s *ubenchServer) fanOut(ctx context.Context, fanAmount int64, addr string)
 			}()
 		}
 	}
-	for i:=int64(0); i<fanAmount; i++ {
-		select {
-		case err := <-errorChannel:
-			if err != nil {
-				log.Errorf("Fanout failed: %v", err)
-				return pb_client.BenchResponse{Ok: false}
-			}
+	for i := int64(0); i < fanAmount; i++ {
+		err := <-errorChannel
+		if err != nil {
+			log.Errorf("Fanout failed: %v", err)
+			return pb_client.BenchResponse{Ok: false}
 		}
 	}
 	return pb_client.BenchResponse{Ok: true}
 }
 
-func (s *ubenchServer) broadcast(ctx context.Context, fanAmount int64, addr string) pb_client.BenchResponse{
+func (s *ubenchServer) broadcast(ctx context.Context, fanAmount int64, addr string) pb_client.BenchResponse {
 	errorChannel := make(chan error, fanAmount)
 	client, conn := getGRPCclient(addr)
 	defer conn.Close()
@@ -130,13 +129,13 @@ func (s *ubenchServer) broadcast(ctx context.Context, fanAmount int64, addr stri
 			payloadToSend = []byte(key)
 		}
 
-		for i:=int64(0); i<fanAmount; i++ {
+		for i := int64(0); i < fanAmount; i++ {
 			go func() {
 				ack, err := client.ConsumeByte(ctx, &pb_client.ConsumeByteRequest{Value: payloadToSend})
 				if err != nil {
 					log.Fatalf("[producer] client error in string consumption: %s", err)
 					errorChannel <- err
-				}else {
+				} else {
 					errorChannel <- nil
 					log.Printf("[producer] (single) Ack: %v\n", ack.Value)
 				}
@@ -148,26 +147,24 @@ func (s *ubenchServer) broadcast(ctx context.Context, fanAmount int64, addr stri
 			log.Fatalf("SQP_to_dQP_data_transfer failed %v", err)
 		}
 		log.Infof("broadcast payload uploaded to sQP")
-		for i:=int64(0); i<fanAmount; i++ {
+		for i := int64(0); i < fanAmount; i++ {
 			go func() {
 				ack, err := client.ConsumeByte(ctx, &pb_client.ConsumeByteRequest{Value: []byte(capability)})
 				if err != nil {
 					log.Fatalf("[producer] client error in string consumption: %s", err)
 					errorChannel <- err
-				}else {
+				} else {
 					errorChannel <- nil
 					log.Printf("[producer] (single) Ack: %v\n", ack.Value)
 				}
 			}()
 		}
 	}
-	for i:=int64(0); i<fanAmount; i++ {
-		select {
-		case err := <-errorChannel:
-			if err != nil {
-				log.Errorf("Fanout failed: %v", err)
-				return pb_client.BenchResponse{Ok: false}
-			}
+	for i := int64(0); i < fanAmount; i++ {
+		err := <-errorChannel
+		if err != nil {
+			log.Errorf("Fanout failed: %v", err)
+			return pb_client.BenchResponse{Ok: false}
 		}
 	}
 	return pb_client.BenchResponse{Ok: true}

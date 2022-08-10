@@ -38,6 +38,7 @@ import (
 	"github.com/aws/aws-sdk-go/service/s3/s3manager"
 	sdk "github.com/ease-lab/vhive-xdt/sdk/golang"
 	"github.com/ease-lab/vhive-xdt/utils"
+	"google.golang.org/grpc/credentials/insecure"
 
 	ctrdlog "github.com/containerd/containerd/log"
 	log "github.com/sirupsen/logrus"
@@ -113,7 +114,7 @@ func setAWSCredentials() {
 
 func uploadToS3(ctx context.Context, payloadData []byte, randomStr string) string {
 	span := tracing.Span{SpanName: "S3 put", TracerName: "S3 put - tracer"}
-	ctx = span.StartSpan(ctx)
+	span.StartSpan(ctx)
 	defer span.EndSpan()
 
 	s3uploader := s3manager.NewUploader(S3_SESSION)
@@ -139,9 +140,9 @@ func getGRPCclient(addr string) (pb_client.ProducerConsumerClient, *grpc.ClientC
 	var conn *grpc.ClientConn
 	var err error
 	if tracing.IsTracingEnabled() {
-		conn, err = tracing.DialGRPCWithUnaryInterceptor(addr, grpc.WithBlock(), grpc.WithInsecure())
+		conn, err = tracing.DialGRPCWithUnaryInterceptor(addr, grpc.WithBlock(), grpc.WithTransportCredentials(insecure.NewCredentials()))
 	} else {
-		conn, err = grpc.Dial(addr, grpc.WithBlock(), grpc.WithInsecure())
+		conn, err = grpc.Dial(addr, grpc.WithBlock(), grpc.WithTransportCredentials(insecure.NewCredentials()))
 	}
 	if err != nil {
 		log.Fatalf("[producer] fail to dial: %s", err)
