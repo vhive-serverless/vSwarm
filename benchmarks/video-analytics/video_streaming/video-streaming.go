@@ -26,9 +26,10 @@ import (
 	"context"
 	"flag"
 	"fmt"
-	"io/ioutil"
 	"net"
 	"os"
+
+	"google.golang.org/grpc/credentials/insecure"
 
 	ctrdlog "github.com/containerd/containerd/log"
 	log "github.com/sirupsen/logrus"
@@ -48,14 +49,10 @@ import (
 var (
 	videoFragment []byte
 	videoFile     *string
-	AKID          string
-	SECRET_KEY    string
-	AWS_S3_REGION string
 	AWS_S3_BUCKET = "vhive-video-bench"
 )
 
 const (
-	TOKEN  = ""
 	INLINE = "INLINE"
 	XDT    = "XDT"
 	S3     = "S3"
@@ -66,7 +63,7 @@ type server struct {
 	decoderPort  int
 	transferType string
 	config       utils.Config
-	XDTclient    sdk.XDTclient
+	XDTclient    *sdk.XDTclient
 	pb_helloworld.UnimplementedGreeterServer
 }
 
@@ -90,7 +87,7 @@ func fetchSelfIP() string {
 func uploadToS3(ctx context.Context) {
 	if tracing.IsTracingEnabled() {
 		span := tracing.Span{SpanName: "Video upload", TracerName: "S3 video upload - tracer"}
-		ctx = span.StartSpan(ctx)
+		span.StartSpan(ctx)
 		defer span.EndSpan()
 	}
 	file, err := os.Open(*videoFile)
@@ -118,7 +115,7 @@ func (s *server) SayHello(ctx context.Context, req *pb_helloworld.HelloRequest) 
 			FunctionName: "HelloXDT",
 			Data:         videoFragment,
 		}
-		if message, _, err := s.XDTclient.Invoke(ctx, addr, payloadToSend); err != nil {
+		if message, _, err := (*s.XDTclient).Invoke(ctx, addr, payloadToSend); err != nil {
 			log.Fatalf("SQP_to_dQP_data_transfer failed %v", err)
 		} else {
 			response = string(message)
@@ -126,9 +123,9 @@ func (s *server) SayHello(ctx context.Context, req *pb_helloworld.HelloRequest) 
 	} else if s.transferType == S3 || s.transferType == INLINE {
 		var conn *grpc.ClientConn
 		if tracing.IsTracingEnabled() {
-			conn, err = tracing.DialGRPCWithUnaryInterceptor(addr, grpc.WithBlock(), grpc.WithInsecure())
+			conn, err = tracing.DialGRPCWithUnaryInterceptor(addr, grpc.WithBlock(), grpc.WithTransportCredentials(insecure.NewCredentials()))
 		} else {
-			conn, err = grpc.Dial(addr, grpc.WithBlock(), grpc.WithInsecure())
+			conn, err = grpc.Dial(addr, grpc.WithBlock(), grpc.WithTransportCredentials(insecure.NewCredentials()))
 		}
 		if err != nil {
 			log.Fatalf("[Video Streaming] Failed to dial decoder: %s", err)
@@ -184,10 +181,8 @@ func main() {
 		}
 		defer shutdown()
 	}
-	var err error
-	videoFragment, err = ioutil.ReadFile(*videoFile)
+	videoFragment, _ = os.ReadFile(*videoFile)
 	log.Infof("read video fragment, size: %v\n", len(videoFragment))
-
 	// server setup: listen on port.
 	lis, err := net.Listen("tcp", fmt.Sprintf(":%d", *servePort))
 	if err != nil {
@@ -232,7 +227,7 @@ func main() {
 		}
 
 		server.config = config
-		server.XDTclient = *xdtClient
+		server.XDTclient = xdtClient
 		log.Infof("[streaming] XDT client created")
 	}
 	pb_helloworld.RegisterGreeterServer(grpcServer, &server)
