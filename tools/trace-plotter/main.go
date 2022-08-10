@@ -24,14 +24,14 @@ package main
 
 import (
 	"flag"
+	"fmt"
+	elasticsearch "github.com/elastic/go-elasticsearch/v7"
+	"github.com/go-echarts/go-echarts/v2/components"
 	"io"
 	"net/http"
 	"os"
 	"path/filepath"
 	"sync"
-
-	elasticsearch "github.com/elastic/go-elasticsearch/v7"
-	"github.com/go-echarts/go-echarts/v2/components"
 
 	log "github.com/sirupsen/logrus"
 )
@@ -81,9 +81,6 @@ func main() {
 }
 
 func downloadTraces(traces []*Trace) {
-	var wg sync.WaitGroup
-	wg.Add(len(traces))
-
 	if _, err := os.Stat(*download); os.IsNotExist(err) {
 		err := os.MkdirAll(*download, 0700)
 		if err != nil {
@@ -91,20 +88,38 @@ func downloadTraces(traces []*Trace) {
 		}
 	}
 
-	for _, trace := range traces {
-		t := trace
+	fmt.Println("Downloading traces")
 
+	index := 0
+	var mutex sync.Mutex
+
+	threads := 10
+	var wg sync.WaitGroup
+	wg.Add(threads)
+
+	for i := 0; i < threads; i++ {
 		go func() {
-			defer wg.Done()
+			for {
+				mutex.Lock()
+				threadIndex := index
+				index++
+				mutex.Unlock()
 
-			traceID := t.TraceID
-			url := *zipkinURL + "/zipkin/api/v2/trace/" + traceID
+				if threadIndex >= len(traces) {
+					wg.Done()
+					break
+				}
 
-			downloadLocation := *download + "/" + traceID + ".json"
+				trace := traces[threadIndex]
+				traceID := trace.TraceID
+				url := *zipkinURL + "/zipkin/api/v2/trace/" + traceID
 
-			err := DownloadFile(downloadLocation, url)
-			if err != nil {
-				panic(err)
+				downloadLocation := *download + "/" + traceID + ".json"
+
+				err := DownloadFile(downloadLocation, url)
+				if err != nil {
+					log.Debugf("%s", err.Error())
+				}
 			}
 		}()
 	}
