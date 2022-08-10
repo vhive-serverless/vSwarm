@@ -10,6 +10,8 @@ import (
 	"strings"
 	"time"
 
+	"google.golang.org/grpc/credentials/insecure"
+
 	"google.golang.org/grpc/reflection"
 
 	pb_client "tests/chained-functions-serving/proto"
@@ -150,7 +152,7 @@ func main() {
 }
 
 func SayHello(ctx context.Context, address string) {
-	dialOptions := []grpc.DialOption{grpc.WithBlock(), grpc.WithInsecure()}
+	dialOptions := []grpc.DialOption{grpc.WithBlock(), grpc.WithTransportCredentials(insecure.NewCredentials())}
 	if *withTracing {
 		dialOptions = append(dialOptions, grpc.WithUnaryInterceptor(otelgrpc.UnaryClientInterceptor()))
 	}
@@ -173,7 +175,7 @@ func SayHello(ctx context.Context, address string) {
 
 func benchFanIn(ctx context.Context, prodAddr, consAddr string, fanInAmount int) {
 	log.Infof("using fanIn ubench")
-	dialOptions := []grpc.DialOption{grpc.WithBlock(), grpc.WithInsecure()}
+	dialOptions := []grpc.DialOption{grpc.WithBlock(), grpc.WithTransportCredentials(insecure.NewCredentials())}
 	if *withTracing {
 		dialOptions = append(dialOptions, grpc.WithUnaryInterceptor(otelgrpc.UnaryClientInterceptor()))
 	}
@@ -204,12 +206,10 @@ func benchFanIn(ctx context.Context, prodAddr, consAddr string, fanInAmount int)
 	}
 	var capabilities []string
 	for i := 0; i < fanInAmount; i++ {
-		select {
-		case err := <-errorChannel:
-			if err != nil {
-				log.Errorf("[driver] FanIn push failed: %v", err)
-				return
-			}
+		err := <-errorChannel
+		if err != nil {
+			log.Errorf("[driver] FanIn push failed: %v", err)
+			return
 		}
 		capabilities = append(capabilities, <-capabilityChannel)
 	}
@@ -219,7 +219,7 @@ func benchFanIn(ctx context.Context, prodAddr, consAddr string, fanInAmount int)
 
 func reduce(ctx context.Context, consEndpoint string, capabilities []string) {
 	log.Infof("Attempting reduction using addr:%s", consEndpoint)
-	dialOptions := []grpc.DialOption{grpc.WithBlock(), grpc.WithInsecure()}
+	dialOptions := []grpc.DialOption{grpc.WithBlock(), grpc.WithTransportCredentials(insecure.NewCredentials())}
 	if *withTracing {
 		dialOptions = append(dialOptions, grpc.WithUnaryInterceptor(otelgrpc.UnaryClientInterceptor()))
 	}
@@ -241,7 +241,7 @@ func reduce(ctx context.Context, consEndpoint string, capabilities []string) {
 
 func benchFanOut(ctx context.Context, prodAddr string, fanOutAmount int) {
 	log.Infof("using fanOut ubench")
-	dialOptions := []grpc.DialOption{grpc.WithBlock(), grpc.WithInsecure()}
+	dialOptions := []grpc.DialOption{grpc.WithBlock(), grpc.WithTransportCredentials(insecure.NewCredentials())}
 	if *withTracing {
 		dialOptions = append(dialOptions, grpc.WithUnaryInterceptor(otelgrpc.UnaryClientInterceptor()))
 	}
@@ -264,7 +264,7 @@ func benchFanOut(ctx context.Context, prodAddr string, fanOutAmount int) {
 
 func benchBroadcast(ctx context.Context, prodAddr string, broadcast int) {
 	log.Infof("using broadcast ubench")
-	dialOptions := []grpc.DialOption{grpc.WithBlock(), grpc.WithInsecure()}
+	dialOptions := []grpc.DialOption{grpc.WithBlock(), grpc.WithTransportCredentials(insecure.NewCredentials())}
 	if *withTracing {
 		dialOptions = append(dialOptions, grpc.WithUnaryInterceptor(otelgrpc.UnaryClientInterceptor()))
 	}
@@ -287,7 +287,7 @@ func benchBroadcast(ctx context.Context, prodAddr string, broadcast int) {
 
 func invokeServingFunction(ctx context.Context, prodAddr, consAddr string, fanInAmount, fanOutAmount, broadcast int) {
 
-	log.Debug("Invoking by the address: %v", prodAddr)
+	log.Debugf("Invoking by the address: %v", prodAddr)
 
 	if fanInAmount > 0 {
 		benchFanIn(ctx, prodAddr, consAddr, fanInAmount)
@@ -298,6 +298,4 @@ func invokeServingFunction(ctx context.Context, prodAddr, consAddr string, fanIn
 	} else {
 		SayHello(ctx, prodAddr)
 	}
-
-	return
 }

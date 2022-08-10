@@ -26,15 +26,15 @@ import (
 	"context"
 	"flag"
 	"fmt"
+	"io"
+	"net"
+	"os"
+	"strconv"
+
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/s3"
-	"io"
-	"io/ioutil"
-	"net"
-	"os"
-	"strconv"
 
 	ctrdlog "github.com/containerd/containerd/log"
 	log "github.com/sirupsen/logrus"
@@ -103,7 +103,7 @@ func setAWSCredentials() {
 
 func fetchFromS3(ctx context.Context, key string) (int, error) {
 	span := tracing.Span{SpanName: "S3 get", TracerName: "S3 get - tracer"}
-	ctx = span.StartSpan(ctx)
+	span.StartSpan(ctx)
 	defer span.EndSpan()
 	log.Infof("[consumer] Fetching %s from S3", key)
 	object, err := S3_SVC.GetObject(&s3.GetObjectInput{
@@ -115,7 +115,7 @@ func fetchFromS3(ctx context.Context, key string) (int, error) {
 		return 0, err
 	}
 
-	payload, err := ioutil.ReadAll(object.Body)
+	payload, err := io.ReadAll(object.Body)
 	if err != nil {
 		log.Infof("Error reading object body: %v", err)
 		return 0, err

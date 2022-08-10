@@ -66,12 +66,10 @@ func (s *ubenchServer) FetchByte(ctx context.Context, str *pb.ReductionRequest) 
 		}
 	}
 	for i := 0; i < len(str.Capability); i++ {
-		select {
-		case err := <-errorChannel:
-			if err != nil {
-				log.Errorf("Fanout failed: %v", err)
-				return &pb.ConsumeByteReply{Value: false}, err
-			}
+		err := <-errorChannel
+		if err != nil {
+			log.Errorf("Fanout failed: %v", err)
+			return &pb.ConsumeByteReply{Value: false}, err
 		}
 	}
 	return &pb.ConsumeByteReply{Value: true}, nil
