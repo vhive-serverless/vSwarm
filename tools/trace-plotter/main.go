@@ -41,6 +41,7 @@ var (
 	pageSize         = flag.Int("pageSize", 100, "The number of traces to fetch per page while paginating")
 	zipkinURL        = flag.String("zipkinURL", "http://127.0.0.1:8080", "Zipkin URL")
 	fileName         = flag.String("fileName", "plot.html", "output file name")
+	skipPlotting     = flag.Bool("skipPlotting", false, "Do not plot the E2E latency")
 	download         = flag.String("download", "", "Download all JSON trace files and save them to provided dir")
 )
 
@@ -57,26 +58,29 @@ func main() {
 	var traces []Trace
 	l.GetTraces(*pageSize, &traces)
 
-	page := components.NewPage()
-	page.PageTitle = "Trace Plots"
-
 	parsedE2ETraces, e2eDurations := ParseTraces(traces, "e2e")
-	parsedSystemTraces, systemDurations := ParseTraces(traces, "system")
-	page.AddCharts(
-		PlotGraph(parsedE2ETraces, e2eDurations, *zipkinURL, "e2e"),
-		PlotGraph(parsedSystemTraces, systemDurations, *zipkinURL, "system"),
-	)
+	if !*skipPlotting {
+		page := components.NewPage()
+		page.PageTitle = "Trace Plots"
+
+		parsedSystemTraces, systemDurations := ParseTraces(traces, "system")
+
+		page.AddCharts(
+			PlotGraph(parsedE2ETraces, e2eDurations, *zipkinURL, "e2e"),
+			PlotGraph(parsedSystemTraces, systemDurations, *zipkinURL, "system"),
+		)
+
+		if filepath.Ext(*fileName) != ".html" {
+			*fileName += ".html"
+		}
+		f, _ := os.Create(*fileName)
+		if err := page.Render(io.MultiWriter(f)); err != nil {
+			log.Errorf("Error rendering plot: %s", err)
+		}
+	}
 
 	if *download != "" {
 		downloadTraces(parsedE2ETraces)
-	}
-
-	if filepath.Ext(*fileName) != ".html" {
-		*fileName += ".html"
-	}
-	f, _ := os.Create(*fileName)
-	if err := page.Render(io.MultiWriter(f)); err != nil {
-		log.Errorf("Error rendering plot: %s", err)
 	}
 }
 
