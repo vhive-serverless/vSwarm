@@ -24,8 +24,7 @@ package main
 
 import (
 	"flag"
-	"fmt"
-	elasticsearch "github.com/elastic/go-elasticsearch/v7"
+	"github.com/elastic/go-elasticsearch/v7"
 	"github.com/go-echarts/go-echarts/v2/components"
 	"io"
 	"net/http"
@@ -59,28 +58,35 @@ func main() {
 	l.GetTraces(*pageSize, &traces)
 
 	parsedE2ETraces, e2eDurations := ParseTraces(traces, "e2e")
-	if !*skipPlotting {
-		page := components.NewPage()
-		page.PageTitle = "Trace Plots"
-
-		parsedSystemTraces, systemDurations := ParseTraces(traces, "system")
-
-		page.AddCharts(
-			PlotGraph(parsedE2ETraces, e2eDurations, *zipkinURL, "e2e"),
-			PlotGraph(parsedSystemTraces, systemDurations, *zipkinURL, "system"),
-		)
-
-		if filepath.Ext(*fileName) != ".html" {
-			*fileName += ".html"
-		}
-		f, _ := os.Create(*fileName)
-		if err := page.Render(io.MultiWriter(f)); err != nil {
-			log.Errorf("Error rendering plot: %s", err)
-		}
-	}
 
 	if *download != "" {
 		downloadTraces(parsedE2ETraces)
+	}
+
+	if !*skipPlotting {
+		plotChart(&traces, parsedE2ETraces, e2eDurations)
+	}
+}
+
+func plotChart(traces *[]Trace, parsedE2ETraces []*Trace, e2eDurations []float64) {
+	log.Infof("Plotting traces")
+
+	page := components.NewPage()
+	page.PageTitle = "Trace Plots"
+
+	parsedSystemTraces, systemDurations := ParseTraces(*traces, "system")
+
+	page.AddCharts(
+		PlotGraph(parsedE2ETraces, e2eDurations, *zipkinURL, "e2e"),
+		PlotGraph(parsedSystemTraces, systemDurations, *zipkinURL, "system"),
+	)
+
+	if filepath.Ext(*fileName) != ".html" {
+		*fileName += ".html"
+	}
+	f, _ := os.Create(*fileName)
+	if err := page.Render(io.MultiWriter(f)); err != nil {
+		log.Errorf("Error rendering plot: %s", err)
 	}
 }
 
@@ -92,7 +98,7 @@ func downloadTraces(traces []*Trace) {
 		}
 	}
 
-	fmt.Println("Downloading traces")
+	log.Infof("Downloading traces")
 
 	index := 0
 	var mutex sync.Mutex
@@ -102,33 +108,35 @@ func downloadTraces(traces []*Trace) {
 	wg.Add(threads)
 
 	for i := 0; i < threads; i++ {
-		go func() {
-			for {
-				mutex.Lock()
-				threadIndex := index
-				index++
-				mutex.Unlock()
-
-				if threadIndex >= len(traces) {
-					wg.Done()
-					break
-				}
-
-				trace := traces[threadIndex]
-				traceID := trace.TraceID
-				url := *zipkinURL + "/zipkin/api/v2/trace/" + traceID
-
-				downloadLocation := *download + "/" + traceID + ".json"
-
-				err := DownloadFile(downloadLocation, url)
-				if err != nil {
-					log.Debugf("%s", err.Error())
-				}
-			}
-		}()
+		go downloaderRoutine(&mutex, &index, &wg, traces)
 	}
 
 	wg.Wait()
+}
+
+func downloaderRoutine(mutex *sync.Mutex, index *int, wg *sync.WaitGroup, traces []*Trace) {
+	for {
+		mutex.Lock()
+		threadIndex := *index
+		*index++
+		mutex.Unlock()
+
+		if threadIndex >= len(traces) {
+			wg.Done()
+			break
+		}
+
+		trace := traces[threadIndex]
+		traceID := trace.TraceID
+		url := *zipkinURL + "/zipkin/api/v2/trace/" + traceID
+
+		downloadLocation := *download + "/" + traceID + ".json"
+
+		err := DownloadFile(downloadLocation, url)
+		if err != nil {
+			log.Debugf("%s", err.Error())
+		}
+	}
 }
 
 func DownloadFile(filepath string, url string) error {
