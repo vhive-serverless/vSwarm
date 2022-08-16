@@ -24,7 +24,6 @@ env:
   GOOS: linux
   GO111MODULE: on
   PORT: 50051
-  KUBECONFIG: /etc/kubernetes/admin.conf
 
 jobs:
   build-and-push:
@@ -37,14 +36,14 @@ jobs:
           lfs: "true"
 
       - name: Login to Docker Hub
-        uses: docker/login-action@v1
+        uses: docker/login-action@v2
         with:
           username: ${{ secrets.DOCKER_HUB_USERNAME }}
           password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
 
       - name: Set up Docker Buildx
         id: buildx
-        uses: docker/setup-buildx-action@v1
+        uses: docker/setup-buildx-action@v2
 
       - name: Set up Python version
         uses: actions/setup-python@v4
@@ -69,21 +68,24 @@ jobs:
           make all
           make push
 
+
   test-compose:
     name: Test Docker Compose
     needs: build-and-push
+    env:
+      YAML_DIR: benchmarks/auth/yamls/docker-compose/
     runs-on: ubuntu-20.04
     strategy:
       fail-fast: false
       matrix:
-        file:
+        service:
           [
-            dc-auth-go.yaml,
-            dc-auth-python.yaml,
-            dc-auth-nodejs.yaml,
-            dc-auth-go-tracing.yaml,
-            dc-auth-python-tracing.yaml,
-            dc-auth-nodejs-tracing.yaml,
+            auth-go,
+            auth-python,
+            auth-nodejs,
+            auth-go-tracing,
+            auth-python-tracing,
+            auth-nodejs-tracing,
           ]
 
     steps:
@@ -93,10 +95,9 @@ jobs:
           lfs: "true"
 
       - name: start docker-compose benchmark
-        working-directory: benchmarks/auth/yamls/docker-compose
         run: |
-          docker-compose -f ${{ matrix.file }} pull
-          docker-compose -f ${{ matrix.file }} up &> log_file &
+          docker-compose -f ${{ env.YAML_DIR }}/dc-${{ matrix.service }}.yaml pull
+          docker-compose -f ${{ env.YAML_DIR }}/dc-${{ matrix.service }}.yaml up &> log_file &
           sleep 60s
           cat log_file
 
@@ -105,28 +106,28 @@ jobs:
           ./tools/bin/grpcurl -plaintext localhost:50000 helloworld.Greeter.SayHello
 
       - name: show docker-compose log
-        run: cat benchmarks/auth/yamls/docker-compose/log_file
+        run: cat log_file
 
   test-knative:
     name: Test Knative Deployment
     needs: build-and-push
     env:
-      GOCACHE: /root/tmp/gocache
-      GOPATH: /root/tmp/gopath
-    runs-on: [self-hosted, stock-knative]
+      KIND_VERSION: v0.14.0
+      K8S_VERSION: v1.22.10
+      YAML_DIR: benchmarks/auth/yamls/knative/
+
+    runs-on: ubuntu-20.04
     strategy:
-      max-parallel: 1
       fail-fast: false
       matrix:
         service:
           [
-            kn-auth-go,
-            kn-auth-python,
-            kn-auth-nodejs,
-            kn-auth-go-tracing,
-            kn-auth-python-tracing,
-            kn-auth-nodejs-tracing,
-
+            auth-go,
+            auth-python,
+            auth-nodejs,
+            auth-go-tracing,
+            auth-python-tracing,
+            auth-nodejs-tracing,
           ]
     steps:
       - uses: actions/checkout@v3
@@ -137,11 +138,35 @@ jobs:
 
       - uses: actions/setup-go@v3
         with:
-          go-version: 1.16
+          go-version: 1.18
 
+      ## Setup a Knative cluster to test the service
+      - name: Create k8s Kind Cluster
+        run: bash ./runner/scripts/01-kind.sh
+
+      - name: Install Serving
+        run: bash ./runner/scripts/02-serving.sh
+
+      - name: Install Kourier
+        run: bash ./runner/scripts/02-kourier.sh
+
+      - name: Setup domain
+        run: |
+          INGRESS_HOST="127.0.0.1"
+          KNATIVE_DOMAIN=$INGRESS_HOST.nip.io
+          kubectl patch configmap -n knative-serving config-domain -p "{\"data\": {\"$KNATIVE_DOMAIN\": \"\"}}"
+
+
+      ## Test the service
       - name: Deploy knative
-        working-directory: benchmarks
-        run:  kn service apply -f ./auth/yamls/knative/${{ matrix.service }}.yaml
+        run: |
+          kubectl apply -f ${{ env.YAML_DIR }}/kn-${{ matrix.service }}.yaml
+
+      - name: Check if service is ready
+        run: |
+          kubectl wait --for=condition=Ready -f ${{ env.YAML_DIR }}/kn-${{ matrix.service }}.yaml --timeout 120s
+          kubectl get service
+          kubectl get -f ${{ env.YAML_DIR }}/kn-${{ matrix.service }}.yaml
 
       - name: Test invoking once
         working-directory: tools/test-client
@@ -149,18 +174,19 @@ jobs:
           set -x
           go build ./test-client.go
 
-          NODEPORT=$(kubectl get svc kourier-ingress -n kourier-system -o=jsonpath='{.spec.ports[0].nodePort}')
+          # NODEPORT=$(kubectl get svc kourier-ingress -n kourier-system -o=jsonpath='{.spec.ports[0].nodePort}')
+          NODEPORT=80
 
-          url_list=$(kn service list | awk '$2 ~ /http/ {sub(/http\:\/\//,""); print $2}')
+          url_list=$(kubectl get kservice | awk '$2 ~ /http/ {sub(/http\:\/\//,""); print $2}')
           for url in $url_list
           do
             ./test-client --addr $url:$NODEPORT --name "Example text for Auth CI"
           done
+
       - name: Print logs
         if: ${{ always() }}
         run: |
           set -x
-          
           container_list=$(kubectl get pods -n default -o jsonpath="{.items[*].spec.containers[*].name}")
           for container_name in $container_list
           do
@@ -169,4 +195,5 @@ jobs:
 
       - name: Down
         if: ${{ always() }}
-        run: kn service delete --all --namespace default --wait
+        run: |
+          kubectl delete -f ${{ env.YAML_DIR }}/kn-${{ matrix.service }}.yaml --namespace default --wait

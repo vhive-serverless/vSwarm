@@ -175,6 +175,7 @@ jobs:
       #     # knative_eventing: v1.0.0
 
 
+
       ## Test the service
       - name: Deploy knative
         working-directory: benchmarks
@@ -186,13 +187,13 @@ jobs:
           set -x
           go build ./test-client.go
 
-          # NODEPORT=$(kubectl get svc kourier-ingress -n kourier-system -o=jsonpath='{.spec.ports[0].nodePort}')
+          NODEPORT=$(kubectl get svc kourier-ingress -n kourier-system -o=jsonpath='{.spec.ports[0].nodePort}')
           kubectl get service
 
           url_list=$(kubectl get kservice | awk '$2 ~ /http/ {sub(/http\:\/\//,""); print $2}')
           for url in $url_list
           do
-            ./test-client --addr $url:80 --name "Example text for AES CI"
+            ./test-client --addr $url:$NODEPORT --name "Example text for AES CI"
           done
 
       - name: Print logs

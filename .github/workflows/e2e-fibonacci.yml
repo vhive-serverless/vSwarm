@@ -24,7 +24,6 @@ env:
   GOOS: linux
   GO111MODULE: on
   PORT: 50051
-  KUBECONFIG: /etc/kubernetes/admin.conf
 
 jobs:
   build-and-push:
@@ -37,7 +36,7 @@ jobs:
           lfs: "true"
 
       - name: Login to Docker Hub
-        uses: docker/login-action@v1
+        uses: docker/login-action@v2
         with:
           username: ${{ secrets.DOCKER_HUB_USERNAME }}
           password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
@@ -69,21 +68,24 @@ jobs:
           make all
           make push
 
+
   test-compose:
     name: Test Docker Compose
     needs: build-and-push
+    env:
+      YAML_DIR: benchmarks/fibonacci/yamls/docker-compose/
     runs-on: ubuntu-20.04
     strategy:
       fail-fast: false
       matrix:
-        file:
+        service:
           [
-            dc-fibonacci-go.yaml,
-            dc-fibonacci-python.yaml,
-            dc-fibonacci-nodejs.yaml,
-            dc-fibonacci-go-tracing.yaml,
-            dc-fibonacci-python-tracing.yaml,
-            dc-fibonacci-nodejs-tracing.yaml,
+            fibonacci-go,
+            fibonacci-python,
+            fibonacci-nodejs,
+            fibonacci-go-tracing,
+            fibonacci-python-tracing,
+            fibonacci-nodejs-tracing,
           ]
 
     steps:
@@ -93,43 +95,40 @@ jobs:
           lfs: "true"
 
       - name: start docker-compose benchmark
-        working-directory: benchmarks/fibonacci/yamls/docker-compose
         run: |
-          docker-compose -f ${{ matrix.file }} pull
-          docker-compose -f ${{ matrix.file }} up &> log_file &
+          docker-compose -f ${{ env.YAML_DIR }}/dc-${{ matrix.service }}.yaml pull
+          docker-compose -f ${{ env.YAML_DIR }}/dc-${{ matrix.service }}.yaml up &> log_file &
           sleep 60s
           cat log_file
 
       - name: invoke the chain
         run: |
           ./tools/bin/grpcurl -plaintext localhost:50000 helloworld.Greeter.SayHello
+
       - name: show docker-compose log
-        run: cat benchmarks/fibonacci/yamls/docker-compose/log_file
+        run: cat log_file
 
   test-knative:
     name: Test Knative Deployment
     needs: build-and-push
     env:
-      GOCACHE: /root/tmp/gocache
-      GOPATH: /root/tmp/gopath
-    runs-on: [self-hosted, stock-knative]
+      KIND_VERSION: v0.14.0
+      K8S_VERSION: v1.22.10
+      YAML_DIR: benchmarks/fibonacci/yamls/knative/
+
+    runs-on: ubuntu-20.04
     strategy:
       fail-fast: false
-      max-parallel: 1
       matrix:
-        include:
-            - service: fibonacci-go
-              file: kn-fibonacci-go.yaml
-            - service: fibonacci-python
-              file: kn-fibonacci-python.yaml
-            - service: fibonacci-nodejs
-              file: kn-fibonacci-nodejs.yaml
-            - service: fibonacci-go-tracing
-              file: kn-fibonacci-go-tracing.yaml
-            - service: fibonacci-python-tracing
-              file: kn-fibonacci-python-tracing.yaml
-            - service: fibonacci-nodejs-tracing
-              file: kn-fibonacci-nodejs-tracing.yaml
+        service:
+          [
+            fibonacci-go,
+            fibonacci-python,
+            fibonacci-nodejs,
+            fibonacci-go-tracing,
+            fibonacci-python-tracing,
+            fibonacci-nodejs-tracing,
+          ]
     steps:
       - uses: actions/checkout@v3
         with:
@@ -139,11 +138,35 @@ jobs:
 
       - uses: actions/setup-go@v3
         with:
-          go-version: 1.16
+          go-version: 1.18
 
+      ## Setup a Knative cluster to test the service
+      - name: Create k8s Kind Cluster
+        run: bash ./runner/scripts/01-kind.sh
+
+      - name: Install Serving
+        run: bash ./runner/scripts/02-serving.sh
+
+      - name: Install Kourier
+        run: bash ./runner/scripts/02-kourier.sh
+
+      - name: Setup domain
+        run: |
+          INGRESS_HOST="127.0.0.1"
+          KNATIVE_DOMAIN=$INGRESS_HOST.nip.io
+          kubectl patch configmap -n knative-serving config-domain -p "{\"data\": {\"$KNATIVE_DOMAIN\": \"\"}}"
+
+
+      ## Test the service
       - name: Deploy knative
-        working-directory: benchmarks
-        run: kn service apply -f ./fibonacci/yamls/knative/${{ matrix.file }}
+        run: |
+          kubectl apply -f ${{ env.YAML_DIR }}/kn-${{ matrix.service }}.yaml
+
+      - name: Check if service is ready
+        run: |
+          kubectl wait --for=condition=Ready -f ${{ env.YAML_DIR }}/kn-${{ matrix.service }}.yaml --timeout 120s
+          kubectl get service
+          kubectl get -f ${{ env.YAML_DIR }}/kn-${{ matrix.service }}.yaml
 
       - name: Test invoking once
         working-directory: tools/test-client
@@ -151,21 +174,20 @@ jobs:
           set -x
           go build ./test-client.go
 
-          NODEPORT=$(kubectl get svc kourier-ingress -n kourier-system -o=jsonpath='{.spec.ports[0].nodePort}')
+          # NODEPORT=$(kubectl get svc kourier-ingress -n kourier-system -o=jsonpath='{.spec.ports[0].nodePort}')
+          NODEPORT=80
 
-          url_list=$(kn service list | awk '$2 ~ /http/ {sub(/http\:\/\//,""); print $2}')
-          
+          url_list=$(kubectl get kservice | awk '$2 ~ /http/ {sub(/http\:\/\//,""); print $2}')
           for url in $url_list
           do
             ./test-client --addr $url:$NODEPORT --name "Example text to relay for Fibonacci CI"
           done
+
       - name: Print logs
         if: ${{ always() }}
         run: |
           set -x
-          
-          container_list=$(kn service export ${{ matrix.service }} -o jsonpath="{.spec.service.spec.template.spec.containers[*].name}")
-          
+          container_list=$(kubectl get pods -n default -o jsonpath="{.items[*].spec.containers[*].name}")
           for container_name in $container_list
           do
             kubectl logs -n default -c $container_name -l serving.knative.dev/service=${{ matrix.service }}
@@ -173,4 +195,5 @@ jobs:
 
       - name: Down
         if: ${{ always() }}
-        run: kn service delete --all --namespace default --wait
+        run: |
+          kubectl delete -f ${{ env.YAML_DIR }}/kn-${{ matrix.service }}.yaml --namespace default --wait

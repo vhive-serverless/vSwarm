@@ -24,7 +24,6 @@ env:
   GOOS: linux
   GO111MODULE: on
   PORT: 50000
-  KUBECONFIG: /etc/kubernetes/admin.conf
 
 jobs:
   build-and-push:
@@ -61,17 +60,17 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        file:
+        service:
           [
-            dc-adservice.yaml,
-            dc-cartservice.yaml,
-            dc-checkoutservice.yaml,
-            dc-currencyservice.yaml,
-            dc-emailservice.yaml,
-            dc-paymentservice.yaml,
-            dc-productcatalogservice.yaml,
-            dc-recommendationservice.yaml,
-            dc-shippingservice.yaml,
+            adservice,
+            cartservice,
+            checkoutservice,
+            currencyservice,
+            emailservice,
+            paymentservice,
+            productcatalogservice,
+            recommendationservice,
+            shippingservice,
           ]
 
     steps:
@@ -83,8 +82,8 @@ jobs:
       - name: start docker-compose benchmark
         working-directory: benchmarks/online-shop/yamls/docker-compose
         run: |
-          docker-compose -f ${{ matrix.file }} pull
-          docker-compose -f ${{ matrix.file }} up &> log_file &
+          docker-compose -f dc-${{ matrix.service }}.yaml pull
+          docker-compose -f dc-${{ matrix.service }}.yaml up &> log_file &
           sleep 60s
           cat log_file
 
@@ -99,12 +98,11 @@ jobs:
     name: Test Knative Deployment
     needs: build-and-push
     env:
-      GOCACHE: /root/tmp/gocache
-      GOPATH: /root/tmp/gopath
-    runs-on: [self-hosted, stock-knative]
+      KIND_VERSION: v0.14.0
+      K8S_VERSION: v1.22.10
+    runs-on: ubuntu-20.04
     strategy:
       fail-fast: false
-      max-parallel: 5
       matrix:
         include:
           - service: adservice
@@ -136,46 +134,69 @@ jobs:
 
       - uses: actions/setup-go@v3
         with:
-          go-version: 1.16
+          go-version: 1.18
 
+      ## Setup a Knative cluster to test the service
+      - name: Create k8s Kind Cluster
+        run: bash ./runner/scripts/01-kind.sh
+
+      - name: Install Serving
+        run: bash ./runner/scripts/02-serving.sh
+
+      - name: Install Kourier
+        run: bash ./runner/scripts/02-kourier.sh
+
+      - name: Setup domain
+        run: |
+          INGRESS_HOST="127.0.0.1"
+          KNATIVE_DOMAIN=$INGRESS_HOST.nip.io
+          kubectl patch configmap -n knative-serving config-domain -p "{\"data\": {\"$KNATIVE_DOMAIN\": \"\"}}"
+
+      ## Test the service
       - name: Deploy database if needed
-        working-directory: benchmarks
+        working-directory: benchmarks/online-shop/yamls/knative/
         if: matrix.database == 'yes'
         run: |
-          kubectl apply -f ./online-shop/yamls/knative/database.yaml
+          kubectl apply -f database.yaml
 
       - name: Deploy knative
-        working-directory: benchmarks
+        working-directory: benchmarks/online-shop/yamls/knative/
         run: |
-          kubectl apply -f ./online-shop/yamls/knative/${{ matrix.file }}
-          kubectl wait --for=condition=Ready -f ./online-shop/yamls/knative/${{ matrix.file }} --timeout 200s
+          kubectl apply -f ${{ matrix.file }}
+          kubectl wait --for=condition=Ready -f ${{ matrix.file }} --timeout 120s
 
       - name: Check if service is ready
-        working-directory: benchmarks
+        working-directory: benchmarks/online-shop/yamls/knative/
         run: |
-          kn service list
+          kubectl get service
+          kubectl get -f ${{ matrix.file }}
 
       - name: Test invoking once
         working-directory: tools/test-client
         run: |
           set -x
           go build ./test-client.go
-          NODEPORT=$(kubectl get svc kourier-ingress -n kourier-system -o=jsonpath='{.spec.ports[0].nodePort}')
-          url=$(kn service describe ${{ matrix.service }} -o url | awk '$1 {sub(/http\:\/\//,""); print $1}')
-          ./test-client --addr $url:$NODEPORT  --name "Example text for Online Shop CI"
+
+          NODEPORT=80
+          url=$(kubectl get kservice ${{ matrix.service }} -o url | awk '$1 {sub(/http\:\/\//,""); print $1}')
+
+          ./test-client --addr $url:$NODEPORT --name "Example text for Online Shop CI"
 
       - name: Print logs
         if: ${{ always() }}
         run: |
           set -x
-          container_list=$(kn service export ${{ matrix.service }} -o jsonpath="{.spec.service.spec.template.spec.containers[*].name}")
+          container_list=$(kubectl get pods -n default -o jsonpath="{.items[*].spec.containers[*].name}")
           for container_name in $container_list
           do
             kubectl logs -n default -c $container_name -l serving.knative.dev/service=${{ matrix.service }}
           done
+
       - name: Down
+        working-directory: benchmarks/online-shop/yamls/knative/
         if: ${{ always() }}
-        run: kn service delete --all --namespace default --wait
+        run: |
+          kubectl delete -f ${{ matrix.file }} --namespace default --wait
 
       - name: Print logs from database
         if: matrix.database == 'yes'
@@ -184,7 +205,7 @@ jobs:
           kubectl logs deployment/online-shop-database
 
       - name: Down
-        working-directory: benchmarks
+        working-directory: benchmarks/online-shop/yamls/knative/
         if: matrix.database == 'yes'
         run: |
-          kubectl delete -f ./online-shop/yamls/knative/database.yaml
+          kubectl delete -f database.yaml
