@@ -24,7 +24,6 @@ env:
   GOOS: linux
   GO111MODULE: on
   PORT: 50051
-  KUBECONFIG: /etc/kubernetes/admin.conf
 
 jobs:
   build-and-push:
@@ -63,15 +62,15 @@ jobs:
       matrix:
         service:
           [
-            dc-geo,
-            dc-geo-tracing,
-            dc-profile,
-            dc-rate,
-            dc-recommendation,
-            dc-reservation,
-            dc-user,
-            dc-search,
-            dc-search-tracing,
+            geo,
+            geo-tracing,
+            profile,
+            rate,
+            recommendation,
+            reservation,
+            user,
+            search,
+            search-tracing,
           ]
 
     steps:
@@ -83,8 +82,8 @@ jobs:
       - name: start docker-compose benchmark
         working-directory: benchmarks/hotel-app/yamls/docker-compose
         run: |
-          docker-compose -f ${{ matrix.service }}.yaml pull
-          docker-compose -f ${{ matrix.service }}.yaml up &> log_file &
+          docker-compose -f dc-${{ matrix.service }}.yaml pull
+          docker-compose -f dc-${{ matrix.service }}.yaml up &> log_file &
           sleep 60s
           cat log_file
 
@@ -95,16 +94,16 @@ jobs:
       - name: show docker-compose log
         run: cat benchmarks/hotel-app/yamls/docker-compose/log_file
 
+
   test-knative:
     name: Test Knative Deployment
     needs: build-and-push
     env:
-      GOCACHE: /root/tmp/gocache
-      GOPATH: /root/tmp/gopath
-    runs-on: [self-hosted, stock-knative]
+      KIND_VERSION: v0.14.0
+      K8S_VERSION: v1.22.10
+    runs-on: ubuntu-20.04
     strategy:
       fail-fast: false
-      max-parallel: 2
       matrix:
         include:
           - service: hotel-app-geo
@@ -134,34 +133,59 @@ jobs:
 
       - uses: actions/setup-go@v3
         with:
-          go-version: 1.16
+          go-version: 1.18
 
-      - name: Deploy database and memcached
-        working-directory: benchmarks
+      ## Setup a Knative cluster to test the service
+      - name: Create k8s Kind Cluster
+        run: bash ./runner/scripts/01-kind.sh
+
+      - name: Install Serving
+        run: bash ./runner/scripts/02-serving.sh
+
+      - name: Install Kourier
+        run: bash ./runner/scripts/02-kourier.sh
+
+      - name: Setup domain
         run: |
-          kubectl apply -f ./hotel-app/yamls/knative/database.yaml
-          kubectl apply -f ./hotel-app/yamls/knative/memcached.yaml
+          INGRESS_HOST="127.0.0.1"
+          KNATIVE_DOMAIN=$INGRESS_HOST.nip.io
+          kubectl patch configmap -n knative-serving config-domain -p "{\"data\": {\"$KNATIVE_DOMAIN\": \"\"}}"
+
+      ## Test the service
+      - name: Deploy database and memcached
+        working-directory: benchmarks/hotel-app/yamls/knative/
+        run: |
+          kubectl apply -f database.yaml
+          kubectl apply -f memcached.yaml
 
       - name: Deploy knative
-        working-directory: benchmarks
+        working-directory: benchmarks/hotel-app/yamls/knative/
         run: |
-          kubectl apply -f ./hotel-app/yamls/knative/${{ matrix.file }}
-          kubectl wait --for=condition=Ready -f ./hotel-app/yamls/knative/${{ matrix.file }} --timeout 120s
+          kubectl apply -f ${{ matrix.file }}
+          kubectl wait --for=condition=Ready -f ${{ matrix.file }} --timeout 120s
+
+      - name: Check if service is ready
+        working-directory: benchmarks/online-shop/yamls/knative/
+        run: |
+          kubectl get service
+          kubectl get -f ${{ matrix.file }}
 
       - name: Test invoking once
         working-directory: tools/test-client
         run: |
           set -x
           go build ./test-client.go
-          NODEPORT=$(kubectl get svc kourier-ingress -n kourier-system -o=jsonpath='{.spec.ports[0].nodePort}')
-          url=$(kn service describe ${{ matrix.service }} -o url | awk '$1 {sub(/http\:\/\//,""); print $1}')
-          ./test-client --addr $url:$NODEPORT  --name "Example text for Online Shop CI"
+
+          NODEPORT=80
+          url=$(kubectl get kservice ${{ matrix.service }} -o url | awk '$1 {sub(/http\:\/\//,""); print $1}')
+
+          ./test-client --addr $url:$NODEPORT --name "Example text for Hotel App CI"
 
       - name: Print logs
         if: ${{ always() }}
         run: |
           set -x
-          container_list=$(kn service export ${{ matrix.service }} -o jsonpath="{.spec.service.spec.template.spec.containers[*].name}")
+          container_list=$(kubectl get pods -n default -o jsonpath="{.items[*].spec.containers[*].name}")
           for container_name in $container_list
           do
             kubectl logs -n default -c $container_name -l serving.knative.dev/service=${{ matrix.service }}
@@ -175,9 +199,9 @@ jobs:
           kubectl logs deployment/hotel-app-mmc
 
       - name: Down
+        working-directory: benchmarks/hotel-app/yamls/knative/
         if: ${{ always() }}
-        working-directory: benchmarks
         run: |
-          kn service delete --all --namespace default --wait
-          kubectl delete -f ./hotel-app/yamls/knative/database.yaml
-          kubectl delete -f ./hotel-app/yamls/knative/memcached.yaml
+          kubectl delete -f ${{ matrix.file }} --namespace default --wait
+          kubectl delete -f database.yaml
+          kubectl delete -f memcached.yaml
