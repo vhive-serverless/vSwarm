@@ -113,7 +113,7 @@ jobs:
     needs: build-and-push
     env:
       KIND_VERSION: v0.14.0
-      K8S_VERSION: v1.22.10
+      K8S_VERSION: v1.23
       YAML_DIR: benchmarks/fibonacci/yamls/knative/
 
     runs-on: ubuntu-20.04
@@ -153,7 +153,7 @@ jobs:
       - name: Setup domain
         run: |
           INGRESS_HOST="127.0.0.1"
-          KNATIVE_DOMAIN=$INGRESS_HOST.nip.io
+          KNATIVE_DOMAIN=$INGRESS_HOST.sslip.io
           kubectl patch configmap -n knative-serving config-domain -p "{\"data\": {\"$KNATIVE_DOMAIN\": \"\"}}"
 
 
@@ -174,14 +174,11 @@ jobs:
           set -x
           go build ./test-client.go
 
-          # NODEPORT=$(kubectl get svc kourier-ingress -n kourier-system -o=jsonpath='{.spec.ports[0].nodePort}')
           NODEPORT=80
+          url=$(kubectl get kservice ${{ matrix.service }} | awk '$2 ~ /http/ {sub(/http\:\/\//,""); print $2}')
 
-          url_list=$(kubectl get kservice | awk '$2 ~ /http/ {sub(/http\:\/\//,""); print $2}')
-          for url in $url_list
-          do
-            ./test-client --addr $url:$NODEPORT --name "Example text to relay for Fibonacci CI"
-          done
+          ./test-client --addr $url:$NODEPORT --name "Example text for Fibonacci CI"
+
 
       - name: Print logs
         if: ${{ always() }}

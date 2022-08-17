@@ -8,17 +8,17 @@ on:
     branches: [main]
     paths:
       - 'benchmarks/online-shop/*'
-      - "utils/*"
-      - "tools/*"
-      - "runner/*"
+      - "utils/**"
+      - "tools/**"
+      - "runner/**"
 
   pull_request:
     branches: [main]
     paths:
       - 'benchmarks/online-shop/*'
-      - "utils/*"
-      - "tools/*"
-      - "runner/*"
+      - "utils/**"
+      - "tools/**"
+      - "runner/**"
 
 env:
   GOOS: linux
@@ -99,7 +99,7 @@ jobs:
     needs: build-and-push
     env:
       KIND_VERSION: v0.14.0
-      K8S_VERSION: v1.22.10
+      K8S_VERSION: v1.23
     runs-on: ubuntu-20.04
     strategy:
       fail-fast: false
@@ -149,7 +149,7 @@ jobs:
       - name: Setup domain
         run: |
           INGRESS_HOST="127.0.0.1"
-          KNATIVE_DOMAIN=$INGRESS_HOST.nip.io
+          KNATIVE_DOMAIN=$INGRESS_HOST.sslip.io
           kubectl patch configmap -n knative-serving config-domain -p "{\"data\": {\"$KNATIVE_DOMAIN\": \"\"}}"
 
       ## Test the service

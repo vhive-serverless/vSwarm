@@ -3,28 +3,28 @@
 set -eo pipefail
 set -u
 
-KNATIVE_NET_CONTOUR_VERSION=${KNATIVE_NET_CONTOUR_VERSION:-1.2.0}
+KNATIVE_NET_CONTOUR_VERSION=${KNATIVE_NET_CONTOUR_VERSION:-1.4.0}
 
 ## INSTALL CONTOUR
 n=0
 until [ $n -ge 2 ]; do
-  kubectl apply -f https://github.com/knative-sandbox/net-contour/releases/download/knative-v${KNATIVE_NET_CONTOUR_VERSION}/contour.yaml > /dev/null && break
+  kubectl apply -f https://github.com/knative-sandbox/net-contour/releases/download/knative-v${KNATIVE_NET_CONTOUR_VERSION}/contour.yaml  && break
   n=$[$n+1]
   sleep 5
 done
-kubectl wait --for=condition=Established --all crd > /dev/null
-kubectl wait pod --timeout=-1s --for=condition=Ready -l '!job-name' -n contour-internal > /dev/null
-kubectl wait pod --timeout=-1s --for=condition=Ready -l '!job-name' -n contour-external > /dev/null
+kubectl wait --for=condition=Established --all crd
+kubectl wait pod --timeout=-1s --for=condition=Ready -l '!job-name' -n contour-internal
+kubectl wait pod --timeout=-1s --for=condition=Ready -l '!job-name' -n contour-external
 
 ## INSTALL NET CONTOUR
 n=0
 until [ $n -ge 2 ]; do
-  kubectl apply -f https://github.com/knative-sandbox/net-contour/releases/download/knative-v${KNATIVE_NET_CONTOUR_VERSION}/net-contour.yaml > /dev/null && break
+  kubectl apply -f https://github.com/knative-sandbox/net-contour/releases/download/knative-v${KNATIVE_NET_CONTOUR_VERSION}/net-contour.yaml && break
   n=$[$n+1]
   sleep 5
 done
 # deployment for net-contour gets deployed to namespace knative-serving
-kubectl wait pod --timeout=-1s --for=condition=Ready -l '!job-name' -n knative-serving > /dev/null
+kubectl wait pod --timeout=-1s --for=condition=Ready -l '!job-name' -n knative-serving
 
 # Configure Knative to use this ingress
 kubectl patch configmap/config-network \
