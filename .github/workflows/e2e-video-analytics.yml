@@ -86,6 +86,7 @@ jobs:
       env:
           AWS_ACCESS_KEY: ${{ secrets.AWS_ACCESS_KEY }}
           AWS_SECRET_KEY: ${{ secrets.AWS_SECRET_KEY }}
+          BUCKET_NAME: "vhive-video-bench"
       working-directory: benchmarks/video-analytics
       run: |
         docker-compose -f docker-compose-s3.yml up &> log_file &
