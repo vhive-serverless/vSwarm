@@ -25,7 +25,6 @@ package main
 import (
 	"fmt"
 	"sort"
-	"strconv"
 
 	log "github.com/sirupsen/logrus"
 
@@ -119,7 +118,7 @@ func PlotGraph(traces []*Trace, durations []float64, zipkinURL string, latencyTy
 	successItems := make([]opts.ScatterData, 0)
 	errorItems := make([]opts.ScatterData, 0)
 	for i, trace := range traces {
-		resp, err := strconv.Atoi(trace.Tags.HTTPStatusCode)
+		resp, err := trace.GetHTTPStatusCode()
 		if err != nil || resp > 300 {
 			errorItems = append(errorItems, opts.ScatterData{
 				Name:         trace.TraceID,
