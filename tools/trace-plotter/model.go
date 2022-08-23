@@ -22,6 +22,12 @@
 
 package main
 
+import (
+	"errors"
+	"sort"
+	"strconv"
+)
+
 type EsResponse struct {
 	Hits     Hits   `json:"hits"`
 	ScrollID string `json:"_scroll_id"`
@@ -93,4 +99,35 @@ func (trace *Trace) DeepestLeaf() (deapest *Trace, depth int) {
 		}
 	}
 	return deapest, depth + 1
+}
+
+func (trace *Trace) GetHTTPStatusCode() (int, error) {
+	if trace.Tags != nil {
+		return strconv.Atoi(trace.Tags.HTTPStatusCode)
+	}
+
+	childCodes := []int{}
+	for _, child := range trace.Child {
+		if child.Tags != nil {
+			if childCode, err := strconv.Atoi(child.Tags.HTTPStatusCode); err == nil {
+				childCodes = append(childCodes, childCode)
+			}
+		}
+	}
+
+	if len(childCodes) == 0 {
+		for _, child := range trace.Child {
+			c, err := child.GetHTTPStatusCode()
+			if err == nil {
+				childCodes = append(childCodes, c)
+			}
+		}
+	}
+
+	if len(childCodes) == 0 {
+		return -1, errors.New("no http status code found in trace")
+	}
+
+	sort.Ints(childCodes)
+	return childCodes[len(childCodes)-1], nil
 }
