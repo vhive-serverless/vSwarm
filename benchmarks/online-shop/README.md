@@ -12,7 +12,7 @@ For functionality details refer to the upstream repository ([Online Boutique](ht
 
 
 ## Porting to serverless kernel
-We took the 9 microservices implementing the functionality of the application and integrated them into vSwarm. The current version of the sources is **[v0.3.7](https://github.com/GoogleCloudPlatform/microservices-demo/releases/tag/v0.3.7)**.
+We took the 9 microservices implementing the functionality of the application and integrated them into vSwarm. The current version of the sources is **[v0.3.9](https://github.com/GoogleCloudPlatform/microservices-demo/releases/tag/v0.3.9)**.
 > Note: To upgrade to another version see the `update_remote_files.sh` script.
 
 > Warning: This is just a script for your convince. No guarantee that every will work afterwards.
