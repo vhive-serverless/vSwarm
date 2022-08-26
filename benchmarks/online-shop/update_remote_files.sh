@@ -9,7 +9,7 @@ DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 ROOT="$( cd $DIR && cd .. && pwd)"
 
 
-VERSION=${1:-v0.3.6}
+VERSION=${1:-v0.3.9}
 echo "Update Online boutique version to: ${VERSION}"
 
 
