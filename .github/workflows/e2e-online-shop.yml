@@ -84,6 +84,8 @@ jobs:
   test-compose:
     name: Test Docker Compose
     needs: build-and-push
+    env:
+      YAML_DIR: benchmarks/online-shop/yamls/docker-compose/
     runs-on: ubuntu-20.04
     strategy:
       fail-fast: false
@@ -108,10 +110,9 @@ jobs:
           lfs: "true"
 
       - name: start docker-compose benchmark
-        working-directory: benchmarks/online-shop/yamls/docker-compose
         run: |
-          docker-compose -f dc-${{ matrix.service }}.yaml pull
-          docker-compose -f dc-${{ matrix.service }}.yaml up &> log_file &
+          docker-compose -f ${{ env.YAML_DIR }}/dc-${{ matrix.service }}.yaml pull
+          docker-compose -f ${{ env.YAML_DIR }}/dc-${{ matrix.service }}.yaml up &> log_file &
           sleep 60s
           cat log_file
 
@@ -120,7 +121,7 @@ jobs:
           ./tools/bin/grpcurl -plaintext localhost:50000 helloworld.Greeter.SayHello
 
       - name: show docker-compose log
-        run: cat benchmarks/online-shop/yamls/docker-compose/log_file
+        run: cat log_file
 
   test-knative:
     name: Test Knative Deployment
@@ -128,30 +129,27 @@ jobs:
     env:
       KIND_VERSION: v0.14.0
       K8S_VERSION: v1.23
+      YAML_DIR: benchmarks/online-shop/yamls/knative/
+
     runs-on: ubuntu-20.04
     strategy:
       fail-fast: false
       matrix:
+        service:
+          [
+            adservice,
+            cartservice,
+            checkoutservice,
+            currencyservice,
+            emailservice,
+            paymentservice,
+            productcatalogservice,
+            recommendationservice,
+            shippingservice,
+          ]
         include:
-          - service: adservice
-            file: kn-adservice.yaml
           - service: cartservice
-            file: kn-cartservice.yaml
             database: yes
-          - service: checkoutservice
-            file: kn-checkoutservice.yaml
-          - service: currencyservice
-            file: kn-currencyservice.yaml
-          - service: emailservice
-            file: kn-emailservice.yaml
-          - service: paymentservice
-            file: kn-paymentservice.yaml
-          - service: productcatalogservice
-            file: kn-productcatalogservice.yaml
-          - service: recommendationservice
-            file: kn-recommendationservice.yaml
-          - service: shippingservice
-            file: kn-shippingservice.yaml
 
     steps:
       - uses: actions/checkout@v3
@@ -180,24 +178,22 @@ jobs:
           KNATIVE_DOMAIN=$INGRESS_HOST.sslip.io
           kubectl patch configmap -n knative-serving config-domain -p "{\"data\": {\"$KNATIVE_DOMAIN\": \"\"}}"
 
+
       ## Test the service
       - name: Deploy database if needed
-        working-directory: benchmarks/online-shop/yamls/knative/
         if: matrix.database == 'yes'
         run: |
-          kubectl apply -f database.yaml
+          kubectl apply -f ${{ env.YAML_DIR }}database.yaml
 
       - name: Deploy knative
-        working-directory: benchmarks/online-shop/yamls/knative/
         run: |
-          kubectl apply -f ${{ matrix.file }}
-          kubectl wait --for=condition=Ready -f ${{ matrix.file }} --timeout 120s
+          kubectl apply -f ${{ env.YAML_DIR }}/kn-${{ matrix.service }}.yaml
 
       - name: Check if service is ready
-        working-directory: benchmarks/online-shop/yamls/knative/
         run: |
+          kubectl wait --for=condition=Ready -f ${{ env.YAML_DIR }}/kn-${{ matrix.service }}.yaml --timeout 120s
           kubectl get service
-          kubectl get -f ${{ matrix.file }}
+          kubectl get -f ${{ env.YAML_DIR }}/kn-${{ matrix.service }}.yaml
 
       - name: Test invoking once
         working-directory: tools/test-client
@@ -206,25 +202,26 @@ jobs:
           go build ./test-client.go
 
           NODEPORT=80
-          url=$(kubectl get kservice ${{ matrix.service }} -o url | awk '$1 {sub(/http\:\/\//,""); print $1}')
+          url=$(kubectl get kservice ${{ matrix.service }} | awk '$2 ~ /http/ {sub(/http\:\/\//,""); print $2}')
 
-          ./test-client --addr $url:$NODEPORT --name "Example text for Online Shop CI"
+          ./test-client --addr $url:$NODEPORT --name "Example text for CI"
+
 
       - name: Print logs
         if: ${{ always() }}
         run: |
           set -x
-          container_list=$(kubectl get pods -n default -o jsonpath="{.items[*].spec.containers[*].name}")
+          container_list=$(kubectl get pods -n default -l serving.knative.dev/service=${{ matrix.service }} -o jsonpath="{.items[*].spec.containers[*].name}")
+          echo $container_list
           for container_name in $container_list
           do
             kubectl logs -n default -c $container_name -l serving.knative.dev/service=${{ matrix.service }}
           done
 
       - name: Down
-        working-directory: benchmarks/online-shop/yamls/knative/
         if: ${{ always() }}
         run: |
-          kubectl delete -f ${{ matrix.file }} --namespace default --wait
+          kubectl delete -f ${{ env.YAML_DIR }}/kn-${{ matrix.service }}.yaml --namespace default --wait
 
       - name: Print logs from database
         if: matrix.database == 'yes'
@@ -232,8 +229,7 @@ jobs:
           set -x
           kubectl logs deployment/online-shop-database
 
-      - name: Down
-        working-directory: benchmarks/online-shop/yamls/knative/
+      - name: Down DB
         if: matrix.database == 'yes'
         run: |
-          kubectl delete -f database.yaml
+          kubectl delete -f ${{ env.YAML_DIR }}/database.yaml
