@@ -202,7 +202,7 @@ jobs:
           NODEPORT=80
           url=$(kubectl get kservice ${{ matrix.service }} | awk '$2 ~ /http/ {sub(/http\:\/\//,""); print $2}')
 
-          ./test-client --addr $url:$NODEPORT --name "Example text for Fibonacci CI"
+          ./test-client --addr $url:$NODEPORT --name "Example text for CI"
 
 
       - name: Print logs
