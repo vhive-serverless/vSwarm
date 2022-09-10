@@ -1,0 +1,34 @@
+{
+    "profiling_jobs": [
+        {
+            "job_type": "invokation",
+            "func_name": "aes-go",
+            "runDuration": 1,
+            "rps": 50
+        },
+        {
+            "job_type": "invokation",
+            "func_name": "aes-python",
+            "runDuration": 1,
+            "rps": 50
+        },
+        {
+            "job_type": "invokation",
+            "func_name": "aes-go",
+            "runDuration": 1,
+            "rps": 50
+        },
+        {
+            "job_type": "invokation",
+            "func_name": "aes-go",
+            "runDuration": 1,
+            "rps": 50
+        },
+        {
+            "job_type": "invokation",
+            "func_name": "aes-go",
+            "runDuration": 1,
+            "rps": 50
+        }
+    ]
+}
