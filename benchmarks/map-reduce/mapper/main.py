@@ -21,23 +21,21 @@
 # SOFTWARE.
 
 import os
-import resource
 import sys
-import time
 
 import boto3
-import json
 import logging as log
-import pickle
+
+from mapper import MapFunction
+import tracing
 
 LAMBDA = os.environ.get('IS_LAMBDA', 'yes').lower() in ['true', 'yes', '1']
-TRACE = os.environ.get('TRACING_ON', 'no').lower() in ['true', 'yes', '1', 'on']
+TRACE = os.environ.get('ENABLE_TRACING', 'no').lower() in ['true', 'yes', '1', 'on']
 
 if not LAMBDA:
 	import grpc
 	import argparse
 	import socket
-	from joblib import Parallel, delayed
 
 	import mapreduce_pb2_grpc
 	import mapreduce_pb2
@@ -62,46 +60,26 @@ if TRACE:
 	sys.path.insert(0, os.getcwd() + '/../proto/')
 	sys.path.insert(0, os.getcwd() + '/../../../utils/tracing/python')
 
-	import tracing
-
 	if tracing.IsTracingEnabled():
 	    tracing.initTracer("mapper", url=args.zipkinURL)
 	    tracing.grpcInstrumentClient()
 	    tracing.grpcInstrumentServer()
 
 # constants
-INPUT_MAPPER_PREFIX = "artemiy/"
-OUTPUT_MAPPER_PREFIX = "artemiy/task/mapper/"
-INPUT_REDUCER_PREFIX = OUTPUT_MAPPER_PREFIX
-OUTPUT_REDUCER_PREFIX = "artemiy/task/reducer/"
 S3 = "S3"
 XDT = "XDT"
-
-# set aws credentials:
-AWS_ID = os.getenv('AWS_ACCESS_KEY')
-AWS_SECRET = os.getenv('AWS_SECRET_KEY')
-
-S3CLIENT = boto3.resource(
-	service_name='s3',
-	region_name=os.getenv("AWS_REGION", 'us-west-1'),
-	aws_access_key_id=AWS_ID,
-	aws_secret_access_key=AWS_SECRET
-)
-
-def write_to_s3(bucket_obj, key, data, metadata):
-	bucket_obj.put_object(Key=key, Body=data, Metadata=metadata)
-
-
-def read_from_s3(s3_client, src_bucket, key):
-	response = s3_client.get_object(Bucket=src_bucket, Key=key)
-	return response
 
 if not LAMBDA:
 	class MapperServicer(mapreduce_pb2_grpc.MapperServicer):
 		def __init__(self, transferType, XDTconfig=None):
 			self.transferType = transferType
-			self.mapperId = ""
-			self.s3_client = S3CLIENT
+			if transferType == S3:
+				self.s3_client = boto3.resource(
+					service_name='s3',
+					region_name=os.getenv('AWS_REGION'),
+					aws_access_key_id=os.getenv('AWS_ACCESS_KEY'),
+					aws_secret_access_key=os.getenv('AWS_SECRET_KEY')
+				)
 			if transferType == XDT:
 				if XDTconfig is None:
 					log.fatal("Empty XDT config")
@@ -117,105 +95,95 @@ if not LAMBDA:
 				if self.transferType == S3:
 					s3object = self.s3_client.Object(bucket_name=bucket, key=key)
 					if metadata is None:
-						s3object.put(Body=obj)
+						response = s3object.put(Body=obj)
 					else:
-						s3object.put(Body=obj, Metadata=metadata)
+						response = s3object.put(Body=obj, Metadata=metadata)
 				elif self.transferType == XDT:
 					key = self.XDTclient.Put(payload=obj)
 
 			return key
 
-		def get(self, key):
+		def get(self, bucket, key):
 			msg = "Mapper gets key '" + key + "' from " + self.transferType
 			log.info(msg)
 			with tracing.Span(msg):
-				response = None
 				if self.transferType == S3:
-					obj = self.s3_client.Object(bucket_name=self.benchName, key=key)
+					obj = self.s3_client.Object(bucket_name=bucket, key=key)
 					response = obj.get()
 					return response['Body'].read()
 				elif self.transferType == XDT:
 					return XDTdst.Get(key, self.XDTconfig)
 
 		def Map(self, request, context):
-			mapper_id = request.mapperId
-			log.info(f"Mapper {mapper_id} is invoked")
 
-			dest_bucket = request.destBucket  # s3 bucket where the mapper will write the result
-			src_bucket  = request.srcBucket   # s3 bucket where the mapper will search for input files
-			src_keys    = request.keys        # src_keys is a list of input file names for this mapper
-			job_id      = request.jobId
-			n_reducers  = request.nReducers
+			mapArgs = {
+				'srcBucket' : request.srcBucket,
+				'destBucket' : request.destBucket,
+				'jobId' 	: request.jobId,
+				'mapperId'	: request.mapperId,
+				'nReducers' : request.nReducers,
+				'keys' 		: [grpc_key.key for grpc_key in request.keys],
+				'getMethod' : self.get,
+				'putMethod'	: self.put,
+				'mapReply'	: mapreduce_pb2.MapReply
+			}
 
-			src_keys = []
-			for i, key in enumerate(request.keys):
-				src_keys.append(key)
+			reply = MapFunction(mapArgs)
+			response = reply['mapReply']
 
-			print(src_keys, mapper_id)
-
-			output = {}
-			line_count = 0
-			err = ''
-
-
-			start_time = time.time()
-			with tracing.Span("Fetch keys"):
-				start_time = 0
-				content_list = []
-				for grpc_key in src_keys:
-					key = grpc_key.key
-					key = INPUT_MAPPER_PREFIX + key
-					obj = self.s3_client.Object(bucket_name=src_bucket, key=key)
-					response = obj.get()
-					contents = response['Body'].read().decode("utf-8")
-					content_list.append(contents)
-
-			with tracing.Span("process keys and shuffle"):
-				for contents in content_list:
-					for line in contents.split('\n')[:-1]:
-						line_count +=1
-						try:
-							data = line.split(',')
-							srcIp = data[0][:8]
-							if srcIp not in output:
-								output[srcIp] = 0
-							output[srcIp] += float(data[3])
-						except getopt.GetoptError as e:
-							err += '%s' % e
-
-				shuffle_output = []
-				for i in range(n_reducers):
-					reducer_output = {}
-					shuffle_output.append(reducer_output)
-				for srcIp in output.keys():
-					reducer_num = hash(srcIp) & (n_reducers - 1)
-					shuffle_output[reducer_num][srcIp] = output[srcIp]
-
-			time_in_secs = (time.time() - start_time)
-			response = mapreduce_pb2.MapReply()
-
-			with tracing.Span("Save result"):
-				write_tasks = []
-				for to_reducer_id in range(n_reducers):
-					mapper_fname = "%sjob_%s/shuffle_%s/map_%s" % (OUTPUT_MAPPER_PREFIX, job_id, to_reducer_id, mapper_id)
-					metadata = {
-						"linecount":  '%s' % line_count,
-						"processingtime": '%s' % time_in_secs,
-						"memoryUsage": '%s' % resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
-					}
-					write_tasks.append((dest_bucket, mapper_fname, pickle.dumps(shuffle_output[to_reducer_id]), metadata))
-
-				keys = Parallel(backend="threading", n_jobs=n_reducers)(delayed(self.put)(*i) for i in write_tasks)
-				for key in keys:
-					grpc_keys = mapreduce_pb2.Keys()
-					grpc_keys.key = key
-					response.keys.append(grpc_keys)
-
-				pret = [len(src_keys), line_count, time_in_secs, err]
-			print("mapper" + str(mapper_id), pret)
+			for key in reply['keys']:
+				grpc_keys = mapreduce_pb2.Keys()
+				grpc_keys.key = key
+				response.keys.append(grpc_keys)
 
 			response.reply = "success"
 			return response
+
+if LAMBDA:
+	class AWSLambdaMapperServicer:
+		def __init__(self):
+			self.s3_client = boto3.resource(service_name='s3')
+
+		def put(self, bucket, key, obj, metadata=None):
+			msg = "Mapper uploading object with key '" + key + "' to S3"
+			log.info(msg)
+			log.info("object is of type %s", type(obj))
+
+			with tracing.Span(msg):
+				s3object = self.s3_client.Object(bucket_name=bucket, key=key)
+				if metadata is None:
+					response = s3object.put(Body=obj)
+				else:
+					response = s3object.put(Body=obj, Metadata=metadata)
+
+			return key
+
+		def get(self, bucket, key):
+			msg = "Mapper gets key '" + key + "' from S3"
+			log.info(msg)
+
+			with tracing.Span(msg):
+				obj = self.s3_client.Object(bucket_name=bucket, key=key)
+				response = obj.get()
+				return response['Body'].read()
+
+		def Map(self, event, context):
+
+			mapArgs = {
+				'srcBucket' : event["srcBucket"],
+				'destBucket' : event["destBucket"],
+				'jobId' 	: event["jobId"],
+				'mapperId'	: event["mapperId"],
+				'nReducers' : event["nReducers"],
+				'keys' 		: event['keys'].split(','),
+				'getMethod' : self.get,
+				'putMethod'	: self.put,
+				'mapReply'	: None
+			}
+
+			response = MapFunction(mapArgs)
+
+			return {'keys' : response['keys'], 'reply' : 'success'}
 
 
 def serve():
@@ -238,56 +206,8 @@ def serve():
 
 
 def lambda_handler(event, context):
-	transferType = os.getenv('TRANSFER_TYPE', S3)
-
-	start_time = time.time()
-	output = {}
-	for k in event['keys'].split(','):
-		key = INPUT_MAPPER_PREFIX + k
-		obj = S3CLIENT.Object(bucket_name=event['srcBucket'], key=key).get()
-		contents = obj['Body'].read().decode('utf-8')
-
-		line_count = 0
-		err = ''
-		for line in contents.split('\n')[1:]:
-			line_count +=1
-			try:
-				data = line.split(',')
-				srcIp = data[0]
-				if srcIp not in output:
-					output[srcIp] = 0
-				output[srcIp] += float(data[3])
-			except Exception as e:
-				err += '%s' % e
-
-	shuffle_output = []
-	for i in range(event['nReducers']):
-		reducer_output = {}
-		shuffle_output.append(reducer_output)
-	for srcIp in output.keys():
-		reducer_num = hash(srcIp) & (event['nReducers'] - 1)
-		shuffle_output[reducer_num][srcIp] = output[srcIp]
-
-	time_in_secs = time.time() - start_time
-
-	# TODO: parallelize
-	response = {'keys' : []}
-	for to_reducer_id in range(event['nReducers']):
-		reduceKey = "%sjob_0/shuffle_%s/map_%s" % (OUTPUT_MAPPER_PREFIX, to_reducer_id, event['mapperId'])
-		metadata = {
-			"linecount":  str(line_count),
-			"processingtime": str(time_in_secs),
-			"memoryUsage": str(resource.getrusage(resource.RUSAGE_SELF).ru_maxrss)
-		}
-		obj = S3CLIENT.Object(bucket_name=event['srcBucket'], key=reduceKey)
-		pickledBody = pickle.dumps(shuffle_output[to_reducer_id])
-		if metadata is None:
-			obj.put(Body=pickledBody)
-		else:
-			obj.put(Body=pickledBody, Metadata=metadata)
-		response['keys'].append(reduceKey)
-
-	return response
+	mapperServicer = AWSLambdaMapperServicer()
+	return mapperServicer.Map(event, context)
 
 if __name__ == '__main__' and not LAMBDA:
 	log.basicConfig(level=log.INFO)
