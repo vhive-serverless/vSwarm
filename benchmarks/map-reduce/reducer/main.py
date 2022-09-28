@@ -21,23 +21,21 @@
 # SOFTWARE.
 
 import os
-import resource
 import sys
-import time
 
 import boto3
-import json
 import logging as log
-import pickle
+
+from reducer import ReduceFunction
+import tracing
 
 LAMBDA = os.environ.get('IS_LAMBDA', 'yes').lower() in ['true', 'yes', '1']
-TRACE = os.environ.get('TRACING_ON', 'no').lower() in ['true', 'yes', '1', 'on']
+TRACE = os.environ.get('ENABLE_TRACING', 'no').lower() in ['true', 'yes', '1', 'on']
 
 if not LAMBDA:
 	import grpc
 	import argparse
 	import socket
-	from joblib import Parallel, delayed
 
 	import mapreduce_pb2_grpc
 	import mapreduce_pb2
@@ -62,37 +60,26 @@ if TRACE:
 	sys.path.insert(0, os.getcwd() + '/../proto/')
 	sys.path.insert(0, os.getcwd() + '/../../../utils/tracing/python')
 
-	import tracing
-
 	if tracing.IsTracingEnabled():
 		tracing.initTracer("reducer", url=args.zipkinURL)
 		tracing.grpcInstrumentClient()
 		tracing.grpcInstrumentServer()
 
 # constants
-INPUT_MAPPER_PREFIX = "artemiy/"
-OUTPUT_MAPPER_PREFIX = "artemiy/task/mapper/"
-INPUT_REDUCER_PREFIX = OUTPUT_MAPPER_PREFIX
-OUTPUT_REDUCER_PREFIX = "artemiy/task/reducer/"
 S3 = "S3"
 XDT = "XDT"
-
-# set aws credentials:
-AWS_ID = os.getenv('AWS_ACCESS_KEY')
-AWS_SECRET = os.getenv('AWS_SECRET_KEY')
-
-S3CLIENT = boto3.resource(
-	service_name='s3',
-	region_name=os.getenv("AWS_REGION", 'us-west-1'),
-	aws_access_key_id=AWS_ID,
-	aws_secret_access_key=AWS_SECRET
-)
 
 if not LAMBDA:
 	class ReducerServicer(mapreduce_pb2_grpc.ReducerServicer):
 		def __init__(self, transferType, XDTconfig=None):
 			self.transferType = transferType
-			self.s3_client = S3CLIENT
+			if transferType == S3:
+				self.s3_client = boto3.resource(
+					service_name='s3',
+					region_name=os.getenv('AWS_REGION'),
+					aws_access_key_id=os.getenv('AWS_ACCESS_KEY'),
+					aws_secret_access_key=os.getenv('AWS_SECRET_KEY')
+				)
 			if transferType == XDT:
 				if XDTconfig is None:
 					log.fatal("Empty XDT config")
@@ -126,69 +113,63 @@ if not LAMBDA:
 					return XDTdst.Get(key, self.XDTconfig)
 
 		def Reduce(self, request, context):
-			start_time = time.time()
-			r_id = request.reducerId
-			log.info(f"Reducer {r_id} is invoked")
 
-			dest_bucket = request.destBucket  # s3 bucket where the mapper will write the result
-			src_bucket = request.srcBucket   # s3 bucket where the mapper will search for input files
-			reducer_keys = request.keys       # reducer_keys is a list of input file names for this mapper
-			job_id = request.jobId
-			n_reducers = request.nReducers
+			reduceArgs = {
+				'srcBucket' : request.srcBucket,
+				'destBucket' : request.destBucket,
+				'jobId' 	: request.jobId,
+				'reducerId' : request.reducerId,
+				'nReducers' : request.nReducers,
+				'keys'		: [grpc_key.key for grpc_key in request.keys],
+				'getMethod' : self.get,
+				'putMethod'	: self.put
+			}
 
-			# aggr
-			results = {}
-			line_count = 0
-
-			# INPUT JSON => OUTPUT JSON
-
-			# Download and process all keys
-			responses = []
-			with tracing.Span("Fetch keys"):
-				read_tasks = []
-				for grpc_key in reducer_keys:
-					key = grpc_key.key
-					# key = INPUT_REDUCER_PREFIX + "job_" + job_id + "/shuffle_" + str(r_id) + "/" + key
-					read_tasks.append((src_bucket, key))
-				responses = Parallel(backend="threading", n_jobs=len(read_tasks))(delayed(self.get)(*i) for i in read_tasks)
-
-			time_in_secs = 0
-			start_time = time.time()
-
-			with tracing.Span("Compute reducer result"):
-				for response in responses:
-					try:
-						for srcIp, val in pickle.loads(response).items():
-							line_count +=1
-							if srcIp not in results:
-								results[srcIp] = 0
-							results[srcIp] += float(val)
-					except:
-						e = sys.exc_info()[0]
-						print(e)
-
-				time_in_secs += (time.time() - start_time)
-
-				pret = [len(reducer_keys), line_count, time_in_secs]
-				print ("Reducer" + str(r_id), pret)
-
-			with tracing.Span("Save result"):
-				if n_reducers == 1:
-					fname = "%sjob_%s/result" % (OUTPUT_REDUCER_PREFIX, job_id)
-				else:
-					fname = "%sjob_%s/reducer_%s" % (OUTPUT_REDUCER_PREFIX, job_id, r_id)
-
-				metadata = {
-					"linecount":  '%s' % line_count,
-					"processingtime": '%s' % time_in_secs,
-					"memoryUsage": '%s' % resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
-				}
-
-				self.put(dest_bucket, fname, pickle.dumps(results), metadata=metadata, forceS3=True)
-
+			reply = ReduceFunction(reduceArgs)
 			return mapreduce_pb2.ReduceReply(
 				reply="success"
 			)
+
+if LAMBDA:
+	class AWSLambdaReducerServicer:
+		def __init__(self):
+			self.s3_client = boto3.resource(service_name='s3')
+
+		def put(self, bucket, key, obj, metadata=None):
+			msg = "Reducer uploading object with key '" + key + "' to S3"
+			log.info(msg)
+
+			with tracing.Span(msg):
+				s3object = self.s3_client.Object(bucket_name=bucket, key=key)
+				if metadata is None:
+					s3object.put(Body=obj)
+				else:
+					s3object.put(Body=obj, Metadata=metadata)
+			return key
+
+		def get(self, bucket, key):
+			msg = "Reducer gets key '" + key + "' from S3"
+			log.info(msg)
+
+			with tracing.Span(msg):
+				obj = self.s3_client.Object(bucket_name=bucket, key=key)
+				response = obj.get()
+				return response['Body'].read()
+
+		def Reduce(self, event, context):
+
+			reduceArgs = {
+				'srcBucket' : event["srcBucket"],
+				'destBucket' : event["destBucket"],
+				'jobId' 	: event["jobId"],
+				'reducerId' : event["reducerId"],
+				'nReducers' : event["nReducers"],
+				'keys' 		: event['keys'].split(','),
+				'getMethod' : self.get,
+				'putMethod'	: self.put
+			}
+
+			return ReduceFunction(reduceArgs)
 
 
 def serve():
@@ -211,37 +192,8 @@ def serve():
 
 
 def lambda_handler(event, context):
-	outputReducerPrefix = os.environ.get('OUTPUT_MAPPER_PREFIX', "artemiy/task/mapper/")
-	obj = Storage("S3", event['srcBucket'])
-
-	responses = []
-	keys = event['keys'].split(',')
-	for key in keys:
-		responses.append(obj.get(key))
-
-	results = {}
-	line_count = 0
-	for resp in responses:
-		try:
-			for srcIp, val in pickle.loads(resp).items():
-				line_count += 1
-				if srcIp not in results:
-					results[srcIp] = 0
-				results[srcIp] += float(val)
-		except:
-			print(sys.exc_info())
-
-	reduceKey = "%sjob_0/reducer_%s" % (outputReducerPrefix, event['reducerId'])
-	metadata = {
-		"linecount":  str(line_count),
-		"processingtime": str(time_in_secs),
-		"memoryUsage": str(resource.getrusage(resource.RUSAGE_SELF).ru_maxrss)
-	}
-	obj.put(reduceKey, pickle.dumps(results), metadata)
-
-	return {
-		'reply' : "success"
-	}
+	reducerServicer = AWSLambdaReducerServicer()
+	return reducerServicer.Reduce(event, context)
 
 if __name__ == '__main__' and not LAMBDA:
 	log.basicConfig(level=log.INFO)
