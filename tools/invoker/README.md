@@ -17,7 +17,7 @@ An example input file can look like this:
 ]
 ```
 
-For knative eventing, the invokation of functions with the goal of measuring their latency is more difficult since the connection does not stay open until a response arrives. For this reason we have developed `TimeseriesDB`. To use the invoker with TimeseriesDB the input json object will need an additional matchers field, which is a mapping of CloudEvent attribute names and values that are sought in completion events to exist. Please refer to the [benchmarking methodology documentation](https://github.com/ease-lab/vSwarm/blob/main/docs/methodology.md) for additional information.
+For knative eventing, the invokation of functions with the goal of measuring their latency is more difficult since the connection does not stay open until a response arrives. For this reason we have developed `TimeseriesDB`. To use the invoker with TimeseriesDB the input json object will need an additional matchers field, which is a mapping of CloudEvent attribute names and values that are sought in completion events to exist. Please refer to the [benchmarking methodology documentation](https://github.com/vhive-serverless/vSwarm/blob/main/docs/methodology.md) for additional information.
 
 An example input file for eventing can look like this:
 ```json

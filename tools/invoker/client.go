@@ -43,11 +43,11 @@ import (
 
 	"go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc"
 
-	"github.com/ease-lab/vSwarm/tools/benchmarking_eventing/vhivemetadata"
-	"github.com/ease-lab/vSwarm/tools/endpoint"
-	tracing "github.com/ease-lab/vSwarm/utils/tracing/go"
+	"github.com/vhive-serverless/vSwarm/tools/benchmarking_eventing/vhivemetadata"
+	"github.com/vhive-serverless/vSwarm/tools/endpoint"
+	tracing "github.com/vhive-serverless/vSwarm/utils/tracing/go"
 
-	pb "github.com/ease-lab/vSwarm/tools/invoker/proto"
+	pb "github.com/vhive-serverless/vSwarm/tools/invoker/proto"
 )
 
 const TimeseriesDBAddr = "10.96.0.84:90"

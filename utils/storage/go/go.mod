@@ -1,4 +1,4 @@
-module github.com/ease-lab/vSwarm/utils/storage/go
+module github.com/vhive-serverless/vSwarm/utils/storage/go
 
 go 1.16
 

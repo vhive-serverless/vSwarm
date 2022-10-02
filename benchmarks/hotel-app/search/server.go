@@ -37,12 +37,12 @@ import (
 	"google.golang.org/grpc/keepalive"
 	"google.golang.org/grpc/reflection"
 
-	geo "github.com/ease-lab/vSwarm-proto/proto/hotel_reserv/geo"
-	rate "github.com/ease-lab/vSwarm-proto/proto/hotel_reserv/rate"
+	geo "github.com/vhive-serverless/vSwarm-proto/proto/hotel_reserv/geo"
+	rate "github.com/vhive-serverless/vSwarm-proto/proto/hotel_reserv/rate"
 
-	pb "github.com/ease-lab/vSwarm-proto/proto/hotel_reserv/search"
+	pb "github.com/vhive-serverless/vSwarm-proto/proto/hotel_reserv/search"
 
-	tracing "github.com/ease-lab/vSwarm/utils/tracing/go"
+	tracing "github.com/vhive-serverless/vSwarm/utils/tracing/go"
 )
 
 // Server implments the search service

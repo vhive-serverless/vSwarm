@@ -3,8 +3,8 @@ module tests/chained-functions-serving
 go 1.16
 
 replace (
-	github.com/ease-lab/vSwarm/examples/protobuf/helloworld => ../../utils/protobuf/helloworld
-	github.com/ease-lab/vSwarm/utils/tracing/go => ../../utils/tracing/go
+	github.com/vhive-serverless/vSwarm/examples/protobuf/helloworld => ../../utils/protobuf/helloworld
+	github.com/vhive-serverless/vSwarm/utils/tracing/go => ../../utils/tracing/go
 	github.com/ease-lab/vhive-xdt/proto/crossXDT => github.com/ease-lab/vhive-xdt/proto/crossXDT v0.0.0-20210903135911-a8dd405a02ec
 	github.com/ease-lab/vhive-xdt/proto/downXDT => github.com/ease-lab/vhive-xdt/proto/downXDT v0.0.0-20210903135911-a8dd405a02ec
 	github.com/ease-lab/vhive-xdt/proto/upXDT => github.com/ease-lab/vhive-xdt/proto/upXDT v0.0.0-20210903135911-a8dd405a02ec

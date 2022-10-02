@@ -47,7 +47,7 @@ Furthermore it will start the relay container which provides the common interfac
 ### Invoking the function
 
 #### Directly without relay
-In a new terminal, invoke the interface function with grpcurl. You need use the [geo](https://github.com/ease-lab/vSwarm-proto/blob/main/proto/hotel_reserv/geo/geo.proto) protocol. The geo service implements the [reflection](https://github.com/fullstorydev/grpcurl#server-reflection) so you do not need to provide `grpcurl` with the proto file.
+In a new terminal, invoke the interface function with grpcurl. You need use the [geo](https://github.com/vhive-serverless/vSwarm-proto/blob/main/proto/hotel_reserv/geo/geo.proto) protocol. The geo service implements the [reflection](https://github.com/fullstorydev/grpcurl#server-reflection) so you do not need to provide `grpcurl` with the proto file.
 
 Call the Method _Nearby_ with latitude 37.7 and longitude -122.4
    ```bash

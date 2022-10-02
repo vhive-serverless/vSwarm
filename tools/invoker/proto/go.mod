@@ -1,4 +1,4 @@
-module github.com/ease-lab/vSwarm/tools/invoker/proto
+module github.com/vhive-serverless/vSwarm/tools/invoker/proto
 
 go 1.16
 

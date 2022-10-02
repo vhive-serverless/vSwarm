@@ -1,4 +1,4 @@
-module github.com/ease-lab/vSwarm/examples/protobuf/helloworld
+module github.com/vhive-serverless/vSwarm/examples/protobuf/helloworld
 
 go 1.16
 

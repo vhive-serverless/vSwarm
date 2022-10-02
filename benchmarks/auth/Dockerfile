@@ -30,8 +30,8 @@ COPY ./benchmarks/auth/python/requirements.txt ./
 RUN pip3 install --user -r requirements.txt
 COPY ./utils/tracing/python/tracing.py ./
 COPY ./benchmarks/auth/python/server.py ./
-ADD https://raw.githubusercontent.com/ease-lab/vSwarm-proto/v0.2.0/proto/auth/auth_pb2_grpc.py ./
-ADD https://raw.githubusercontent.com/ease-lab/vSwarm-proto/v0.2.0/proto/auth/auth_pb2.py ./proto/auth/
+ADD https://raw.githubusercontent.com/vhive-serverless/vSwarm-proto/v0.3.0/proto/auth/auth_pb2_grpc.py ./
+ADD https://raw.githubusercontent.com/vhive-serverless/vSwarm-proto/v0.3.0/proto/auth/auth_pb2.py ./proto/auth/
 
 # Second stage (Runner):
 FROM vhiveease/python-slim:latest as authPython
@@ -77,7 +77,7 @@ WORKDIR /app/
 COPY ./utils/tracing/nodejs ./utils/tracing/nodejs
 COPY ./benchmarks/auth/nodejs/package.json ./
 COPY ./benchmarks/auth/nodejs/server.js ./
-ADD https://raw.githubusercontent.com/ease-lab/vSwarm-proto/v0.2.0/proto/auth/auth.proto ./
+ADD https://raw.githubusercontent.com/vhive-serverless/vSwarm-proto/v0.3.0/proto/auth/auth.proto ./
 
 RUN npm set progress=false && npm config set depth 0
 RUN npm install --only=production

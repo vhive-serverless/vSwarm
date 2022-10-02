@@ -30,7 +30,7 @@ import (
 	"os/exec"
 	"path/filepath"
 
-	"github.com/ease-lab/vSwarm/tools/endpoint"
+	"github.com/vhive-serverless/vSwarm/tools/endpoint"
 	log "github.com/sirupsen/logrus"
 )
 

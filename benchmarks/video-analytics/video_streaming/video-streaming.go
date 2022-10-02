@@ -37,12 +37,12 @@ import (
 
 	pb_video "tests/video_analytics/proto"
 
-	pb_helloworld "github.com/ease-lab/vSwarm/examples/protobuf/helloworld"
+	pb_helloworld "github.com/vhive-serverless/vSwarm/examples/protobuf/helloworld"
 	sdk "github.com/ease-lab/vhive-xdt/sdk/golang"
 	"github.com/ease-lab/vhive-xdt/utils"
 
-	storage "github.com/ease-lab/vSwarm/utils/storage/go"
-	tracing "github.com/ease-lab/vSwarm/utils/tracing/go"
+	storage "github.com/vhive-serverless/vSwarm/utils/storage/go"
+	tracing "github.com/vhive-serverless/vSwarm/utils/tracing/go"
 )
 
 var (
