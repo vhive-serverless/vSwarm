@@ -44,8 +44,8 @@ import (
 	"google.golang.org/grpc/keepalive"
 	"google.golang.org/grpc/reflection"
 
-	pb "github.com/ease-lab/vSwarm-proto/proto/hotel_reserv/rate"
-	tracing "github.com/ease-lab/vSwarm/utils/tracing/go"
+	pb "github.com/vhive-serverless/vSwarm-proto/proto/hotel_reserv/rate"
+	tracing "github.com/vhive-serverless/vSwarm/utils/tracing/go"
 )
 
 // Server implements the geo service

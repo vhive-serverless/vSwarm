@@ -20,7 +20,7 @@ When you are working on a fork of the vHive repository, keeping your fork in syn
 The most common way of syncing up your fork is with a remote that points to the upstream repository:
 1. If you have not done so already, create a new remote for the upstream vHive repo:
 	```bash
-	git remote add upstream https://github.com/ease-lab/vSwarm.git
+	git remote add upstream https://github.com/vhive-serverless/vSwarm.git
 	```
 	You can always check your existing remotes with `git remote -v`.
 2. Fetch branches and commits from the upstream (vHive) repo:

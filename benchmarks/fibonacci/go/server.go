@@ -30,8 +30,8 @@ import (
 	"net"
 	"strconv"
 
-	pb "github.com/ease-lab/vSwarm-proto/proto/fibonacci"
-	tracing "github.com/ease-lab/vSwarm/utils/tracing/go"
+	pb "github.com/vhive-serverless/vSwarm-proto/proto/fibonacci"
+	tracing "github.com/vhive-serverless/vSwarm/utils/tracing/go"
 	log "github.com/sirupsen/logrus"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"

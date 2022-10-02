@@ -88,7 +88,7 @@ tar xzf ./actions-runner.tar.gz
 ./bin/installdependencies.sh
 
 ./config.sh \
-    --url https://github.com/ease-lab/vSwarm \
+    --url https://github.com/vhive-serverless/vSwarm \
     --labels stock-knative \
     --token $TOKEN \
     --runnergroup Default \

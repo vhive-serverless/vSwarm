@@ -1,6 +1,6 @@
 invoker: client.go measure.go helloworld.pb.go helloworld_grpc.pb.go
 	go mod tidy
-	go build github.com/ease-lab/vSwarm/tools/invoker
+	go build github.com/vhive-serverless/vSwarm/tools/invoker
 
 helloworld.pb.go: proto/helloworld.proto
 	protoc \

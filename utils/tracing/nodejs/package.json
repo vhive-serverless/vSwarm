@@ -8,7 +8,7 @@
     },
     "repository": {
       "type": "git",
-      "url": "github.com/ease-lab/vSwarm"
+      "url": "github.com/vhive-serverless/vSwarm"
     },
     "author": "David Schall",
     "license": "ISC",

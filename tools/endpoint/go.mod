@@ -1,3 +1,3 @@
-module github.com/ease-lab/vSwarm/tools/endpoint
+module github.com/vhive-serverless/vSwarm/tools/endpoint
 
 go 1.18

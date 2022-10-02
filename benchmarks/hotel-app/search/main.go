@@ -25,7 +25,7 @@ package main
 import (
 	"flag"
 
-	tracing "github.com/ease-lab/vSwarm/utils/tracing/go"
+	tracing "github.com/vhive-serverless/vSwarm/utils/tracing/go"
 	log "github.com/sirupsen/logrus"
 )
 

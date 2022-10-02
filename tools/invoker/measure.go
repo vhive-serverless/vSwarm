@@ -11,9 +11,9 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 
-	"github.com/ease-lab/vSwarm/tools/benchmarking_eventing/proto"
+	"github.com/vhive-serverless/vSwarm/tools/benchmarking_eventing/proto"
 
-	"github.com/ease-lab/vSwarm/tools/endpoint"
+	"github.com/vhive-serverless/vSwarm/tools/endpoint"
 )
 
 var (

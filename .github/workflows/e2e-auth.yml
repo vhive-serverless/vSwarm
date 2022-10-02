@@ -205,7 +205,7 @@ jobs:
           ./test-client --addr $url:$NODEPORT --name "Example text for CI"
 
 
-          - name: Print logs
+      - name: Print logs
         if: ${{ always() }}
         run: |
           set -x
