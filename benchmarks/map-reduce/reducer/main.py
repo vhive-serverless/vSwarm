@@ -27,10 +27,21 @@ import boto3
 import logging as log
 
 from reducer import ReduceFunction
+from storage import Storage
 import tracing
 
 LAMBDA = os.environ.get('IS_LAMBDA', 'yes').lower() in ['true', 'yes', '1']
 TRACE = os.environ.get('ENABLE_TRACING', 'no').lower() in ['true', 'yes', '1', 'on']
+
+if TRACE:
+	# adding python tracing sources to the system path
+	sys.path.insert(0, os.getcwd() + '/../proto/')
+	sys.path.insert(0, os.getcwd() + '/../../../utils/tracing/python')
+
+	if tracing.IsTracingEnabled():
+	    tracing.initTracer("mapper", url=args.zipkinURL)
+	    tracing.grpcInstrumentClient()
+	    tracing.grpcInstrumentServer()
 
 if not LAMBDA:
 	import grpc
@@ -55,15 +66,6 @@ if not LAMBDA:
 
 	args = parser.parse_args()
 
-if TRACE:
-	# adding python tracing sources to the system path
-	sys.path.insert(0, os.getcwd() + '/../proto/')
-	sys.path.insert(0, os.getcwd() + '/../../../utils/tracing/python')
-
-	if tracing.IsTracingEnabled():
-		tracing.initTracer("reducer", url=args.zipkinURL)
-		tracing.grpcInstrumentClient()
-		tracing.grpcInstrumentServer()
 
 # constants
 S3 = "S3"
@@ -71,58 +73,17 @@ XDT = "XDT"
 
 if not LAMBDA:
 	class ReducerServicer(mapreduce_pb2_grpc.ReducerServicer):
-		def __init__(self, transferType, XDTconfig=None):
-			self.transferType = transferType
-			if transferType == S3:
-				self.s3_client = boto3.resource(
-					service_name='s3',
-					region_name=os.getenv('AWS_REGION'),
-					aws_access_key_id=os.getenv('AWS_ACCESS_KEY'),
-					aws_secret_access_key=os.getenv('AWS_SECRET_KEY')
-				)
-			if transferType == XDT:
-				if XDTconfig is None:
-					log.fatal("Empty XDT config")
-				self.XDTclient = XDTsrc.XDTclient(XDTconfig)
-				self.XDTconfig = XDTconfig
-
-		def put(self, bucket, key, obj, metadata=None, forceS3=False):
-			msg = "Reducer uploading object with key '" + key + "' to " + self.transferType
-			log.info(msg)
-			with tracing.Span(msg):
-				if self.transferType == S3 or forceS3:
-					s3object = self.s3_client.Object(bucket_name=bucket, key=key)
-					if metadata is None:
-						s3object.put(Body=obj)
-					else:
-						s3object.put(Body=obj, Metadata=metadata)
-				elif self.transferType == XDT:
-					key = self.XDTclient.Put(payload=obj)
-
-			return key
-
-		def get(self, bucket, key):
-			msg = "Reducer gets key '" + key + "' from " + self.transferType
-			log.info(msg)
-			with tracing.Span(msg):
-				if self.transferType == S3:
-					obj = self.s3_client.Object(bucket_name=bucket, key=key)
-					response = obj.get()
-					return response['Body'].read()
-				elif self.transferType == XDT:
-					return XDTdst.Get(key, self.XDTconfig)
-
 		def Reduce(self, request, context):
+			inputStorage = Storage(request.srcBucket)
+			outputStorage = Storage(request.destBucket)
 
 			reduceArgs = {
-				'srcBucket' : request.srcBucket,
-				'destBucket' : request.destBucket,
+				'inputStorage' : inputStorage,
+				'outputStorage': outputStorage,
 				'jobId' 	: request.jobId,
 				'reducerId' : request.reducerId,
 				'nReducers' : request.nReducers,
-				'keys'		: [grpc_key.key for grpc_key in request.keys],
-				'getMethod' : self.get,
-				'putMethod'	: self.put
+				'keys'		: [grpc_key.key for grpc_key in request.keys]
 			}
 
 			reply = ReduceFunction(reduceArgs)
@@ -132,41 +93,17 @@ if not LAMBDA:
 
 if LAMBDA:
 	class AWSLambdaReducerServicer:
-		def __init__(self):
-			self.s3_client = boto3.resource(service_name='s3')
-
-		def put(self, bucket, key, obj, metadata=None):
-			msg = "Reducer uploading object with key '" + key + "' to S3"
-			log.info(msg)
-
-			with tracing.Span(msg):
-				s3object = self.s3_client.Object(bucket_name=bucket, key=key)
-				if metadata is None:
-					s3object.put(Body=obj)
-				else:
-					s3object.put(Body=obj, Metadata=metadata)
-			return key
-
-		def get(self, bucket, key):
-			msg = "Reducer gets key '" + key + "' from S3"
-			log.info(msg)
-
-			with tracing.Span(msg):
-				obj = self.s3_client.Object(bucket_name=bucket, key=key)
-				response = obj.get()
-				return response['Body'].read()
-
 		def Reduce(self, event, context):
+			inputStorage = Storage(event["srcBucket"])
+			outputStorage = Storage(event["destBucket"])
 
 			reduceArgs = {
-				'srcBucket' : event["srcBucket"],
-				'destBucket' : event["destBucket"],
+				'inputStorage' : inputStorage,
+				'outputStorage': outputStorage,
 				'jobId' 	: event["jobId"],
 				'reducerId' : event["reducerId"],
 				'nReducers' : event["nReducers"],
-				'keys' 		: event['keys'].split(','),
-				'getMethod' : self.get,
-				'putMethod'	: self.put
+				'keys' 		: event['keys'].split(',')
 			}
 
 			return ReduceFunction(reduceArgs)

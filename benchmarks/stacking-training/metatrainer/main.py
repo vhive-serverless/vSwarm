@@ -46,7 +46,8 @@ sys.path.insert(0, os.getcwd() + '/../proto/')
 sys.path.insert(0, os.getcwd() + '/../../../../utils/tracing/python')
 sys.path.insert(0, os.getcwd() + '/../../../../utils/storage/python')
 import tracing
-import storage
+from storage import Storage
+
 import stacking_pb2_grpc
 import stacking_pb2
 import destination as XDTdst
@@ -74,6 +75,7 @@ if tracing.IsTracingEnabled():
 INLINE = "INLINE"
 S3 = "S3"
 XDT = "XDT"
+storageBackend = None
 
 # set aws credentials:
 AWS_ID = os.getenv('AWS_ACCESS_KEY', "")
@@ -129,17 +131,17 @@ class MetatrainerServicer(stacking_pb2_grpc.TrainerServicer):
 
     def get_inputs(self, request) -> dict:
         inputs: dict = {}
-        inputs['dataset'] = storage.get(request.dataset_key)
-        inputs['meta_features'] = storage.get(request.meta_features_key)
-        inputs['models'] = storage.get(request.models_key)
+        inputs['dataset'] = pickle.loads(storageBackend.get(request.dataset_key))
+        inputs['meta_features'] = pickle.loads(storageBackend.get(request.meta_features_key))
+        inputs['models'] = pickle.loads(storageBackend.get(request.models_key))
         return inputs
 
     def put_outputs(self, meta_predictions, model_full):
         model_full_key = 'model_full_key'
         meta_predictions_key = 'meta_predictions_key'
 
-        meta_predictions_key = storage.put(meta_predictions_key, meta_predictions)
-        model_full_key = storage.put(model_full_key, model_full)
+        meta_predictions_key = storageBackend.put(meta_predictions_key, pickle.dumps(meta_predictions))
+        model_full_key = storageBackend.put(model_full_key, pickle.dumps(model_full))
 
         return meta_predictions_key, model_full_key
 
@@ -183,7 +185,8 @@ class MetatrainerServicer(stacking_pb2_grpc.TrainerServicer):
 def serve():
     transferType = os.getenv('TRANSFER_TYPE', S3)
     if transferType == S3:
-        storage.init("S3", 'vhive-stacking')
+        global storageBackend
+        storageBackend = Storage('vhive-stacking')
         log.info("Using inline or s3 transfers")
         max_workers = int(os.getenv("MAX_SERVER_THREADS", 10))
         server = grpc.server(futures.ThreadPoolExecutor(max_workers=max_workers))

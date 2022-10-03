@@ -29,7 +29,7 @@ sys.path.insert(0, os.getcwd() + '/../proto/')
 sys.path.insert(0, os.getcwd() + '/../../../../utils/tracing/python')
 sys.path.insert(0, os.getcwd() + '/../../../../utils/storage/python')
 import tracing
-import storage
+from storage import Storage
 import videoservice_pb2_grpc
 import videoservice_pb2
 import destination as XDTdst
@@ -64,13 +64,14 @@ if tracing.IsTracingEnabled():
 INLINE = "INLINE"
 S3 = "S3"
 XDT = "XDT"
+storageBackend = None
 
 def decode(bytes):
     temp = tempfile.NamedTemporaryFile(suffix=".mp4")
     temp.write(bytes)
     temp.seek(0)
 
-    all_frames = [] 
+    all_frames = []
     with tracing.Span("Decode frames"):
         vidcap = cv2.VideoCapture(temp.name)
         for i in range(int(os.getenv('DecoderFrames', int(args.frames)))):
@@ -111,7 +112,7 @@ class VideoDecoderServicer(videoservice_pb2_grpc.VideoDecoderServicer):
         if self.transferType == S3:
             log.info("Using s3, getting bucket")
             with tracing.Span("Video fetch"):
-                videoBytes = storage.get(request.s3key, doPickle=False)
+                videoBytes = storageBackend.get(request.s3key)
             log.info("decoding frames of the s3 object")
         elif self.transferType == INLINE:
             log.info("Inline video decode. Decoding frames.")
@@ -121,7 +122,7 @@ class VideoDecoderServicer(videoservice_pb2_grpc.VideoDecoderServicer):
 
     def processFrames(self, videoBytes):
         frames = decode(videoBytes)
-        with tracing.Span("Recognise all frames"):  
+        with tracing.Span("Recognise all frames"):
             all_result_futures = []
             # send all requests
             decoderFrames = int(os.getenv('DecoderFrames', args.frames))
@@ -139,7 +140,7 @@ class VideoDecoderServicer(videoservice_pb2_grpc.VideoDecoderServicer):
                 results = results + result + ","
 
             return results
-    
+
     def Recognise(self, frame):
         channel = grpc.insecure_channel(args.addr)
         stub = videoservice_pb2_grpc.ObjectRecognitionStub(channel)
@@ -148,7 +149,7 @@ class VideoDecoderServicer(videoservice_pb2_grpc.VideoDecoderServicer):
             name = "decoder-frame-" + str(self.frameCount) + ".jpg"
             with tracing.Span("Upload frame"):
                 self.frameCount += 1
-                storage.put(name, frame)
+                storageBackend.put(name, pickle.dumps(frame))
             log.info("calling recog with s3 key")
             response = stub.Recognise(videoservice_pb2.RecogniseRequest(s3key=name))
             result = response.classification
@@ -163,15 +164,15 @@ class VideoDecoderServicer(videoservice_pb2_grpc.VideoDecoderServicer):
             response_bytes, ok = self.XDTclient.Invoke(URL=args.addr, xdtPayload=xdtPayload)
             # convert response bytes to string
             result = response_bytes.decode()
-        
-        return result
 
+        return result
 
 def serve():
     transferType = os.getenv('TRANSFER_TYPE', INLINE)
     if transferType == S3:
         bucketName = os.getenv('BUCKET_NAME', 'vhive-video-bench')
-        storage.init("S3", bucketName)
+        global storageBackend
+        storageBackend = Storage(bucketName)
     if transferType == S3 or transferType == INLINE:
         max_workers = int(os.getenv("MAX_DECODER_SERVER_THREADS", 10))
         server = grpc.server(futures.ThreadPoolExecutor(max_workers=max_workers))

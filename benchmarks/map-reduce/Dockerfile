@@ -29,6 +29,7 @@ RUN apt update && \
     apt install git curl -y && \
     pip3 install --no-cache-dir --user -r requirements.txt
 COPY ./utils/tracing/python/tracing.py ./
+COPY ./utils/storage/python/storage.py ./
 COPY ./benchmarks/map-reduce/${target}/* ./
 COPY ./benchmarks/map-reduce/proto/mapreduce_pb2* ./
 COPY ./benchmarks/map-reduce/proto/helloworld_pb2* ./
