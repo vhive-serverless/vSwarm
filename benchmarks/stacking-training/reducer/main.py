@@ -40,7 +40,7 @@ sys.path.insert(0, os.getcwd() + '/../proto/')
 sys.path.insert(0, os.getcwd() + '/../../../../utils/tracing/python')
 sys.path.insert(0, os.getcwd() + '/../../../../utils/storage/python')
 import tracing
-import storage
+from storage import Storage
 import stacking_pb2_grpc
 import stacking_pb2
 import destination as XDTdst
@@ -65,6 +65,7 @@ if tracing.IsTracingEnabled():
 INLINE = "INLINE"
 S3 = "S3"
 XDT = "XDT"
+storageBackend = None
 
 # set aws credentials:
 AWS_ID = os.getenv('AWS_ACCESS_KEY', "")
@@ -126,16 +127,16 @@ class ReducerServicer(stacking_pb2_grpc.ReducerServicer):
 
         for i, model_pred_tuple in enumerate(request.model_pred_tuples):
             with tracing.Span(f"Reducer gets model {i} from S3"):
-                models.append(storage.get(model_pred_tuple.model_key))
-                predictions.append(storage.get(model_pred_tuple.pred_key))
+                models.append(pickle.loads(storageBackend.get(model_pred_tuple.model_key)))
+                predictions.append(pickle.loads(storageBackend.get(model_pred_tuple.pred_key)))
 
         meta_features = np.transpose(np.array(predictions))
 
         meta_features_key = 'meta_features'
         models_key = 'models'
-        meta_features_key = storage.put(meta_features_key, meta_features)
+        meta_features_key = storageBackend.put(meta_features_key, pickle.dumps(meta_features))
 
-        models_key = storage.put(models_key, models)
+        models_key = storageBackend.put(models_key, pickle.dumps(models))
 
 
         return stacking_pb2.ReduceReply(
@@ -149,7 +150,8 @@ class ReducerServicer(stacking_pb2_grpc.ReducerServicer):
 def serve():
     transferType = os.getenv('TRANSFER_TYPE', S3)
     if transferType == S3:
-        storage.init("S3", 'vhive-stacking')
+        global storageBackend
+        storageBackend = Storage('vhive-stacking')
         log.info("Using inline or s3 transfers")
         max_workers = int(os.getenv("MAX_SERVER_THREADS", 10))
         server = grpc.server(futures.ThreadPoolExecutor(max_workers=max_workers))

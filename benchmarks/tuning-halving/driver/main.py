@@ -30,7 +30,7 @@ sys.path.insert(0, os.getcwd() + '/../proto/')
 sys.path.insert(0, os.getcwd() + '/../../../../utils/tracing/python')
 sys.path.insert(0, os.getcwd() + '/../../../../utils/storage/python')
 import tracing
-import storage
+from storage import Storage
 import helloworld_pb2_grpc
 import helloworld_pb2
 import tuning_pb2_grpc
@@ -76,6 +76,7 @@ if tracing.IsTracingEnabled():
 INLINE = "INLINE"
 S3 = "S3"
 XDT = "XDT"
+storageBackend = None
 
 # set aws credentials:
 AWS_ID = os.getenv('AWS_ACCESS_KEY', "")
@@ -95,7 +96,7 @@ def get_self_ip():
 
 def generate_dataset():
 	n_samples = 1000
-	n_features = 1024 
+	n_features = 1024
 	X, y = datasets.make_classification(n_samples,
 	                                    n_features,
 	                                    n_redundant=0,
@@ -147,7 +148,7 @@ class GreeterServicer(helloworld_pb2_grpc.GreeterServicer):
                 } for hyperparam in generate_hyperparam_sets(hyperparam_config['params'])
             ]
         }
-        key = storage.put('dataset_key', dataset)
+        key = storageBackend.put('dataset_key', pickle.dumps(dataset))
         return {
             'dataset_key': key,
             'models_config': models_config
@@ -215,7 +216,8 @@ class GreeterServicer(helloworld_pb2_grpc.GreeterServicer):
 def serve():
     transferType = os.getenv('TRANSFER_TYPE', S3)
     if transferType == S3:
-        storage.init("S3", 'vhive-tuning')
+        global storageBackend
+        storageBackend = Storage('vhive-tuning')
         log.info("Using inline or s3 transfers")
         max_workers = int(os.getenv("MAX_SERVER_THREADS", 10))
         server = grpc.server(futures.ThreadPoolExecutor(max_workers=max_workers))

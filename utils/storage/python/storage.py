@@ -20,85 +20,82 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-import pickle
-import logging as log
 import os
-import boto3
-import redis
+import sys
 
-#all:
-transferType = ""
-benchName = ""
-#aws:
-AWS_ID = os.getenv('AWS_ACCESS_KEY', "")
-AWS_SECRET = os.getenv('AWS_SECRET_KEY', "")
-#s3:
-s3_client = None
-#elasticache:
-elasticache_client = None
+import logging as log
+import pickle
+import tracing
 
-#constants
-S3 = "S3"
-XDT = "XDT"
-ELASTICACHE = "ELASTICACHE"
+LAMBDA = os.environ.get('IS_LAMBDA', 'no').lower() in ['true', 'yes', '1']
+TRANSFER = os.environ.get('TRANSFER_TYPE', 'S3')
 
-# `init` initialises the storage modue. This function is used to provide information about
-# which service to use. If s3 is used, "bucket" is the bucket used for storage, and in the case
-# when elasticache is used "bucket" should be the redis URL and port.
-# Note that one must be on an AWS VPC (e.g. using EC2) to access elasticache.
-def init(service, bucket):
-    global transferType, benchName, s3_client, elasticache_client
-    transferType = service
-    benchName = bucket
-    if transferType == S3:
-        s3_client = boto3.resource(
-            service_name='s3',
-            region_name=os.getenv("AWS_REGION", 'us-west-1'),
-            aws_access_key_id=AWS_ID,
-            aws_secret_access_key=AWS_SECRET
-        )
-    elif transferType == ELASTICACHE:
-        elasticache_client = redis.Redis.from_url(bucket)
+supportedTransfers = ['S3', 'ELASTICACHE', 'XDT']
+if TRANSFER not in supportedTransfers:
+	errmsg = "Error in Environment Variable TRANSFER_TYPE: "
+	errmsg += "TRANSFER_TYPE should contain one of " + str(supportedTransfers)
+	sys.exit(errmsg)
 
-# `put` uploads the payload to the storage service using the provided key
-def put(key, obj, doPickle = True):
-    msg = "Driver uploading object with key '" + key + "' to " + transferType
-    log.info(msg)
-    pickled = obj
-    if doPickle: 
-        pickled = pickle.dumps(obj)
-    if transferType == S3:
-        s3object = s3_client.Object(bucket_name=benchName, key=key)
-        s3object.put(Body=pickled)
-    elif transferType == XDT:
-        log.fatal("XDT is not supported")
-    elif transferType == ELASTICACHE:
-        elasticache_client.set(key, pickled)
-    else:
-        log.fatal("unsupported transfer type!")
+if TRANSFER == 'S3':
+	import boto3
 
-    return key
+if TRANSFER == 'ELASTICACHE':
+	import redis
 
-# `get` retrieves a payload corresponding to the provided key from the storage service.
-# An error will occur if the key is not prescent on the service.
-def get(key, doPickle = True):
-    msg = "Driver gets key '" + key + "' from " + transferType
-    log.info(msg)
-    response = None
-    if transferType == S3:
-        obj = s3_client.Object(bucket_name=benchName, key=key)
-        response = obj.get()
-        if not doPickle:
-            return response['Body'].read()
-        else:
-            return pickle.loads(response['Body'].read())
-    elif transferType == XDT:
-        log.fatal("XDT is not yet supported")
-    elif transferType == ELASTICACHE:
-        response = elasticache_client.get(key)
-        if not doPickle:
-            return response['Body'].read()
-        else:
-            return pickle.loads(response['Body'].read())
-    else:
-         log.fatal("unsupported transfer type!")
+if TRANSFER == 'XDT':
+	import destination as XDTdst
+	import source as XDTsrc
+	import utils as XDTutil
+
+
+class Storage:
+	def __init__(self, bucket, transferConfig=None):
+		self.bucket = bucket
+		if TRANSFER == 'S3':
+			if LAMBDA:
+				self.s3Bucket = boto3.resource(service_name='s3').Bucket(bucket)
+			else:
+				self.s3Bucket = boto3.resource(
+					service_name='s3',
+					region_name=os.getenv('AWS_REGION'),
+					aws_access_key_id=os.getenv('AWS_ACCESS_KEY'),
+					aws_secret_access_key=os.getenv('AWS_SECRET_KEY')
+				).Bucket(bucket)
+		elif TRANSFER == 'ELASTICACHE':
+			self.elasticache_client = redis.Redis.from_url(bucket)
+		elif TRANSFER == 'XDT':
+			if transferConfig is None:
+				log.fatal("Transfer Config cannot be empty for XDT transfers")
+			self.XDTconfig = transferConfig
+			self.XDTclient = XDTsrc.XDTclient(config=self.XDTconfig)
+
+	def put(self, key, obj, metadata=None):
+		log.info("Uploading Object with key '" + key + "' to " + TRANSFER)
+
+		with tracing.Span("PUT KEY: '" + key + "' to " + TRANSFER):
+			if TRANSFER == 'S3':
+				s3obj = self.s3Bucket.Object(bucket_name=self.bucket, key=key)
+				if metadata is None:
+					response = s3obj.put(Body=obj)
+				else:
+					response = s3obj.put(Body=obj, Metadata=metadata)
+			elif TRANSFER == 'ELASTICACHE':
+				elasticache_client.set(key, obj)
+			elif TRANSFER == 'XDT':
+				key = self.XDTclient.Put(payload=obj)
+
+		return key
+
+	def get(self, key):
+		log.info("Downloading Object with key '" + key + "' to " + TRANSFER)
+
+		with tracing.Span("GET KEY: '" + key + "' to " + TRANSFER):
+			if TRANSFER == 'S3':
+				obj = self.s3Bucket.Object(bucket_name=self.bucket, key=key)
+				response = obj.get()
+				return response['Body'].read()
+			elif TRANSFER == 'ELASTICACHE':
+				response = elasticache_client.get(key)
+				return response['Body'].read()
+			elif TRANSFER == 'XDT':
+				return XDTdst.Get(key, self.XDTconfig)

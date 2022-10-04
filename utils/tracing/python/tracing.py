@@ -23,56 +23,57 @@
 import contextlib
 import os
 
+LAMBDA = os.environ.get('IS_LAMBDA', 'no').lower() in ['true', 'yes', '1']
+TRACE = os.environ.get('ENABLE_TRACING', 'no').lower() in ['true', 'yes', '1', 'on']
+
 from opentelemetry.sdk.resources import SERVICE_NAME, Resource
 
 from opentelemetry import trace
 from opentelemetry.sdk.trace import TracerProvider
 from opentelemetry.exporter.zipkin.json import ZipkinExporter
 from opentelemetry.sdk.trace.export import BatchSpanProcessor
-from opentelemetry.instrumentation.grpc import GrpcInstrumentorClient, GrpcInstrumentorServer
-from opentelemetry import trace
 from opentelemetry.sdk.trace.export import (
-    ConsoleSpanExporter,
-    SimpleSpanProcessor,
+	ConsoleSpanExporter,
+	SimpleSpanProcessor,
 )
 
+if not LAMBDA:
+	from opentelemetry.instrumentation.grpc import GrpcInstrumentorClient, GrpcInstrumentorServer
+
 def IsTracingEnabled():
-    val = os.getenv('ENABLE_TRACING', "false")
-    print("ISTRACINGENABLED: %s" % val)
-    if val == "false":
-        return False
-    else:
-        return True
+	print("ISTRACINGENABLED: %s" % TRACE)
+	return TRACE
 
 def initTracer(name, debug=False, url="http://localhost:9411/api/v2/spans"):
-    trace.set_tracer_provider(TracerProvider(resource=Resource.create({SERVICE_NAME: name})))
+	trace.set_tracer_provider(TracerProvider(resource=Resource.create({SERVICE_NAME: name})))
 
-    zipkin_exporter = ZipkinExporter(endpoint=url)
-    span_processor = BatchSpanProcessor(zipkin_exporter)
-    trace.get_tracer_provider().add_span_processor(span_processor)
-    if (debug):
-        trace.get_tracer_provider().add_span_processor(
-            SimpleSpanProcessor(ConsoleSpanExporter())
-        )
+	zipkin_exporter = ZipkinExporter(endpoint=url)
+	span_processor = BatchSpanProcessor(zipkin_exporter)
+	trace.get_tracer_provider().add_span_processor(span_processor)
+	if (debug):
+		trace.get_tracer_provider().add_span_processor(
+			SimpleSpanProcessor(ConsoleSpanExporter())
+		)
 
-def grpcInstrumentClient():
-    GrpcInstrumentorClient().instrument()
+if not LAMBDA:
+	def grpcInstrumentClient():
+		GrpcInstrumentorClient().instrument()
 
-def grpcInstrumentServer():
-    GrpcInstrumentorServer().instrument()
+	def grpcInstrumentServer():
+		GrpcInstrumentorServer().instrument()
 
 class Span:
-    def __init__(self, name):
-        self.name = name
+	def __init__(self, name):
+		self.name = name
 
-    def __enter__(self):
-        tracer = trace.get_tracer(__name__)
-        span = tracer.start_span(self.name)
-        self._otelSpan = trace.use_span(span, end_on_exit=True)
-        with contextlib.ExitStack() as stack:
-            stack.enter_context(self._otelSpan)
-            self._stack = stack.pop_all()
-        return self
+	def __enter__(self):
+		tracer = trace.get_tracer(__name__)
+		span = tracer.start_span(self.name)
+		self._otelSpan = trace.use_span(span, end_on_exit=True)
+		with contextlib.ExitStack() as stack:
+			stack.enter_context(self._otelSpan)
+			self._stack = stack.pop_all()
+		return self
 
-    def __exit__(self, type, value, traceback):
-        return self._stack.__exit__(type, value, traceback)
+	def __exit__(self, type, value, traceback):
+		return self._stack.__exit__(type, value, traceback)
