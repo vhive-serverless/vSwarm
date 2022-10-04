@@ -86,7 +86,7 @@ def MapFunction(args : dict):
 				"processingtime": str(time_in_secs),
 				"memoryUsage": str(resource.getrusage(resource.RUSAGE_SELF).ru_maxrss)
 			}
-			write_tasks.append(mapperKey,
+			write_tasks.append((mapperKey,
 				pickle.dumps(shuffle_output[to_reducer_id]), metadata))
 
 		keys = Parallel(backend="threading", n_jobs=args['nReducers'])(

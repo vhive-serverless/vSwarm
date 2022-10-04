@@ -42,9 +42,9 @@ def ReduceFunction(args : dict):
 	with tracing.Span("Fetch keys"):
 		read_tasks = []
 		for key in args['keys']:
-			read_tasks.append((key))
+			read_tasks.append(key)
 		responses = Parallel(backend="threading", n_jobs=len(read_tasks))(
-			delayed(args['inputStorage'].get)(*i) for i in read_tasks)
+			delayed(args['inputStorage'].get)(i) for i in read_tasks)
 
 	results = {}
 	line_count = 0

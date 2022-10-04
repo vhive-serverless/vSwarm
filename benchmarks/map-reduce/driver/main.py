@@ -29,7 +29,7 @@ import logging as log
 import tracing
 from driver import DriveFunction
 
-LAMBDA = os.environ.get('IS_LAMBDA', 'yes').lower() in ['true', 'yes', '1']
+LAMBDA = os.environ.get('IS_LAMBDA', 'no').lower() in ['true', 'yes', '1']
 TRACE = os.environ.get('TRACING_ON', 'no').lower() in ['true', 'yes', '1', 'on']
 
 if TRACE:

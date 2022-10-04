@@ -27,7 +27,7 @@ import logging as log
 import pickle
 import tracing
 
-LAMBDA = os.environ.get('IS_LAMBDA', 'yes').lower() in ['true', 'yes', '1']
+LAMBDA = os.environ.get('IS_LAMBDA', 'no').lower() in ['true', 'yes', '1']
 TRANSFER = os.environ.get('TRANSFER_TYPE', 'S3')
 
 supportedTransfers = ['S3', 'ELASTICACHE', 'XDT']
