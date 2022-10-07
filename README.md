@@ -14,7 +14,7 @@ namely, containers, Firecracker and gVisor microVMs. The majority of benchmarks 
 tracing with [Zipkin](https://zipkin.io/) which traces both the infra components and the user
 functions.
 Additionally, [several](./benchmarks/README.md#standalone-functions-benchmark-summary) of the benchmarks are compatible with
-[vSwarm-u](https://github.com/ease-lab/vSwarm-u), a framework that integrates the benchmarks with [gem5](https://www.gem5.org/),
+[vSwarm-u](https://github.com/vhive-serverless/vSwarm-u), a framework that integrates the benchmarks with [gem5](https://www.gem5.org/),
 the state-of-the-art research platform for system-and microarchitecture.
 
 
