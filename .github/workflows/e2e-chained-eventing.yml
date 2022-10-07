@@ -67,7 +67,7 @@ jobs:
     - name: Build and Push 
       working-directory: benchmarks/chained-function-eventing
       env:
-        GOPRIVATE_KEY: ${{ secrets.EASE_LAB_ACCESS_KEY }}
+        GOPRIVATE_KEY: ${{ secrets.VHIVE_SERVERLESS_ACCESS_KEY }}
       run: make all-image-push
 
   test-knative-eventing:
