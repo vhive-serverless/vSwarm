@@ -28,8 +28,8 @@ replace github.com/vhive-serverless/vSwarm/utils/tracing/go => ../../utils/traci
 
 require (
 	github.com/sirupsen/logrus v1.9.0
-	github.com/vhive-serverless/vSwarm-proto v0.3.0
-	github.com/vhive-serverless/vSwarm/utils/tracing/go v0.0.0-00010101000000-000000000000
+	github.com/vhive-serverless/vSwarm-proto v0.3.1
+	github.com/vhive-serverless/vSwarm/utils/tracing/go v0.0.0-20220427112636-f8f3fc171804
 	google.golang.org/grpc v1.49.0
 )
 
