@@ -24,11 +24,12 @@ FROM vhiveease/python-slim:latest as builder
 ARG target_arg
 ENV target=$target_arg
 WORKDIR /py
-COPY ./benchmarks/map-reduce/requirements.txt ./
+COPY ./benchmarks/map-reduce/requirements/common_s3.txt ./requirements.txt
 RUN apt update && \
     apt install git curl -y && \
     pip3 install --no-cache-dir --user -r requirements.txt
 COPY ./utils/tracing/python/tracing.py ./
+COPY ./utils/storage/python/storage.py ./
 COPY ./benchmarks/map-reduce/${target}/* ./
 COPY ./benchmarks/map-reduce/proto/mapreduce_pb2* ./
 COPY ./benchmarks/map-reduce/proto/helloworld_pb2* ./

@@ -30,7 +30,8 @@ sys.path.insert(0, os.getcwd() + '/../proto/')
 sys.path.insert(0, os.getcwd() + '/../../../../utils/tracing/python')
 sys.path.insert(0, os.getcwd() + '/../../../../utils/storage/python')
 import tracing
-import storage
+from storage import Storage
+
 import helloworld_pb2_grpc
 import helloworld_pb2
 import stacking_pb2_grpc
@@ -83,6 +84,7 @@ if tracing.IsTracingEnabled():
 INLINE = "INLINE"
 S3 = "S3"
 XDT = "XDT"
+storageBackend = None
 
 # set aws credentials:
 AWS_ID = os.getenv('AWS_ACCESS_KEY', "")
@@ -274,14 +276,14 @@ class GreeterServicer(helloworld_pb2_grpc.GreeterServicer):
     def get_final(self, outputs: dict):
         log.info("Get the final outputs")
 
-        _ = storage.get(outputs['model_full_key'])
-        _ = storage.get(outputs['meta_predictions_key'])
+        _ = pickle.loads(storageBackend.get(outputs['model_full_key']))
+        _ = pickle.loads(storageBackend.get(outputs['meta_predictions_key']))
 
     # Driver code below
     def SayHello(self, request, context):
         log.info("Driver received a request")
-        
-        dataset_key = storage.put("dataset", self.dataset)
+
+        dataset_key = storageBackend.put("dataset", pickle.dumps(self.dataset))
 
         training_responses = self.train_all(dataset_key)
 
@@ -297,7 +299,8 @@ class GreeterServicer(helloworld_pb2_grpc.GreeterServicer):
 def serve():
     transferType = os.getenv('TRANSFER_TYPE', S3)
     if transferType == S3:
-        storage.init("S3", 'vhive-stacking')
+        global storageBackend
+        storageBackend = Storage('vhive-stacking')
         log.info("Using inline or s3 transfers")
         max_workers = int(os.getenv("MAX_SERVER_THREADS", 10))
         server = grpc.server(futures.ThreadPoolExecutor(max_workers=max_workers))
