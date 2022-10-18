@@ -22,7 +22,7 @@
 
 
 #---------- golang-builder -----------#
-FROM golang:1.16 AS golang-builder
+FROM golang:1.18 AS golang-builder
 LABEL maintainer="https://github.com/ease-lab"
 
 

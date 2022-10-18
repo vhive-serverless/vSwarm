@@ -27,7 +27,9 @@ on:
   schedule:
     - cron: '0 9 * * 1'
   push:
-    branches: [ main ]
+    branches:
+      - 'main'
+      - 'aws_lambda_support'
     paths:
       - 'benchmarks/map-reduce/*'
       - 'utils/*'
@@ -40,7 +42,6 @@ on:
 env:
   GOOS: linux
   GO111MODULE: on
-  KUBECONFIG: /etc/kubernetes/admin.conf
 
 jobs:
   build-and-push:
@@ -51,9 +52,7 @@ jobs:
     steps:
     - name: Check out code into the Go module directory
       uses: actions/checkout@v3
-      with:
-        lfs: 'true'
-  
+
     - name: Login to Docker Hub
       uses: docker/login-action@v2
       with:
@@ -64,11 +63,58 @@ jobs:
       id: buildx
       uses: docker/setup-buildx-action@v2
 
-    - name: Build and Push 
+    - name: Install AWS CLI
+      uses: unfor19/install-aws-cli-action@master
+      with:
+        version: '2'
+
+    - name: Build and Push
       working-directory: benchmarks/map-reduce
       env:
-        GOPRIVATE_KEY: ${{ secrets.EASE_LAB_ACCESS_KEY }}
+        GOPRIVATE_KEY: ${{ secrets.VHIVE_SERVERLESS_ACCESS_KEY }}
+        AWS_ACCESS_KEY: ${{ secrets.AWS_ACCESS_KEY }}
+        AWS_SECRET_KEY: ${{ secrets.AWS_SECRET_KEY }}
+        AWS_REGION: 'us-west-1'
       run: make all-image-push
+
+    - name: Push Driver Image to AWS ECR
+      env:
+        AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY }}
+        AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_KEY }}
+        AWS_DEFAULT_REGION: 'us-west-1'
+        AWS_ACCOUNT_ID: ${{ secrets.AWS_ACCOUNT_ID }}
+        REPO_NAME: 'mapreduce-driver-lambda'
+        REPO_TAG: 'latest'
+        DOCKERFILE: ./benchmarks/map-reduce/docker/Dockerfile.Lambda
+        TARGET: driver
+        WORKDIR_SET: 'set'
+      run: ./runner/aws_lambda_scripts/build_push_ecr.sh
+
+    - name: Push Mapper Image to AWS ECR
+      env:
+        AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY }}
+        AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_KEY }}
+        AWS_DEFAULT_REGION: 'us-west-1'
+        AWS_ACCOUNT_ID: ${{ secrets.AWS_ACCOUNT_ID }}
+        REPO_NAME: 'mapreduce-mapper-lambda'
+        REPO_TAG: 'latest'
+        DOCKERFILE: ./benchmarks/map-reduce/docker/Dockerfile.Lambda
+        TARGET: mapper
+        WORKDIR_SET: 'set'
+      run: ./runner/aws_lambda_scripts/build_push_ecr.sh
+
+    - name: Push Reducer Image to AWS ECR
+      env:
+        AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY }}
+        AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_KEY }}
+        AWS_DEFAULT_REGION: 'us-west-1'
+        AWS_ACCOUNT_ID: ${{ secrets.AWS_ACCOUNT_ID }}
+        REPO_NAME: 'mapreduce-reducer-lambda'
+        REPO_TAG: 'latest'
+        DOCKERFILE: ./benchmarks/map-reduce/docker/Dockerfile.Lambda
+        TARGET: reducer
+        WORKDIR_SET: 'set'
+      run: ./runner/aws_lambda_scripts/build_push_ecr.sh
 
   test-compose:
     name: Test Docker Compose
@@ -86,10 +132,12 @@ jobs:
       env:
           AWS_ACCESS_KEY: ${{ secrets.AWS_ACCESS_KEY }}
           AWS_SECRET_KEY: ${{ secrets.AWS_SECRET_KEY }}
+          AWS_REGION: 'us-west-1'
       working-directory: benchmarks/map-reduce
       run: |
         docker-compose -f docker-compose-s3.yml up &> log_file &
-        sleep 60s
+        sleep 120s
+        cat log_file
 
     - name: invoke the chain
       run: |
@@ -102,35 +150,70 @@ jobs:
     name: Test Knative Deployment
     needs: build-and-push
     env:
-      GOCACHE: /root/tmp/gocache
-      GOPATH: /root/tmp/gopath
-    runs-on: [stock-knative]
+      KIND_VERSION: v0.14.0
+      K8S_VERSION: v1.23
+
+    runs-on: ubuntu-20.04
     strategy:
       fail-fast: false
+
     steps:
       - uses: actions/checkout@v3
         with:
           lfs: 'true'
       - name: Checkout LFS objects
         run: git lfs checkout
-      
+
       - uses: actions/setup-go@v3
         with:
-          go-version: 1.16
+          go-version: 1.18
+
+      ## Setup a Knative cluster to test the service
+      - name: Create k8s Kind Cluster
+        run: bash ./runner/scripts/01-kind.sh
+
+      - name: Install Serving
+        run: bash ./runner/scripts/02-serving.sh
+
+      - name: Install Kourier
+        run: bash ./runner/scripts/02-kourier.sh
+
+      - name: Setup domain
+        run: |
+          INGRESS_HOST="127.0.0.1"
+          KNATIVE_DOMAIN=$INGRESS_HOST.sslip.io
+          kubectl patch configmap -n knative-serving config-domain -p "{\"data\": {\"$KNATIVE_DOMAIN\": \"\"}}"
 
       - name: Up
-        working-directory: benchmarks
+        working-directory: benchmarks/map-reduce/knative_yamls/s3
         env:
           AWS_ACCESS_KEY: ${{ secrets.AWS_ACCESS_KEY }}
           AWS_SECRET_KEY: ${{ secrets.AWS_SECRET_KEY }}
-        run: ../tools/kn_deploy.sh ./map-reduce/knative_yamls/s3/*
+          AWS_REGION: 'us-west-1'
+        run: |
+          kubectl create secret generic awscreds \
+            --from-literal=awsaccess=${AWS_ACCESS_KEY} \
+            --from-literal=awssecret=${AWS_SECRET_KEY}
+          kubectl apply -f ./service-driver.yaml
+          kubectl apply -f ./service-mapper.yaml
+          kubectl apply -f ./service-reducer.yaml
+
+      - name: Check if service is ready
+        working-directory: benchmarks/map-reduce/knative_yamls/s3
+        run: |
+          kubectl wait --for=condition=Ready -f service-driver.yaml --timeout 120s
+          kubectl wait --for=condition=Ready -f service-mapper.yaml --timeout 120s
+          kubectl wait --for=condition=Ready -f service-reducer.yaml --timeout 120s
+          kubectl get -f service-driver.yaml
+          kubectl get -f service-mapper.yaml
+          kubectl get -f service-reducer.yaml
 
       - name: Test
         working-directory: tools/test-client
         run: |
           set -x
 
-          NODEPORT=$(kubectl get svc kourier-ingress -n kourier-system -o=jsonpath='{.spec.ports[0].nodePort}')
+          NODEPORT=80
           HOSTNAME=$(kubectl get ksvc driver -n default -o jsonpath='{.status.url}' | cut -c8-)
 
           go build ./test-client.go
@@ -144,7 +227,80 @@ jobs:
           kubectl logs -n default -c user-container -l serving.knative.dev/service=mapper
           kubectl logs -n default -c user-container -l serving.knative.dev/service=reducer
 
-
       - name: Down
+        working-directory: benchmarks/map-reduce/knative_yamls/s3
         if: ${{ always() }}
-        run: kn service delete --all --namespace default --wait
+        run: |
+          kubectl delete -f ./service-driver.yaml --namespace default --wait
+          kubectl delete -f ./service-mapper.yaml --namespace default --wait
+          kubectl delete -f ./service-reducer.yaml --namespace default --wait
+
+  test-aws-lambda:
+    name: Test AWS Lambda Deployment
+    needs: build-and-push
+    runs-on: ubuntu-20.04
+    strategy:
+      fail-fast: false
+
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v3
+        with:
+          lfs: 'true'
+
+      - name: Deploy Driver function from ECR container
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_KEY }}
+          AWS_DEFAULT_REGION: 'us-west-1'
+          AWS_ACCOUNT_ID: ${{ secrets.AWS_ACCOUNT_ID }}
+          ECR_REPO_NAME: 'mapreduce-driver-lambda'
+          ECR_REPO_TAG: 'latest'
+          LAMBDA_FUNCTION_NAME: mapreduce-driver
+          ENVIRONMENT_VARIABLE_MAP: '{NUM_MAPPERS="8",NUM_REDUCERS="2",IS_LAMBDA="true"}'
+          POLICY_FILES: ./benchmarks/map-reduce/requirements/aws_lambda_policies/invoke_function.json
+          TRUST_FILE: ./benchmarks/map-reduce/requirements/aws_lambda_policies/trust.json
+          WORKDIR_SET: 'set'
+        run: ./runner/aws_lambda_scripts/deploy_lambda_ecr.sh
+
+      - name: Deploy Mapper function from ECR container
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_KEY }}
+          AWS_DEFAULT_REGION: 'us-west-1'
+          AWS_ACCOUNT_ID: ${{ secrets.AWS_ACCOUNT_ID }}
+          ECR_REPO_NAME: 'mapreduce-mapper-lambda'
+          ECR_REPO_TAG: 'latest'
+          LAMBDA_FUNCTION_NAME: mapreduce-mapper
+          ENVIRONMENT_VARIABLE_MAP: '{IS_LAMBDA="true"}'
+          POLICY_FILES: ./benchmarks/map-reduce/requirements/aws_lambda_policies/access_s3.json
+          TRUST_FILE: ./benchmarks/map-reduce/requirements/aws_lambda_policies/trust.json
+          WORKDIR_SET: 'set'
+        run: ./runner/aws_lambda_scripts/deploy_lambda_ecr.sh
+
+      - name: Deploy Reducer function from ECR container
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_KEY }}
+          AWS_DEFAULT_REGION: 'us-west-1'
+          AWS_ACCOUNT_ID: ${{ secrets.AWS_ACCOUNT_ID }}
+          ECR_REPO_NAME: 'mapreduce-reducer-lambda'
+          ECR_REPO_TAG: 'latest'
+          LAMBDA_FUNCTION_NAME: mapreduce-reducer
+          ENVIRONMENT_VARIABLE_MAP: '{IS_LAMBDA="true"}'
+          POLICY_FILES: ./benchmarks/map-reduce/requirements/aws_lambda_policies/access_s3.json
+          TRUST_FILE: ./benchmarks/map-reduce/requirements/aws_lambda_policies/trust.json
+          WORKDIR_SET: 'set'
+        run: ./runner/aws_lambda_scripts/deploy_lambda_ecr.sh
+
+      - name: Invoking Driver
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_KEY }}
+          AWS_DEFAULT_REGION: 'us-west-1'
+          AWS_ACCOUNT_ID: ${{ secrets.AWS_ACCOUNT_ID }}
+          LAMBDA_FUNCTION_NAME: mapreduce-driver
+          WORKDIR_SET: 'set'
+        run: |
+          ./runner/aws_lambda_scripts/invoke_lambda.sh
+          cat outfile.txt

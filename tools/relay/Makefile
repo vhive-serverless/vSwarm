@@ -27,7 +27,7 @@ all: relay relay-docker
 
 relay:
 	go mod tidy
-	go build -v -o ./server github.com/ease-lab/vSwarm/tools/relay
+	go build -v -o ./server github.com/vhive-serverless/vSwarm/tools/relay
 
 relay-docker:
 	go mod tidy

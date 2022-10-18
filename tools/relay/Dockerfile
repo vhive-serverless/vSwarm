@@ -30,7 +30,7 @@ COPY ./utils/tracing/go/ ./utils/tracing/go/
 
 WORKDIR /app/app/tools/relay
 RUN go mod tidy
-RUN CGO_ENABLED=0 GOOS=linux go build -v -o ./server github.com/ease-lab/vSwarm/tools/relay
+RUN CGO_ENABLED=0 GOOS=linux go build -v -o ./server github.com/vhive-serverless/vSwarm/tools/relay
 
 # Second stage (Runner):
 FROM scratch as relay

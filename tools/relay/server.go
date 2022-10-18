@@ -29,12 +29,12 @@ import (
 	"net"
 	"os"
 
-	pb "github.com/ease-lab/vSwarm-proto/proto/helloworld"
+	pb "github.com/vhive-serverless/vSwarm-proto/proto/helloworld"
 
 	log "github.com/sirupsen/logrus"
 
-	grpcClients "github.com/ease-lab/vSwarm-proto/grpcclient"
-	tracing "github.com/ease-lab/vSwarm/utils/tracing/go"
+	grpcClients "github.com/vhive-serverless/vSwarm-proto/grpcclient"
+	tracing "github.com/vhive-serverless/vSwarm/utils/tracing/go"
 
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"

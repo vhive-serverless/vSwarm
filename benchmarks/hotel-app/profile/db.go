@@ -27,7 +27,7 @@ import (
 	"log"
 	"strconv"
 
-	pb "github.com/ease-lab/vSwarm-proto/proto/hotel_reserv/profile"
+	pb "github.com/vhive-serverless/vSwarm-proto/proto/hotel_reserv/profile"
 	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
 )

@@ -27,10 +27,21 @@ import boto3
 import logging as log
 
 from mapper import MapFunction
+from storage import Storage
 import tracing
 
-LAMBDA = os.environ.get('IS_LAMBDA', 'yes').lower() in ['true', 'yes', '1']
+LAMBDA = os.environ.get('IS_LAMBDA', 'no').lower() in ['true', 'yes', '1']
 TRACE = os.environ.get('ENABLE_TRACING', 'no').lower() in ['true', 'yes', '1', 'on']
+
+if TRACE:
+	# adding python tracing sources to the system path
+	sys.path.insert(0, os.getcwd() + '/../proto/')
+	sys.path.insert(0, os.getcwd() + '/../../../utils/tracing/python')
+
+	if tracing.IsTracingEnabled():
+	    tracing.initTracer("mapper", url=args.zipkinURL)
+	    tracing.grpcInstrumentClient()
+	    tracing.grpcInstrumentServer()
 
 if not LAMBDA:
 	import grpc
@@ -55,15 +66,6 @@ if not LAMBDA:
 
 	args = parser.parse_args()
 
-if TRACE:
-	# adding python tracing sources to the system path
-	sys.path.insert(0, os.getcwd() + '/../proto/')
-	sys.path.insert(0, os.getcwd() + '/../../../utils/tracing/python')
-
-	if tracing.IsTracingEnabled():
-	    tracing.initTracer("mapper", url=args.zipkinURL)
-	    tracing.grpcInstrumentClient()
-	    tracing.grpcInstrumentServer()
 
 # constants
 S3 = "S3"
@@ -71,60 +73,17 @@ XDT = "XDT"
 
 if not LAMBDA:
 	class MapperServicer(mapreduce_pb2_grpc.MapperServicer):
-		def __init__(self, transferType, XDTconfig=None):
-			self.transferType = transferType
-			if transferType == S3:
-				self.s3_client = boto3.resource(
-					service_name='s3',
-					region_name=os.getenv('AWS_REGION'),
-					aws_access_key_id=os.getenv('AWS_ACCESS_KEY'),
-					aws_secret_access_key=os.getenv('AWS_SECRET_KEY')
-				)
-			if transferType == XDT:
-				if XDTconfig is None:
-					log.fatal("Empty XDT config")
-				self.XDTclient = XDTsrc.XDTclient(XDTconfig)
-				self.XDTconfig = XDTconfig
-
-		def put(self, bucket, key, obj, metadata=None):
-			msg = "Mapper uploading object with key '" + key + "' to " + self.transferType
-			log.info(msg)
-			log.info("object is of type %s", type(obj))
-
-			with tracing.Span(msg):
-				if self.transferType == S3:
-					s3object = self.s3_client.Object(bucket_name=bucket, key=key)
-					if metadata is None:
-						response = s3object.put(Body=obj)
-					else:
-						response = s3object.put(Body=obj, Metadata=metadata)
-				elif self.transferType == XDT:
-					key = self.XDTclient.Put(payload=obj)
-
-			return key
-
-		def get(self, bucket, key):
-			msg = "Mapper gets key '" + key + "' from " + self.transferType
-			log.info(msg)
-			with tracing.Span(msg):
-				if self.transferType == S3:
-					obj = self.s3_client.Object(bucket_name=bucket, key=key)
-					response = obj.get()
-					return response['Body'].read()
-				elif self.transferType == XDT:
-					return XDTdst.Get(key, self.XDTconfig)
-
 		def Map(self, request, context):
+			inputStorage = Storage(request.srcBucket)
+			outputStorage = Storage(request.destBucket)
 
 			mapArgs = {
-				'srcBucket' : request.srcBucket,
-				'destBucket' : request.destBucket,
+				'inputStorage' : inputStorage,
+				'outputStorage': outputStorage,
 				'jobId' 	: request.jobId,
 				'mapperId'	: request.mapperId,
 				'nReducers' : request.nReducers,
 				'keys' 		: [grpc_key.key for grpc_key in request.keys],
-				'getMethod' : self.get,
-				'putMethod'	: self.put,
 				'mapReply'	: mapreduce_pb2.MapReply
 			}
 
@@ -141,43 +100,17 @@ if not LAMBDA:
 
 if LAMBDA:
 	class AWSLambdaMapperServicer:
-		def __init__(self):
-			self.s3_client = boto3.resource(service_name='s3')
-
-		def put(self, bucket, key, obj, metadata=None):
-			msg = "Mapper uploading object with key '" + key + "' to S3"
-			log.info(msg)
-			log.info("object is of type %s", type(obj))
-
-			with tracing.Span(msg):
-				s3object = self.s3_client.Object(bucket_name=bucket, key=key)
-				if metadata is None:
-					response = s3object.put(Body=obj)
-				else:
-					response = s3object.put(Body=obj, Metadata=metadata)
-
-			return key
-
-		def get(self, bucket, key):
-			msg = "Mapper gets key '" + key + "' from S3"
-			log.info(msg)
-
-			with tracing.Span(msg):
-				obj = self.s3_client.Object(bucket_name=bucket, key=key)
-				response = obj.get()
-				return response['Body'].read()
-
 		def Map(self, event, context):
+			inputStorage = Storage(event["srcBucket"])
+			outputStorage = Storage(event["destBucket"])
 
 			mapArgs = {
-				'srcBucket' : event["srcBucket"],
-				'destBucket' : event["destBucket"],
+				'inputStorage' : inputStorage,
+				'outputStorage': outputStorage,
 				'jobId' 	: event["jobId"],
 				'mapperId'	: event["mapperId"],
 				'nReducers' : event["nReducers"],
 				'keys' 		: event['keys'].split(','),
-				'getMethod' : self.get,
-				'putMethod'	: self.put,
 				'mapReply'	: None
 			}
 
@@ -198,8 +131,7 @@ def serve():
 	log.info("Using inline or s3 transfers")
 	max_workers = int(os.getenv("MAX_SERVER_THREADS", 16))
 	server = grpc.server(futures.ThreadPoolExecutor(max_workers=max_workers))
-	mapreduce_pb2_grpc.add_MapperServicer_to_server(
-		MapperServicer(transferType=transferType, XDTconfig=XDTconfig), server)
+	mapreduce_pb2_grpc.add_MapperServicer_to_server(MapperServicer(), server)
 	server.add_insecure_port('[::]:' + args.sp)
 	server.start()
 	server.wait_for_termination()

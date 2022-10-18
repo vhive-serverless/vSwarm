@@ -45,10 +45,10 @@ import (
 
 	pb_client "tests/chained-functions-serving/proto"
 
-	pb "github.com/ease-lab/vSwarm/examples/protobuf/helloworld"
+	pb "github.com/vhive-serverless/vSwarm/examples/protobuf/helloworld"
 	"google.golang.org/grpc"
 
-	tracing "github.com/ease-lab/vSwarm/utils/tracing/go"
+	tracing "github.com/vhive-serverless/vSwarm/utils/tracing/go"
 )
 
 type producerServer struct {

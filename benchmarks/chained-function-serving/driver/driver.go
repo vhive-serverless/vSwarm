@@ -20,8 +20,8 @@ import (
 
 	"go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc"
 
-	pb "github.com/ease-lab/vSwarm/examples/protobuf/helloworld"
-	tracing "github.com/ease-lab/vSwarm/utils/tracing/go"
+	pb "github.com/vhive-serverless/vSwarm/examples/protobuf/helloworld"
+	tracing "github.com/vhive-serverless/vSwarm/utils/tracing/go"
 )
 
 const (

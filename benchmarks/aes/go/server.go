@@ -35,9 +35,9 @@ import (
 
 	log "github.com/sirupsen/logrus"
 
-	pb "github.com/ease-lab/vSwarm-proto/proto/aes"
+	pb "github.com/vhive-serverless/vSwarm-proto/proto/aes"
 
-	tracing "github.com/ease-lab/vSwarm/utils/tracing/go"
+	tracing "github.com/vhive-serverless/vSwarm/utils/tracing/go"
 
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"

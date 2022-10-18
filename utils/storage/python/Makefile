@@ -21,7 +21,7 @@
 # SOFTWARE.
 
 test:
-	python3 -m unittest storage_test.MyTest.test_s3
+	TRANSFER_TYPE=S3 bash -c 'python3 -m unittest storage_test.MyTest.test_s3'
 
 test-man:
 	echo "Nothing to test manually"

@@ -1,4 +1,4 @@
-module github.com/ease-lab/vSwarm/tools/trace-plotter
+module github.com/vhive-serverless/vSwarm/tools/trace-plotter
 
 go 1.16
 

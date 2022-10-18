@@ -43,7 +43,7 @@ import (
 	pb "tests/chained-functions-serving/proto"
 	pb_client "tests/chained-functions-serving/proto"
 
-	tracing "github.com/ease-lab/vSwarm/utils/tracing/go"
+	tracing "github.com/vhive-serverless/vSwarm/utils/tracing/go"
 
 	sdk "github.com/ease-lab/vhive-xdt/sdk/golang"
 	"github.com/ease-lab/vhive-xdt/utils"

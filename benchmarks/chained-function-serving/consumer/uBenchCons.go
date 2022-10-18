@@ -24,7 +24,7 @@ package main
 
 import (
 	"context"
-	tracing "github.com/ease-lab/vSwarm/utils/tracing/go"
+	tracing "github.com/vhive-serverless/vSwarm/utils/tracing/go"
 	sdk "github.com/ease-lab/vhive-xdt/sdk/golang"
 	log "github.com/sirupsen/logrus"
 	pb "tests/chained-functions-serving/proto"

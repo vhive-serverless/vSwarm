@@ -47,6 +47,10 @@ jobs:
         with:
           lfs: "true"
 
+      - uses: actions/setup-go@v3
+        with:
+          go-version: '1.18'
+
       - name: Login to Docker Hub
         uses: docker/login-action@v2
         with:
@@ -76,7 +80,7 @@ jobs:
       - name: Setup go dependencies
         working-directory: benchmarks/fibonacci
         env:
-          GOPRIVATE_KEY: ${{ secrets.EASE_LAB_ACCESS_KEY }}
+          GOPRIVATE_KEY: ${{ secrets.VHIVE_SERVERLESS_ACCESS_KEY }}
         run: |
           go install google.golang.org/protobuf/cmd/protoc-gen-go@v1.26
           go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@v1.1

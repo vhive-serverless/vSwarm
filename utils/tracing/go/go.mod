@@ -1,4 +1,4 @@
-module github.com/ease-lab/vSwarm/utils/tracing/go
+module github.com/vhive-serverless/vSwarm/utils/tracing/go
 
 go 1.16
 

@@ -28,9 +28,9 @@ import (
 	"fmt"
 	"net"
 
-	pb "github.com/ease-lab/vSwarm-proto/proto/auth"
+	pb "github.com/vhive-serverless/vSwarm-proto/proto/auth"
 
-	tracing "github.com/ease-lab/vSwarm/utils/tracing/go"
+	tracing "github.com/vhive-serverless/vSwarm/utils/tracing/go"
 	log "github.com/sirupsen/logrus"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
