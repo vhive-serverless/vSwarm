@@ -46,7 +46,7 @@ sys.path.insert(0, os.getcwd() + '/../proto/')
 sys.path.insert(0, os.getcwd() + '/../../../../utils/tracing/python')
 sys.path.insert(0, os.getcwd() + '/../../../../utils/storage/python')
 import tracing
-import storage
+from storage import Storage
 import stacking_pb2_grpc
 import stacking_pb2
 import destination as XDTdst
@@ -74,6 +74,7 @@ if tracing.IsTracingEnabled():
 INLINE = "INLINE"
 S3 = "S3"
 XDT = "XDT"
+storageBackend = None
 
 # set aws credentials:
 AWS_ID = os.getenv('AWS_ACCESS_KEY', "")
@@ -132,7 +133,7 @@ class TrainerServicer(stacking_pb2_grpc.TrainerServicer):
         self.trainer_id = request.trainer_id
         log.info(f"Trainer {self.trainer_id} is invoked")
 
-        dataset = storage.get(request.dataset_key)
+        dataset = pickle.loads(storageBackend.get(request.dataset_key))
 
         with tracing.Span("Training a model"):
             model_config = pickle.loads(request.model_config)
@@ -150,8 +151,8 @@ class TrainerServicer(stacking_pb2_grpc.TrainerServicer):
         model_key = f"model_{self.trainer_id}"
         pred_key = f"pred_model_{self.trainer_id}"
 
-        model_key = storage.put(model_key, model)
-        pred_key = storage.put(pred_key, y_pred)
+        model_key = storageBackend.put(model_key, pickle.dumps(model))
+        pred_key = storageBackend.put(pred_key, pickle.dumps(y_pred))
 
         return stacking_pb2.TrainReply(
             model=b'',
@@ -163,7 +164,8 @@ class TrainerServicer(stacking_pb2_grpc.TrainerServicer):
 def serve():
     transferType = os.getenv('TRANSFER_TYPE', S3)
     if transferType == S3:
-        storage.init("S3", 'vhive-stacking')
+        global storageBackend
+        storageBackend = Storage('vhive-stacking')
         log.info("Using inline or s3 transfers")
         max_workers = int(os.getenv("MAX_SERVER_THREADS", 10))
         server = grpc.server(futures.ThreadPoolExecutor(max_workers=max_workers))

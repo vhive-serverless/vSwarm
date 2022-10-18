@@ -20,21 +20,23 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+import os
 import unittest
-import storage
+from storage import Storage
 import random
-
 
 class MyTest(unittest.TestCase):
     def test_s3(self):
-        storage.init("S3","storage-module-test")
+        self.assertEqual(os.getenv('TRANSFER_TYPE', 'S3'), 'S3')
+        storageBackend = Storage("storage-module-test")
         msg = bytes(random.randint(1,10000))
-        storage.put("aws-test-key", msg)
-        self.assertEqual(storage.get("aws-test-key"), msg)
+        storageBackend.put("aws-test-key", pickle.dumps(msg))
+        self.assertEqual(pickle.loads(storageBackend.get("aws-test-key")), msg)
 
     def test_elasticache(self):
-        storage.init("ELASTICACHE","redis://test2.0vgvbw.ng.0001.usw1.cache.amazonaws.com:6379")
-        self.assertEqual(storage.elasticache_client.ping(), True)
+        self.assertEqual(os.getenv('TRANSFER_TYPE', 'S3'), 'ELASTICACHE')
+        storageBackend = Storage("redis://test2.0vgvbw.ng.0001.usw1.cache.amazonaws.com:6379")
+        self.assertEqual(storageBackend.elasticache_client.ping(), True)
         msg = b"test msg"
-        storage.put("elasticache-test-key", msg)
-        self.assertEqual(storage.get("elasticache-test-key"), msg)
+        storageBackend.put("elasticache-test-key", pickle.dumps(msg))
+        self.assertEqual(pickle.loads(storageBackend.get("elasticache-test-key")), msg)

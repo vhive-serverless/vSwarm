@@ -45,7 +45,7 @@ def MapFunction(args : dict):
 	with tracing.Span("Fetch keys"):
 		for k in args['keys']:
 			key = INPUT_MAPPER_PREFIX + k
-			contents = args['getMethod'](args['srcBucket'], key).decode('utf-8')
+			contents = args['inputStorage'].get(key).decode('utf-8')
 			content_list.append(contents)
 
 	line_count = 0
@@ -60,7 +60,7 @@ def MapFunction(args : dict):
 						output[srcIp] = 0
 					output[srcIp] += float(data[3])
 				except Exception as e:
-					print(stderr, sys.exc_info()[0])
+					log.error(sys.exc_info()[0])
 
 		shuffle_output = []
 		for i in range(args['nReducers']):
@@ -86,10 +86,10 @@ def MapFunction(args : dict):
 				"processingtime": str(time_in_secs),
 				"memoryUsage": str(resource.getrusage(resource.RUSAGE_SELF).ru_maxrss)
 			}
-			write_tasks.append((args['destBucket'], mapperKey,
+			write_tasks.append((mapperKey,
 				pickle.dumps(shuffle_output[to_reducer_id]), metadata))
 
 		keys = Parallel(backend="threading", n_jobs=args['nReducers'])(
-			delayed(args['putMethod'])(*i) for i in write_tasks)
+			delayed(args['outputStorage'].put)(*i) for i in write_tasks)
 
 	return {'mapReply' : mapReply, 'keys' : keys}

@@ -34,7 +34,7 @@ sys.path.insert(0, os.getcwd() + '/../proto/')
 sys.path.insert(0, os.getcwd() + '/../../../../utils/tracing/python')
 sys.path.insert(0, os.getcwd() + '/../../../../utils/storage/python')
 import tracing
-import storage
+from storage import Storage
 import videoservice_pb2_grpc
 import videoservice_pb2
 import destination as XDTdst
@@ -58,6 +58,7 @@ args = parser.parse_args()
 INLINE = "INLINE"
 S3 = "S3"
 XDT = "XDT"
+storageBackend = None
 
 if tracing.IsTracingEnabled():
     tracing.initTracer("recog", url=args.url)
@@ -125,7 +126,7 @@ class ObjectRecognitionServicer(videoservice_pb2_grpc.ObjectRecognitionServicer)
         if self.transferType == S3:
             log.info("retrieving target frame '%s' from s3" % request.s3key)
             with tracing.Span("Frame fetch"):
-                frame = storage.get(request.s3key)
+                frame = pickle.loads(storageBackend.get(request.s3key))
         elif self.transferType == INLINE:
             frame = request.frame
 
@@ -134,12 +135,12 @@ class ObjectRecognitionServicer(videoservice_pb2_grpc.ObjectRecognitionServicer)
         log.info("object recogintion successful")
         return videoservice_pb2.RecogniseReply(classification=classification)
 
-
 def serve():
     transferType = os.getenv('TRANSFER_TYPE', INLINE)
     if transferType == S3:
         bucketName = os.getenv('BUCKET_NAME', 'vhive-video-bench')
-        storage.init("S3", bucketName)
+        global storageBackend
+        storageBackend = Storage(bucketName)
     if transferType == S3 or transferType == INLINE:
         max_workers = int(os.getenv("MAX_RECOG_SERVER_THREADS", 10))
         server = grpc.server(futures.ThreadPoolExecutor(max_workers=max_workers))

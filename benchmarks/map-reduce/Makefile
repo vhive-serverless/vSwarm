@@ -32,34 +32,34 @@ MODE = --load
 
 .PHONY: proto
 
-all: all-image 
+all: all-image
 
 all-image: driver-image mapper-image reducer-image
 
 all-image-push: driver-image-push mapper-image-push reducer-image-push
 
-driver-image: Dockerfile proto/mapreduce_pb2_grpc.py proto/mapreduce_pb2.py driver/main.py
+driver-image: docker/Dockerfile proto/mapreduce_pb2_grpc.py proto/mapreduce_pb2.py driver/main.py
 	docker buildx build $(PLATFORM) \
 	-t vhiveease/mapreduce-driver:latest \
 	--build-arg target_arg=driver \
 	--secret id=GOPRIVATE_KEY \
-	-f Dockerfile \
+	-f docker/Dockerfile \
 	$(ROOT) $(MODE)
 
-mapper-image: Dockerfile proto/mapreduce_pb2_grpc.py proto/mapreduce_pb2.py mapper/main.py
+mapper-image: docker/Dockerfile proto/mapreduce_pb2_grpc.py proto/mapreduce_pb2.py mapper/main.py
 	docker buildx build $(PLATFORM) \
 	-t vhiveease/mapreduce-mapper:latest \
 	--build-arg target_arg=mapper \
 	--secret id=GOPRIVATE_KEY \
-	-f Dockerfile \
+	-f docker/Dockerfile \
 	$(ROOT) $(MODE)
 
-reducer-image: Dockerfile proto/mapreduce_pb2_grpc.py proto/mapreduce_pb2.py reducer/main.py
+reducer-image: docker/Dockerfile proto/mapreduce_pb2_grpc.py proto/mapreduce_pb2.py reducer/main.py
 	docker buildx build $(PLATFORM) \
 	-t vhiveease/mapreduce-reducer:latest \
 	--build-arg target_arg=reducer \
 	--secret id=GOPRIVATE_KEY \
-	-f Dockerfile \
+	-f docker/Dockerfile \
 	$(ROOT) $(MODE)
 
 driver-image-push: driver-image

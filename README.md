@@ -12,7 +12,7 @@ tested solution meant to used in conjunction with
 [vHive](https://github.com/ease-lab/vhive), and is compatible with all technologies that it supports,
 namely, containers, Firecracker and gVisor microVMs. The majority of benchmarks support distributed
 tracing with [Zipkin](https://zipkin.io/) which traces both the infra components and the user
-functions. 
+functions.
 
 In addition to the multi-function benchmarks, the vSwarm suite contains a set of [standalone functions](./benchmarks/README.md#standalone-functions-benchmark-summary), which support both x86 and arm64 architectures. Most of the standalone functions are compatible with [vSwarm-u](https://github.com/vhive-serverless/vSwarm-u), which allows to run them in the [gem5](https://www.gem5.org/) cycle-accurate full-system CPU simulator and study microarchitectural implications of serverless computing.
 the state-of-the-art research platform for system-and microarchitecture.  
