@@ -36,7 +36,7 @@ jobs:
       - name: Checkout code into go module directory
         uses: actions/checkout@v3
       - name: Lint with golangci-lint
-        uses: golangci/golangci-lint-action@v3.2.0
+        uses: golangci/golangci-lint-action@v3.3.0
         with:
           working-directory: ${{ matrix.workdir }}
           args: --timeout 5m
