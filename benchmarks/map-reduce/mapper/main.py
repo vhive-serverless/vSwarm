@@ -39,9 +39,9 @@ if TRACE:
 	sys.path.insert(0, os.getcwd() + '/../../../utils/tracing/python')
 
 	if tracing.IsTracingEnabled():
-	    tracing.initTracer("mapper", url=args.zipkinURL)
-	    tracing.grpcInstrumentClient()
-	    tracing.grpcInstrumentServer()
+		tracing.initTracer("mapper", url=args.zipkinURL)
+		tracing.grpcInstrumentClient()
+		tracing.grpcInstrumentServer()
 
 if not LAMBDA:
 	import grpc

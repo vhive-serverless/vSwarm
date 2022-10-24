@@ -38,7 +38,7 @@ set -e
 # Make sure that env var WORKDIR_SET is not set.
 # see below.
 if [[ -z "${WORKDIR_SET}" ]]; then
-  cd ../..
+	cd ../..
 	pip install -U awscli
 fi
 #######################
@@ -49,10 +49,10 @@ ECR_REPO_TAG=${REPO_TAG:-'latest'}
 ENVIRONMENT_VARIABLE_MAP=${ENVIRONMENT_VARIABLE_MAP:-"{IS_LAMBDA=true}"}
 
 function sanitize() {
-  if [ -z "${1}" ]; then
-    >&2 echo "Unable to find the ${2}"
-    exit 1
-  fi
+	if [ -z "${1}" ]; then
+		>&2 echo "Unable to find the ${2}"
+		exit 1
+	fi
 }
 
 create_role(){
@@ -139,12 +139,12 @@ publish_function(){
 				--environment Variables=${ENVIRONMENT_VARIABLE_MAP} --timeout 120
 			echo "== CREATED FUNCTION"
 			sleep 30
-    else
-      >&2 echo ${output}
-      exit $exit_code
-    fi
-  else
-    echo "== FUNCTION EXISTS, UPDATING.."
+		else
+			>&2 echo ${output}
+			exit $exit_code
+		fi
+	else
+		echo "== FUNCTION EXISTS, UPDATING.."
 		aws lambda update-function-code --function-name ${LAMBDA_FUNCTION_NAME} \
 			--image-uri ${ECR_CONTAINER_URI}
 		sleep 30
