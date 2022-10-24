@@ -24,7 +24,6 @@ import os
 import sys
 
 import logging as log
-import pickle
 
 LAMBDA = os.environ.get('IS_LAMBDA', 'no').lower() in ['true', 'yes', '1']
 TRANSFER = os.environ.get('TRANSFER_TYPE', 'S3')
