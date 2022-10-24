@@ -38,7 +38,7 @@ set -e
 # Make sure that env var WORKDIR_SET is not set.
 # see below.
 if [[ -z "${WORKDIR_SET}" ]]; then
-  cd ../..
+	cd ../..
 	pip install -U awscli
 fi
 #######################
@@ -52,32 +52,32 @@ MODE=${MODE:-'--load'}
 PLATFORM=${PLATFORM:-'--platform linux/amd64'}
 
 function sanitize() {
-  if [ -z "${1}" ]; then
-    >&2 echo "Unable to find the ${2}"
-    exit 1
-  fi
+	if [ -z "${1}" ]; then
+		>&2 echo "Unable to find the ${2}"
+		exit 1
+	fi
 }
 
 function create_ecr_repo() {
-  echo "== CHECK REPO EXISTS"
-  set +e
-  output=$(aws ecr describe-repositories --region ${AWS_DEFAULT_REGION} \
+	echo "== CHECK REPO EXISTS"
+	set +e
+	output=$(aws ecr describe-repositories --region ${AWS_DEFAULT_REGION} \
 		--repository-names ${REPO_NAME} 2>&1)
-  exit_code=$?
-  if [ ${exit_code} -ne 0 ]; then
-    if echo ${output} | grep -q RepositoryNotFoundException; then
-      echo "== REPO DOES NOT EXIST, CREATING.."
-      aws ecr create-repository --region ${AWS_DEFAULT_REGION} \
+	exit_code=$?
+	if [ ${exit_code} -ne 0 ]; then
+		if echo ${output} | grep -q RepositoryNotFoundException; then
+			echo "== REPO DOES NOT EXIST, CREATING.."
+			aws ecr create-repository --region ${AWS_DEFAULT_REGION} \
 				--repository-name ${REPO_NAME}
-      echo "== FINISHED CREATE REPO"
-    else
-      >&2 echo ${output}
-      exit $exit_code
-    fi
-  else
-    echo "== REPO EXISTS, SKIPPING CREATION.."
-  fi
-  set -e
+			echo "== FINISHED CREATE REPO"
+		else
+			>&2 echo ${output}
+			exit $exit_code
+		fi
+	else
+		echo "== REPO EXISTS, SKIPPING CREATION.."
+	fi
+	set -e
 }
 
 function login(){
@@ -98,9 +98,9 @@ function docker_build(){
 }
 
 function docker_push_to_ecr() {
-  echo "== START PUSH TO ECR"
+	echo "== START PUSH TO ECR"
 	docker push ${ACCOUNT_URL}/${REPO_NAME}:${REPO_TAG}
-  echo "== FINISHED PUSH TO ECR"
+	echo "== FINISHED PUSH TO ECR"
 }
 
 sanitize "${AWS_ACCESS_KEY_ID}" "AWS_ACCESS_KEY_ID"
