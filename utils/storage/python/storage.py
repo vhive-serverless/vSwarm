@@ -32,70 +32,70 @@ TRANSFER = os.environ.get('TRANSFER_TYPE', 'S3')
 
 supportedTransfers = ['S3', 'ELASTICACHE', 'XDT']
 if TRANSFER not in supportedTransfers:
-	errmsg = "Error in Environment Variable TRANSFER_TYPE: "
-	errmsg += "TRANSFER_TYPE should contain one of " + str(supportedTransfers)
-	sys.exit(errmsg)
+    errmsg = "Error in Environment Variable TRANSFER_TYPE: "
+    errmsg += "TRANSFER_TYPE should contain one of " + str(supportedTransfers)
+    sys.exit(errmsg)
 
 if TRANSFER == 'S3':
-	import boto3
+    import boto3
 
 if TRANSFER == 'ELASTICACHE':
-	import redis
+    import redis
 
 if TRANSFER == 'XDT':
-	import destination as XDTdst
-	import source as XDTsrc
-	import utils as XDTutil
+    import destination as XDTdst
+    import source as XDTsrc
+    import utils as XDTutil
 
 
 class Storage:
-	def __init__(self, bucket, transferConfig=None):
-		self.bucket = bucket
-		if TRANSFER == 'S3':
-			if LAMBDA:
-				self.s3Bucket = boto3.resource(service_name='s3').Bucket(bucket)
-			else:
-				self.s3Bucket = boto3.resource(
-					service_name='s3',
-					region_name=os.environ.get('AWS_REGION'),
-					aws_access_key_id=os.environ.get('AWS_ACCESS_KEY'),
-					aws_secret_access_key=os.environ.get('AWS_SECRET_KEY')
-				).Bucket(bucket)
-		elif TRANSFER == 'ELASTICACHE':
-			self.elasticache_client = redis.Redis.from_url(bucket)
-		elif TRANSFER == 'XDT':
-			if transferConfig is None:
-				log.fatal("Transfer Config cannot be empty for XDT transfers")
-			self.XDTconfig = transferConfig
-			self.XDTclient = XDTsrc.XDTclient(config=self.XDTconfig)
+    def __init__(self, bucket, transferConfig=None):
+        self.bucket = bucket
+        if TRANSFER == 'S3':
+            if LAMBDA:
+                self.s3Bucket = boto3.resource(service_name='s3').Bucket(bucket)
+            else:
+                self.s3Bucket = boto3.resource(
+                    service_name='s3',
+                    region_name=os.environ.get('AWS_REGION'),
+                    aws_access_key_id=os.environ.get('AWS_ACCESS_KEY'),
+                    aws_secret_access_key=os.environ.get('AWS_SECRET_KEY')
+                ).Bucket(bucket)
+        elif TRANSFER == 'ELASTICACHE':
+            self.elasticache_client = redis.Redis.from_url(bucket)
+        elif TRANSFER == 'XDT':
+            if transferConfig is None:
+                log.fatal("Transfer Config cannot be empty for XDT transfers")
+            self.XDTconfig = transferConfig
+            self.XDTclient = XDTsrc.XDTclient(config=self.XDTconfig)
 
-	def put(self, key, obj, metadata=None):
-		log.info("Uploading Object with key '" + key + "' to " + TRANSFER)
+    def put(self, key, obj, metadata=None):
+        log.info("Uploading Object with key '" + key + "' to " + TRANSFER)
 
-		with tracing.Span("PUT KEY: '" + key + "' to " + TRANSFER):
-			if TRANSFER == 'S3':
-				s3obj = self.s3Bucket.Object(key=key)
-				if metadata is None:
-					response = s3obj.put(Body=obj)
-				else:
-					response = s3obj.put(Body=obj, Metadata=metadata)
-			elif TRANSFER == 'ELASTICACHE':
-				elasticache_client.set(key, obj)
-			elif TRANSFER == 'XDT':
-				key = self.XDTclient.Put(payload=obj)
+        with tracing.Span("PUT KEY: '" + key + "' to " + TRANSFER):
+            if TRANSFER == 'S3':
+                s3obj = self.s3Bucket.Object(key=key)
+                if metadata is None:
+                    response = s3obj.put(Body=obj)
+                else:
+                    response = s3obj.put(Body=obj, Metadata=metadata)
+            elif TRANSFER == 'ELASTICACHE':
+                elasticache_client.set(key, obj)
+            elif TRANSFER == 'XDT':
+                key = self.XDTclient.Put(payload=obj)
 
-		return key
+        return key
 
-	def get(self, key):
-		log.info("Downloading Object with key '" + key + "' from " + TRANSFER)
+    def get(self, key):
+        log.info("Downloading Object with key '" + key + "' from " + TRANSFER)
 
-		with tracing.Span("GET KEY: '" + key + "' from " + TRANSFER):
-			if TRANSFER == 'S3':
-				s3obj = self.s3Bucket.Object(key=key)
-				response = s3obj.get()
-				return response['Body'].read()
-			elif TRANSFER == 'ELASTICACHE':
-				response = elasticache_client.get(key)
-				return response['Body'].read()
-			elif TRANSFER == 'XDT':
-				return XDTdst.Get(key, self.XDTconfig)
+        with tracing.Span("GET KEY: '" + key + "' from " + TRANSFER):
+            if TRANSFER == 'S3':
+                s3obj = self.s3Bucket.Object(key=key)
+                response = s3obj.get()
+                return response['Body'].read()
+            elif TRANSFER == 'ELASTICACHE':
+                response = elasticache_client.get(key)
+                return response['Body'].read()
+            elif TRANSFER == 'XDT':
+                return XDTdst.Get(key, self.XDTconfig)

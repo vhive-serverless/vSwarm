@@ -34,37 +34,37 @@ LAMBDA = os.environ.get('IS_LAMBDA', 'no').lower() in ['true', 'yes', '1']
 TRACE = os.environ.get('ENABLE_TRACING', 'no').lower() in ['true', 'yes', '1', 'on']
 
 if TRACE:
-	# adding python tracing sources to the system path
-	sys.path.insert(0, os.getcwd() + '/../proto/')
-	sys.path.insert(0, os.getcwd() + '/../../../utils/tracing/python')
+    # adding python tracing sources to the system path
+    sys.path.insert(0, os.getcwd() + '/../proto/')
+    sys.path.insert(0, os.getcwd() + '/../../../utils/tracing/python')
 
-	if tracing.IsTracingEnabled():
-		tracing.initTracer("mapper", url=args.zipkinURL)
-		tracing.grpcInstrumentClient()
-		tracing.grpcInstrumentServer()
+    if tracing.IsTracingEnabled():
+        tracing.initTracer("mapper", url=args.zipkinURL)
+        tracing.grpcInstrumentClient()
+        tracing.grpcInstrumentServer()
 
 if not LAMBDA:
-	import grpc
-	import argparse
-	import socket
+    import grpc
+    import argparse
+    import socket
 
-	import mapreduce_pb2_grpc
-	import mapreduce_pb2
-	import destination as XDTdst
-	import source as XDTsrc
-	import utils as XDTutil
+    import mapreduce_pb2_grpc
+    import mapreduce_pb2
+    import destination as XDTdst
+    import source as XDTsrc
+    import utils as XDTutil
 
-	from concurrent import futures
+    from concurrent import futures
 
-	parser = argparse.ArgumentParser()
-	parser.add_argument("-dockerCompose", "--dockerCompose",
-		dest="dockerCompose", default=False, help="Env docker compose")
-	parser.add_argument("-sp", "--sp", dest="sp", default="80", help="serve port")
-	parser.add_argument("-zipkin", "--zipkin", dest="zipkinURL",
-		default="http://zipkin.istio-system.svc.cluster.local:9411/api/v2/spans",
-		help="Zipkin endpoint url")
+    parser = argparse.ArgumentParser()
+    parser.add_argument("-dockerCompose", "--dockerCompose",
+        dest="dockerCompose", default=False, help="Env docker compose")
+    parser.add_argument("-sp", "--sp", dest="sp", default="80", help="serve port")
+    parser.add_argument("-zipkin", "--zipkin", dest="zipkinURL",
+        default="http://zipkin.istio-system.svc.cluster.local:9411/api/v2/spans",
+        help="Zipkin endpoint url")
 
-	args = parser.parse_args()
+    args = parser.parse_args()
 
 
 # constants
@@ -72,75 +72,75 @@ S3 = "S3"
 XDT = "XDT"
 
 if not LAMBDA:
-	class MapperServicer(mapreduce_pb2_grpc.MapperServicer):
-		def Map(self, request, context):
-			inputStorage = Storage(request.srcBucket)
-			outputStorage = Storage(request.destBucket)
+    class MapperServicer(mapreduce_pb2_grpc.MapperServicer):
+        def Map(self, request, context):
+            inputStorage = Storage(request.srcBucket)
+            outputStorage = Storage(request.destBucket)
 
-			mapArgs = {
-				'inputStorage' : inputStorage,
-				'outputStorage': outputStorage,
-				'jobId' 	: request.jobId,
-				'mapperId'	: request.mapperId,
-				'nReducers' : request.nReducers,
-				'keys' 		: [grpc_key.key for grpc_key in request.keys],
-				'mapReply'	: mapreduce_pb2.MapReply
-			}
+            mapArgs = {
+                'inputStorage' : inputStorage,
+                'outputStorage': outputStorage,
+                'jobId'     : request.jobId,
+                'mapperId'  : request.mapperId,
+                'nReducers' : request.nReducers,
+                'keys'      : [grpc_key.key for grpc_key in request.keys],
+                'mapReply'  : mapreduce_pb2.MapReply
+            }
 
-			reply = MapFunction(mapArgs)
-			response = reply['mapReply']
+            reply = MapFunction(mapArgs)
+            response = reply['mapReply']
 
-			for key in reply['keys']:
-				grpc_keys = mapreduce_pb2.Keys()
-				grpc_keys.key = key
-				response.keys.append(grpc_keys)
+            for key in reply['keys']:
+                grpc_keys = mapreduce_pb2.Keys()
+                grpc_keys.key = key
+                response.keys.append(grpc_keys)
 
-			response.reply = "success"
-			return response
+            response.reply = "success"
+            return response
 
 if LAMBDA:
-	class AWSLambdaMapperServicer:
-		def Map(self, event, context):
-			inputStorage = Storage(event["srcBucket"])
-			outputStorage = Storage(event["destBucket"])
+    class AWSLambdaMapperServicer:
+        def Map(self, event, context):
+            inputStorage = Storage(event["srcBucket"])
+            outputStorage = Storage(event["destBucket"])
 
-			mapArgs = {
-				'inputStorage' : inputStorage,
-				'outputStorage': outputStorage,
-				'jobId' 	: event["jobId"],
-				'mapperId'	: event["mapperId"],
-				'nReducers' : event["nReducers"],
-				'keys' 		: event['keys'].split(','),
-				'mapReply'	: None
-			}
+            mapArgs = {
+                'inputStorage' : inputStorage,
+                'outputStorage': outputStorage,
+                'jobId'     : event["jobId"],
+                'mapperId'  : event["mapperId"],
+                'nReducers' : event["nReducers"],
+                'keys'      : event['keys'].split(','),
+                'mapReply'  : None
+            }
 
-			response = MapFunction(mapArgs)
+            response = MapFunction(mapArgs)
 
-			return {'keys' : response['keys'], 'reply' : 'success'}
+            return {'keys' : response['keys'], 'reply' : 'success'}
 
 
 def serve():
-	transferType = os.getenv('TRANSFER_TYPE', S3)
+    transferType = os.getenv('TRANSFER_TYPE', S3)
 
-	XDTconfig = dict()
-	if transferType == XDT:
-		XDTconfig = XDTutil.loadConfig()
-		log.info("XDT config:")
-		log.info(XDTconfig)
+    XDTconfig = dict()
+    if transferType == XDT:
+        XDTconfig = XDTutil.loadConfig()
+        log.info("XDT config:")
+        log.info(XDTconfig)
 
-	log.info("Using inline or s3 transfers")
-	max_workers = int(os.getenv("MAX_SERVER_THREADS", 16))
-	server = grpc.server(futures.ThreadPoolExecutor(max_workers=max_workers))
-	mapreduce_pb2_grpc.add_MapperServicer_to_server(MapperServicer(), server)
-	server.add_insecure_port('[::]:' + args.sp)
-	server.start()
-	server.wait_for_termination()
+    log.info("Using inline or s3 transfers")
+    max_workers = int(os.getenv("MAX_SERVER_THREADS", 16))
+    server = grpc.server(futures.ThreadPoolExecutor(max_workers=max_workers))
+    mapreduce_pb2_grpc.add_MapperServicer_to_server(MapperServicer(), server)
+    server.add_insecure_port('[::]:' + args.sp)
+    server.start()
+    server.wait_for_termination()
 
 
 def lambda_handler(event, context):
-	mapperServicer = AWSLambdaMapperServicer()
-	return mapperServicer.Map(event, context)
+    mapperServicer = AWSLambdaMapperServicer()
+    return mapperServicer.Map(event, context)
 
 if __name__ == '__main__' and not LAMBDA:
-	log.basicConfig(level=log.INFO)
-	serve()
+    log.basicConfig(level=log.INFO)
+    serve()

@@ -36,60 +36,60 @@ INPUT_REDUCER_PREFIX = OUTPUT_MAPPER_PREFIX
 OUTPUT_REDUCER_PREFIX = "artemiy/task/reducer/"
 
 def MapFunction(args : dict):
-	log.info(f"Mapper {args['mapperId']} is invoked")
+    log.info(f"Mapper {args['mapperId']} is invoked")
 
-	output = {}
-	content_list = []
+    output = {}
+    content_list = []
 
-	start_time = time.time()
-	with tracing.Span("Fetch keys"):
-		for k in args['keys']:
-			key = INPUT_MAPPER_PREFIX + k
-			contents = args['inputStorage'].get(key).decode('utf-8')
-			content_list.append(contents)
+    start_time = time.time()
+    with tracing.Span("Fetch keys"):
+        for k in args['keys']:
+            key = INPUT_MAPPER_PREFIX + k
+            contents = args['inputStorage'].get(key).decode('utf-8')
+            content_list.append(contents)
 
-	line_count = 0
-	with tracing.Span("process keys and shuffle"):
-		for contents in content_list:
-			for line in contents.split('\n')[1:-1]:
-				line_count +=1
-				try:
-					data = line.split(',')
-					srcIp = data[0]
-					if srcIp not in output:
-						output[srcIp] = 0
-					output[srcIp] += float(data[3])
-				except Exception as e:
-					log.error(sys.exc_info()[0])
+    line_count = 0
+    with tracing.Span("process keys and shuffle"):
+        for contents in content_list:
+            for line in contents.split('\n')[1:-1]:
+                line_count +=1
+                try:
+                    data = line.split(',')
+                    srcIp = data[0]
+                    if srcIp not in output:
+                        output[srcIp] = 0
+                    output[srcIp] += float(data[3])
+                except Exception as e:
+                    log.error(sys.exc_info()[0])
 
-		shuffle_output = []
-		for i in range(args['nReducers']):
-			shuffle_output.append({})
-		for srcIp in output.keys():
-			reducer_num = hash(srcIp) & (args['nReducers'] - 1)
-			shuffle_output[reducer_num][srcIp] = output[srcIp]
+        shuffle_output = []
+        for i in range(args['nReducers']):
+            shuffle_output.append({})
+        for srcIp in output.keys():
+            reducer_num = hash(srcIp) & (args['nReducers'] - 1)
+            shuffle_output[reducer_num][srcIp] = output[srcIp]
 
-	time_in_secs = time.time() - start_time
+    time_in_secs = time.time() - start_time
 
-	mapReply = None
-	if args['mapReply'] is not None:
-		mapReply = args['mapReply']()
+    mapReply = None
+    if args['mapReply'] is not None:
+        mapReply = args['mapReply']()
 
-	with tracing.Span("Save result"):
-		write_tasks = []
-		for to_reducer_id in range(args['nReducers']):
-			mapperKey = "%sjob_%s/shuffle_%d/map_%d" % (OUTPUT_MAPPER_PREFIX,
-				args['jobId'], to_reducer_id, args['mapperId'])
+    with tracing.Span("Save result"):
+        write_tasks = []
+        for to_reducer_id in range(args['nReducers']):
+            mapperKey = "%sjob_%s/shuffle_%d/map_%d" % (OUTPUT_MAPPER_PREFIX,
+                args['jobId'], to_reducer_id, args['mapperId'])
 
-			metadata = {
-				"linecount":  str(line_count),
-				"processingtime": str(time_in_secs),
-				"memoryUsage": str(resource.getrusage(resource.RUSAGE_SELF).ru_maxrss)
-			}
-			write_tasks.append((mapperKey,
-				pickle.dumps(shuffle_output[to_reducer_id]), metadata))
+            metadata = {
+                "linecount":  str(line_count),
+                "processingtime": str(time_in_secs),
+                "memoryUsage": str(resource.getrusage(resource.RUSAGE_SELF).ru_maxrss)
+            }
+            write_tasks.append((mapperKey,
+                pickle.dumps(shuffle_output[to_reducer_id]), metadata))
 
-		keys = Parallel(backend="threading", n_jobs=args['nReducers'])(
-			delayed(args['outputStorage'].put)(*i) for i in write_tasks)
+        keys = Parallel(backend="threading", n_jobs=args['nReducers'])(
+            delayed(args['outputStorage'].put)(*i) for i in write_tasks)
 
-	return {'mapReply' : mapReply, 'keys' : keys}
+    return {'mapReply' : mapReply, 'keys' : keys}
