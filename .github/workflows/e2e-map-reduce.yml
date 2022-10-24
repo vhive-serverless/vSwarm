@@ -187,10 +187,10 @@ jobs:
         working-directory: benchmarks/map-reduce/knative_yamls/s3
         run: |
           kubectl wait --for=condition=Ready -f service-driver.yaml --timeout 120s
-          kubectl wait --for=condition=Ready -f service-mapper.yaml --timeout 120s
-          kubectl wait --for=condition=Ready -f service-reducer.yaml --timeout 120s
           kubectl get -f service-driver.yaml
+          kubectl wait --for=condition=Ready -f service-mapper.yaml --timeout 120s
           kubectl get -f service-mapper.yaml
+          kubectl wait --for=condition=Ready -f service-reducer.yaml --timeout 120s
           kubectl get -f service-reducer.yaml
 
       - name: Test
