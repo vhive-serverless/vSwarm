@@ -25,7 +25,6 @@ import sys
 
 import logging as log
 import pickle
-import tracing
 
 LAMBDA = os.environ.get('IS_LAMBDA', 'no').lower() in ['true', 'yes', '1']
 TRANSFER = os.environ.get('TRANSFER_TYPE', 'S3')
@@ -72,30 +71,28 @@ class Storage:
     def put(self, key, obj, metadata=None):
         log.info("Uploading Object with key '" + key + "' to " + TRANSFER)
 
-        with tracing.Span("PUT KEY: '" + key + "' to " + TRANSFER):
-            if TRANSFER == 'S3':
-                s3obj = self.s3Bucket.Object(key=key)
-                if metadata is None:
-                    response = s3obj.put(Body=obj)
-                else:
-                    response = s3obj.put(Body=obj, Metadata=metadata)
-            elif TRANSFER == 'ELASTICACHE':
-                elasticache_client.set(key, obj)
-            elif TRANSFER == 'XDT':
-                key = self.XDTclient.Put(payload=obj)
+        if TRANSFER == 'S3':
+            s3obj = self.s3Bucket.Object(key=key)
+            if metadata is None:
+                response = s3obj.put(Body=obj)
+            else:
+                response = s3obj.put(Body=obj, Metadata=metadata)
+        elif TRANSFER == 'ELASTICACHE':
+            elasticache_client.set(key, obj)
+        elif TRANSFER == 'XDT':
+            key = self.XDTclient.Put(payload=obj)
 
         return key
 
     def get(self, key):
         log.info("Downloading Object with key '" + key + "' from " + TRANSFER)
 
-        with tracing.Span("GET KEY: '" + key + "' from " + TRANSFER):
-            if TRANSFER == 'S3':
-                s3obj = self.s3Bucket.Object(key=key)
-                response = s3obj.get()
-                return response['Body'].read()
-            elif TRANSFER == 'ELASTICACHE':
-                response = elasticache_client.get(key)
-                return response['Body'].read()
-            elif TRANSFER == 'XDT':
-                return XDTdst.Get(key, self.XDTconfig)
+        if TRANSFER == 'S3':
+            s3obj = self.s3Bucket.Object(key=key)
+            response = s3obj.get()
+            return response['Body'].read()
+        elif TRANSFER == 'ELASTICACHE':
+            response = elasticache_client.get(key)
+            return response['Body'].read()
+        elif TRANSFER == 'XDT':
+            return XDTdst.Get(key, self.XDTconfig)
