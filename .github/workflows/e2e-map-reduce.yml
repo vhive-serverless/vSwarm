@@ -173,7 +173,7 @@ jobs:
           KNATIVE_DOMAIN=$INGRESS_HOST.sslip.io
           kubectl patch configmap -n knative-serving config-domain -p "{\"data\": {\"$KNATIVE_DOMAIN\": \"\"}}"
 
-      - name: Up
+      - name: Deploy Functions as Kubectl Services
         working-directory: benchmarks/map-reduce/knative_yamls/s3
         run: |
           kubectl create secret generic awscreds \
@@ -183,7 +183,7 @@ jobs:
           kubectl apply -f ./service-mapper.yaml
           kubectl apply -f ./service-reducer.yaml
 
-      - name: Check if service is ready
+      - name: Check if the Service is Ready
         working-directory: benchmarks/map-reduce/knative_yamls/s3
         run: |
           kubectl wait --for=condition=Ready -f service-driver.yaml --timeout 120s
@@ -193,7 +193,7 @@ jobs:
           kubectl get -f service-mapper.yaml
           kubectl get -f service-reducer.yaml
 
-      - name: Test
+      - name: Test the Function Deployment
         working-directory: tools/test-client
         run: |
           set -x
@@ -204,7 +204,7 @@ jobs:
           go build ./test-client.go
           ./test-client -addr $HOSTNAME:$NODEPORT
 
-      - name: Print logs
+      - name: Print Logs
         if: ${{ always() }}
         run: |
           set -x
@@ -212,7 +212,7 @@ jobs:
           kubectl logs -n default -c user-container -l serving.knative.dev/service=mapper
           kubectl logs -n default -c user-container -l serving.knative.dev/service=reducer
 
-      - name: Down
+      - name: Delete the Deployed Services
         working-directory: benchmarks/map-reduce/knative_yamls/s3
         if: ${{ always() }}
         run: |
