@@ -340,9 +340,9 @@ metatrainer
 memcached
 Michal
 Micheli
-Microarchitecting
+microarchitecting
 microarchitectural
-Microarchitecture
+microarchitecture
 microbenchmark
 microbenchmarks
 microservice
