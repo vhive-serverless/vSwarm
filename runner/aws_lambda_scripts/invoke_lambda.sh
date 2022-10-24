@@ -38,7 +38,7 @@ set -e
 # Make sure that env var WORKDIR_SET is not set.
 # see below.
 if [[ -z "${WORKDIR_SET}" ]]; then
-  cd ../..
+	cd ../..
 	pip install -U awscli
 fi
 #######################
@@ -46,10 +46,10 @@ fi
 AWS_DEFAULT_REGION=${AWS_DEFAULT_REGION:-'us-west-1'}
 
 function sanitize() {
-  if [ -z "${1}" ]; then
-    >&2 echo "Unable to find the ${2}"
-    exit 1
-  fi
+	if [ -z "${1}" ]; then
+		>&2 echo "Unable to find the ${2}"
+		exit 1
+	fi
 }
 
 sanitize "${AWS_ACCESS_KEY_ID}" "AWS_ACCESS_KEY_ID"
