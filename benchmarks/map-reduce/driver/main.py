@@ -33,192 +33,192 @@ LAMBDA = os.environ.get('IS_LAMBDA', 'no').lower() in ['true', 'yes', '1']
 TRACE = os.environ.get('TRACING_ON', 'no').lower() in ['true', 'yes', '1', 'on']
 
 if TRACE:
-	# adding python tracing sources to the system path
-	sys.path.insert(0, os.getcwd() + '/../proto/')
-	sys.path.insert(0, os.getcwd() + '/../../../utils/tracing/python')
+    # adding python tracing sources to the system path
+    sys.path.insert(0, os.getcwd() + '/../proto/')
+    sys.path.insert(0, os.getcwd() + '/../../../utils/tracing/python')
 
-	if tracing.IsTracingEnabled():
-		tracing.initTracer("driver", url=args.zipkinURL)
-		tracing.grpcInstrumentClient()
-		tracing.grpcInstrumentServer()
+    if tracing.IsTracingEnabled():
+        tracing.initTracer("driver", url=args.zipkinURL)
+        tracing.grpcInstrumentClient()
+        tracing.grpcInstrumentServer()
 
 if LAMBDA:
-	import boto3
-	import json
+    import boto3
+    import json
 
 if not LAMBDA:
-	import grpc
-	from grpc_reflection.v1alpha import reflection
-	import argparse
+    import grpc
+    from grpc_reflection.v1alpha import reflection
+    import argparse
 
-	import helloworld_pb2_grpc
-	import helloworld_pb2
-	import mapreduce_pb2_grpc
-	import mapreduce_pb2
+    import helloworld_pb2_grpc
+    import helloworld_pb2
+    import mapreduce_pb2_grpc
+    import mapreduce_pb2
 
-	parser = argparse.ArgumentParser()
-	parser.add_argument("-dockerCompose", "--dockerCompose",
-		dest="dockerCompose", default=False, help="Env docker compose")
-	parser.add_argument("-mAddr", "--mAddr", dest="mAddr",
-		default="mapper.default.192.168.1.240.sslip.io:80",
-		help="trainer address")
-	parser.add_argument("-rAddr", "--rAddr", dest="rAddr",
-		default="reducer.default.192.168.1.240.sslip.io:80",
-		help="reducer address")
-	parser.add_argument("-sp", "--sp", dest="sp", default="80",
-		help="serve port")
-	parser.add_argument("-zipkin", "--zipkin", dest="zipkinURL",
-		default="http://zipkin.istio-system.svc.cluster.local:9411/api/v2/spans",
-		help="Zipkin endpoint url")
+    parser = argparse.ArgumentParser()
+    parser.add_argument("-dockerCompose", "--dockerCompose",
+        dest="dockerCompose", default=False, help="Env docker compose")
+    parser.add_argument("-mAddr", "--mAddr", dest="mAddr",
+        default="mapper.default.192.168.1.240.sslip.io:80",
+        help="trainer address")
+    parser.add_argument("-rAddr", "--rAddr", dest="rAddr",
+        default="reducer.default.192.168.1.240.sslip.io:80",
+        help="reducer address")
+    parser.add_argument("-sp", "--sp", dest="sp", default="80",
+        help="serve port")
+    parser.add_argument("-zipkin", "--zipkin", dest="zipkinURL",
+        default="http://zipkin.istio-system.svc.cluster.local:9411/api/v2/spans",
+        help="Zipkin endpoint url")
 
-	args = parser.parse_args()
+    args = parser.parse_args()
 
 # constants
 S3 = "S3"
 
 if not LAMBDA:
-	class GreeterServicer(helloworld_pb2_grpc.GreeterServicer):
-		def call_mapper(self, arg: dict):
-			log.info(f"Invoking Mapper {arg['mapperId']}")
-			channel = grpc.insecure_channel(args.mAddr)
-			stub = mapreduce_pb2_grpc.MapperStub(channel)
+    class GreeterServicer(helloworld_pb2_grpc.GreeterServicer):
+        def call_mapper(self, arg: dict):
+            log.info(f"Invoking Mapper {arg['mapperId']}")
+            channel = grpc.insecure_channel(args.mAddr)
+            stub = mapreduce_pb2_grpc.MapperStub(channel)
 
-			req = mapreduce_pb2.MapRequest(
-				srcBucket = arg["srcBucket"],
-				destBucket = arg["destBucket"],
-				jobId = arg["jobId"],
-				mapperId = arg["mapperId"],
-				nReducers = arg["nReducers"]
-			)
-			for key_string in arg["keys"]:
-				grpc_keys = mapreduce_pb2.Keys()
-				grpc_keys.key = key_string
-				req.keys.append(grpc_keys)
+            req = mapreduce_pb2.MapRequest(
+                srcBucket = arg["srcBucket"],
+                destBucket = arg["destBucket"],
+                jobId = arg["jobId"],
+                mapperId = arg["mapperId"],
+                nReducers = arg["nReducers"]
+            )
+            for key_string in arg["keys"]:
+                grpc_keys = mapreduce_pb2.Keys()
+                grpc_keys.key = key_string
+                req.keys.append(grpc_keys)
 
-			resp = stub.Map(req)
-			log.info(f"mapper reply: {resp}")
-			return resp.keys
+            resp = stub.Map(req)
+            log.info(f"mapper reply: {resp}")
+            return resp.keys
 
-		def call_reducer(self, arg: dict):
-			log.info(f"Invoking Reducer {arg['reducerId']}")
-			channel = grpc.insecure_channel(args.rAddr)
-			stub = mapreduce_pb2_grpc.ReducerStub(channel)
+        def call_reducer(self, arg: dict):
+            log.info(f"Invoking Reducer {arg['reducerId']}")
+            channel = grpc.insecure_channel(args.rAddr)
+            stub = mapreduce_pb2_grpc.ReducerStub(channel)
 
-			req = mapreduce_pb2.ReduceRequest(
-				srcBucket = arg["srcBucket"],
-				destBucket = arg["destBucket"],
-				jobId = arg["jobId"],
-				reducerId = arg["reducerId"],
-				nReducers = arg["nReducers"],
-			)
-			for key_string in arg["keys"]:
-				grpc_keys = mapreduce_pb2.Keys()
-				grpc_keys.key = key_string
-				req.keys.append(grpc_keys)
+            req = mapreduce_pb2.ReduceRequest(
+                srcBucket = arg["srcBucket"],
+                destBucket = arg["destBucket"],
+                jobId = arg["jobId"],
+                reducerId = arg["reducerId"],
+                nReducers = arg["nReducers"],
+            )
+            for key_string in arg["keys"]:
+                grpc_keys = mapreduce_pb2.Keys()
+                grpc_keys.key = key_string
+                req.keys.append(grpc_keys)
 
-			resp = stub.Reduce(req)
-			log.info(f"reducer reply: {resp}")
+            resp = stub.Reduce(req)
+            log.info(f"reducer reply: {resp}")
 
-		def prepareReduceKeys(self, all_result_futures, NUM_REDUCERS):
-			reduce_input_keys = {}
-			for i in range(NUM_REDUCERS):
-				reduce_input_keys[i] = []
+        def prepareReduceKeys(self, all_result_futures, NUM_REDUCERS):
+            reduce_input_keys = {}
+            for i in range(NUM_REDUCERS):
+                reduce_input_keys[i] = []
 
-			#this is just to wait for all futures to complete
-			for result_keys in all_result_futures:
-				for i in range(NUM_REDUCERS):
-					reduce_input_keys[i].append(result_keys[i].key)
+            #this is just to wait for all futures to complete
+            for result_keys in all_result_futures:
+                for i in range(NUM_REDUCERS):
+                    reduce_input_keys[i].append(result_keys[i].key)
 
-			return reduce_input_keys
+            return reduce_input_keys
 
-		# Driver code below
-		def SayHello(self, request, context):
-			driverArgs = {
-				'callMapperMethod'	: self.call_mapper,
-				'callReducerMethod'	: self.call_reducer,
-				'prepareReduceKeys'	: self.prepareReduceKeys
-			}
+        # Driver code below
+        def SayHello(self, request, context):
+            driverArgs = {
+                'callMapperMethod'  : self.call_mapper,
+                'callReducerMethod' : self.call_reducer,
+                'prepareReduceKeys' : self.prepareReduceKeys
+            }
 
-			DriveFunction(driverArgs)
-			return helloworld_pb2.HelloReply(message="jobs done")
+            DriveFunction(driverArgs)
+            return helloworld_pb2.HelloReply(message="jobs done")
 
 if LAMBDA:
-	class AWSLambdaDriverServicer:
-		def __init__(self):
-			self.lambda_client = boto3.client("lambda")
+    class AWSLambdaDriverServicer:
+        def __init__(self):
+            self.lambda_client = boto3.client("lambda")
 
-		def call_mapper(self, mapperArgs: dict):
-			log.info(f"Invoking Mapper {mapperArgs['mapperId']}")
-			mapperArgs['keys'] = ','.join(mapperArgs['keys'])
+        def call_mapper(self, mapperArgs: dict):
+            log.info(f"Invoking Mapper {mapperArgs['mapperId']}")
+            mapperArgs['keys'] = ','.join(mapperArgs['keys'])
 
-			response = self.lambda_client.invoke(
-				FunctionName = os.environ.get('MAPPER_FUNCTION', 'mapper'),
-				InvocationType = 'RequestResponse',
-				LogType = 'None',
-				Payload = json.dumps(mapperArgs),
-			)
-			payloadBytes = response['Payload'].read()
-			payloadJson = json.loads(payloadBytes)
-			log.info(f"Mapper Reply {payloadJson}")
+            response = self.lambda_client.invoke(
+                FunctionName = os.environ.get('MAPPER_FUNCTION', 'mapper'),
+                InvocationType = 'RequestResponse',
+                LogType = 'None',
+                Payload = json.dumps(mapperArgs),
+            )
+            payloadBytes = response['Payload'].read()
+            payloadJson = json.loads(payloadBytes)
+            log.info(f"Mapper Reply {payloadJson}")
 
-			return payloadJson
+            return payloadJson
 
-		def call_reducer(self, reducerArgs: dict):
-			log.info(f"Invoking Mapper {reducerArgs['reducerId']}")
+        def call_reducer(self, reducerArgs: dict):
+            log.info(f"Invoking Mapper {reducerArgs['reducerId']}")
 
-			response = self.lambda_client.invoke(
-				FunctionName = os.environ.get('REDUCER_FUNCTION', 'reducer'),
-				InvocationType = 'RequestResponse',
-				LogType = 'None',
-				Payload = json.dumps(reducerArgs),
-			)
-			payloadBytes = response['Payload'].read()
-			payloadJson = json.loads(payloadBytes)
-			log.info(f"Reducer Reply {payloadJson}")
+            response = self.lambda_client.invoke(
+                FunctionName = os.environ.get('REDUCER_FUNCTION', 'reducer'),
+                InvocationType = 'RequestResponse',
+                LogType = 'None',
+                Payload = json.dumps(reducerArgs),
+            )
+            payloadBytes = response['Payload'].read()
+            payloadJson = json.loads(payloadBytes)
+            log.info(f"Reducer Reply {payloadJson}")
 
-		def prepareReduceKeys(self, all_result_futures, NUM_REDUCERS):
-			reduce_input_keys = {}
-			for i in range(NUM_REDUCERS):
-				reduce_input_keys[i] = ''
+        def prepareReduceKeys(self, all_result_futures, NUM_REDUCERS):
+            reduce_input_keys = {}
+            for i in range(NUM_REDUCERS):
+                reduce_input_keys[i] = ''
 
-			#this is just to wait for all futures to complete
-			for result_keys in all_result_futures:
-				for i in range(NUM_REDUCERS):
-					if reduce_input_keys[i] == '':
-						reduce_input_keys[i] += result_keys['keys'][i]
-					else:
-						reduce_input_keys[i] += ',' + result_keys['keys'][i]
+            #this is just to wait for all futures to complete
+            for result_keys in all_result_futures:
+                for i in range(NUM_REDUCERS):
+                    if reduce_input_keys[i] == '':
+                        reduce_input_keys[i] += result_keys['keys'][i]
+                    else:
+                        reduce_input_keys[i] += ',' + result_keys['keys'][i]
 
 
-			return reduce_input_keys
+            return reduce_input_keys
 
-		def SayHello(self, request, context):
-			driverArgs = {
-				'callMapperMethod'	: self.call_mapper,
-				'callReducerMethod'	: self.call_reducer,
-				'prepareReduceKeys'	: self.prepareReduceKeys
-			}
+        def SayHello(self, request, context):
+            driverArgs = {
+                'callMapperMethod'  : self.call_mapper,
+                'callReducerMethod' : self.call_reducer,
+                'prepareReduceKeys' : self.prepareReduceKeys
+            }
 
-			DriveFunction(driverArgs)
-			return "jobs done"
+            DriveFunction(driverArgs)
+            return "jobs done"
 
 def serve():
-	max_workers = int(os.getenv("MAX_SERVER_THREADS", 16))
-	server = grpc.server(futures.ThreadPoolExecutor(max_workers=max_workers))
-	helloworld_pb2_grpc.add_GreeterServicer_to_server(GreeterServicer(), server)
-	SERVICE_NAMES = (
-		helloworld_pb2.DESCRIPTOR.services_by_name['Greeter'].full_name,
-		reflection.SERVICE_NAME,
-	)
-	reflection.enable_server_reflection(SERVICE_NAMES, server)
-	server.add_insecure_port('[::]:' + args.sp)
-	server.start()
-	server.wait_for_termination()
+    max_workers = int(os.getenv("MAX_SERVER_THREADS", 16))
+    server = grpc.server(futures.ThreadPoolExecutor(max_workers=max_workers))
+    helloworld_pb2_grpc.add_GreeterServicer_to_server(GreeterServicer(), server)
+    SERVICE_NAMES = (
+        helloworld_pb2.DESCRIPTOR.services_by_name['Greeter'].full_name,
+        reflection.SERVICE_NAME,
+    )
+    reflection.enable_server_reflection(SERVICE_NAMES, server)
+    server.add_insecure_port('[::]:' + args.sp)
+    server.start()
+    server.wait_for_termination()
 
 def lambda_handler(event, context):
-	driverServicer = AWSLambdaDriverServicer()
-	return driverServicer.SayHello(event, context)
+    driverServicer = AWSLambdaDriverServicer()
+    return driverServicer.SayHello(event, context)
 
 if __name__ == '__main__':
-	log.basicConfig(level=log.INFO)
-	serve()
+    log.basicConfig(level=log.INFO)
+    serve()

@@ -36,48 +36,48 @@ INPUT_REDUCER_PREFIX = OUTPUT_MAPPER_PREFIX
 OUTPUT_REDUCER_PREFIX = "artemiy/task/reducer/"
 
 def ReduceFunction(args : dict):
-	log.info(f"Reducer {args['reducerId']} is invoked")
+    log.info(f"Reducer {args['reducerId']} is invoked")
 
-	responses = []
-	with tracing.Span("Fetch keys"):
-		read_tasks = []
-		for key in args['keys']:
-			read_tasks.append(key)
-		responses = Parallel(backend="threading", n_jobs=len(read_tasks))(
-			delayed(args['inputStorage'].get)(i) for i in read_tasks)
+    responses = []
+    with tracing.Span("Fetch keys"):
+        read_tasks = []
+        for key in args['keys']:
+            read_tasks.append(key)
+        responses = Parallel(backend="threading", n_jobs=len(read_tasks))(
+            delayed(args['inputStorage'].get)(i) for i in read_tasks)
 
-	results = {}
-	line_count = 0
-	start_time = time.time()
+    results = {}
+    line_count = 0
+    start_time = time.time()
 
-	with tracing.Span("Compute reducer result"):
-		for resp in responses:
-			try:
-				for srcIp, val in pickle.loads(resp).items():
-					line_count += 1
-					if srcIp not in results:
-						results[srcIp] = 0
-					results[srcIp] += float(val)
-			except:
-				log.error(sys.exc_info()[0])
+    with tracing.Span("Compute reducer result"):
+        for resp in responses:
+            try:
+                for srcIp, val in pickle.loads(resp).items():
+                    line_count += 1
+                    if srcIp not in results:
+                        results[srcIp] = 0
+                    results[srcIp] += float(val)
+            except:
+                log.error(sys.exc_info()[0])
 
-	time_in_secs = time.time() - start_time
+    time_in_secs = time.time() - start_time
 
-	with tracing.Span("Save result"):
-		if args['nReducers'] == 1:
-			reduceKey = "%sjob_%s/result" % (OUTPUT_REDUCER_PREFIX, args['jobId'])
-		else:
-			reduceKey = "%sjob_%s/reducer_%d" % (OUTPUT_REDUCER_PREFIX,
-				args['jobId'], args['reducerId'])
+    with tracing.Span("Save result"):
+        if args['nReducers'] == 1:
+            reduceKey = "%sjob_%s/result" % (OUTPUT_REDUCER_PREFIX, args['jobId'])
+        else:
+            reduceKey = "%sjob_%s/reducer_%d" % (OUTPUT_REDUCER_PREFIX,
+                args['jobId'], args['reducerId'])
 
-		metadata = {
-			"linecount":  str(line_count),
-			"processingtime": str(time_in_secs),
-			"memoryUsage": str(resource.getrusage(resource.RUSAGE_SELF).ru_maxrss)
-		}
+        metadata = {
+            "linecount":  str(line_count),
+            "processingtime": str(time_in_secs),
+            "memoryUsage": str(resource.getrusage(resource.RUSAGE_SELF).ru_maxrss)
+        }
 
-		args["outputStorage"].put(reduceKey, pickle.dumps(results), metadata)
+        args["outputStorage"].put(reduceKey, pickle.dumps(results), metadata)
 
-	return {
-		'reply' : "success"
-	}
+    return {
+        'reply' : "success"
+    }
