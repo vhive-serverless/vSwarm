@@ -23,6 +23,7 @@
 import os
 import unittest
 from storage import Storage
+import pickle
 import random
 
 class MyTest(unittest.TestCase):
