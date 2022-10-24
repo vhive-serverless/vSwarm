@@ -42,6 +42,14 @@ on:
 env:
   GOOS: linux
   GO111MODULE: on
+  AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY }}
+  AWS_ACCESS_KEY: ${{ secrets.AWS_ACCESS_KEY }}
+  AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_KEY }}
+  AWS_SECRET_KEY: ${{ secrets.AWS_SECRET_KEY }}
+  AWS_DEFAULT_REGION: 'us-west-1'
+  AWS_REGION: 'us-west-1'
+  AWS_ACCOUNT_ID: ${{ secrets.AWS_ACCOUNT_ID }}
+
 
 jobs:
   build-and-push:
@@ -72,17 +80,10 @@ jobs:
       working-directory: benchmarks/map-reduce
       env:
         GOPRIVATE_KEY: ${{ secrets.VHIVE_SERVERLESS_ACCESS_KEY }}
-        AWS_ACCESS_KEY: ${{ secrets.AWS_ACCESS_KEY }}
-        AWS_SECRET_KEY: ${{ secrets.AWS_SECRET_KEY }}
-        AWS_REGION: 'us-west-1'
       run: make all-image-push
 
     - name: Push Driver Image to AWS ECR
       env:
-        AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY }}
-        AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_KEY }}
-        AWS_DEFAULT_REGION: 'us-west-1'
-        AWS_ACCOUNT_ID: ${{ secrets.AWS_ACCOUNT_ID }}
         REPO_NAME: 'mapreduce-driver-lambda'
         REPO_TAG: 'latest'
         DOCKERFILE: ./benchmarks/map-reduce/docker/Dockerfile.Lambda
@@ -92,10 +93,6 @@ jobs:
 
     - name: Push Mapper Image to AWS ECR
       env:
-        AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY }}
-        AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_KEY }}
-        AWS_DEFAULT_REGION: 'us-west-1'
-        AWS_ACCOUNT_ID: ${{ secrets.AWS_ACCOUNT_ID }}
         REPO_NAME: 'mapreduce-mapper-lambda'
         REPO_TAG: 'latest'
         DOCKERFILE: ./benchmarks/map-reduce/docker/Dockerfile.Lambda
@@ -105,10 +102,6 @@ jobs:
 
     - name: Push Reducer Image to AWS ECR
       env:
-        AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY }}
-        AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_KEY }}
-        AWS_DEFAULT_REGION: 'us-west-1'
-        AWS_ACCOUNT_ID: ${{ secrets.AWS_ACCOUNT_ID }}
         REPO_NAME: 'mapreduce-reducer-lambda'
         REPO_TAG: 'latest'
         DOCKERFILE: ./benchmarks/map-reduce/docker/Dockerfile.Lambda
@@ -129,10 +122,6 @@ jobs:
         lfs: 'true'
 
     - name: start docker-compose benchmark
-      env:
-          AWS_ACCESS_KEY: ${{ secrets.AWS_ACCESS_KEY }}
-          AWS_SECRET_KEY: ${{ secrets.AWS_SECRET_KEY }}
-          AWS_REGION: 'us-west-1'
       working-directory: benchmarks/map-reduce
       run: |
         docker-compose -f docker-compose-s3.yml up &> log_file &
@@ -186,10 +175,6 @@ jobs:
 
       - name: Up
         working-directory: benchmarks/map-reduce/knative_yamls/s3
-        env:
-          AWS_ACCESS_KEY: ${{ secrets.AWS_ACCESS_KEY }}
-          AWS_SECRET_KEY: ${{ secrets.AWS_SECRET_KEY }}
-          AWS_REGION: 'us-west-1'
         run: |
           kubectl create secret generic awscreds \
             --from-literal=awsaccess=${AWS_ACCESS_KEY} \
@@ -250,10 +235,6 @@ jobs:
 
       - name: Deploy Driver function from ECR container
         env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_KEY }}
-          AWS_DEFAULT_REGION: 'us-west-1'
-          AWS_ACCOUNT_ID: ${{ secrets.AWS_ACCOUNT_ID }}
           ECR_REPO_NAME: 'mapreduce-driver-lambda'
           ECR_REPO_TAG: 'latest'
           LAMBDA_FUNCTION_NAME: mapreduce-driver
@@ -265,10 +246,6 @@ jobs:
 
       - name: Deploy Mapper function from ECR container
         env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_KEY }}
-          AWS_DEFAULT_REGION: 'us-west-1'
-          AWS_ACCOUNT_ID: ${{ secrets.AWS_ACCOUNT_ID }}
           ECR_REPO_NAME: 'mapreduce-mapper-lambda'
           ECR_REPO_TAG: 'latest'
           LAMBDA_FUNCTION_NAME: mapreduce-mapper
@@ -280,10 +257,6 @@ jobs:
 
       - name: Deploy Reducer function from ECR container
         env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_KEY }}
-          AWS_DEFAULT_REGION: 'us-west-1'
-          AWS_ACCOUNT_ID: ${{ secrets.AWS_ACCOUNT_ID }}
           ECR_REPO_NAME: 'mapreduce-reducer-lambda'
           ECR_REPO_TAG: 'latest'
           LAMBDA_FUNCTION_NAME: mapreduce-reducer
@@ -295,10 +268,6 @@ jobs:
 
       - name: Invoking Driver
         env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_KEY }}
-          AWS_DEFAULT_REGION: 'us-west-1'
-          AWS_ACCOUNT_ID: ${{ secrets.AWS_ACCOUNT_ID }}
           LAMBDA_FUNCTION_NAME: mapreduce-driver
           WORKDIR_SET: 'set'
         run: |
