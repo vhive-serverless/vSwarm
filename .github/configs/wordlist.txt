@@ -328,6 +328,8 @@ Manycore
 MapReduce
 margaritov
 Margaritov
+Microarchitecture
+microarchitecture
 Marios
 matchers
 maxVMNum

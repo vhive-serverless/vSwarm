@@ -12,10 +12,11 @@ tested solution meant to used in conjunction with
 [vHive](https://github.com/ease-lab/vhive), and is compatible with all technologies that it supports,
 namely, containers, Firecracker and gVisor microVMs. The majority of benchmarks support distributed
 tracing with [Zipkin](https://zipkin.io/) which traces both the infra components and the user
-functions.
-Additionally, [several](./benchmarks/README.md#standalone-functions-benchmark-summary) of the benchmarks are compatible with
-[vSwarm-u](https://github.com/vhive-serverless/vSwarm-u), a framework that integrates the benchmarks with [gem5](https://www.gem5.org/),
-the state-of-the-art research platform for system-and microarchitecture.
+functions. 
+
+In addition to the multi-function benchmarks, the vSwarm suite contains a set of [standalone functions](./benchmarks/README.md#standalone-functions-benchmark-summary), which support both x86 and arm64 architectures. Most of the standalone functions are compatible with [vSwarm-u](https://github.com/vhive-serverless/vSwarm-u), which allows to run them in the [gem5](https://www.gem5.org/) cycle-accurate full-system CPU simulator and study microarchitectural implications of serverless computing.
+the state-of-the-art research platform for system-and microarchitecture.  
+The standalone functions can therefore be used as microbenchmarks to first pin-point microarchitectural bottlenecks in execution of serverless workloads using [Top-Down](https://www.intel.com/content/www/us/en/develop/documentation/vtune-cookbook/top/methodologies/top-down-microarchitecture-analysis-method.html) analysis ([tool](https://github.com/andikleen/pmu-tools/wiki/toplev-manual)) on real hardware and then further explore and optimize these bottlenecks using the [gem5](https://www.gem5.org/) cycle-accurate simulator.
 
 
 ## Directory Structure
@@ -43,6 +44,10 @@ and inline transfers)
    - ExCamera video decoding (gg): decoding of a video in parallel
    - distributed compilation (gg): compiles LLVM in parallel
    - fibonacci (gg): classic recursive implementation to find `n`th number in the sequence by calculating `n-1` and `n-2` in parallel
+ - 25 standalone functions
+   - [AES](https://github.com/vhive-serverless/vSwarm/tree/main/benchmarks/aes), [Auth](https://github.com/vhive-serverless/vSwarm/tree/main/benchmarks/auth), [Fibonacci](https://github.com/vhive-serverless/vSwarm/tree/main/benchmarks/fibonacci): Same functionality implemented in the three different runtimes: Python, NodeJS, Golang.
+   - [Online shop](https://github.com/vhive-serverless/vSwarm/tree/main/benchmarks/online-shop): 9 functions implemented in various runtimes, ported from Googles [Online Boutique](https://github.com/GoogleCloudPlatform/microservices-demo)
+   - [Hotel reservation](https://github.com/vhive-serverless/vSwarm/tree/main/benchmarks/hotel-app): 7 microservices from DeathStarBenchs [Hotel Reservation Application](https://github.com/delimitrou/DeathStarBench/tree/master/hotelReservation) ported as standalone serverless microbenchmarks.
 
 Refer to [this document](/benchmarks/README.md) for more detail on the differences and supported features of each benchmark.
 
