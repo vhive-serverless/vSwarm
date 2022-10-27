@@ -33,32 +33,32 @@ multiple producers, e.g., as in the reduce phase in MapReduce.
 
 ## Standalone functions benchmark summary
 
-| Benchmark | Knative infra | Tracing | Runtimes        | Languages Implemented  | gem5 support |
-| --------- | ------------- | :-----: | --------------- | ---------------------- | :----------: |
-| AES       | Serving       |    ✓    | docker, knative | Python, Golang, Nodejs |      ✓       |
-| Auth      | Serving       |    ✓    | docker, knative | Python, Golang, Nodejs |      ✓       |
-| Fibonacci | Serving       |    ✓    | docker, knative | Python, Golang, Nodejs |      ✓       |
+| Benchmark | Knative infra | Tracing | Runtimes        | Languages Implemented  | gem5 support | Architecture | 
+| --------- | ------------- | :-----: | --------------- | ---------------------- | :----------: | :----------: |
+| AES       | Serving       |    ✓    | docker, knative | Python, Golang, Nodejs |      ✓       | x86, arm64 |
+| Auth      | Serving       |    ✓    | docker, knative | Python, Golang, Nodejs |      ✓       | x86, arm64 |
+| Fibonacci | Serving       |    ✓    | docker, knative | Python, Golang, Nodejs |      ✓       | x86, arm64 |
 
 **Online shop**
-| Benchmark               | Knative infra | Tracing | Runtimes        | Languages Implemented | gem5 support |
-| ----------------------- | ------------- | :-----: | --------------- | --------------------- | :----------: |
-| Cart Service            | Serving       |    ✕    | docker, knative | C#                    |      ✕       |
-| Product Catalog Service | Serving       |    ✕    | docker, knative | Golang                |      ✓       |
-| Currency Service        | Serving       |    ✕    | docker, knative | Node.js               |      ✓       |
-| Payment Service         | Serving       |    ✕    | docker, knative | Node.js               |      ✓       |
-| Shipping Service        | Serving       |    ✕    | docker, knative | Golang                |      ✓       |
-| Email Service           | Serving       |    ✕    | docker, knative | Python                |      ✓       |
-| Checkout Service        | Serving       |    ✕    | docker, knative | Golang                |      ✕       |
-| Recommendation Service  | Serving       |    ✕    | docker, knative | Python                |      ✓       |
-| Ad Service              | Serving       |    ✕    | docker, knative | Java                  |      ✕       |
+| Benchmark               | Knative infra | Tracing | Runtimes        | Languages Implemented | gem5 support | Architecture |
+| ----------------------- | ------------- | :-----: | --------------- | --------------------- | :----------: | :----------: |
+| Cart Service            | Serving       |    ✕    | docker, knative | C#                    |      ✕       | x86, arm64 |
+| Product Catalog Service | Serving       |    ✕    | docker, knative | Golang                |      ✓       | x86, arm64 |
+| Currency Service        | Serving       |    ✕    | docker, knative | Node.js               |      ✓       | x86, arm64 |
+| Payment Service         | Serving       |    ✕    | docker, knative | Node.js               |      ✓       | x86, arm64 |
+| Shipping Service        | Serving       |    ✕    | docker, knative | Golang                |      ✓       | x86, arm64 |
+| Email Service           | Serving       |    ✕    | docker, knative | Python                |      ✓       | x86, arm64 |
+| Checkout Service        | Serving       |    ✕    | docker, knative | Golang                |      ✕       | x86, arm64 |
+| Recommendation Service  | Serving       |    ✕    | docker, knative | Python                |      ✓       | x86, arm64 |
+| Ad Service              | Serving       |    ✕    | docker, knative | Java                  |      ✕       | x86, arm64 |
 
 **Hotel App**
-| Benchmark      | Knative infra | Tracing | Runtimes        | Languages Implemented | gem5 support |
-| -------------- | ------------- | :-----: | --------------- | --------------------- | :----------: |
-| Geo            | Serving       |    ✓    | docker, knative | Golang                |      ✓       |
-| Profile        | Serving       |    ✓    | docker, knative | Golang                |      ✓       |
-| Rate           | Serving       |    ✓    | docker, knative | Golang                |      ✓       |
-| Recommendation | Serving       |    ✓    | docker, knative | Golang                |      ✓       |
-| Reservation    | Serving       |    ✓    | docker, knative | Golang                |      ✓       |
-| User           | Serving       |    ✓    | docker, knative | Golang                |      ✓       |
-| Search         | Serving       |    ✓    | docker, knative | Golang                |      ✕       |
+| Benchmark      | Knative infra | Tracing | Runtimes        | Languages Implemented | gem5 support | Architecture |
+| -------------- | ------------- | :-----: | --------------- | --------------------- | :----------: | :----------: |
+| Geo            | Serving       |    ✓    | docker, knative | Golang                |      ✓       | x86, arm64 |
+| Profile        | Serving       |    ✓    | docker, knative | Golang                |      ✓       | x86, arm64 |
+| Rate           | Serving       |    ✓    | docker, knative | Golang                |      ✓       | x86, arm64 |
+| Recommendation | Serving       |    ✓    | docker, knative | Golang                |      ✓       | x86, arm64 |
+| Reservation    | Serving       |    ✓    | docker, knative | Golang                |      ✓       | x86, arm64 |
+| User           | Serving       |    ✓    | docker, knative | Golang                |      ✓       | x86, arm64 |
+| Search         | Serving       |    ✓    | docker, knative | Golang                |      ✕       | x86, arm64 |
