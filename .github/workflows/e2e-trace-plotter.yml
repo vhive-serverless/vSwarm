@@ -103,7 +103,7 @@ jobs:
 
       - uses: actions/setup-go@v3
         with:
-          go-version: 1.16
+          go-version: 1.18
 
       - name: Run Trace Plotter
         working-directory: tools/trace-plotter
