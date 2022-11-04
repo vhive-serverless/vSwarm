@@ -23,7 +23,6 @@
 import os
 import sys
 
-import boto3
 import logging as log
 
 from reducer import ReduceFunction
