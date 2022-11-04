@@ -40,6 +40,7 @@ from joblib import Parallel, delayed
 sys.path.insert(0, os.getcwd() + '/../proto/')
 sys.path.insert(0, os.getcwd() + '/../../../utils/tracing/python')
 import tracing
+import storage
 import mapreduce_pb2_grpc
 import mapreduce_pb2
 import destination as XDTdst
@@ -70,19 +71,12 @@ INPUT_REDUCER_PREFIX = OUTPUT_MAPPER_PREFIX
 OUTPUT_REDUCER_PREFIX = "artemiy/task/reducer/"
 S3 = "S3"
 XDT = "XDT"
+ELASTICACHE = "ELASTICACHE"
 
 # set aws credentials:
 AWS_ID = os.getenv('AWS_ACCESS_KEY', "")
 AWS_SECRET = os.getenv('AWS_SECRET_KEY', "")
-
-
-def write_to_s3(bucket_obj, key, data, metadata):
-    bucket_obj.put_object(Key=key, Body=data, Metadata=metadata)
-
-
-def read_from_s3(s3_client, src_bucket, key):
-    response = s3_client.get_object(Bucket=src_bucket, Key=key)
-    return response
+AWS_ELASTICACHE_URL = os.getenv("AWS_ELASTICACHE_URL", "undefined.url")
 
 
 class MapperServicer(mapreduce_pb2_grpc.MapperServicer):
@@ -95,24 +89,21 @@ class MapperServicer(mapreduce_pb2_grpc.MapperServicer):
             aws_access_key_id=AWS_ID,
             aws_secret_access_key=AWS_SECRET
         )
+
         if transferType == XDT:
             if XDTconfig is None:
                 log.fatal("Empty XDT config")
             self.XDTclient = XDTsrc.XDTclient(XDTconfig)
             self.XDTconfig = XDTconfig
 
-    def put(self, bucket, key, obj, metadata=None):
+    def put(self, bucket, key, obj):
         msg = "Mapper uploading object with key '" + key + "' to " + self.transferType
         log.info(msg)
         log.info("object is of type %s", type(obj))
 
         with tracing.Span(msg):
-            if self.transferType == S3:
-                s3object = self.s3_client.Object(bucket_name=bucket, key=key)
-                if metadata is None:
-                    s3object.put(Body=obj)
-                else:
-                    s3object.put(Body=obj, Metadata=metadata)
+            if self.transferType == S3 or self.transferType == ELASTICACHE:
+                storage.put(key, obj)
             elif self.transferType == XDT:
                 key = self.XDTclient.Put(payload=obj)
 
@@ -123,9 +114,8 @@ class MapperServicer(mapreduce_pb2_grpc.MapperServicer):
         log.info(msg)
         with tracing.Span(msg):
             response = None
-            if self.transferType == S3:
-                obj = self.s3_client.Object(bucket_name=self.benchName, key=key)
-                response = obj.get()
+            if self.transferType == S3 or self.transferType == ELASTICACHE:
+                storage.get(key)
             elif self.transferType == XDT:
                 return XDTdst.Get(key, self.XDTconfig)
 
@@ -157,6 +147,7 @@ class MapperServicer(mapreduce_pb2_grpc.MapperServicer):
         # INPUT CSV => OUTPUT JSON
 
         start_time = time.time()
+        log.info(f"Mapper {mapper_id}: fetch keys")
         with tracing.Span("Fetch keys"):
             start_time = 0
             content_list = []
@@ -170,6 +161,7 @@ class MapperServicer(mapreduce_pb2_grpc.MapperServicer):
                 # TODO self.get??
 
         with tracing.Span("process keys and shuffle"):
+            log.info(f"Mapper {mapper_id}: process inputs")
             for contents in content_list:
                 for line in contents.split('\n')[:-1]:
                     line_count +=1
@@ -183,6 +175,7 @@ class MapperServicer(mapreduce_pb2_grpc.MapperServicer):
                         # print (e)
                         err += '%s' % e
 
+            log.info(f"Mapper {mapper_id}: shuffle outputs")
             shuffle_output = []
             for i in range(n_reducers):
                 reducer_output = {}
@@ -200,12 +193,7 @@ class MapperServicer(mapreduce_pb2_grpc.MapperServicer):
             for to_reducer_id in range(n_reducers):
                 mapper_fname = "%sjob_%s/shuffle_%s/map_%s" % (OUTPUT_MAPPER_PREFIX, job_id, to_reducer_id, mapper_id) 
         #        print(mapper_fname)
-                metadata = {
-                                "linecount":  '%s' % line_count,
-                                "processingtime": '%s' % time_in_secs,
-                                "memoryUsage": '%s' % resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
-                        }
-                write_tasks.append((dest_bucket, mapper_fname, pickle.dumps(shuffle_output[to_reducer_id]), metadata))
+                write_tasks.append((dest_bucket, mapper_fname, pickle.dumps(shuffle_output[to_reducer_id])))
 
             keys = Parallel(backend="threading", n_jobs=n_reducers)(delayed(self.put)(*i) for i in write_tasks)
             for key in keys:
@@ -223,6 +211,13 @@ class MapperServicer(mapreduce_pb2_grpc.MapperServicer):
 
 def serve():
     transferType = os.getenv('TRANSFER_TYPE', S3)
+
+    if transferType == S3 or transferType == ELASTICACHE:
+        if transferType == S3:
+            storage.init(S3, 'storage-module-test')
+        elif transferType == ELASTICACHE:
+            storage.init(ELASTICACHE, AWS_ELASTICACHE_URL)
+        log.info("Using inline or s3 or elasticache transfers")
 
     XDTconfig = dict()
     if transferType == XDT:

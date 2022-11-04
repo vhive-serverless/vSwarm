@@ -102,35 +102,6 @@ class GreeterServicer(helloworld_pb2_grpc.GreeterServicer):
             self.XDTclient = XDTsrc.XDTclient(XDTconfig)
             self.XDTconfig = XDTconfig
 
-    def put(self, bucket, key, obj, metadata=None):
-        msg = "Driver uploading object with key '" + key + "' to " + self.transferType
-        log.info(msg)
-        with tracing.Span(msg):
-            # pickled = pickle.dumps(obj)
-            if self.transferType == S3:
-                s3object = self.s3_client.Object(bucket_name=bucket, key=key)
-                if metadata is None:
-                    s3object.put(Body=obj)
-                else:
-                    s3object.put(Body=obj, Metadata=metadata)
-            elif self.transferType == XDT:
-                key = self.XDTclient.Put(payload=obj)
-
-        return key
-
-    def get(self, key):
-        msg = "Driver gets key '" + key + "' from " + self.transferType
-        log.info(msg)
-        with tracing.Span(msg):
-            response = None
-            if self.transferType == S3:
-                obj = self.s3_client.Object(bucket_name=self.benchName, key=key)
-                response = obj.get()
-            elif self.transferType == XDT:
-                return XDTdst.Get(key, self.XDTconfig)
-
-        return response['Body'].read()
-
     def call_mapper(self, arg: dict):
         #   "srcBucket": "storage-module-test", 
         # "destBucket": "storage-module-test", 
