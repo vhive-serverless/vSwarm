@@ -239,8 +239,8 @@ jobs:
           ECR_REPO_TAG: 'latest'
           LAMBDA_FUNCTION_NAME: mapreduce-driver
           ENVIRONMENT_VARIABLE_MAP: '{NUM_MAPPERS="8",NUM_REDUCERS="2",IS_LAMBDA="true"}'
-          POLICY_FILES: ./benchmarks/map-reduce/requirements/aws_lambda_policies/invoke_function.json
-          TRUST_FILE: ./benchmarks/map-reduce/requirements/aws_lambda_policies/trust.json
+          POLICY_FILES: ./runner/aws_lambda_scripts/aws_lambda_policies/invoke_function.json
+          TRUST_FILE: ./runner/aws_lambda_scripts/aws_lambda_policies/trust.json
           WORKDIR_SET: 'set'
         run: ./runner/aws_lambda_scripts/deploy_lambda_ecr.sh
 
@@ -250,8 +250,8 @@ jobs:
           ECR_REPO_TAG: 'latest'
           LAMBDA_FUNCTION_NAME: mapreduce-mapper
           ENVIRONMENT_VARIABLE_MAP: '{IS_LAMBDA="true"}'
-          POLICY_FILES: ./benchmarks/map-reduce/requirements/aws_lambda_policies/access_s3.json
-          TRUST_FILE: ./benchmarks/map-reduce/requirements/aws_lambda_policies/trust.json
+          POLICY_FILES: ./runner/aws_lambda_scripts/aws_lambda_policies/access_s3.json
+          TRUST_FILE: ./runner/aws_lambda_scripts/aws_lambda_policies/trust.json
           WORKDIR_SET: 'set'
         run: ./runner/aws_lambda_scripts/deploy_lambda_ecr.sh
 
@@ -261,8 +261,8 @@ jobs:
           ECR_REPO_TAG: 'latest'
           LAMBDA_FUNCTION_NAME: mapreduce-reducer
           ENVIRONMENT_VARIABLE_MAP: '{IS_LAMBDA="true"}'
-          POLICY_FILES: ./benchmarks/map-reduce/requirements/aws_lambda_policies/access_s3.json
-          TRUST_FILE: ./benchmarks/map-reduce/requirements/aws_lambda_policies/trust.json
+          POLICY_FILES: ./runner/aws_lambda_scripts/aws_lambda_policies/access_s3.json
+          TRUST_FILE: ./runner/aws_lambda_scripts/aws_lambda_policies/trust.json
           WORKDIR_SET: 'set'
         run: ./runner/aws_lambda_scripts/deploy_lambda_ecr.sh
 
