@@ -27,6 +27,13 @@ env:
   GO111MODULE: on
   PORT: 50051
   PLATFORMS: linux/amd64,linux/arm64
+  AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY }}
+  AWS_ACCESS_KEY: ${{ secrets.AWS_ACCESS_KEY }}
+  AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_KEY }}
+  AWS_SECRET_KEY: ${{ secrets.AWS_SECRET_KEY }}
+  AWS_DEFAULT_REGION: 'us-west-1'
+  AWS_REGION: 'us-west-1'
+  AWS_ACCOUNT_ID: ${{ secrets.AWS_ACCOUNT_ID }}
 
 jobs:
   build-and-push:
@@ -42,8 +49,6 @@ jobs:
             target: aesPython
           - service: aes-nodejs
             target: aesNodeJS
-
-
     steps:
       - name: Check out code into the Go module directory
         uses: actions/checkout@v3
@@ -70,7 +75,12 @@ jobs:
       - name: Set up Python version
         uses: actions/setup-python@v4
         with:
-          python-version: "3.8"
+          python-version: "3.9"
+
+      - name: Install AWS CLI
+        uses: unfor19/install-aws-cli-action@master
+        with:
+          version: '2'
 
       - name: Set up python dependencies
         working-directory: benchmarks/aes/python
@@ -97,6 +107,15 @@ jobs:
           target: ${{ matrix.target }}
           tags: vhiveease/${{ matrix.service }}:latest
           context: .
+
+      - name: Push Image to AWS ECR
+        env:
+          REPO_NAME: '${{ matrix.service }}-lambda'
+          REPO_TAG: 'latest'
+          DOCKERFILE: ./benchmarks/aes/docker/Dockerfile.Lambda
+          TARGET: ${{ matrix.target }}Lambda
+          WORKDIR_SET: 'set'
+        run: ./runner/aws_lambda_scripts/build_push_ecr.sh
 
 
 
