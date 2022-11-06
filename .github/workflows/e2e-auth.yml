@@ -25,6 +25,13 @@ env:
   GO111MODULE: on
   PORT: 50051
   PLATFORMS: linux/amd64,linux/arm64
+  AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY }}
+  AWS_ACCESS_KEY: ${{ secrets.AWS_ACCESS_KEY }}
+  AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_KEY }}
+  AWS_SECRET_KEY: ${{ secrets.AWS_SECRET_KEY }}
+  AWS_DEFAULT_REGION: 'us-west-1'
+  AWS_REGION: 'us-west-1'
+  AWS_ACCOUNT_ID: ${{ secrets.AWS_ACCOUNT_ID }}
 
 jobs:
   build-and-push:
@@ -67,7 +74,12 @@ jobs:
       - name: Set up Python version
         uses: actions/setup-python@v4
         with:
-          python-version: "3.8"
+          python-version: "3.9"
+
+      - name: Install AWS CLI
+        uses: unfor19/install-aws-cli-action@master
+        with:
+          version: '2'
 
       - name: Set up python dependencies
         working-directory: benchmarks/auth/python
@@ -95,8 +107,14 @@ jobs:
           tags: vhiveease/${{ matrix.service }}:latest
           context: .
 
-
-
+      - name: Push Python Image to AWS ECR
+        env:
+          REPO_NAME: 'auth-python-lambda'
+          REPO_TAG: 'latest'
+          DOCKERFILE: ./benchmarks/auth/docker/Dockerfile.Lambda
+          TARGET: authPythonLambda
+          WORKDIR_SET: 'set'
+        run: ./runner/aws_lambda_scripts/build_push_ecr.sh
 
   test-compose:
     name: Test Docker Compose
@@ -185,7 +203,6 @@ jobs:
           KNATIVE_DOMAIN=$INGRESS_HOST.sslip.io
           kubectl patch configmap -n knative-serving config-domain -p "{\"data\": {\"$KNATIVE_DOMAIN\": \"\"}}"
 
-
       ## Test the service
       - name: Deploy knative
         run: |
@@ -223,3 +240,35 @@ jobs:
         if: ${{ always() }}
         run: |
           kubectl delete -f ${{ env.YAML_DIR }}/kn-${{ matrix.service }}.yaml --namespace default --wait
+
+  test-aws-lambda:
+    name: Test AWS Lambda Deployment
+    needs: build-and-push
+    runs-on: ubuntu-20.04
+    strategy:
+      fail-fast: false
+
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v3
+        with:
+          lfs: 'true'
+
+      - name: Deploy Auth Python Function from ECR container
+        env:
+          ECR_REPO_NAME: 'auth-python-lambda'
+          ECR_REPO_TAG: 'latest'
+          LAMBDA_FUNCTION_NAME: auth-python
+          ENVIRONMENT_VARIABLE_MAP: '{IS_LAMBDA="true"}'
+          TRUST_FILE: ./runner/aws_lambda_scripts/aws_lambda_policies/trust.json
+          WORKDIR_SET: 'set'
+        run: ./runner/aws_lambda_scripts/deploy_lambda_ecr.sh
+
+      - name: Invoking AES Python
+        env:
+          LAMBDA_FUNCTION_NAME: aes-python
+          WORKDIR_SET: 'set'
+          PAYLOAD: '{ "name": "allow" }'
+        run: |
+          ./runner/aws_lambda_scripts/invoke_lambda.sh
+          cat outfile.txt
