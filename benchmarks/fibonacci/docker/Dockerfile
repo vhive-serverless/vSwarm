@@ -51,8 +51,8 @@ WORKDIR /app/app/
 RUN apt-get install git ca-certificates
 
 COPY ./utils/tracing/go ../../utils/tracing/go
-COPY ./benchmarks/fibonacci/go.mod ./
-COPY ./benchmarks/fibonacci/go.sum ./
+COPY ./benchmarks/fibonacci/go/go.mod ./
+COPY ./benchmarks/fibonacci/go/go.sum ./
 COPY ./benchmarks/fibonacci/go/server.go ./
 
 RUN go mod tidy

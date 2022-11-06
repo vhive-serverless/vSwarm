@@ -89,14 +89,11 @@ jobs:
         uses: docker/build-push-action@v3
         with:
           push: true
-          file: benchmarks/fibonacci/Dockerfile
+          file: benchmarks/fibonacci/docker/Dockerfile
           platforms: ${{ env.PLATFORMS }}
           target: ${{ matrix.target }}
           tags: vhiveease/${{ matrix.service }}:latest
           context: .
-
-
-
 
   test-compose:
     name: Test Docker Compose
@@ -185,7 +182,6 @@ jobs:
           KNATIVE_DOMAIN=$INGRESS_HOST.sslip.io
           kubectl patch configmap -n knative-serving config-domain -p "{\"data\": {\"$KNATIVE_DOMAIN\": \"\"}}"
 
-
       ## Test the service
       - name: Deploy knative
         run: |
@@ -207,7 +203,6 @@ jobs:
           url=$(kubectl get kservice ${{ matrix.service }} | awk '$2 ~ /http/ {sub(/http\:\/\//,""); print $2}')
 
           ./test-client --addr $url:$NODEPORT --name "Example text for CI"
-
 
       - name: Print logs
         if: ${{ always() }}
