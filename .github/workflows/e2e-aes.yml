@@ -108,17 +108,14 @@ jobs:
           tags: vhiveease/${{ matrix.service }}:latest
           context: .
 
-      - name: Push Image to AWS ECR
+      - name: Push Python Image to AWS ECR
         env:
-          REPO_NAME: '${{ matrix.service }}-lambda'
+          REPO_NAME: 'aes-python-lambda'
           REPO_TAG: 'latest'
           DOCKERFILE: ./benchmarks/aes/docker/Dockerfile.Lambda
-          TARGET: ${{ matrix.target }}Lambda
+          TARGET: aesPythonLambda
           WORKDIR_SET: 'set'
         run: ./runner/aws_lambda_scripts/build_push_ecr.sh
-
-
-
 
   test-compose:
     name: Test Docker Compose
@@ -245,3 +242,35 @@ jobs:
         if: ${{ always() }}
         run: |
           kubectl delete -f ${{ env.YAML_DIR }}/kn-${{ matrix.service }}.yaml --namespace default --wait
+
+  test-aws-lambda:
+    name: Test AWS Lambda Deployment
+    needs: build-and-push
+    runs-on: ubuntu-20.04
+    strategy:
+      fail-fast: false
+
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v3
+        with:
+          lfs: 'true'
+
+      - name: Deploy AES Python Function from ECR container
+        env:
+          ECR_REPO_NAME: 'aes-python-lambda'
+          ECR_REPO_TAG: 'latest'
+          LAMBDA_FUNCTION_NAME: aes-python
+          ENVIRONMENT_VARIABLE_MAP: '{IS_LAMBDA="true"}'
+          TRUST_FILE: ./runner/aws_lambda_scripts/aws_lambda_policies/trust.json
+          WORKDIR_SET: 'set'
+        run: ./runner/aws_lambda_scripts/deploy_lambda_ecr.sh
+
+      - name: Invoking AES Python
+        env:
+          LAMBDA_FUNCTION_NAME: aes-python
+          WORKDIR_SET: 'set'
+          PAYLOAD: '{ "plaintext": "sample text" }'
+        run: |
+          ./runner/aws_lambda_scripts/invoke_lambda.sh
+          cat outfile.txt
