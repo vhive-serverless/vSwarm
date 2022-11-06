@@ -88,12 +88,17 @@ function login(){
 }
 
 function docker_build(){
+  docker_args="${PLATFORM} -t ${ACCOUNT_URL}/${REPO_NAME}:${REPO_TAG}"
+  if [[ ! -z "${BUILD_ARG}" ]]; then
+    docker_args="${docker_args} --build-arg ${BUILD_ARG}"
+  fi
+  if [[ ! -z  "${TARGET}" ]]; then
+    docker_args="${docker_args} --target ${TARGET}"
+  fi
+  docker_args="${docker_args} -f ${DOCKERFILE} . ${MODE}"
+
 	echo "== START DOCKER BUILD"
-	docker buildx build ${PLATFORM} \
-		-t ${ACCOUNT_URL}/${REPO_NAME}:${REPO_TAG} \
-		--build-arg target_arg=${TARGET} \
-		-f ${DOCKERFILE} \
-		. ${MODE}
+  docker buildx build ${docker_args}
 	echo "== DOCKER BUILD DONE"
 }
 
@@ -107,7 +112,6 @@ sanitize "${AWS_ACCESS_KEY_ID}" "AWS_ACCESS_KEY_ID"
 sanitize "${AWS_SECRET_ACCESS_KEY}" "AWS_SECRET_ACCESS_KEY"
 sanitize "${AWS_ACCOUNT_ID}" "AWS_ACCOUNT_ID"
 sanitize "${REPO_NAME}" "REPO_NAME"
-sanitize "${TARGET}" "TARGET"
 
 ACCOUNT_URL="$AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com"
 
