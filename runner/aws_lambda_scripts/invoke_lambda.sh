@@ -62,7 +62,8 @@ if [ -z "${PAYLOAD}" ]; then
 	aws lambda invoke --function-name ${LAMBDA_FUNCTION_NAME} \
 		--log-type Tail outfile.txt
 else
-	aws lambda invoke --function-name ${LAMBDA_FUNCTION_NAME} \
-		--payload ${PAYLOAD} --log-type Tail outfile.txt
+  aws lambda invoke --function-name ${LAMBDA_FUNCTION_NAME} \
+    --cli-binary-format raw-in-base64-out \
+    --payload "${PAYLOAD}" --log-type Tail outfile.txt
 fi
 echo "== DONE INVOKING LAMBDA FUNCTION"
