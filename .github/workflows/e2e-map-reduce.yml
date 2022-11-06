@@ -87,7 +87,7 @@ jobs:
         REPO_NAME: 'mapreduce-driver-lambda'
         REPO_TAG: 'latest'
         DOCKERFILE: ./benchmarks/map-reduce/docker/Dockerfile.Lambda
-        TARGET: driver
+        BUILD_ARG: target_arg=driver
         WORKDIR_SET: 'set'
       run: ./runner/aws_lambda_scripts/build_push_ecr.sh
 
@@ -96,7 +96,7 @@ jobs:
         REPO_NAME: 'mapreduce-mapper-lambda'
         REPO_TAG: 'latest'
         DOCKERFILE: ./benchmarks/map-reduce/docker/Dockerfile.Lambda
-        TARGET: mapper
+        BUILD_ARG: target_arg=mapper
         WORKDIR_SET: 'set'
       run: ./runner/aws_lambda_scripts/build_push_ecr.sh
 
@@ -105,7 +105,7 @@ jobs:
         REPO_NAME: 'mapreduce-reducer-lambda'
         REPO_TAG: 'latest'
         DOCKERFILE: ./benchmarks/map-reduce/docker/Dockerfile.Lambda
-        TARGET: reducer
+        BUILD_ARG: target_arg=reducer
         WORKDIR_SET: 'set'
       run: ./runner/aws_lambda_scripts/build_push_ecr.sh
 
