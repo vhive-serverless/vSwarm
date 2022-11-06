@@ -20,52 +20,47 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-from concurrent import futures
-import logging
-
-import grpc
-
-import random
-import string
-import pyaes
-
-import argparse
 import os
 import sys
 
-# For local builds add protobuffer and
-# python tracing sources to the system path
-# sys.path.insert(0, os.getcwd() + '/../proto')
-from proto.aes import aes_pb2
-import aes_pb2_grpc
-
-# adding python tracing sources to the system path
-sys.path.insert(0, os.getcwd() + '/../../../utils/tracing/python')
 import tracing
 
-parser = argparse.ArgumentParser()
-parser.add_argument("-a", "--addr", dest="addr", default="0.0.0.0", help="IP address")
-parser.add_argument("-p", "--port", dest="port", default="50051", help="serve port")
-parser.add_argument("-zipkin", "--zipkin", dest="url", default="http://0.0.0.0:9411/api/v2/spans", help="Zipkin endpoint url")
-parser.add_argument("-k", "--key", dest="KEY", default="6368616e676520746869732070617373", help="Secret key")
-parser.add_argument("--default_plaintext", default="defaultplaintext", help="Default plain text if plaintext_message is empty or 'world'")
-args = parser.parse_args()
+import pyaes
 
+LAMBDA = os.environ.get('IS_LAMBDA', 'no').lower() in ['true', 'yes', '1']
+TRACE = os.environ.get('ENABLE_TRACING', 'no').lower() in ['true', 'yes', '1', 'on']
 
-if tracing.IsTracingEnabled():
-    tracing.initTracer("aes-python", url=args.url)
-    tracing.grpcInstrumentClient()
-    tracing.grpcInstrumentServer()
+if not LAMBDA:
+    import grpc
+    import argparse
 
+    from proto.aes import aes_pb2
+    import aes_pb2_grpc
 
-def generate(length):
-    letters = string.ascii_lowercase + string.digits
-    return ''.join(random.choice(letters) for i in range(length))
+    from concurrent import futures
 
-KEY = args.KEY.encode(encoding = 'UTF-8')
-message = generate(100)
+    parser = argparse.ArgumentParser()
+    parser.add_argument("-a", "--addr", dest="addr", default="0.0.0.0", help="IP address")
+    parser.add_argument("-p", "--port", dest="port", default="50051", help="serve port")
+    parser.add_argument("-zipkin", "--zipkin", dest="url", default="http://0.0.0.0:9411/api/v2/spans", help="Zipkin endpoint url")
+    parser.add_argument("-k", "--key", dest="KEY", default="6368616e676520746869732070617373", help="Secret key")
+    parser.add_argument("--default_plaintext", default="defaultplaintext", help="Default plain text if plaintext_message is empty or 'world'")
+    args = parser.parse_args()
 
-from base64 import b64decode
+    KEY = args.KEY.encode(encoding = 'UTF-8')
+
+if LAMBDA:
+    inputKey = os.environ.get('AES_KEY', '6368616e676520746869732070617373')
+    KEY = inputKey.encode(encoding = 'UTF-8')
+
+if TRACE:
+    # adding python tracing sources to the system path
+    sys.path.insert(0, os.getcwd() + '/../../../utils/tracing/python')
+    if tracing.IsTracingEnabled():
+        tracing.initTracer("aes-python", url=args.url)
+        tracing.grpcInstrumentClient()
+        tracing.grpcInstrumentServer()
+
 
 def AESModeCTR(plaintext):
     counter = pyaes.Counter(initial_value = 0)
@@ -73,47 +68,37 @@ def AESModeCTR(plaintext):
     ciphertext = aes.encrypt(plaintext)
     return ciphertext
 
-def AESModeCBC(plaintext):
-    # random initialization vector of 16 bytes
-    # blocks_size = 16
-    iv = "InitializationVe"
-    pad = 16 - len(plaintext)% blocks_size
-    plaintext = str("0" * pad) + plaintext
-    aes = pyaes.AESModeOfOperationCBC(KEY, iv = iv)
-    ciphertext = aes.encrypt(plaintext)
+if not LAMBDA:
+    class Aes(aes_pb2_grpc.AesServicer):
+        def ShowEncryption(self, request, context):
+            if request.plaintext_message in ["", "world"]:
+                plaintext = args.default_plaintext
+            else:
+                plaintext = request.plaintext_message
+            with tracing.Span("AES Encryption"):
+                ciphertext = AESModeCTR(plaintext)
+            msg = f"fn: AES | plaintext: {plaintext} | ciphertext: {ciphertext} | runtime: Python"
+            return aes_pb2.ReturnEncryptionInfo(encryption_info=msg)
 
-    print(ciphertext, ciphertext.decode('UTF-8'))
-
-    return ciphertext.decode('UTF-8')
-
-
-class Aes(aes_pb2_grpc.AesServicer):
-
-    def ShowEncryption(self, request, context):
-
-        if request.plaintext_message in ["", "world"]:
-            plaintext = args.default_plaintext
-        else:
-            plaintext = request.plaintext_message
-
-        with tracing.Span("AES Encryption"):
+if LAMBDA:
+    class Aes():
+        def Encrypt(plaintext):
             ciphertext = AESModeCTR(plaintext)
-
-        msg = f"fn: AES | plaintext: {plaintext} | ciphertext: {ciphertext} | runtime: Python"
-        return aes_pb2.ReturnEncryptionInfo(encryption_info=msg)
-
+            msg = f"fn: AES | plaintext: {plaintext} | ciphertext: {ciphertext} | runtime: Python"
+            return msg
 
 def serve():
     server = grpc.server(futures.ThreadPoolExecutor(max_workers=1))
     aes_pb2_grpc.add_AesServicer_to_server(Aes(), server)
-
     address = (args.addr + ":" + args.port)
     server.add_insecure_port(address)
     print("Start AES-python server. Addr: " + address)
-
     server.start()
     server.wait_for_termination()
 
+def lambda_handler(event, context):
+    aesObj = Aes()
+    return aesObj.Encrypt(event['plaintext'])
 
 if __name__ == '__main__':
     serve()
