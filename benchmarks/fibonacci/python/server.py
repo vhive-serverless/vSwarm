@@ -22,41 +22,40 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-from concurrent import futures
-import logging
-import argparse
-
-import grpc
-import string
-
-from proto.fibonacci import fibonacci_pb2
-import fibonacci_pb2_grpc
-
 import os
 import sys
 
-# adding python tracing sources to the system path
-sys.path.insert(0, os.getcwd() + '/../../../../utils/tracing/python')
+import logging
+
 import tracing
 
-import ctypes
-libc = ctypes.CDLL(None)
-syscall = libc.syscall
+LAMBDA = os.environ.get('IS_LAMBDA', 'no').lower() in ['true', 'yes', '1']
+TRACE = os.environ.get('ENABLE_TRACING', 'no').lower() in ['true', 'yes', '1', 'on']
 
-print("python version: %s" % sys.version)
-print("Server has PID: %d" % os.getpid())
-GRPC_PORT_ADDRESS = os.getenv("GRPC_PORT")
+if not LAMBDA:
+    import grpc
+    import argparse
 
-parser = argparse.ArgumentParser()
-parser.add_argument("-a", "--addr", dest="addr", default="0.0.0.0", help="IP address")
-parser.add_argument("-p", "--port", dest="port", default="50051", help="serve port")
-parser.add_argument("-zipkin", "--zipkin", dest="url", default="http://0.0.0.0:9411/api/v2/spans", help="Zipkin endpoint url")
-args = parser.parse_args()
+    from proto.fibonacci import fibonacci_pb2
+    import fibonacci_pb2_grpc
 
-if tracing.IsTracingEnabled():
-    tracing.initTracer("fibonacci", url=args.url)
-    tracing.grpcInstrumentClient()
-    tracing.grpcInstrumentServer()
+    from concurrent import futures
+
+    parser = argparse.ArgumentParser()
+    parser.add_argument("-a", "--addr", dest="addr", default="0.0.0.0", help="IP address")
+    parser.add_argument("-p", "--port", dest="port", default="50051", help="serve port")
+    parser.add_argument("-zipkin", "--zipkin", dest="url", default="http://0.0.0.0:9411/api/v2/spans", help="Zipkin endpoint url")
+    args = parser.parse_args()
+
+    GRPC_PORT_ADDRESS = os.getenv("GRPC_PORT")
+
+if TRACE:
+    # adding python tracing sources to the system path
+    sys.path.insert(0, os.getcwd() + '/../../../../utils/tracing/python')
+    if tracing.IsTracingEnabled():
+        tracing.initTracer("fibonacci", url=args.url)
+        tracing.grpcInstrumentClient()
+        tracing.grpcInstrumentServer()
 
 def fibonacci(num):
     num1=0
@@ -68,33 +67,34 @@ def fibonacci(num):
         num2=sum
     return num1
 
+if not LAMBDA:
+    class Greeter(fibonacci_pb2_grpc.GreeterServicer):
+        def SayHello(self, request, context):
+            with tracing.Span("Run fibonacci"):
+                x = int(request.name)
+                y = fibonacci(x)
+            msg = "fn: Fib: y = fib(x) | x: %i y: %i | runtime: python" % (x,y)
+            return fibonacci_pb2.HelloReply(message=msg)
 
-
-class Greeter(fibonacci_pb2_grpc.GreeterServicer):
-
-    def SayHello(self, request, context):
-
-        with tracing.Span("Run fibonacci"):
-            x = int(request.name)
+if LAMBDA:
+    class Fibonacci():
+        def compute(self, x):
             y = fibonacci(x)
-
-        gid = syscall(104)
-        msg = "fn: Fib: y = fib(x) | x: %i y: %.1f | runtime: python" % (x,y)
-        return fibonacci_pb2.HelloReply(message=msg)
-
+            msg = "fn: Fib: y = fib(x) | x: %i y: %i | runtime: python" % (x,y)
+            return msg
 
 def serve():
     server = grpc.server(futures.ThreadPoolExecutor(max_workers=1))
     fibonacci_pb2_grpc.add_GreeterServicer_to_server(Greeter(), server)
-
     address = ('[::]:' + GRPC_PORT_ADDRESS if GRPC_PORT_ADDRESS else  '[::]:50051')
-    server.add_insecure_port(address) 
-
+    server.add_insecure_port(address)
     logging.info("Start server: listen on : " + address)
-
     server.start()
     server.wait_for_termination()
 
+def lambda_handler(event, context):
+    fibObj = Fibonacci()
+    return fibObj.compute(int(event['name']))
 
 if __name__ == '__main__':
     logging.basicConfig(level=logging.INFO)
