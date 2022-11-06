@@ -76,7 +76,8 @@ XDT = "XDT"
 # set aws credentials:
 AWS_ID = os.getenv('AWS_ACCESS_KEY', "")
 AWS_SECRET = os.getenv('AWS_SECRET_KEY', "")
-
+# set aws bucket name:
+BUCKET_NAME = os.getenv('BUCKET_NAME','vhive-tuning')
 
 def get_self_ip():
     s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
@@ -109,7 +110,7 @@ def model_dispatcher(model_name):
 class TrainerServicer(tuning_pb2_grpc.TrainerServicer):
     def __init__(self, transferType, XDTconfig=None):
 
-        self.benchName = 'vhive-tuning'
+        self.benchName = BUCKET_NAME
         self.transferType = transferType
         self.trainer_id = ""
         if transferType == S3:
@@ -169,7 +170,7 @@ class TrainerServicer(tuning_pb2_grpc.TrainerServicer):
 def serve():
     transferType = os.getenv('TRANSFER_TYPE', S3)
     if transferType == S3:
-        storage.init("S3", 'vhive-tuning')
+        storage.init("S3", BUCKET_NAME)
         log.info("Using inline or s3 transfers")
         max_workers = int(os.getenv("MAX_SERVER_THREADS", 10))
         server = grpc.server(futures.ThreadPoolExecutor(max_workers=max_workers))
