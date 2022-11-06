@@ -32,16 +32,6 @@ from driver import DriveFunction
 LAMBDA = os.environ.get('IS_LAMBDA', 'no').lower() in ['true', 'yes', '1']
 TRACE = os.environ.get('ENABLE_TRACING', 'no').lower() in ['true', 'yes', '1', 'on']
 
-if TRACE:
-    # adding python tracing sources to the system path
-    sys.path.insert(0, os.getcwd() + '/../proto/')
-    sys.path.insert(0, os.getcwd() + '/../../../utils/tracing/python')
-
-    if tracing.IsTracingEnabled():
-        tracing.initTracer("driver", url=args.zipkinURL)
-        tracing.grpcInstrumentClient()
-        tracing.grpcInstrumentServer()
-
 if LAMBDA:
     import boto3
     import json
@@ -72,6 +62,16 @@ if not LAMBDA:
         help="Zipkin endpoint url")
 
     args = parser.parse_args()
+
+if TRACE:
+    # adding python tracing sources to the system path
+    sys.path.insert(0, os.getcwd() + '/../proto/')
+    sys.path.insert(0, os.getcwd() + '/../../../utils/tracing/python')
+
+    if tracing.IsTracingEnabled():
+        tracing.initTracer("driver", url=args.zipkinURL)
+        tracing.grpcInstrumentClient()
+        tracing.grpcInstrumentServer()
 
 # constants
 S3 = "S3"
