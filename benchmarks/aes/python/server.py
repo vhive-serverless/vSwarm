@@ -82,7 +82,7 @@ if not LAMBDA:
 
 if LAMBDA:
     class Aes():
-        def Encrypt(plaintext):
+        def Encrypt(self, plaintext):
             ciphertext = AESModeCTR(plaintext)
             msg = f"fn: AES | plaintext: {plaintext} | ciphertext: {ciphertext} | runtime: Python"
             return msg
