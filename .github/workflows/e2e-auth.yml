@@ -75,7 +75,7 @@ jobs:
           python3 -m pip install --upgrade pip
           python3 -m pip install wheel ez_setup setuptools
           GRPC_PYTHON_BUILD_SYSTEM_ZLIB=true
-          python3 -m pip install -r requirements.txt
+          python3 -m pip install -r requirements/common.txt
 
       - name: Setup go dependencies
         working-directory: benchmarks/auth
