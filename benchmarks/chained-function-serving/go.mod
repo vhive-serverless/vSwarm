@@ -1,32 +1,33 @@
 module tests/chained-functions-serving
 
-go 1.17
+go 1.18
 
 replace (
+	github.com/ease-lab/vhive-xdt/proto/crossXDT => github.com/ease-lab/vhive-xdt/proto/crossXDT v0.0.0-20221107151004-a0940018d178
+	github.com/ease-lab/vhive-xdt/proto/downXDT => github.com/ease-lab/vhive-xdt/proto/downXDT v0.0.0-20221107151004-a0940018d178
+	github.com/ease-lab/vhive-xdt/proto/upXDT => github.com/ease-lab/vhive-xdt/proto/upXDT v0.0.0-20221107151004-a0940018d178
+	github.com/ease-lab/vhive-xdt/utils => github.com/ease-lab/vhive-xdt/utils v0.0.0-20221107151004-a0940018d178
 	github.com/vhive-serverless/vSwarm/examples/protobuf/helloworld => ../../utils/protobuf/helloworld
 	github.com/vhive-serverless/vSwarm/utils/tracing/go => ../../utils/tracing/go
-	github.com/ease-lab/vhive-xdt/proto/crossXDT => github.com/ease-lab/vhive-xdt/proto/crossXDT v0.0.0-20220612214926-3dece67094db
-	github.com/ease-lab/vhive-xdt/proto/downXDT => github.com/ease-lab/vhive-xdt/proto/downXDT v0.0.0-20220612214926-3dece67094db
-	github.com/ease-lab/vhive-xdt/proto/upXDT => github.com/ease-lab/vhive-xdt/proto/upXDT v0.0.0-20220612214926-3dece67094db
-	github.com/ease-lab/vhive-xdt/utils => github.com/ease-lab/vhive-xdt/utils v0.0.0-20220612214926-3dece67094db
 	go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp => go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp v0.32.0
 	tests/chained-functions-serving/proto => ./proto
 )
 
 require (
 	github.com/aws/aws-sdk-go v1.40.16
-	github.com/containerd/containerd v1.6.6
-	github.com/ease-lab/vSwarm/examples/protobuf/helloworld v0.0.0-00010101000000-000000000000
-	github.com/ease-lab/vSwarm/utils/tracing/go v0.0.0-20220609140039-b4da20ea6b36
-	github.com/ease-lab/vhive-xdt/sdk/golang v0.0.0-20220612214926-3dece67094db
-	github.com/ease-lab/vhive-xdt/utils v0.0.0-20220612214926-3dece67094db
+	github.com/containerd/containerd v1.6.8
+	github.com/ease-lab/vhive-xdt/sdk/golang v0.0.0-20221107151004-a0940018d178
+	github.com/ease-lab/vhive-xdt/utils v0.0.0-20221107151004-a0940018d178
 	github.com/sirupsen/logrus v1.9.0
+	github.com/vhive-serverless/vSwarm/examples/protobuf/helloworld v0.0.0-00010101000000-000000000000
+	github.com/vhive-serverless/vSwarm/utils/tracing/go v0.0.0-00010101000000-000000000000
 	go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc v0.33.0
 	google.golang.org/grpc v1.48.0
 	google.golang.org/protobuf v1.28.0
 )
 
 require (
+	github.com/ease-lab/vSwarm/utils/tracing/go v0.0.0-20220609140039-b4da20ea6b36 // indirect
 	github.com/ease-lab/vhive-xdt/proto/crossXDT v0.0.0-00010101000000-000000000000 // indirect
 	github.com/ease-lab/vhive-xdt/proto/downXDT v0.0.0-00010101000000-000000000000 // indirect
 	github.com/ease-lab/vhive-xdt/proto/upXDT v0.0.0-00010101000000-000000000000 // indirect

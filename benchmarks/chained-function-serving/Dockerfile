@@ -20,7 +20,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-FROM vhiveease/golang-builder:1.17.13-buster AS builder
+FROM vhiveease/golang-builder AS builder
 
 WORKDIR /app
 # We use ARG and ENV to have a single Dockerfile for the all three programs.
