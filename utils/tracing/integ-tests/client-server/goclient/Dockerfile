@@ -22,10 +22,10 @@
 
 FROM vhiveease/golang:latest as builder
 
-WORKDIR /app
+WORKDIR /utils/tracing/integ-tests/client-server/goclient
 RUN apk add --no-cache make
 COPY ./utils/tracing/integ-tests/client-server/goclient ./
-COPY ./utils/tracing/go ./utils/tracing/go
+COPY ./utils/tracing/go /utils/tracing/go
 RUN mkdir /log
 RUN go mod download && \
    CGO_ENABLED=0 GOOS=linux go build -v -o ./client-bin ./goclient.go
@@ -33,5 +33,5 @@ RUN go mod download && \
 FROM scratch
 WORKDIR /app
 COPY --from=builder /log/ /app/log/ 
-COPY --from=builder /app/client-bin /app/exe
+COPY --from=builder /utils/tracing/integ-tests/client-server/goclient/client-bin /app/exe
 ENTRYPOINT [ "/app/exe" ]

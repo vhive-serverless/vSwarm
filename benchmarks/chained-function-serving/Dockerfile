@@ -28,6 +28,7 @@ WORKDIR /app
 ARG target_arg
 ENV target=$target_arg
 RUN mkdir /log
+RUN apt update && apt install git-lfs
 COPY . .
 WORKDIR /app/benchmarks/chained-function-serving
 RUN go env -w GOPRIVATE=github.com/ease-lab/vhive-xdt
@@ -37,7 +38,7 @@ RUN --mount=type=secret,id=GOPRIVATE_KEY \
     git config --global url."https://ease-lab:$(cat /run/secrets/GOPRIVATE_KEY)@github.com/ease-lab/vhive-xdt".insteadOf "https://github.com/ease-lab/vhive-xdt"
 RUN go mod tidy
 RUN go mod download && \
-   CGO_ENABLED=0 GOOS=linux go build -v -o ./${target}-bin ./${target}/
+    CGO_ENABLED=0 GOOS=linux go build -v -o ./${target}-bin ./${target}/
 
 FROM vhiveease/runner
 WORKDIR /app
