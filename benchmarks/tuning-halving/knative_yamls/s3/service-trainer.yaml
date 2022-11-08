@@ -30,7 +30,7 @@ spec:
     spec:
       containerConcurrency: 1
       containers:
-        - image: docker.io/vhiveease/tuning-halving-trainer:latest
+        - image: docker.io/jingren1021/tuning-halving-trainer:latest
           imagePullPolicy: Always
           env:
             - name: TRANSFER_TYPE
