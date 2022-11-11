@@ -61,6 +61,8 @@ Number of instances per function in a stable flow:
 all benchmarks support all transfer types.
 - `AWS_ACCESS_KEY`, `AWS_SECRET_KEY`, `AWS_REGION` - Standard s3 keys, only needed if the s3
 transfer type is used
+- `BUCKET_NAME` - Set custom s3 bucket name, only needed if the s3 transfer type is used,
+default bucket name is set as 'vhive-stacking'
 - `ENABLE_TRACING` - Toggles tracing.
 - `TrainersNum` - The number of trainers to be used.
 - `CONCURRENT_TRAINING` - Toggles concurrent training. When disabled, training is carried out for

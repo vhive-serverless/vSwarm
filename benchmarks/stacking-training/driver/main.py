@@ -89,6 +89,8 @@ storageBackend = None
 # set aws credentials:
 AWS_ID = os.getenv('AWS_ACCESS_KEY', "")
 AWS_SECRET = os.getenv('AWS_SECRET_KEY', "")
+# set aws bucket name:
+BUCKET_NAME = os.getenv('BUCKET_NAME','vhive-stacking')
 
 model_config = {
     'models': [
@@ -184,7 +186,7 @@ def reduce(training_responses) -> dict:
 class GreeterServicer(helloworld_pb2_grpc.GreeterServicer):
     def __init__(self, transferType, XDTconfig=None):
 
-        self.benchName = 'vhive-stacking'
+        self.benchName = BUCKET_NAME
         self.dataset = generate_dataset()
         self.modelConfig = model_config
         self.transferType = transferType
@@ -300,7 +302,7 @@ def serve():
     transferType = os.getenv('TRANSFER_TYPE', S3)
     if transferType == S3:
         global storageBackend
-        storageBackend = Storage('vhive-stacking')
+        storageBackend = Storage(BUCKET_NAME)
         log.info("Using inline or s3 transfers")
         max_workers = int(os.getenv("MAX_SERVER_THREADS", 10))
         server = grpc.server(futures.ThreadPoolExecutor(max_workers=max_workers))
