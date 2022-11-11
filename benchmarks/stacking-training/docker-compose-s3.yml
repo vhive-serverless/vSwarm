@@ -32,6 +32,7 @@ services:
             - TRANSFER_TYPE=S3
             - AWS_ACCESS_KEY=${AWS_ACCESS_KEY}
             - AWS_SECRET_KEY=${AWS_SECRET_KEY}
+            - BUCKET_NAME=${BUCKET_NAME}
             - AWS_REGION=us-west-1
             - MAX_RECOG_SERVER_THREADS=10
 
@@ -44,6 +45,7 @@ services:
             - TRANSFER_TYPE=S3
             - AWS_ACCESS_KEY=${AWS_ACCESS_KEY}
             - AWS_SECRET_KEY=${AWS_SECRET_KEY}
+            - BUCKET_NAME=${BUCKET_NAME}
             - AWS_REGION=us-west-1
             - MAX_RECOG_SERVER_THREADS=10
 
@@ -56,6 +58,7 @@ services:
             - TRANSFER_TYPE=S3
             - AWS_ACCESS_KEY=${AWS_ACCESS_KEY}
             - AWS_SECRET_KEY=${AWS_SECRET_KEY}
+            - BUCKET_NAME=${BUCKET_NAME}
             - AWS_REGION=us-west-1
             - MAX_RECOG_SERVER_THREADS=10
 
@@ -73,6 +76,7 @@ services:
             - TRANSFER_TYPE=S3
             - AWS_ACCESS_KEY=${AWS_ACCESS_KEY}
             - AWS_SECRET_KEY=${AWS_SECRET_KEY}
+            - BUCKET_NAME=${BUCKET_NAME}
             - AWS_REGION=us-west-1
             - CONCURRENT_TRAINING=false
             - TrainersNum=4
