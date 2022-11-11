@@ -158,7 +158,7 @@
       become: yes
       ansible.builtin.unarchive:
         remote_src: true
-        src: https://golang.org/dl/go1.16.6.linux-amd64.tar.gz
+        src: https://golang.org/dl/go1.18.8.linux-amd64.tar.gz
         dest: /usr/local
 
     - name: Copy script folder to the remote host

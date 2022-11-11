@@ -25,7 +25,8 @@
 set -e
 
 # Install base- and setup-dependencies
-
+# Redirect to old releases repo till we move to a newer kind version image.
+sed -i -re 's/([a-z]{2}\.)?archive.ubuntu.com|security.ubuntu.com/old-releases.ubuntu.com/g' /etc/apt/sources.list
 apt-get update
 DEBIAN_FRONTEND=noninteractive apt-get install --yes \
     acl \
