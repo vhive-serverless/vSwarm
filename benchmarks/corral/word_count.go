@@ -39,7 +39,10 @@ func (w wordCount) Reduce(ctx context.Context, key string, values corral.ValueIt
 	for range values.Iter() {
 		count++
 	}
-	emitter.Emit(ctx, key, strconv.Itoa(count))
+	err := emitter.Emit(ctx, key, strconv.Itoa(count))
+	if err != nil {
+		fmt.Println(err)
+	}
 }
 
 func main() {
