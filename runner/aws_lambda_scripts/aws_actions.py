@@ -108,7 +108,7 @@ def attach_policies_to_role(role, policies):
 def publish_function(role, repo, tag, lambdafn, env):
     client = boto3.client('lambda')
     uri = '%s.dkr.ecr.%s.amazonaws.com/%s:%s' % (AWS_ACCOUNT_ID, AWS_REGION, repo, tag)
-    roleArn = 'arn:aws:iam:%s:role/%s' % (AWS_ACCOUNT_ID, role)
+    roleArn = 'arn:aws:iam::%s:role/%s' % (AWS_ACCOUNT_ID, role)
     try:
         client.get_function(FunctionName=lambdafn)
     except client.exceptions.ResourceNotFoundException:
@@ -118,10 +118,10 @@ def publish_function(role, repo, tag, lambdafn, env):
         time.sleep(30)
     else:
         client.update_function_code(FunctionName=lambdafn, ImageUri=uri)
-        sleep(30)
+        time.sleep(30)
         client.update_function_configuration(FunctionName=lambdafn,
                 Role=roleArn, Timeout=120, Environment={'Variables': env})
-        sleep(15)
+        time.sleep(15)
 
 def deploy_lambdafn_from_ecr(repo, tag, lambdafn, policies, env):
     role = lambdafn + '-role'
