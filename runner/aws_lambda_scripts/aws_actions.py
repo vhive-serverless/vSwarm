@@ -74,6 +74,13 @@ policy_jsons = {
     })
 }
 
+def create_ecr_repo(name):
+    client = boto3.client('ecr')
+    try:
+        client.create_repository(registryId=AWS_ACCOUNT_ID, repositoryName=name)
+    except client.exceptions.RepositoryAlreadyExistsException:
+        pass
+
 def create_role(role):
     client = boto3.client('iam')
     try:
@@ -129,12 +136,10 @@ def deploy_lambdafn_from_ecr(repo, tag, lambdafn, policies, env):
     attach_policies_to_role(role, policies)
     publish_function(role, repo, tag, lambdafn, env)
 
-def create_ecr_repo(name):
-    client = boto3.client('ecr')
-    try:
-        client.create_repository(registryId=AWS_ACCOUNT_ID, repositoryName=name)
-    except client.exceptions.RepositoryAlreadyExistsException:
-        pass
+def invoke_lambdafn(lambdafn, payload):
+    client = boto3.client('lambda')
+    response = client.invoke(FunctionName=lambdafn, LogType='Tail', Payload=payload)
+    print(response)
 
 def parse_args():
     parser = argparse.ArgumentParser()
@@ -170,6 +175,15 @@ def parse_args():
             default='{"IS_LAMBDA":"true"}', help='Environment Variable Mapping'\
                 'to be configured for the deployed Lambda function')
 
+    parser_invoke_lambdafn = subparser.add_parser('invoke_lambdafn',
+            help='Invoke Lambda function')
+    parser_invoke_lambdafn.add_argument('-f', '--function_name',
+            metavar='<Lambda function name>', type=str, required=True,
+            help='Name of the Lambda function to be invoked')
+    parser_invoke_lambdafn.add_argument('-p', '--payload',
+            metavar='<Invocation payload>', type=str, default='{}',
+            help='JSON event trigger for Lambda function')
+
     return parser.parse_args()
 
 if __name__ == '__main__':
@@ -182,3 +196,6 @@ if __name__ == '__main__':
         deploy_lambdafn_from_ecr(repo=args.repo_name, tag=args.repo_tag,
                 lambdafn=args.function_name, policies=args.policies,
                 env=json.loads(args.envmap))
+
+    if args.action == 'invoke_lambdafn':
+        invoke_lambdafn(lambdafn=args.function_name, payload=args.payload)
