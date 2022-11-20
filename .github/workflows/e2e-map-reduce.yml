@@ -222,7 +222,10 @@ jobs:
 
       - name: Deploy functions from ECR container
         working-directory: runner/aws_lambda_scripts
-        run: python aws_actions.py deploy_lambdafn_from_ecr -n mapreduce-driver-lambda -f mapreduce-driver -p invoke_function -e '{"NUM_MAPPERS":"8","NUM_REDUCERS":"2","IS_LAMBDA":"true"}'
+        run: |
+          python aws_actions.py deploy_lambdafn_from_ecr -n mapreduce-driver-lambda -f mapreduce-driver -p invoke_function -e '{"NUM_MAPPERS":"8","NUM_REDUCERS":"2","IS_LAMBDA":"true"}'
+          python aws_actions.py deploy_lambdafn_from_ecr -n mapreduce-mapper-lambda -f mapreduce-mapper -p access_s3
+          python aws_actions.py deploy_lambdafn_from_ecr -n mapreduce-reducer-lambda -f mapreduce-reducer -p access_s3
 
       - name: Invoking Driver
         env:
