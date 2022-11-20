@@ -76,38 +76,45 @@ jobs:
       with:
         version: '2'
 
+    - name: Set up Python Dependencies for AWS Jobs
+      working-directory: runner/aws_lambda_scripts
+      run: |
+        python3 -m pip install --upgrade pip
+        python3 -m pip install wheel ez_setup setuptools
+        python3 -m pip install -r requirements.txt
+
     - name: Build and Push
       working-directory: benchmarks/map-reduce
       env:
         GOPRIVATE_KEY: ${{ secrets.VHIVE_SERVERLESS_ACCESS_KEY }}
-      run: make all-image-push
+      run: make all-push
 
-    - name: Push Driver Image to AWS ECR
-      env:
-        REPO_NAME: 'mapreduce-driver-lambda'
-        REPO_TAG: 'latest'
-        DOCKERFILE: ./benchmarks/map-reduce/docker/Dockerfile.Lambda
-        BUILD_ARG: target_arg=driver
-        WORKDIR_SET: 'set'
-      run: ./runner/aws_lambda_scripts/build_push_ecr.sh
-
-    - name: Push Mapper Image to AWS ECR
-      env:
-        REPO_NAME: 'mapreduce-mapper-lambda'
-        REPO_TAG: 'latest'
-        DOCKERFILE: ./benchmarks/map-reduce/docker/Dockerfile.Lambda
-        BUILD_ARG: target_arg=mapper
-        WORKDIR_SET: 'set'
-      run: ./runner/aws_lambda_scripts/build_push_ecr.sh
-
-    - name: Push Reducer Image to AWS ECR
-      env:
-        REPO_NAME: 'mapreduce-reducer-lambda'
-        REPO_TAG: 'latest'
-        DOCKERFILE: ./benchmarks/map-reduce/docker/Dockerfile.Lambda
-        BUILD_ARG: target_arg=reducer
-        WORKDIR_SET: 'set'
-      run: ./runner/aws_lambda_scripts/build_push_ecr.sh
+    # - name: Push Driver Image to AWS ECR
+    #   env:
+    #     REPO_NAME: 'mapreduce-driver-lambda'
+    #     REPO_TAG: 'latest'
+    #     DOCKERFILE: ./benchmarks/map-reduce/docker/Dockerfile.Lambda
+    #     BUILD_ARG: target_arg=driver
+    #     WORKDIR_SET: 'set'
+    #   run: ./runner/aws_lambda_scripts/build_push_ecr.sh
+    #
+    # - name: Push Mapper Image to AWS ECR
+    #   env:
+    #     REPO_NAME: 'mapreduce-mapper-lambda'
+    #     REPO_TAG: 'latest'
+    #     DOCKERFILE: ./benchmarks/map-reduce/docker/Dockerfile.Lambda
+    #     BUILD_ARG: target_arg=mapper
+    #     WORKDIR_SET: 'set'
+    #   run: ./runner/aws_lambda_scripts/build_push_ecr.sh
+    #
+    # - name: Push Reducer Image to AWS ECR
+    #   env:
+    #     REPO_NAME: 'mapreduce-reducer-lambda'
+    #     REPO_TAG: 'latest'
+    #     DOCKERFILE: ./benchmarks/map-reduce/docker/Dockerfile.Lambda
+    #     BUILD_ARG: target_arg=reducer
+    #     WORKDIR_SET: 'set'
+    #   run: ./runner/aws_lambda_scripts/build_push_ecr.sh
 
   test-compose:
     name: Test Docker Compose
