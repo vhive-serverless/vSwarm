@@ -89,33 +89,6 @@ jobs:
         GOPRIVATE_KEY: ${{ secrets.VHIVE_SERVERLESS_ACCESS_KEY }}
       run: make all-push
 
-    # - name: Push Driver Image to AWS ECR
-    #   env:
-    #     REPO_NAME: 'mapreduce-driver-lambda'
-    #     REPO_TAG: 'latest'
-    #     DOCKERFILE: ./benchmarks/map-reduce/docker/Dockerfile.Lambda
-    #     BUILD_ARG: target_arg=driver
-    #     WORKDIR_SET: 'set'
-    #   run: ./runner/aws_lambda_scripts/build_push_ecr.sh
-    #
-    # - name: Push Mapper Image to AWS ECR
-    #   env:
-    #     REPO_NAME: 'mapreduce-mapper-lambda'
-    #     REPO_TAG: 'latest'
-    #     DOCKERFILE: ./benchmarks/map-reduce/docker/Dockerfile.Lambda
-    #     BUILD_ARG: target_arg=mapper
-    #     WORKDIR_SET: 'set'
-    #   run: ./runner/aws_lambda_scripts/build_push_ecr.sh
-    #
-    # - name: Push Reducer Image to AWS ECR
-    #   env:
-    #     REPO_NAME: 'mapreduce-reducer-lambda'
-    #     REPO_TAG: 'latest'
-    #     DOCKERFILE: ./benchmarks/map-reduce/docker/Dockerfile.Lambda
-    #     BUILD_ARG: target_arg=reducer
-    #     WORKDIR_SET: 'set'
-    #   run: ./runner/aws_lambda_scripts/build_push_ecr.sh
-
   test-compose:
     name: Test Docker Compose
     needs: build-and-push
@@ -240,38 +213,16 @@ jobs:
         with:
           lfs: 'true'
 
-      - name: Deploy Driver function from ECR container
-        env:
-          ECR_REPO_NAME: 'mapreduce-driver-lambda'
-          ECR_REPO_TAG: 'latest'
-          LAMBDA_FUNCTION_NAME: mapreduce-driver
-          ENVIRONMENT_VARIABLE_MAP: '{NUM_MAPPERS="8",NUM_REDUCERS="2",IS_LAMBDA="true"}'
-          POLICY_FILES: ./runner/aws_lambda_scripts/aws_lambda_policies/invoke_function.json
-          TRUST_FILE: ./runner/aws_lambda_scripts/aws_lambda_policies/trust.json
-          WORKDIR_SET: 'set'
-        run: ./runner/aws_lambda_scripts/deploy_lambda_ecr.sh
+      - name: Set up Python Dependencies for AWS Jobs
+        working-directory: runner/aws_lambda_scripts
+        run: |
+          python3 -m pip install --upgrade pip
+          python3 -m pip install wheel ez_setup setuptools
+          python3 -m pip install -r requirements.txt
 
-      - name: Deploy Mapper function from ECR container
-        env:
-          ECR_REPO_NAME: 'mapreduce-mapper-lambda'
-          ECR_REPO_TAG: 'latest'
-          LAMBDA_FUNCTION_NAME: mapreduce-mapper
-          ENVIRONMENT_VARIABLE_MAP: '{IS_LAMBDA="true"}'
-          POLICY_FILES: ./runner/aws_lambda_scripts/aws_lambda_policies/access_s3.json
-          TRUST_FILE: ./runner/aws_lambda_scripts/aws_lambda_policies/trust.json
-          WORKDIR_SET: 'set'
-        run: ./runner/aws_lambda_scripts/deploy_lambda_ecr.sh
-
-      - name: Deploy Reducer function from ECR container
-        env:
-          ECR_REPO_NAME: 'mapreduce-reducer-lambda'
-          ECR_REPO_TAG: 'latest'
-          LAMBDA_FUNCTION_NAME: mapreduce-reducer
-          ENVIRONMENT_VARIABLE_MAP: '{IS_LAMBDA="true"}'
-          POLICY_FILES: ./runner/aws_lambda_scripts/aws_lambda_policies/access_s3.json
-          TRUST_FILE: ./runner/aws_lambda_scripts/aws_lambda_policies/trust.json
-          WORKDIR_SET: 'set'
-        run: ./runner/aws_lambda_scripts/deploy_lambda_ecr.sh
+      - name: Deploy functions from ECR container
+        working-directory: runner/aws_lambda_scripts
+        run: python aws_actions.py deploy_lambdafn_from_ecr -n mapreduce-driver-lambda -f mapreduce-driver -p invoke_function -e '{"NUM_MAPPERS":"8","NUM_REDUCERS":"2","IS_LAMBDA":"true"}'
 
       - name: Invoking Driver
         env:
