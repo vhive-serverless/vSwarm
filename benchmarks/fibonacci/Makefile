@@ -32,26 +32,26 @@ all: all_image
 
 all_image: $(ALL_IMAGES)
 
-fibonacci-python-image:  Dockerfile python/server.py
+fibonacci-python-image:  docker/Dockerfile python/server.py
 	DOCKER_BUILDKIT=1 docker build \
 	--tag $(DOCKER_HUB_ACCOUNT)/fibonacci-python:latest \
 	--target fibonacciPython \
-	-f ./Dockerfile \
+	-f ./docker/Dockerfile \
 	$(ROOT)
 
 
-fibonacci-nodejs-image: Dockerfile nodejs/server.js
+fibonacci-nodejs-image: docker/Dockerfile nodejs/server.js
 	DOCKER_BUILDKIT=1 docker build \
 	--tag $(DOCKER_HUB_ACCOUNT)/fibonacci-nodejs:latest \
 	--target fibonacciNodeJS \
-	-f ./Dockerfile \
+	-f ./docker/Dockerfile \
 	$(ROOT)
 
-fibonacci-go-image: Dockerfile go/server.go
+fibonacci-go-image: docker/Dockerfile go/server.go
 	DOCKER_BUILDKIT=1 docker build \
 	--tag $(DOCKER_HUB_ACCOUNT)/fibonacci-go:latest \
 	--target fibonacciGo \
-	-f ./Dockerfile \
+	-f ./docker/Dockerfile \
 	$(ROOT)
 
 
