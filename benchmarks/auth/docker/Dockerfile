@@ -51,8 +51,8 @@ WORKDIR /app/app/
 RUN apt-get install git ca-certificates
 
 COPY ./utils/tracing/go ../../utils/tracing/go
-COPY ./benchmarks/auth/go.mod ./
-COPY ./benchmarks/auth/go.sum ./
+COPY ./benchmarks/auth/go/go.mod ./
+COPY ./benchmarks/auth/go/go.sum ./
 COPY ./benchmarks/auth/go/server.go ./
 
 RUN go mod tidy

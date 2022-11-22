@@ -89,7 +89,7 @@ jobs:
         uses: docker/build-push-action@v3
         with:
           push: true
-          file: benchmarks/auth/Dockerfile
+          file: benchmarks/auth/docker/Dockerfile
           platforms: ${{ env.PLATFORMS }}
           target: ${{ matrix.target }}
           tags: vhiveease/${{ matrix.service }}:latest
