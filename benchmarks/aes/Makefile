@@ -34,27 +34,27 @@ all: all_image
 all_image: $(ALL_IMAGES)
 
 
-aes-python-image: Dockerfile python/server.py
+aes-python-image: docker/Dockerfile python/server.py
 	DOCKER_BUILDKIT=1 docker buildx build \
 	--tag vhiveease/aes-python:latest \
 	--target aesPython \
-	-f Dockerfile \
+	-f docker/Dockerfile \
 	$(ROOT)
 
 
-aes-nodejs-image: Dockerfile nodejs/server.js
+aes-nodejs-image: docker/Dockerfile nodejs/server.js
 	DOCKER_BUILDKIT=1 docker buildx build --progress=plain \
 	--tag vhiveease/aes-nodejs:latest \
 	--target aesNodeJS \
-	-f Dockerfile \
+	-f docker/Dockerfile \
 	$(ROOT)
 
 
-aes-go-image: Dockerfile go/server.go
+aes-go-image: docker/Dockerfile go/server.go
 	DOCKER_BUILDKIT=1 docker buildx build \
 	--tag vhiveease/aes-go:latest \
 	--target aesGo \
-	-f Dockerfile \
+	-f docker/Dockerfile \
 	$(ROOT)
 
 
