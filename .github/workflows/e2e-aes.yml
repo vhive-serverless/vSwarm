@@ -90,7 +90,7 @@ jobs:
         uses: docker/build-push-action@v3
         with:
           push: true
-          file: benchmarks/aes/Dockerfile
+          file: benchmarks/aes/docker/Dockerfile
           platforms: ${{ env.PLATFORMS }}
           target: ${{ matrix.target }}
           tags: vhiveease/${{ matrix.service }}:latest
