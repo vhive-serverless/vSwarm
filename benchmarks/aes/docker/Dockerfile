@@ -50,8 +50,8 @@ WORKDIR /app/app/
 RUN apt-get install git ca-certificates
 
 COPY ./utils/tracing/go ../../utils/tracing/go
-COPY ./benchmarks/aes/go.mod ./
-COPY ./benchmarks/aes/go.sum ./
+COPY ./benchmarks/aes/go/go.mod ./
+COPY ./benchmarks/aes/go/go.sum ./
 COPY ./benchmarks/aes/go/server.go ./
 
 RUN go mod tidy
