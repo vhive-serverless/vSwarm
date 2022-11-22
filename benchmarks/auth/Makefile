@@ -12,27 +12,27 @@ all_image: $(ALL_IMAGES)
 
 
 
-auth-python-image: Dockerfile python/server.py
+auth-python-image: docker/Dockerfile python/server.py
 	DOCKER_BUILDKIT=1 docker build \
 	--tag $(DOCKER_HUB_ACCOUNT)/auth-python:latest \
 	--target authPython \
-	-f Dockerfile \
+	-f docker/Dockerfile \
 	$(ROOT)
 
 
-auth-nodejs-image: Dockerfile nodejs/server.js
+auth-nodejs-image: docker/Dockerfile nodejs/server.js
 	DOCKER_BUILDKIT=1 docker build \
 	--tag $(DOCKER_HUB_ACCOUNT)/auth-nodejs:latest \
 	--target authNodeJS \
-	-f Dockerfile \
+	-f docker/Dockerfile \
 	$(ROOT)
 
 
-auth-go-image: Dockerfile go/server.go
+auth-go-image: docker/Dockerfile go/server.go
 	DOCKER_BUILDKIT=1 docker build \
 	--tag $(DOCKER_HUB_ACCOUNT)/auth-go:latest \
 	--target authGo \
-	-f Dockerfile \
+	-f docker/Dockerfile \
 	$(ROOT)
 
 
