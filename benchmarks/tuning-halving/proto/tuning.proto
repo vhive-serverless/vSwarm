@@ -23,11 +23,11 @@
 syntax = "proto3";
 
 option java_multiple_files = true;
-option java_package = "com.vhive.stacking";
-option java_outer_classname = "stacking";
-option go_package = "tests/stacking-training/proto";
+option java_package = "com.vhive.tuning";
+option java_outer_classname = "tuning";
+option go_package = "tests/tuning-halving/proto";
 
-package stacking;
+package tuning;
 
 service Trainer {
     rpc Train(TrainRequest) returns (TrainReply) {}
