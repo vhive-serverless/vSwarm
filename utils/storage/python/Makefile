@@ -20,9 +20,15 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-test:
-	TRANSFER_TYPE=S3
+test: test_elacticache test_s3
+
+test_s3: export TRANSFER_TYPE=S3
+test_s3:
 	python3 -m unittest storage_test.MyTest.test_s3
+
+test_elacticache: export TRANSFER_TYPE=ELASTICACHE
+test_elacticache:
+	python3 -m unittest storage_test.MyTest.test_elasticache
 
 test-man:
 	echo "Nothing to test manually"

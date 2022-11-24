@@ -77,7 +77,7 @@ class Storage:
             else:
                 response = s3obj.put(Body=obj, Metadata=metadata)
         elif TRANSFER == 'ELASTICACHE':
-            elasticache_client.set(key, obj)
+            self.elasticache_client.set(key, obj)
         elif TRANSFER == 'XDT':
             key = self.XDTclient.Put(payload=obj)
 
@@ -91,7 +91,7 @@ class Storage:
             response = s3obj.get()
             return response['Body'].read()
         elif TRANSFER == 'ELASTICACHE':
-            response = elasticache_client.get(key)
-            return response['Body'].read()
+            response = self.elasticache_client.get(key)
+            return response
         elif TRANSFER == 'XDT':
             return XDTdst.Get(key, self.XDTconfig)

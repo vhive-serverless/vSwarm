@@ -54,6 +54,12 @@ jobs:
       with:
         python-version: '3.9.x'
 
+    - name: Set up redis
+      run: |
+        sudo apt update -y
+        sudo apt install redis
+        sudo systemctl start redis
+
     - name: Check out code into the Go module directory
       uses: actions/checkout@v3
 
