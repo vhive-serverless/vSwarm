@@ -28,9 +28,9 @@ replace github.com/vhive-serverless/vSwarm/utils/tracing/go => ../../utils/traci
 
 require (
 	github.com/sirupsen/logrus v1.9.0
-	github.com/vhive-serverless/vSwarm-proto v0.3.0
-	github.com/vhive-serverless/vSwarm/utils/tracing/go v0.0.0-00010101000000-000000000000
-	google.golang.org/grpc v1.49.0
+	github.com/vhive-serverless/vSwarm-proto v0.4.0
+	github.com/vhive-serverless/vSwarm/utils/tracing/go v0.0.0-20221008101717-930188b36b99
+	google.golang.org/grpc v1.50.0
 )
 
 require (
@@ -48,5 +48,5 @@ require (
 	golang.org/x/sys v0.0.0-20220722155257-8c9f86f7a55f // indirect
 	golang.org/x/text v0.3.7 // indirect
 	google.golang.org/genproto v0.0.0-20220722212130-b98a9ff5e252 // indirect
-	google.golang.org/protobuf v1.28.0 // indirect
+	google.golang.org/protobuf v1.28.1 // indirect
 )
