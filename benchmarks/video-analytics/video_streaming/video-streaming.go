@@ -38,9 +38,9 @@ import (
 
 	pb_video "tests/video_analytics/proto"
 
-	pb_helloworld "github.com/vhive-serverless/vSwarm/examples/protobuf/helloworld"
 	sdk "github.com/ease-lab/vhive-xdt/sdk/golang"
 	"github.com/ease-lab/vhive-xdt/utils"
+	pb_helloworld "github.com/vhive-serverless/vSwarm/examples/protobuf/helloworld"
 
 	storage "github.com/vhive-serverless/vSwarm/utils/storage/go"
 	tracing "github.com/vhive-serverless/vSwarm/utils/tracing/go"
@@ -59,11 +59,12 @@ const (
 )
 
 type server struct {
-	decoderAddr  string
-	decoderPort  int
-	transferType string
-	config       utils.Config
-	XDTclient    *sdk.XDTclient
+	decoderAddr    string
+	decoderPort    int
+	transferType   string
+	config         utils.Config
+	XDTclient      *sdk.XDTclient
+	storageBackend storage.Storage
 	pb_helloworld.UnimplementedGreeterServer
 }
 
@@ -84,7 +85,7 @@ func fetchSelfIP() string {
 	return ""
 }
 
-func uploadToS3(ctx context.Context) {
+func uploadToS3(ctx context.Context, storageBackend storage.Storage) {
 	if tracing.IsTracingEnabled() {
 		span := tracing.Span{SpanName: "Video upload", TracerName: "S3 video upload - tracer"}
 		span.StartSpan(ctx)
@@ -94,7 +95,7 @@ func uploadToS3(ctx context.Context) {
 	if err != nil {
 		log.Fatalf("[Video Streaming] Failed to open file: %s", err)
 	}
-	storage.PutFile("streaming-video.mp4", file)
+	storageBackend.PutFile("streaming-video.mp4", file)
 	log.Infof("[Video Streaming] Uploaded video to s3")
 }
 
@@ -135,7 +136,7 @@ func (s *server) SayHello(ctx context.Context, req *pb_helloworld.HelloRequest) 
 		client := pb_video.NewVideoDecoderClient(conn)
 		if s.transferType == S3 {
 			// upload video to s3
-			uploadToS3(ctx)
+			uploadToS3(ctx, s.storageBackend)
 			// issue request
 			reply, err = client.Decode(ctx, &pb_video.DecodeRequest{S3Key: "streaming-video.mp4"})
 		} else {
@@ -213,7 +214,8 @@ func main() {
 			AWS_S3_BUCKET = value
 		}
 		log.Infof("[streaming]  BUCKET = %s", AWS_S3_BUCKET)
-		storage.InitStorage("S3", AWS_S3_BUCKET)
+		storageBackend := storage.New("S3", AWS_S3_BUCKET)
+		server.storageBackend = storageBackend
 	} else if server.transferType == XDT {
 		log.Infof("[streaming] TransferType = %s", server.transferType)
 		config := utils.ReadConfig()

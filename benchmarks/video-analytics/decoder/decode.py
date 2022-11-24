@@ -22,6 +22,7 @@
 
 from __future__ import print_function
 
+import pickle
 import sys
 import os
 # adding python tracing and storage sources to the system path
