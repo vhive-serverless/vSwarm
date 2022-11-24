@@ -22,7 +22,14 @@
 
 EXTRAGOARGS:=-v -race -cover
 
-test:
+test: test_elasticache test_s3
+
+test_elasticache:
+	# Need to pass GOROOT because GitHub-hosted runners may have several
+	# go versions installed so that calling go from root may fail
+	sudo env "PATH=$(PATH)" "GOROOT=$(GOROOT)" "AWS_ACCESS_KEY=$(AWS_ACCESS_KEY)" "AWS_SECRET_KEY=$(AWS_SECRET_KEY)" go test '-run=^TestElasticache' $(EXTRAGOARGS)
+
+test_s3:
 	# Need to pass GOROOT because GitHub-hosted runners may have several
 	# go versions installed so that calling go from root may fail
 	sudo env "PATH=$(PATH)" "GOROOT=$(GOROOT)" "AWS_ACCESS_KEY=$(AWS_ACCESS_KEY)" "AWS_SECRET_KEY=$(AWS_SECRET_KEY)" go test '-run=^TestS3' $(EXTRAGOARGS)
