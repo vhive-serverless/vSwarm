@@ -24,17 +24,14 @@ package main
 
 import (
 	"context"
+	"errors"
 	"flag"
 	"fmt"
+	storage "github.com/vhive-serverless/vSwarm/utils/storage/go"
 	"io"
 	"net"
 	"os"
 	"strconv"
-
-	"github.com/aws/aws-sdk-go/aws"
-	"github.com/aws/aws-sdk-go/aws/credentials"
-	"github.com/aws/aws-sdk-go/aws/session"
-	"github.com/aws/aws-sdk-go/service/s3"
 
 	ctrdlog "github.com/containerd/containerd/log"
 	log "github.com/sirupsen/logrus"
@@ -50,75 +47,35 @@ import (
 )
 
 const (
-	INLINE        = "INLINE"
-	XDT           = "XDT"
-	S3            = "S3"
-	AWS_S3_BUCKET = "vhive-prodcon-bench"
-	TOKEN         = ""
-)
-
-var (
-	AKID          string
-	SECRET_KEY    string
-	AWS_S3_REGION string
-	S3_SVC        *s3.S3
+	INLINE      = "INLINE"
+	XDT         = "XDT"
+	S3          = "S3"
+	ELASTICACHE = "ELASTICACHE"
 )
 
 type consumerServer struct {
-	transferType string
-	XDTconfig    utils.Config
+	transferType   string
+	XDTconfig      utils.Config
+	storageBackend storage.Storage
 	pb.UnimplementedProducerConsumerServer
 }
 
 type ubenchServer struct {
-	transferType string
-	XDTconfig    utils.Config
+	transferType   string
+	XDTconfig      utils.Config
+	storageBackend storage.Storage
 	pb_client.UnimplementedProdConDriverServer
 }
 
-func setAWSCredentials() {
-	awsAccessKey, ok := os.LookupEnv("AWS_ACCESS_KEY")
-	if ok {
-		AKID = awsAccessKey
-	}
-	awsSecretKey, ok := os.LookupEnv("AWS_SECRET_KEY")
-	if ok {
-		SECRET_KEY = awsSecretKey
-	}
-	AWS_S3_REGION = "us-west-1"
-	awsRegion, ok := os.LookupEnv("AWS_REGION")
-	if ok {
-		AWS_S3_REGION = awsRegion
-	}
-	fmt.Printf("USING AWS ID: %v", AKID)
-	sessionInstance, err := session.NewSession(&aws.Config{
-		Region:      aws.String(AWS_S3_REGION),
-		Credentials: credentials.NewStaticCredentials(AKID, SECRET_KEY, TOKEN),
-	})
-	if err != nil {
-		log.Fatalf("[consumer] Failed establish s3 session: %s", err)
-	}
-	S3_SVC = s3.New(sessionInstance)
-}
-
-func fetchFromS3(ctx context.Context, key string) (int, error) {
+func fetchFromStorage(ctx context.Context, key string, storageBackend storage.Storage) (int, error) {
 	span := tracing.Span{SpanName: "S3 get", TracerName: "S3 get - tracer"}
 	span.StartSpan(ctx)
 	defer span.EndSpan()
 	log.Infof("[consumer] Fetching %s from S3", key)
-	object, err := S3_SVC.GetObject(&s3.GetObjectInput{
-		Bucket: aws.String(AWS_S3_BUCKET),
-		Key:    aws.String(key),
-	})
-	if err != nil {
-		log.Errorf("Object %q not found in S3 bucket %q: %s", key, AWS_S3_BUCKET, err.Error())
-		return 0, err
-	}
-
-	payload, err := io.ReadAll(object.Body)
-	if err != nil {
-		log.Infof("Error reading object body: %v", err)
-		return 0, err
+	payload := storageBackend.Get(ctx, key)
+	if payload == nil {
+		log.Infof("Received nil object body")
+		return 0, errors.New("nil Object Received")
 	}
 
 	return len(payload), nil
@@ -133,8 +90,8 @@ func (s *consumerServer) ConsumeByte(ctx context.Context, str *pb.ConsumeByteReq
 		defer span1.EndSpan()
 		defer span2.EndSpan()
 	}
-	if s.transferType == S3 {
-		payloadSize, err := fetchFromS3(ctx, string(str.Value))
+	if s.transferType == S3 || s.transferType == ELASTICACHE {
+		payloadSize, err := fetchFromStorage(ctx, string(str.Value), s.storageBackend)
 		if err != nil {
 			return &pb.ConsumeByteReply{Value: false}, err
 		} else {
@@ -196,8 +153,13 @@ func main() {
 		transferType = "INLINE"
 	}
 
-	if transferType == S3 {
-		setAWSCredentials()
+	var storageBackend storage.Storage
+	if transferType == S3 || transferType == ELASTICACHE {
+		bucketName, ok := os.LookupEnv("BUCKET_NAME")
+		if !ok {
+			bucketName = "vhive-prodcon-bench"
+		}
+		storageBackend = storage.New(transferType, bucketName)
 	}
 
 	var fanIn = false
@@ -234,9 +196,9 @@ func main() {
 		} else {
 			grpcServer = grpc.NewServer()
 		}
-		cs := consumerServer{transferType: transferType, XDTconfig: utils.ReadConfig()}
+		cs := consumerServer{transferType: transferType, XDTconfig: utils.ReadConfig(), storageBackend: storageBackend}
 		pb.RegisterProducerConsumerServer(grpcServer, &cs)
-		us := ubenchServer{transferType: transferType, XDTconfig: utils.ReadConfig()}
+		us := ubenchServer{transferType: transferType, XDTconfig: utils.ReadConfig(), storageBackend: storageBackend}
 		pb_client.RegisterProdConDriverServer(grpcServer, &us)
 
 		if err := grpcServer.Serve(lis); err != nil {

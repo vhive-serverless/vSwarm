@@ -77,7 +77,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        file: [docker-compose.yml, fanin-basic.yml, fanout-basic.yml]
+        file: [docker-compose.yml, fanin-basic.yml, fanout-basic.yml, docker-compose-elasticache.yml]
         include:
           - file: docker-compose.yml
             port: 3031

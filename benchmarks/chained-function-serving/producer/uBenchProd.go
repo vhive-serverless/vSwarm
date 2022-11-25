@@ -51,8 +51,8 @@ func (s *ubenchServer) Benchmark(ctx context.Context, benchType *pb_client.Bench
 }
 
 func (s *ubenchServer) putData(ctx context.Context) (pb_client.BenchResponse, error) {
-	if s.transferType == S3 {
-		key := uploadToS3(ctx, s.payloadData, s.randomStr)
+	if s.transferType == S3 || s.transferType == ELASTICACHE {
+		key := uploadToStorage(ctx, s.payloadData, s.randomStr, s.storageBackend)
 		log.Printf("[producer] S3 push complete")
 		return pb_client.BenchResponse{Capability: key, Ok: true}, nil
 
@@ -69,15 +69,15 @@ func (s *ubenchServer) putData(ctx context.Context) (pb_client.BenchResponse, er
 
 func (s *ubenchServer) fanOut(ctx context.Context, fanAmount int64, addr string) pb_client.BenchResponse {
 	errorChannel := make(chan error, fanAmount)
-	if s.transferType == INLINE || s.transferType == S3 {
+	if s.transferType == INLINE || s.transferType == S3 || s.transferType == ELASTICACHE {
 		client, conn := getGRPCclient(addr)
 		defer conn.Close()
 		payloadToSend := s.payloadData
 
 		for i := int64(0); i < fanAmount; i++ {
 			go func(threadNumber int64) {
-				if s.transferType == S3 {
-					key := uploadToS3(ctx, s.payloadData, fmt.Sprintf("%s-%d", s.randomStr, threadNumber))
+				if s.transferType == S3 || s.transferType == ELASTICACHE {
+					key := uploadToStorage(ctx, s.payloadData, fmt.Sprintf("%s-%d", s.randomStr, threadNumber), s.storageBackend)
 					payloadToSend = []byte(key)
 				}
 				ack, err := client.ConsumeByte(ctx, &pb_client.ConsumeByteRequest{Value: payloadToSend})
@@ -121,11 +121,11 @@ func (s *ubenchServer) broadcast(ctx context.Context, fanAmount int64, addr stri
 	errorChannel := make(chan error, fanAmount)
 	client, conn := getGRPCclient(addr)
 	defer conn.Close()
-	if s.transferType == INLINE || s.transferType == S3 {
+	if s.transferType == INLINE || s.transferType == S3 || s.transferType == ELASTICACHE {
 		payloadToSend := s.payloadData
 
-		if s.transferType == S3 {
-			key := uploadToS3(ctx, s.payloadData, s.randomStr)
+		if s.transferType == S3 || s.transferType == ELASTICACHE {
+			key := uploadToStorage(ctx, s.payloadData, s.randomStr, s.storageBackend)
 			payloadToSend = []byte(key)
 		}
 
