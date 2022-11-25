@@ -23,19 +23,15 @@
 package main
 
 import (
-	"bytes"
 	"context"
 	"flag"
 	"fmt"
+	storage "github.com/vhive-serverless/vSwarm/utils/storage/go"
 	"math/rand"
 	"net"
 	"os"
 	"strconv"
 
-	"github.com/aws/aws-sdk-go/aws"
-	"github.com/aws/aws-sdk-go/aws/credentials"
-	"github.com/aws/aws-sdk-go/aws/session"
-	"github.com/aws/aws-sdk-go/service/s3/s3manager"
 	sdk "github.com/ease-lab/vhive-xdt/sdk/golang"
 	"github.com/ease-lab/vhive-xdt/utils"
 	"google.golang.org/grpc/credentials/insecure"
@@ -53,86 +49,42 @@ import (
 )
 
 type producerServer struct {
-	consumerAddr string
-	consumerPort int
-	payloadData  []byte
-	XDTclient    *sdk.XDTclient
-	transferType string
-	randomStr    string
+	consumerAddr   string
+	consumerPort   int
+	payloadData    []byte
+	XDTclient      *sdk.XDTclient
+	transferType   string
+	randomStr      string
+	storageBackend storage.Storage
 	pb.UnimplementedGreeterServer
 }
 
 type ubenchServer struct {
-	consumerAddr string
-	consumerPort int
-	transferType string
-	payloadData  []byte
-	XDTclient    *sdk.XDTclient
-	randomStr    string
+	consumerAddr   string
+	consumerPort   int
+	transferType   string
+	payloadData    []byte
+	XDTclient      *sdk.XDTclient
+	randomStr      string
+	storageBackend storage.Storage
 	pb_client.UnimplementedProdConDriverServer
 }
 
 const (
-	INLINE        = "INLINE"
-	XDT           = "XDT"
-	S3            = "S3"
-	AWS_S3_BUCKET = "vhive-prodcon-bench"
-	TOKEN         = ""
+	INLINE      = "INLINE"
+	XDT         = "XDT"
+	S3          = "S3"
+	ELASTICACHE = "ELASTICACHE"
 )
 
-var (
-	AKID          string
-	SECRET_KEY    string
-	AWS_S3_REGION string
-	S3_SESSION    *session.Session
-)
-
-func setAWSCredentials() {
-	awsAccessKey, ok := os.LookupEnv("AWS_ACCESS_KEY")
-	if ok {
-		AKID = awsAccessKey
-	}
-	awsSecretKey, ok := os.LookupEnv("AWS_SECRET_KEY")
-	if ok {
-		SECRET_KEY = awsSecretKey
-	}
-	AWS_S3_REGION = "us-west-1"
-	awsRegion, ok := os.LookupEnv("AWS_REGION")
-	if ok {
-		AWS_S3_REGION = awsRegion
-	}
-	var err error
-	S3_SESSION, err = session.NewSession(&aws.Config{
-		Region:      aws.String(AWS_S3_REGION),
-		Credentials: credentials.NewStaticCredentials(AKID, SECRET_KEY, TOKEN),
-	})
-	if err != nil {
-		log.Fatalf("[consumer] Failed establish s3 session: %s", err)
-	}
-	fmt.Printf("USING AWS ID: %v", AKID)
-}
-
-func uploadToS3(ctx context.Context, payloadData []byte, randomStr string) string {
-	span := tracing.Span{SpanName: "S3 put", TracerName: "S3 put - tracer"}
+func uploadToStorage(ctx context.Context, payloadData []byte, randomStr string, storageBackend storage.Storage) string {
+	span := tracing.Span{SpanName: "Storage put", TracerName: "Storage put - tracer"}
 	span.StartSpan(ctx)
 	defer span.EndSpan()
 
-	s3uploader := s3manager.NewUploader(S3_SESSION)
-
 	key := fmt.Sprintf("payload_bytes_%s.txt", randomStr)
-	uploadOutput, err := s3uploader.Upload(&s3manager.UploadInput{
-		Bucket: aws.String(AWS_S3_BUCKET),
-		Key:    aws.String(key),
-		Body:   bytes.NewReader(payloadData),
-	})
-	if err != nil {
-		log.Fatalf("Unable to upload %q to %q, %v", key, AWS_S3_BUCKET, err.Error())
-	}
-
-	log.Infof("[producer] Successfully uploaded %q to bucket %q (%s)", key, AWS_S3_BUCKET, uploadOutput.Location)
-	if err != nil {
-		log.Fatalf("[producer] Failed to upload bytes to s3: %s", err)
-	}
+	key = storageBackend.Put(ctx, key, payloadData)
+	log.Infof("[producer] Successfully uploaded %q", key)
 	return key
 }
 func getGRPCclient(addr string) (pb_client.ProducerConsumerClient, *grpc.ClientConn) {
@@ -152,12 +104,12 @@ func getGRPCclient(addr string) (pb_client.ProducerConsumerClient, *grpc.ClientC
 
 func (ps *producerServer) SayHello(ctx context.Context, req *pb.HelloRequest) (_ *pb.HelloReply, err error) {
 	addr := fmt.Sprintf("%v:%v", ps.consumerAddr, ps.consumerPort)
-	if ps.transferType == INLINE || ps.transferType == S3 {
+	if ps.transferType == INLINE || ps.transferType == S3 || ps.transferType == ELASTICACHE {
 		client, conn := getGRPCclient(addr)
 		defer conn.Close()
 		payloadToSend := ps.payloadData
-		if ps.transferType == S3 {
-			payloadToSend = []byte(uploadToS3(ctx, ps.payloadData, ps.randomStr))
+		if ps.transferType == S3 || ps.transferType == ELASTICACHE {
+			payloadToSend = []byte(uploadToStorage(ctx, ps.payloadData, ps.randomStr, ps.storageBackend))
 		}
 		ack, err := client.ConsumeByte(ctx, &pb_client.ConsumeByteRequest{Value: payloadToSend})
 		if err != nil {
@@ -254,9 +206,17 @@ func main() {
 		}
 
 		ps.XDTclient = xdtClient
+
 		us.XDTclient = xdtClient
-	} else if transferType == S3 {
-		setAWSCredentials()
+	} else if transferType == S3 || transferType == ELASTICACHE {
+
+		bucketName, ok := os.LookupEnv("BUCKET_NAME")
+		if !ok {
+			bucketName = "vhive-prodcon-bench"
+		}
+		storageBackend := storage.New(transferType, bucketName)
+		us.storageBackend = storageBackend
+		ps.storageBackend = storageBackend
 	}
 	pb.RegisterGreeterServer(grpcServer, &ps)
 	pb_client.RegisterProdConDriverServer(grpcServer, &us)

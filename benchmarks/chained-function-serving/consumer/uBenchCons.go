@@ -24,9 +24,9 @@ package main
 
 import (
 	"context"
-	tracing "github.com/vhive-serverless/vSwarm/utils/tracing/go"
 	sdk "github.com/ease-lab/vhive-xdt/sdk/golang"
 	log "github.com/sirupsen/logrus"
+	tracing "github.com/vhive-serverless/vSwarm/utils/tracing/go"
 	pb "tests/chained-functions-serving/proto"
 )
 
@@ -40,10 +40,10 @@ func (s *ubenchServer) FetchByte(ctx context.Context, str *pb.ReductionRequest) 
 		defer span2.EndSpan()
 	}
 	errorChannel := make(chan error, len(str.Capability))
-	if s.transferType == S3 {
+	if s.transferType == S3 || s.transferType == ELASTICACHE {
 		for _, capability := range str.Capability {
 			go func(capability string) {
-				payloadSize, err := fetchFromS3(ctx, capability)
+				payloadSize, err := fetchFromStorage(ctx, capability, s.storageBackend)
 				if err != nil {
 					errorChannel <- err
 				} else {
