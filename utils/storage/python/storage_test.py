@@ -36,7 +36,7 @@ class MyTest(unittest.TestCase):
 
     def test_elasticache(self):
         self.assertEqual(os.getenv('TRANSFER_TYPE', 'S3'), 'ELASTICACHE')
-        storageBackend = Storage("redis://test2.0vgvbw.ng.0001.usw1.cache.amazonaws.com:6379")
+        storageBackend = Storage("redis://127.0.0.1:6379")
         self.assertEqual(storageBackend.elasticache_client.ping(), True)
         msg = b"test msg"
         storageBackend.put("elasticache-test-key", pickle.dumps(msg))

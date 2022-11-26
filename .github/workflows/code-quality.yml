@@ -32,7 +32,7 @@ jobs:
       GOPRIVATE_KEY: ${{ secrets.XDT_REPO_ACCESS_KEY }}
       GOPRIVATE: "github.com/ease-lab/vhive-xdtx"
     steps:
-      - name: Setup Go 1.16
+      - name: Setup Go 1.18
         uses: actions/setup-go@v3
         with:
           go-version: 1.18

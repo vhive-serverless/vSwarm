@@ -22,6 +22,7 @@
 
 """Azure Function to perform inference.
 """
+
 from torchvision import transforms
 from PIL import Image
 import torch
@@ -29,6 +30,7 @@ import torchvision.models as models
 
 import sys
 import os
+import pickle
 # adding python tracing and storage sources to the system path
 sys.path.insert(0, os.getcwd() + '/../proto/')
 sys.path.insert(0, os.getcwd() + '/../../../../utils/tracing/python')

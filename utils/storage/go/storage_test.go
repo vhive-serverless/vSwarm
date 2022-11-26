@@ -26,6 +26,7 @@
 package storage
 
 import (
+	"context"
 	"os"
 	"testing"
 )
@@ -36,34 +37,34 @@ func TestMain(m *testing.M) {
 }
 
 func TestS3(t *testing.T) {
-	InitStorage("S3", "go-storage-test")
+	storage := New("S3", "go-storage-test")
 	msg := []byte("test message")
-	Put("testkey", msg)
-	ret := Get("testkey")
+	storage.Put(context.Background(), "testkey", msg)
+	ret := storage.Get(context.Background(), "testkey")
 	if string(ret) != "test message" {
 		t.Errorf("Get() recieved wrong string: \"%s\"", string(ret))
 	}
 }
 
 func TestS3File(t *testing.T) {
-	InitStorage("S3", "go-storage-test")
+	storage := New("S3", "go-storage-test")
 	file, err := os.Open("testFile.txt")
 	if err != nil {
 		t.Errorf("Test file could not be read")
 	}
 	fileContent, _ := os.ReadFile("testFile.txt")
-	PutFile("testkey", file)
-	ret := Get("testkey")
+	storage.PutFile("testkey", file)
+	ret := storage.Get(context.Background(), "testkey")
 	if string(ret) != string(fileContent) {
 		t.Errorf("Get() recieved wrong string: \"%s\"", string(ret))
 	}
 }
 
 func TestElasticache(t *testing.T) {
-	InitStorage("ELASTICACHE", "test4.0vgvbw.ng.0001.usw1.cache.amazonaws.com:6379")
+	storage := New("ELASTICACHE", "127.0.0.1:6379")
 	msg := []byte("test message")
-	Put("testkey", msg)
-	ret := Get("testkey")
+	storage.Put(context.Background(), "testkey", msg)
+	ret := storage.Get(context.Background(), "testkey")
 	if string(ret) != "test message" {
 		t.Errorf("Get() recieved wrong string: \"%s\"", string(ret))
 	}
