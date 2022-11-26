@@ -40,7 +40,13 @@ on:
 env:
   GOOS: linux
   GO111MODULE: on
-  KUBECONFIG: /etc/kubernetes/admin.conf
+  AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY }}
+  AWS_ACCESS_KEY: ${{ secrets.AWS_ACCESS_KEY }}
+  AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_KEY }}
+  AWS_SECRET_KEY: ${{ secrets.AWS_SECRET_KEY }}
+  AWS_DEFAULT_REGION: 'us-west-1'
+  AWS_REGION: 'us-west-1'
+  AWS_ACCOUNT_ID: ${{ secrets.AWS_ACCOUNT_ID }}
 
 jobs:
   build-and-push:
@@ -83,9 +89,6 @@ jobs:
         lfs: 'true'
 
     - name: start docker-compose benchmark
-      env:
-          AWS_ACCESS_KEY: ${{ secrets.AWS_ACCESS_KEY }}
-          AWS_SECRET_KEY: ${{ secrets.AWS_SECRET_KEY }}
       working-directory: benchmarks/stacking-training
       run: |
         docker-compose -f docker-compose-s3.yml up &> log_file &
@@ -102,55 +105,88 @@ jobs:
     name: Test Knative Deployment
     needs: build-and-push
     env:
-      GOCACHE: /root/tmp/gocache
-      GOPATH: /root/tmp/gopath
-    runs-on: [stock-knative]
+      KIND_VERSION: v0.14.0
+      K8S-VERSION: v1.23
+
+    runs-on: ubuntu-20.04
     strategy:
       fail-fast: false
+
     steps:
       - uses: actions/checkout@v3
         with:
           lfs: 'true'
+
       - name: Checkout LFS objects
         run: git lfs checkout
 
       - uses: actions/setup-go@v3
         with:
-          go-version: 1.16
+          go-version: 1.18
 
-      - name: Up
-        working-directory: benchmarks
-        env:
-          AWS_ACCESS_KEY: ${{ secrets.AWS_ACCESS_KEY }}
-          AWS_SECRET_KEY: ${{ secrets.AWS_SECRET_KEY }}
-        run: ../tools/kn_deploy.sh ./stacking-training/knative_yamls/s3/*
+      - name: Create k8s Kind Cluster
+        run: bash ./runner/scripts/01-kind.sh
 
-      - name: Build invoker
-        working-directory: tools/invoker
-        run: make invoker
+      - name: Install Serving
+        run: bash ./runner/scripts/02-serving.sh
 
-      - name: Test
-        working-directory: tools/invoker
+      - name: Install Kourier
+        run: bash ./runner/scripts/02-kourier.sh
+
+      - name: Setup domain
+        run: |
+          INGRESS_HOST="127.0.0.1"
+          KNATIVE_DOMAIN=$INGRESS_HOST.sslip.io
+          kubectl patch configmap -n knative-serving config-domain -p "{\"data\": {\"$KNATIVE_DOMAIN\": \"\"}}"
+
+      - name: Deploy Functions as Kubectl Services
+        working-directory: benchmarks/stacking-training/knative_yamls/s3
+        run: |
+          kubectl create secret generic awscreds \
+            --from-literal=awsaccess=${AWS_ACCESS_KEY} \
+            --from-literal=awssecret=${AWS_SECRET_KEY}
+          kubectl apply -f ./service-driver.yaml
+          kubectl apply -f ./service-metatrainer.yaml
+          kubectl apply -f ./service-reducer.yaml
+          kubectl apply -f ./service-trainer.yaml
+
+      - name: Check if the Service is Ready
+        working-directory: benchmarks/stacking-training/knative_yamls/s3
+        run: |
+          kubectl wait --for=condition=Ready -f service-driver.yaml --timeout 120s
+          kubectl get -f service-driver.yaml
+          kubectl wait --for=condition=Ready -f service-metatrainer.yaml --timeout 120s
+          kubectl get -f service-metatrainer.yaml
+          kubectl wait --for=condition=Ready -f service-reducer.yaml --timeout 120s
+          kubectl get -f service-reducer.yaml
+          kubectl wait --for=condition=Ready -f service-trainer.yaml --timeout 120s
+          kubectl get -f service-trainer.yaml
+
+      - name: Test the Function Deployment
+        working-directory: tools/test-client
         run: |
           set -x
 
-          NODEPORT=$(kubectl get svc kourier-ingress -n kourier-system -o=jsonpath='{.spec.ports[0].nodePort}')
+          NODEPORT=80
           HOSTNAME=$(kubectl get ksvc driver -n default -o jsonpath='{.status.url}' | cut -c8-)
 
-          echo '[ { "hostname": "$HOSTNAME" } ]' > endpoints.json
-          ./invoker -port $NODEPORT -dbg
-          cat rps*lat.csv
+          go build ./test-client.go
+          ./test-client -addr $HOSTNAME:$NODEPORT
 
-      - name: Print logs
+      - name: Print Logs
         if: ${{ always() }}
         run: |
           set -x
           kubectl logs -n default -c user-container -l serving.knative.dev/service=driver
-          kubectl logs -n default -c user-container -l serving.knative.dev/service=trainer
-          kubectl logs -n default -c user-container -l serving.knative.dev/service=reducer
           kubectl logs -n default -c user-container -l serving.knative.dev/service=metatrainer
+          kubectl logs -n default -c user-container -l serving.knative.dev/service=reducer
+          kubectl logs -n default -c user-container -l serving.knative.dev/service=trainer
 
-
-      - name: Down
+      - name: Delete the Deployed Services
+        working-directory: benchmarks/stacking-training/knative_yamls/s3
         if: ${{ always() }}
-        run: kn service delete --all --namespace default --wait
+        run: |
+          kubectl delete -f ./service-driver.yaml --namespace default --wait
+          kubectl delete -f ./service-metatrainer.yaml --namespace default --wait
+          kubectl delete -f ./service-reducer.yaml --namespace default --wait
+          kubectl delete -f ./service-trainer.yaml --namespace default --wait
