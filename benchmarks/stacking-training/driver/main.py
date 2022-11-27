@@ -80,8 +80,8 @@ XDT = "XDT"
 
 if not LAMBDA:
     class GreeterServicer(helloworld_pb2_grpc.GreeterServicer):
-        def __init__(self):
-            self.driver = Driver()
+        def __init__(self, XDTconfig=None):
+            self.driver = Driver(XDTconfig)
 
         def train(self, arg: dict) -> dict:
             log.info(f"Invoke Trainer {arg['trainer_id']}")
@@ -166,6 +166,7 @@ if LAMBDA:
 
         def train(self, arg: dict) -> dict:
             log.info(f"Invoke Trainer {arg['trainer_id']}")
+            arg['model_cfg'] = json.dumps(arg['model_cfg'])
             response = self.lambda_client.invoke(
                 FunctionName = os.environ.get('TRAINER_FUNCTION', 'trainer'),
                 InvocationType = 'RequestResponse',
@@ -255,7 +256,6 @@ def serve():
         server.wait_for_termination()
     elif transferType == XDT:
         log.fatal("XDT not yet supported")
-        XDTconfig = XDTutil.loadConfig()
     else:
         log.fatal("Invalid Transfer type")
 
