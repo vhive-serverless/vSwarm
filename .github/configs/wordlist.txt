@@ -45,6 +45,7 @@ autostart
 avi
 AVI
 aws
+awscli
 backend
 Backend
 backends
@@ -140,6 +141,7 @@ df
 DialGRPCWithUnaryInterceptor
 dir
 Distributable
+distros
 dmitrii
 Dmitrii's
 dmS
@@ -157,6 +159,7 @@ Dragojevic
 Drumond
 DVFS
 eba
+ECR
 Edouard
 edu
 ef
