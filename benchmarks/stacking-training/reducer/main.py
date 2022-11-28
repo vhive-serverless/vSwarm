@@ -70,14 +70,12 @@ if not LAMBDA:
             self.reducer = Reducer(XDTconfig)
 
         def Reduce(self, request, context):
-            models = []
-            predictions = []
-            for i, model_pred_tuple in enumerate(request.model_pred_tuples):
-                with tracing.Span(f"Reducer gets model {i} from S3"):
-                    models.append(pickle.loads(storageBackend.get(model_pred_tuple.model_key)))
-                    predictions.append(pickle.loads(storageBackend.get(model_pred_tuple.pred_key)))
+            model_keys, prediction_keys = [], []
+            for model_pred_tuple in request.model_pred_tuples:
+                model_keys.append(model_pred_tuple.model_key)
+                prediction_keys.append(model_pred_tuple.pred_key)
 
-            reducerArgs = {'models': models, 'predictions': predictions}
+            reducerArgs = {'model_keys': model_keys, 'prediction_keys': prediction_keys}
             response = self.reducer.reduce(reducerArgs)
             return stacking_pb2.ReduceReply(
                 models=b'',
@@ -93,13 +91,13 @@ if LAMBDA:
 
         def Reduce(self, event, context):
             mptuples = event['model_pred_tuples'].split(',')
-            models, predictions = [], []
+            model_keys, prediction_keys = [], []
             for entry in mptuples:
                 tuple = entry.split(':')
-                models.append(tuple[0])
-                predictions.append(tuple[1])
+                model_keys.append(tuple[0])
+                prediction_keys.append(tuple[1])
 
-            reducerArgs = {'models': models, 'predictions': predictions}
+            reducerArgs = {'model_keys': model_keys, 'prediction_keys': prediction_keys}
             response = self.reducer.reduce(reducerArgs)
             return {'models_key': response['models_key'], 'meta_features_key': response['meta_features_key']}
 

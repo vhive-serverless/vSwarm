@@ -36,7 +36,15 @@ class Reducer:
 
     def reduce(self, reducerCfg):
         log.info("Reducer is invoked")
-        meta_features = np.transpose(np.array(reducerCfg['predictions']))
+        models, predictions = [], []
+        for i in range(len(reducerCfg['model_keys'])):
+            with tracing.Span(f"Reducer gets model {i} from S3"):
+                mkey = reducerCfg['model_keys'][i]
+                pkey = reducerCfg['prediction_keys'][i]
+                models.append(pickle.loads(self.storageBackend.get(mkey)))
+                predictions.append(pickle.loads(self.storageBackend.get(pkey)))
+
+        meta_features = np.transpose(np.array(predictions))
         mfkey = self.storageBackend.put('meta_features', pickle.dumps(meta_features))
-        mkey = self.storageBackend.put('models', pickle.dumps(reducerCfg['models']))
+        mkey = self.storageBackend.put('models', pickle.dumps(models))
         return {'models_key': mkey, 'meta_features_key': mfkey}

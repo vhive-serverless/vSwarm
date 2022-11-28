@@ -207,7 +207,7 @@ if LAMBDA:
                 'dataset_key': dataset_key,
                 'models_key': reducer_response['models_key'],
                 'meta_features_key': reducer_response['meta_features_key'],
-                'model_config': self.driver.modelConfig['meta_model']
+                'model_config': json.dumps(self.driver.modelConfig['meta_model'])
             }
             self.lambda_client.invoke(
                 FunctionName = os.environ.get('METATRAINER_FUNCTION', 'metatrainer'),
