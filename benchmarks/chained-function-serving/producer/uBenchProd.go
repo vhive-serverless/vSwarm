@@ -53,7 +53,7 @@ func (s *ubenchServer) Benchmark(ctx context.Context, benchType *pb_client.Bench
 func (s *ubenchServer) putData(ctx context.Context) (pb_client.BenchResponse, error) {
 	if s.transferType == S3 || s.transferType == ELASTICACHE {
 		key := uploadToStorage(ctx, s.payloadData, s.randomStr, s.storageBackend)
-		log.Printf("[producer] S3 push complete")
+		log.Printf("[producer] %s push complete", s.transferType)
 		return pb_client.BenchResponse{Capability: key, Ok: true}, nil
 
 	} else if s.transferType == XDT {

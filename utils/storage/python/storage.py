@@ -60,7 +60,8 @@ class Storage:
                     aws_secret_access_key=os.environ.get('AWS_SECRET_KEY')
                 ).Bucket(bucket)
         elif TRANSFER == 'ELASTICACHE':
-            self.elasticache_client = redis.Redis.from_url(bucket)
+            host, port = bucket.split(":")
+            self.elasticache_client = redis.Redis(host=host, port=port)
         elif TRANSFER == 'XDT':
             if transferConfig is None:
                 log.fatal("Transfer Config cannot be empty for XDT transfers")

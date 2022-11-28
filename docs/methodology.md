@@ -112,5 +112,5 @@ Knative. All images deployed with Docker-compose will be on the same network so 
 communicate over a shared network, and one can use the names of services as addresses since
 they are translated automatically by Docker. Make sure to expose a port so that a client can
 communicate with the initial function in the workload. See the
-[serving Docker-compose](/benchmarks/chained-function-serving/compose_yamls/docker-compose.yml) for an
+[serving Docker-compose](/benchmarks/chained-function-serving/yamls/docker-compose/docker-compose.yml) for an
 example.

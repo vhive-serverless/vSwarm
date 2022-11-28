@@ -44,7 +44,7 @@ basic pipeline configuration (which does not require the use of a driver) also s
 
 2. Deploy the necessary functions using the `kn_deploy` script.
     ```bash
-    ../../tools/kn_deploy.sh ./knative_yamls/s3/*
+    ../../tools/kn_deploy.sh ./knative/s3/*
     ```
     Any sub-folder in the `knative_yamls` directory can be used, and all of the manifests therein
     must be deployed.

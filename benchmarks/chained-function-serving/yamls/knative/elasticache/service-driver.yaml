@@ -30,6 +30,7 @@ spec:
     spec:
       containers:
         - image: vhiveease/chained-functions-serving-driver:latest
+          args: ["-prodEndpoint", "producer.default.svc.cluster.local", "-consEndpoint", "consumer.default.svc.cluster.local"]
           imagePullPolicy: Always
           env:
             - name: ENABLE_TRACING
