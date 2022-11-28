@@ -183,7 +183,7 @@ if LAMBDA:
 
         def reduce(self, training_responses) -> dict:
             log.info("Invoke Reducer")
-            tuples = ['(%s,%s)' % (t['model_key'], t['pred_key']) for t in tuples]
+            tuples = ['%s:%s' % (t['model_key'], t['pred_key']) for t in tuples]
             arg = {
                 'model_pred_tuples': ','.join(tuples)
             }
