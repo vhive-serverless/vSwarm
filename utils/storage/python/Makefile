@@ -20,14 +20,14 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-test: test_elacticache test_s3
+test: test_elasticache test_s3
 
 test_s3: export TRANSFER_TYPE=S3
 test_s3:
 	python3 -m unittest storage_test.MyTest.test_s3
 
-test_elacticache: export TRANSFER_TYPE=ELASTICACHE
-test_elacticache:
+test_elasticache: export TRANSFER_TYPE=ELASTICACHE
+test_elasticache:
 	python3 -m unittest storage_test.MyTest.test_elasticache
 
 test-man:
