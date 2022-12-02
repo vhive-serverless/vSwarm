@@ -148,7 +148,7 @@ if not LAMBDA:
             log.info("Driver received a request")
             dataset_key = self.driver.put_dataset()
             trainingConfig = {
-                'num_trainers': int(os.getenv('TrainersNum', '4')),
+                'num_trainers': int(os.getenv('TrainersNum', args.trainersNum)),
                 'concurrent_training': os.getenv('CONCURRENT_TRAINING').lower() in ['true', 'yes', '1'],
                 'trainer_function': self.train
             }
@@ -159,9 +159,9 @@ if not LAMBDA:
             return helloworld_pb2.HelloReply(message=self.driver.storageBackend.bucket)
 
 if LAMBDA:
-    def AWSLambdaServicer():
-        def __init__():
-            self.driver = Driver()
+    class AWSLambdaServicer():
+        def __init__(self, XDTconfig=None):
+            self.driver = Driver(XDTconfig)
             self.lambda_client = boto3.client('lambda')
 
         def train(self, arg: dict) -> dict:
@@ -175,7 +175,6 @@ if LAMBDA:
             )
             payloadBytes = response['Payload'].read()
             payloadJson = json.loads(payloadBytes)
-            log.info(f"Mapper Reply {payloadJson}")
             return {
                 'model_key': payloadJson['model_key'],
                 'pred_key': payloadJson['pred_key']
@@ -183,11 +182,11 @@ if LAMBDA:
 
         def reduce(self, training_responses) -> dict:
             log.info("Invoke Reducer")
-            tuples = ['%s:%s' % (t['model_key'], t['pred_key']) for t in tuples]
+            tuples = ['%s:%s' % (t['model_key'], t['pred_key']) for t in training_responses]
             arg = {
                 'model_pred_tuples': ','.join(tuples)
             }
-            self.lambda_client.invoke(
+            response = self.lambda_client.invoke(
                 FunctionName = os.environ.get('REDUCER_FUNCTION', 'reducer'),
                 InvocationType = 'RequestResponse',
                 LogType = 'None',
@@ -209,7 +208,7 @@ if LAMBDA:
                 'meta_features_key': reducer_response['meta_features_key'],
                 'model_config': json.dumps(self.driver.modelConfig['meta_model'])
             }
-            self.lambda_client.invoke(
+            response = self.lambda_client.invoke(
                 FunctionName = os.environ.get('METATRAINER_FUNCTION', 'metatrainer'),
                 InvocationType = 'RequestResponse',
                 LogType = 'None',
@@ -228,7 +227,7 @@ if LAMBDA:
             log.info('Driver received a request')
             dataset_key = self.driver.put_dataset()
             trainingConfig = {
-                'num_trainers': int(os.getenv('TrainersNum', args.trainersNum)),
+                'num_trainers': int(os.getenv('TrainersNum', '4')),
                 'concurrent_training': os.getenv('CONCURRENT_TRAINING').lower() in ['true', 'yes', '1'],
                 'trainer_function': self.train
             }

@@ -121,7 +121,7 @@ def serve():
 def lambda_handler(event, context):
     log.basicConfig(level=log.INFO)
     reducerServicer = AWSLambdaReducer()
-    reducerServicer.Reduce(event, context)
+    return reducerServicer.Reduce(event, context)
 
 if not LAMBDA and __name__ == '__main__':
     log.basicConfig(level=log.INFO)

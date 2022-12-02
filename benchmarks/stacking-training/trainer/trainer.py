@@ -63,7 +63,7 @@ class Trainer:
         dataset = pickle.loads(self.storageBackend.get(trainCfg['dataset_key']))
 
         with tracing.Span("Training a model"):
-            model_config = trainCfg['model_config']
+            model_config = trainCfg['model_cfg']
             model_class = model_dispatcher(model_config['model'])
             model = model_class(**model_config['params'])
             y_pred = cross_val_predict(model, dataset['features'], dataset['labels'], cv=5)

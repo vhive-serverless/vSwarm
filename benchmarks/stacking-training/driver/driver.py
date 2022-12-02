@@ -120,7 +120,7 @@ class Driver:
                         'dataset_key': dataset_key,
                         'model_cfg': models[i % len(models)],
                         'trainer_id': i
-                    } for i in range(trainers_num)
+                    } for i in range(num_trainers)
                 ]
                 all_result_futures = ex.map(trainer, trainer_metadata_list)
 

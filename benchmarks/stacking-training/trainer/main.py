@@ -72,7 +72,7 @@ if not LAMBDA:
             trainingConfig = {
                 'trainer_id': int(request.trainer_id),
                 'dataset_key': request.dataset_key,
-                'model_config': pickle.loads(request.model_config)
+                'model_cfg': pickle.loads(request.model_config)
             }
             response = self.trainer.train(trainingConfig)
 
