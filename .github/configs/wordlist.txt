@@ -99,6 +99,7 @@ coderay
 colocated
 colocating
 config
+configmap
 configs
 CONFL
 congrats

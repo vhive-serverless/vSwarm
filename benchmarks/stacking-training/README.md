@@ -4,7 +4,7 @@
 This is an ensemble training benchmark consisting of four functions:
 - The **Driver** orchestrates the entire flow. It starts by uploading the dataset for the trainers
  and the metatrainer, collects the final models.
-- a set of **Trainers** that fit a model each (tested with 4 and 16 trainers, sequentially and in 
+- a set of **Trainers** that fit a model each (tested with 4 and 16 trainers, sequentially and in
 parallel)
 - The **Reducer** collects the models and predictions from each trainer.
 - The **Metatrainer** trains together with the trained models' layer, finalizing the 2-layer model.
@@ -15,7 +15,7 @@ transfer will not work.
 
 ## Running this Benchmark
 
-1. Make sure to set the `AWS_ACCESS_KEY` and `AWS_SECRET_KEY` environment variables.
+1. Make sure to set the `BUCKET_NAME`, `AWS_ACCESS_KEY`, and `AWS_SECRET_KEY` environment variables.
     The kn_deploy script will then substitute these values into the knative manifests.
     Example:
     ```bash               
@@ -32,7 +32,7 @@ transfer will not work.
     the `s3` transfer type enabled, and with tracing turned off.
 
 3. Invoke the benchmark. The interface function of this benchmark is named `driver`. It can be
-    invoked using the invoker or our test client, as described in the 
+    invoked using the invoker or our test client, as described in the
     [running benchmarks](/docs/running_benchmarks.md) document.
 
 ## Instances
