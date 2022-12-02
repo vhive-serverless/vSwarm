@@ -31,6 +31,9 @@ import pickle
 
 LAMBDA = os.environ.get('IS_LAMBDA', 'no').lower() in ['true', 'yes', '1']
 
+if LAMBDA:
+    import json
+
 if not LAMBDA:
     import grpc
     import argparse
@@ -78,9 +81,27 @@ class TrainerServicer(tuning_pb2_grpc.TrainerServicer):
             model_key=response['model_key'],
             pred_key=response['pred_key'],
             score=response['score'],
-            params=pickle.dumps(trainerArgs['model_config']),
+            params=request.model_config,
         )
 
+class AwsLambdaTrainer:
+    def __init__(self, XDTconfig=None):
+        self.trainer = Trainer(XDTconfig)
+
+    def Train(self, event, context):
+        trainerArgs = {
+            'dataset_key': event['dataset_key'],
+            'model_config': json.loads(event['model_config']),
+            'sample_rate': float(event['sample_rate']),
+            'count': event['count']
+        }
+        response = self.trainer.train(trainerArgs)
+        return {
+            'model_key': response['model_key'],
+            'pred_key': response['pred_key'],
+            'score': str(response['score']),
+            'params': event['model_config']
+        }
 
 def serve():
     transferType = os.getenv('TRANSFER_TYPE', S3)
@@ -99,7 +120,10 @@ def serve():
     else:
         log.fatal("Invalid Transfer type")
 
+def lambda_handler(event, context):
+    awsLambdaTrainer = AwsLambdaTrainer()
+    return awsLambdaTrainer.SayHello(event, context)
 
-if __name__ == '__main__':
+if not LAMBDA and __name__ == '__main__':
     log.basicConfig(level=log.INFO)
     serve()

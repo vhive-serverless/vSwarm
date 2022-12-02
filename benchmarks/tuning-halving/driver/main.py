@@ -33,6 +33,7 @@ LAMBDA = os.environ.get('IS_LAMBDA', 'no').lower() in ['true', 'yes', '1']
 
 if LAMBDA:
     import boto3
+    import json
 
 if not LAMBDA:
     import helloworld_pb2_grpc
@@ -102,6 +103,39 @@ class GreeterServicer(helloworld_pb2_grpc.GreeterServicer):
         self.driver.drive({'trainerfn': self.train})
         return helloworld_pb2.HelloReply(message=self.driver.storageBackend.bucket)
 
+class AWSLambdaDriver:
+    def __init__(self, XDTconfig=None):
+        self.driver = Driver()
+
+    def train(self, arg: dict) -> dict:
+        log.info("Invoke Trainer")
+        trainerArgs = {
+            'dataset_key': 'dataset_key',
+            'model_config': json.dumps(arg['model_config']),
+            'count': arg['count'],
+            'sample_rate': str(arg['sample_rate'])
+        }
+        resp = boto3.client("lambda").invoke(
+            FunctionName = os.environ.get('TRAINER_FUNCTION'),
+            InvocationType = 'RequestResponse',
+            LogType = 'None',
+            Payload = json.dumps(trainerArgs),
+        )
+        payloadBytes = resp['Payload'].read()
+        payloadJson = json.loads(payloadBytes)
+
+        return {
+            'model_key': payloadJson['model_key'],
+            'pred_key': payloadJson['pred_key'],
+            'score': float(payloadJson['score']),
+            'params': json.loads(payloadJson['params'])
+        }
+
+    def SayHello(self, event, context):
+        log.info("Driver received a request")
+        self.driver.drive({'trainerfn': self.train})
+        return self.driver.storageBackend.bucket
+
 def serve():
     transferType = os.getenv('TRANSFER_TYPE', S3)
     if transferType == S3:
@@ -124,6 +158,10 @@ def serve():
     else:
         log.fatal("Invalid Transfer type")
 
-if __name__ == '__main__':
+def lambda_handler(event, context):
+    awsLambdaDriver = AWSLambdaDriver()
+    return awsLambdaDriver.SayHello(event, context)
+
+if not LAMBDA and __name__ == '__main__':
     log.basicConfig(level=log.INFO)
     serve()
