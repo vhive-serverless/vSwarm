@@ -32,26 +32,26 @@ MODE = --load
 
 .PHONY: proto
 
-all: all-image 
+all: all-image
 
 all-image: driver-image trainer-image
 
 all-image-push: driver-image-push trainer-image-push
 
-driver-image: Dockerfile proto/tuning_pb2_grpc.py proto/tuning_pb2.py driver/main.py
+driver-image: docker/Dockerfile proto/tuning_pb2_grpc.py proto/tuning_pb2.py driver/main.py
 	docker buildx build $(PLATFORM) \
 	-t vhiveease/tuning-halving-driver:latest \
 	--build-arg target_arg=driver \
 	--secret id=GOPRIVATE_KEY \
-	-f Dockerfile \
+	-f docker/Dockerfile \
 	$(ROOT) $(MODE)
 
-trainer-image: Dockerfile proto/tuning_pb2_grpc.py proto/tuning_pb2.py trainer/main.py
+trainer-image: docker/Dockerfile proto/tuning_pb2_grpc.py proto/tuning_pb2.py trainer/main.py
 	docker buildx build $(PLATFORM) \
 	-t vhiveease/tuning-halving-trainer:latest \
 	--build-arg target_arg=trainer \
 	--secret id=GOPRIVATE_KEY \
-	-f Dockerfile \
+	-f docker/Dockerfile \
 	$(ROOT) $(MODE)
 
 driver-image-push: driver-image
