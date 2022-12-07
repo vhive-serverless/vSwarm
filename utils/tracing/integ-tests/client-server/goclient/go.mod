@@ -5,7 +5,7 @@ go 1.18
 replace github.com/vhive-serverless/vSwarm/utils/tracing/go => ../../../go
 
 require (
-	github.com/containerd/containerd v1.6.8
+	github.com/containerd/containerd v1.6.12
 	github.com/sirupsen/logrus v1.9.0
 	github.com/vhive-serverless/vSwarm-proto v0.3.0
 	github.com/vhive-serverless/vSwarm/utils/tracing/go v0.0.0-00010101000000-000000000000
