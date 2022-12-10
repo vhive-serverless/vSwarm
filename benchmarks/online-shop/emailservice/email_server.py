@@ -30,10 +30,11 @@ import demo_pb2_grpc
 from grpc_health.v1 import health_pb2
 from grpc_health.v1 import health_pb2_grpc
 
-from opencensus.ext.stackdriver import trace_exporter as stackdriver_exporter
-from opencensus.ext.grpc import server_interceptor
-from opencensus.common.transports.async_ import AsyncTransport
-from opencensus.trace import samplers
+from opentelemetry import trace
+from opentelemetry.instrumentation.grpc import GrpcInstrumentorServer
+from opentelemetry.sdk.trace import TracerProvider
+from opentelemetry.sdk.trace.export import BatchSpanProcessor
+from opentelemetry.exporter.otlp.proto.grpc.trace_exporter import OTLPSpanExporter
 
 # import googleclouddebugger
 import googlecloudprofiler
@@ -123,8 +124,7 @@ class HealthCheck():
       status=health_pb2.HealthCheckResponse.SERVING)
 
 def start(dummy_mode):
-  server = grpc.server(futures.ThreadPoolExecutor(max_workers=10),
-                       interceptors=(tracer_interceptor,))
+  server = grpc.server(futures.ThreadPoolExecutor(max_workers=10),)
   service = None
   if dummy_mode:
     service = DummyEmailService()
@@ -185,20 +185,23 @@ if __name__ == '__main__':
 
   # Tracing
   try:
-    if "DISABLE_TRACING" in os.environ:
-      raise KeyError()
-    else:
-      logger.info("Tracing enabled.")
-      sampler = samplers.AlwaysOnSampler()
-      exporter = stackdriver_exporter.StackdriverExporter(
-        project_id=os.environ.get('GCP_PROJECT_ID'),
-        transport=AsyncTransport)
-      tracer_interceptor = server_interceptor.OpenCensusServerInterceptor(sampler, exporter)
+    if os.environ["ENABLE_TRACING"] == "1":
+      otel_endpoint = os.getenv("COLLECTOR_SERVICE_ADDR", "localhost:4317")
+      trace.set_tracer_provider(TracerProvider())
+      trace.get_tracer_provider().add_span_processor(
+        BatchSpanProcessor(
+            OTLPSpanExporter(
+            endpoint = otel_endpoint,
+            insecure = True
+          )
+        )
+      )
+    grpc_server_instrumentor = GrpcInstrumentorServer()
+    grpc_server_instrumentor.instrument()
+
   except (KeyError, DefaultCredentialsError):
       logger.info("Tracing disabled.")
-      tracer_interceptor = server_interceptor.OpenCensusServerInterceptor()
   except Exception as e:
       logger.warn(f"Exception on Cloud Trace setup: {traceback.format_exc()}, tracing disabled.") 
-      tracer_interceptor = server_interceptor.OpenCensusServerInterceptor()
   
   start(dummy_mode = True)

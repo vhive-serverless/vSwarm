@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-FROM openjdk:8-slim as builder
+FROM eclipse-temurin:18 as builder
 
 WORKDIR /app
 
@@ -25,24 +25,25 @@ COPY . .
 RUN chmod +x gradlew
 RUN ./gradlew installDist
 
-FROM openjdk:8-slim
+FROM eclipse-temurin:18.0.2.1_1-jre-alpine as without-grpc-health-probe-bin
+
+RUN apk add --no-cache ca-certificates
 
 # Download Stackdriver Profiler Java agent
-RUN apt-get -y update && apt-get install -qqy \
-    wget \
-    && rm -rf /var/lib/apt/lists/*
 RUN mkdir -p /opt/cprof && \
-    wget -q -O- https://storage.googleapis.com/cloud-profiler/java/latest/profiler_java_agent.tar.gz \
+    wget -q -O- https://storage.googleapis.com/cloud-profiler/java/latest/profiler_java_agent_alpine.tar.gz \
     | tar xzv -C /opt/cprof && \
     rm -rf profiler_java_agent.tar.gz
-
-RUN GRPC_HEALTH_PROBE_VERSION=v0.4.11 && \
-    if [ $(uname -i) == "aarch64" ]; then ARCH=arm64 ; else ARCH=amd64; fi && \
-    wget -qO/bin/grpc_health_probe https://github.com/grpc-ecosystem/grpc-health-probe/releases/download/${GRPC_HEALTH_PROBE_VERSION}/grpc_health_probe-linux-${ARCH} && \
-    chmod +x /bin/grpc_health_probe
 
 WORKDIR /app
 COPY --from=builder /app .
 
 EXPOSE 9555
 ENTRYPOINT ["/app/build/install/hipstershop/bin/AdService"]
+
+FROM without-grpc-health-probe-bin
+
+RUN GRPC_HEALTH_PROBE_VERSION=v0.4.14 && \
+    if [ $(uname -i) == "aarch64" ]; then ARCH=arm64 ; else ARCH=amd64; fi && \
+    wget -qO/bin/grpc_health_probe https://github.com/grpc-ecosystem/grpc-health-probe/releases/download/${GRPC_HEALTH_PROBE_VERSION}/grpc_health_probe-linux-${ARCH} && \
+    chmod +x /bin/grpc_health_probe

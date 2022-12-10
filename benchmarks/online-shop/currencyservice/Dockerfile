@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-FROM node:18-alpine as base
+FROM node:19.1.0-alpine as base
 
 FROM base as builder
 
@@ -29,12 +29,7 @@ COPY package*.json ./
 
 RUN npm install --only=production
 
-FROM base
-
-RUN GRPC_HEALTH_PROBE_VERSION=v0.4.11 && \
-    if [ $(uname -i) == "aarch64" ]; then ARCH=arm64 ; else ARCH=amd64; fi && \
-    wget -qO/bin/grpc_health_probe https://github.com/grpc-ecosystem/grpc-health-probe/releases/download/${GRPC_HEALTH_PROBE_VERSION}/grpc_health_probe-linux-${ARCH} && \
-    chmod +x /bin/grpc_health_probe
+FROM base as without-grpc-health-probe-bin
 
 WORKDIR /usr/src/app
 
@@ -45,3 +40,10 @@ COPY . .
 EXPOSE 7000
 
 ENTRYPOINT [ "node", "server.js" ]
+
+FROM without-grpc-health-probe-bin
+
+RUN GRPC_HEALTH_PROBE_VERSION=v0.4.14 && \
+    if [ $(uname -i) == "aarch64" ]; then ARCH=arm64 ; else ARCH=amd64; fi && \
+    wget -qO/bin/grpc_health_probe https://github.com/grpc-ecosystem/grpc-health-probe/releases/download/${GRPC_HEALTH_PROBE_VERSION}/grpc_health_probe-linux-${ARCH} && \
+    chmod +x /bin/grpc_health_probe
