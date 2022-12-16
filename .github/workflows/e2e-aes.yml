@@ -46,7 +46,8 @@ jobs:
             aes-python,
             aes-nodejs,
             aes-python-lambda,
-            aes-nodejs-lambda
+            aes-nodejs-lambda,
+            aes-go-lambda
           ]
 
     steps:
@@ -237,7 +238,8 @@ jobs:
         service:
           [
             aes-python-lambda,
-            aes-nodejs-lambda
+            aes-nodejs-lambda,
+            aes-go-lambda
           ]
     steps:
       - name: Check out code
