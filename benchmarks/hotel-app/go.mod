@@ -32,14 +32,14 @@ require (
 	github.com/sirupsen/logrus v1.9.0
 	github.com/vhive-serverless/vSwarm-proto v0.3.0
 	github.com/vhive-serverless/vSwarm/utils/tracing/go v0.0.0-00010101000000-000000000000
-	go.mongodb.org/mongo-driver v1.10.2
+	go.mongodb.org/mongo-driver v1.11.1
 	golang.org/x/net v0.0.0-20221002022538-bcab6841153b
 	google.golang.org/grpc v1.49.0
 	gopkg.in/mgo.v2 v2.0.0-20190816093944-a6b53ec6cb22
 )
 
 require (
-	github.com/containerd/containerd v1.6.8 // indirect
+	github.com/containerd/containerd v1.6.12 // indirect
 	github.com/go-logr/logr v1.2.3 // indirect
 	github.com/go-logr/stdr v1.2.2 // indirect
 	github.com/golang/protobuf v1.5.2 // indirect
