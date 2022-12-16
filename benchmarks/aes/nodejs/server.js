@@ -23,10 +23,9 @@
 // Include process module
 const process = require('process');
 const tracing = require('tracing')
-
+var CryptoJS = require("crypto-js");
 
 var PROTO_PATH = __dirname + '/aes.proto';
-
 var grpc = require('@grpc/grpc-js');
 var protoLoader = require('@grpc/proto-loader');
 var packageDefinition = protoLoader.loadSync(
@@ -39,7 +38,9 @@ var packageDefinition = protoLoader.loadSync(
     oneofs: true
   });
 var hello_proto = grpc.loadPackageDefinition(packageDefinition).aes;
-var CryptoJS = require("crypto-js");
+
+var LAMBDA = ( typeof(process.env.IS_LAMBDA) == "string" &&
+  ["true", "yes", "1"].indexOf(process.env.IS_LAMBDA).toLowerCase() != -1)
 
 var key = "6368616e676520746869732070617373";
 var default_plaintext = "defaultplaintext";
@@ -176,27 +177,41 @@ function showEncryption(call, callback) {
  * sample server port
  */
 function main() {
+  if (!LAMBDA) {
+    const [addr, port, zipkin] = parsArgs();
 
-  const [addr, port, zipkin] = parsArgs();
+    if (tracing.IsTracingEnabled()) {
+      process.stdout.write(`Tracing enabled\n`);
+      tracing.InitTracer('aes-nodejs-server', zipkin);
+    } else {
+      process.stdout.write(`Tracing disabled\n`);
+    }
 
-  if (tracing.IsTracingEnabled()) {
-    process.stdout.write(`Tracing enabled\n`);
-    tracing.InitTracer('aes-nodejs-server', zipkin);
-  } else {
-    process.stdout.write(`Tracing disabled\n`);
+    var server = new grpc.Server();
+    server.addService(hello_proto.Aes.service, { showEncryption: showEncryption });
+    address = `${addr}:${port}`
+    server.bindAsync(
+      address,
+      grpc.ServerCredentials.createInsecure(),
+      (err, port) => {
+        process.stdout.write(`Start AES-nodejs. Listen on ${address}\n`);
+        server.start();
+      }
+    );
+  }
+}
+
+exports.lambda_handler = async (event, context) => {
+  var plaintext = event['plaintext'];
+  if (plaintext == "" || plaintext == "world") {
+    plaintext = default_plaintext;
   }
 
-  var server = new grpc.Server();
-  server.addService(hello_proto.Aes.service, { showEncryption: showEncryption });
-  address = `${addr}:${port}`
-  server.bindAsync(
-    address,
-    grpc.ServerCredentials.createInsecure(),
-    (err, port) => {
-      process.stdout.write(`Start AES-nodejs. Listen on ${address}\n`);
-      server.start();
-    }
-  );
+  const ciphertext = AESModeCTR(plaintext);
+  var msg = `fn: AES | plaintext: ${plaintext} | ciphertext: ${ciphertext} | runtime: NodeJS | platform: AWS Lambda`;
+
+  return msg;
 }
+
 
 main();
