@@ -24,7 +24,6 @@
 const process = require('process');
 const tracing = require('tracing')
 
-
 var PROTO_PATH = __dirname + '/auth.proto';  // '/../proto/auth.proto';
 
 var grpc = require('@grpc/grpc-js');
@@ -39,11 +38,13 @@ var packageDefinition = protoLoader.loadSync(
     });
 var auth_proto = grpc.loadPackageDefinition(packageDefinition).auth;
 
+var LAMBDA = ( typeof(process.env.IS_LAMBDA) == "string" &&
+  ["true", "yes", "1"].indexOf(process.env.IS_LAMBDA).toLowerCase() != -1)
 
 /**
  * Argument parsing
  */
- function parsArgs() {
+ function parseArgs() {
 
   var { argv } = require("yargs")
     .scriptName("server")
@@ -154,34 +155,56 @@ function sayHello(call, callback) {
   }
 
   callback(null, {message: msg});
-
 }
 /**
  * Starts an RPC server that receives requests for the Greeter service at the
  * sample server port
  */
 function main() {
+  if (!LAMBDA) {
+    const [addr, port, zipkin] = parseArgs();
 
-  const [addr, port, zipkin] = parsArgs();
-
-  if (tracing.IsTracingEnabled()) {
-    process.stdout.write(`Tracing enabled\n`);
-    tracing.InitTracer('auth-nodejs-server', zipkin);
-  } else {
-    process.stdout.write(`Tracing disabled\n`);
-  }
-
-  var server = new grpc.Server();
-  server.addService(auth_proto.Greeter.service, {sayHello: sayHello});
-  address = `${addr}:${port}`
-  server.bindAsync(
-    address,
-    grpc.ServerCredentials.createInsecure(),
-    (err, port) => {
-      process.stdout.write(`Start Auth-nodejs. Listen on ${address}\n`);
-      server.start();
+    if (tracing.IsTracingEnabled()) {
+      process.stdout.write(`Tracing enabled\n`);
+      tracing.InitTracer('auth-nodejs-server', zipkin);
+    } else {
+      process.stdout.write(`Tracing disabled\n`);
     }
-  );
+
+    var server = new grpc.Server();
+    server.addService(auth_proto.Greeter.service, {sayHello: sayHello});
+    address = `${addr}:${port}`
+    server.bindAsync(
+      address,
+      grpc.ServerCredentials.createInsecure(),
+      (err, port) => {
+        process.stdout.write(`Start Auth-nodejs. Listen on ${address}\n`);
+        server.start();
+      }
+    );
+  }
+}
+
+exports.lambda_handler = async (event, context) => {
+  var token = event["name"];
+  var fakeMethodArn = "arn:aws:execute-api:{regionId}:{accountId}:{apiId}/{stage}/{httpVerb}/[{resource}/[{child-resources}]]";
+  var msg1, ret;
+  switch (token) {
+      case 'allow':
+        ret = generatePolicy('user', 'Allow', fakeMethodArn);
+        msg1 = JSON.stringify(ret, null, 2);
+        break;
+      case 'deny':
+        ret = generatePolicy('user', 'Deny', fakeMethodArn);
+        msg1 = JSON.stringify(ret, null, 2);
+        break;
+      case 'unauthorized':
+        msg1 = "Unauthorized";   // Return a 401 Unauthorized response
+        break;
+      default:
+        msg1 = "Error: Invalid token"; // Return a 500 Invalid token response
+  }
+  var msg = `fn: Auth | token: ${token} | resp: ${msg1} | runtime: nodejs`;
 }
 
 main();
