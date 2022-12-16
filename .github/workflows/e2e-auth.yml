@@ -47,6 +47,7 @@ jobs:
             auth-nodejs,
             auth-python-lambda,
             auth-nodejs-lambda,
+            auth-go-lambda
           ]
 
     steps:
@@ -236,7 +237,8 @@ jobs:
         service:
           [
             auth-python-lambda,
-            auth-nodejs-lambda
+            auth-nodejs-lambda,
+            auth-go-lambda
           ]
     steps:
       - name: Check out code
