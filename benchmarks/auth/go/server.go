@@ -27,13 +27,18 @@ import (
 	"flag"
 	"fmt"
 	"net"
+	"os"
+	"strings"
 
 	pb "github.com/vhive-serverless/vSwarm-proto/proto/auth"
-
 	tracing "github.com/vhive-serverless/vSwarm/utils/tracing/go"
 	log "github.com/sirupsen/logrus"
+
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
+
+	"github.com/aws/aws-lambda-go/events"
+	"github.com/aws/aws-lambda-go/lambda"
 )
 
 var (
@@ -111,33 +116,63 @@ func (s *server) SayHello(ctx context.Context, in *pb.HelloRequest) (*pb.HelloRe
 	return &pb.HelloReply{Message: resp}, nil
 }
 
+func HandleRequest(ctx context.Context, request events.APIGatewayProxyRequest) (string, error) {
+	token := request.QueryStringParameters["name"]
+	fakeMethodArn := "arn:aws:execute-api:{regionId}:{accountId}:{apiId}/{stage}/{httpVerb}/[{resource}/[{child-resources}]]"
+	var msg string
+	var ret authResponse
+
+	switch token {
+	case "allow":
+		ret = generatePolicy("user", "Allow", fakeMethodArn)
+		msg = fmt.Sprintf("%+v", ret)
+	case "deny":
+		ret = generatePolicy("user", "Deny", fakeMethodArn)
+		msg = fmt.Sprintf("%+v", ret)
+	case "unauthorized":
+		msg = "Unauthorized"
+	default:
+		msg = "Error: Invalid token"
+	}
+
+	resp := fmt.Sprintf("fn: Auth | token: %s | resp: %+v | runtime: golang | platform: AWS Lambda", token, msg)
+	return resp, nil
+}
+
 func main() {
-	flag.Parse()
-	if tracing.IsTracingEnabled() {
-		log.Printf("Start tracing on : %s\n", *zipkin)
-		shutdown, err := tracing.InitBasicTracer(*zipkin, "auth function")
-		if err != nil {
-			log.Warn(err)
-		}
-		defer shutdown()
-	}
+	val, ok := os.LookupEnv("IS_LAMBDA");
+	LAMBDA := (ok && (strings.ToLower(val) == "true"	|| strings.ToLower(val) == "yes" || strings.ToLower(val) == "1"))
 
-	lis, err := net.Listen("tcp", *address)
-	if err != nil {
-		log.Fatalf("failed to listen: %v", err)
-	}
-	log.Printf("Start Auth-go server: listen on : %s\n", *address)
-
-	var grpcServer *grpc.Server
-	if tracing.IsTracingEnabled() {
-		grpcServer = tracing.GetGRPCServerWithUnaryInterceptor()
+	if LAMBDA {
+		lambda.Start(HandleRequest)
 	} else {
-		grpcServer = grpc.NewServer()
-	}
-	pb.RegisterGreeterServer(grpcServer, &server{})
-	reflection.Register(grpcServer)
+		flag.Parse()
+		if tracing.IsTracingEnabled() {
+			log.Printf("Start tracing on : %s\n", *zipkin)
+			shutdown, err := tracing.InitBasicTracer(*zipkin, "auth function")
+			if err != nil {
+				log.Warn(err)
+			}
+			defer shutdown()
+		}
 
-	if err := grpcServer.Serve(lis); err != nil {
-		log.Fatalf("failed to serve: %v", err)
+		lis, err := net.Listen("tcp", *address)
+		if err != nil {
+			log.Fatalf("failed to listen: %v", err)
+		}
+		log.Printf("Start Auth-go server: listen on : %s\n", *address)
+
+		var grpcServer *grpc.Server
+		if tracing.IsTracingEnabled() {
+			grpcServer = tracing.GetGRPCServerWithUnaryInterceptor()
+		} else {
+			grpcServer = grpc.NewServer()
+		}
+		pb.RegisterGreeterServer(grpcServer, &server{})
+		reflection.Register(grpcServer)
+
+		if err := grpcServer.Serve(lis); err != nil {
+			log.Fatalf("failed to serve: %v", err)
+		}
 	}
 }
