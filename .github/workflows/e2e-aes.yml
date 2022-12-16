@@ -13,7 +13,7 @@ on:
       - "runner/**"
 
   pull_request:
-    branches: [main]
+    branches: [main, aes-multicloud]
     paths:
       - "benchmarks/aes/**"
       - "utils/**"
@@ -25,6 +25,13 @@ env:
   GO111MODULE: on
   PORT: 50051
   PLATFORMS: linux/amd64,linux/arm64
+  AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY }}
+  AWS_ACCESS_KEY: ${{ secrets.AWS_ACCESS_KEY }}
+  AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_KEY }}
+  AWS_SECRET_KEY: ${{ secrets.AWS_SECRET_KEY }}
+  AWS_DEFAULT_REGION: 'us-west-1'
+  AWS_REGION: 'us-west-1'
+  AWS_ACCOUNT_ID: ${{ secrets.AWS_ACCOUNT_ID }}
 
 jobs:
   build-and-push:
@@ -33,14 +40,13 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        include:
-          - service: aes-go
-            target: aesGo
-          - service: aes-python
-            target: aesPython
-          - service: aes-nodejs
-            target: aesNodeJS
-
+        service:
+          [
+            aes-go,
+            aes-python,
+            aes-nodejs,
+            aes-python-lambda,
+          ]
 
     steps:
       - name: Check out code into the Go module directory
@@ -65,18 +71,23 @@ jobs:
         id: buildx
         uses: docker/setup-buildx-action@v2
 
+      - name: Install AWS CLI
+        uses: unfor19/install-aws-cli-action@master
+        with:
+          version: '2'
+
       - name: Set up Python version
         uses: actions/setup-python@v4
         with:
-          python-version: "3.8"
+          python-version: "3.9"
 
       - name: Set up python dependencies
-        working-directory: benchmarks/aes/python
         run: |
           python3 -m pip install --upgrade pip
           python3 -m pip install wheel ez_setup setuptools
           GRPC_PYTHON_BUILD_SYSTEM_ZLIB=true
-          python3 -m pip install -r requirements.txt
+          python3 -m pip install -r benchmarks/aes/python/requirements/common.txt
+          python3 -m pip install -r runner/aws_lambda_scripts/requirements.txt
 
       - name: Setup go dependencies
         working-directory: benchmarks/aes
@@ -86,18 +97,9 @@ jobs:
           go install google.golang.org/protobuf/cmd/protoc-gen-go@v1.26
           go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@v1.1
 
-      - name: Build and push
-        uses: docker/build-push-action@v3
-        with:
-          push: true
-          file: benchmarks/aes/docker/Dockerfile
-          platforms: ${{ env.PLATFORMS }}
-          target: ${{ matrix.target }}
-          tags: vhiveease/${{ matrix.service }}:latest
-          context: .
-
-
-
+      - name: Build and Push
+        working-directory: benchmarks/aes
+        run: make push-${{ matrix.service }}
 
   test-compose:
     name: Test Docker Compose
@@ -209,7 +211,6 @@ jobs:
 
           ./test-client --addr $url:$NODEPORT --name "Example text for CI"
 
-
       - name: Print logs
         if: ${{ always() }}
         run: |
@@ -224,3 +225,33 @@ jobs:
         if: ${{ always() }}
         run: |
           kubectl delete -f ${{ env.YAML_DIR }}/kn-${{ matrix.service }}.yaml --namespace default --wait
+
+  test-aws-lambda:
+    name: Test AWS Lambda Deployment
+    needs: build-and-push
+    runs-on: ubuntu-20.04
+    strategy:
+      fail-fast: false
+      matrix:
+        service:
+          [
+            aes-python-lambda,
+          ]
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v3
+        with:
+          lfs: 'true'
+
+      - name: Set up Python Dependencies for AWS Jobs
+        working-directory: runner/aws_lambda_scripts
+        run: |
+          python3 -m pip install --upgrade pip
+          python3 -m pip install wheel ez_setup setuptools
+          python3 -m pip install -r requirements.txt
+
+      - name: Deploy and Test functions from ECR container
+        working-directory: runner/aws_lambda_scripts
+        run: |
+          python aws_actions.py deploy_lambdafn_from_ecr -n ${{ matrix.service }} -f ${{ matrix.service }}
+          python aws_actions.py invoke_lambdafn -f ${{ matrix.service }} -p '{ "plaintext":"sample text" }'
