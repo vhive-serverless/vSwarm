@@ -26,7 +26,7 @@
 ## Install gRPC and all other dependencies
 FROM vhiveease/python-slim:latest as fibonacciPythonBuilder
 WORKDIR /py
-COPY ./benchmarks/fibonacci/python/requirements.txt ./
+COPY ./benchmarks/fibonacci/python/requirements/common.txt ./requirements.txt
 RUN pip3 install --user -r requirements.txt
 COPY ./utils/tracing/python/tracing.py ./
 COPY ./benchmarks/fibonacci/python/server.py ./
