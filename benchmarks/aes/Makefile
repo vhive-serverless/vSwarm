@@ -80,6 +80,14 @@ aes-nodejs-lambda-image: docker/Dockerfile.Lambda nodejs/server.js
 	-f docker/Dockerfile.Lambda \
 	$(ROOT) --load
 
+
+aes-go-lambda-image: docker/Dockerfile.Lambda go/server.go
+	DOCKER_BUILDKIT=1 docker buildx build \
+	--tag $(AWS_ACCOUNT_ID).dkr.ecr.$(AWS_REGION).amazonaws.com/aes-go-lambda:latest \
+	--target aesGoLambda \
+	-f docker/Dockerfile.Lambda \
+	$(ROOT) --load
+
 ## Push images
 
 push-%: %-image
