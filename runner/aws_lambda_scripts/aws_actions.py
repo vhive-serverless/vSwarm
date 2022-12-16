@@ -111,6 +111,7 @@ def attach_policies_to_role(role, policies):
 
     basicRoleArn = 'arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole'
     client.attach_role_policy(RoleName=role, PolicyArn=basicRoleArn)
+    time.sleep(5)
 
 def publish_function(role, repo, tag, lambdafn, env):
     client = boto3.client('lambda')
