@@ -46,6 +46,7 @@ jobs:
             fibonacci-python,
             fibonacci-nodejs,
             fibonacci-python-lambda,
+            fibonacci-nodejs-lambda,
           ]
     steps:
       - name: Check out code into the Go module directory
@@ -234,6 +235,7 @@ jobs:
         service:
           [
             fibonacci-python-lambda,
+            fibonacci-nodejs-lambda,
           ]
     steps:
       - name: Check out code

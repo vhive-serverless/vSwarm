@@ -39,6 +39,8 @@ var packageDefinition = protoLoader.loadSync(
   });
 var hello_proto = grpc.loadPackageDefinition(packageDefinition).fibonacci;
 
+var LAMBDA = ( typeof(process.env.IS_LAMBDA) == "string" &&
+  ["true", "yes", "1"].indexOf(process.env.IS_LAMBDA).toLowerCase() != -1)
 
 function fibonacci(num) {
   var num1 = 0;
@@ -56,7 +58,7 @@ function fibonacci(num) {
 /**
  * Argument parsing
  */
-function parsArgs() {
+function parseArgs() {
 
   var { argv } = require("yargs")
     .scriptName("server")
@@ -92,8 +94,6 @@ function parsArgs() {
   return [addr, port, zipkin];
 }
 
-
-
 /**
  * Implements the SayHello RPC method.
  */
@@ -121,26 +121,36 @@ function sayHello(call, callback) {
  * sample server port
  */
 function main() {
-  const [addr, port, zipkin] = parsArgs();
+  if (!LAMBDA) {
+    const [addr, port, zipkin] = parseArgs();
 
-  if (tracing.IsTracingEnabled()) {
-    process.stdout.write(`Tracing enabled\n`);
-    tracing.InitTracer('fibonacci-nodejs-server', zipkin);
-  } else {
-    process.stdout.write(`Tracing disabled\n`);
-  }
-
-  var server = new grpc.Server();
-  server.addService(hello_proto.Greeter.service, { sayHello: sayHello });
-  address = `${addr}:${port}`
-  server.bindAsync(
-    address,
-    grpc.ServerCredentials.createInsecure(),
-    (err, port) => {
-      process.stdout.write(`Server started on ${address}\n`);
-      server.start();
+    if (tracing.IsTracingEnabled()) {
+      process.stdout.write(`Tracing enabled\n`);
+      tracing.InitTracer('fibonacci-nodejs-server', zipkin);
+    } else {
+      process.stdout.write(`Tracing disabled\n`);
     }
-  );
+
+    var server = new grpc.Server();
+    server.addService(hello_proto.Greeter.service, { sayHello: sayHello });
+    address = `${addr}:${port}`
+    server.bindAsync(
+      address,
+      grpc.ServerCredentials.createInsecure(),
+      (err, port) => {
+        process.stdout.write(`Server started on ${address}\n`);
+        server.start();
+      }
+    );
+  }
+}
+
+exports.lambda_handler = async (event, context) => {
+  var x = parseInt(event["name"]);
+  var y = fibonacci(x);
+  var msg = `fn: Fib: y = fib(x) | x: ${x} y: ${y} | runtime: NodeJS | platform: AWS Lambda`
+
+  return msg;
 }
 
 main();
