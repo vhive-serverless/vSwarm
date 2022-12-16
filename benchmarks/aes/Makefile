@@ -73,6 +73,13 @@ aes-python-lambda-image: docker/Dockerfile.Lambda python/server.py
 	$(ROOT) --load
 
 
+aes-nodejs-lambda-image: docker/Dockerfile.Lambda nodejs/server.js
+	DOCKER_BUILDKIT=1 docker buildx build \
+	--tag $(AWS_ACCOUNT_ID).dkr.ecr.$(AWS_REGION).amazonaws.com/aes-nodejs-lambda:latest \
+	--target aesNodeJSLambda \
+	-f docker/Dockerfile.Lambda \
+	$(ROOT) --load
+
 ## Push images
 
 push-%: %-image
