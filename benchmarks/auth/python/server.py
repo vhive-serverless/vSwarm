@@ -20,56 +20,39 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-from concurrent import futures
-import logging
-from pprint import pprint
-
-import grpc
-
-import random
-import string
-
-import argparse
 import os
 import sys
 
-
-# sys.path.append('./proto/auth')  # for local testing (i.e. not running in Docker-compose)
-from proto.auth import auth_pb2
-import auth_pb2_grpc
-
-# adding python tracing sources to the system path
-sys.path.insert(0, os.getcwd() + '/../../../../utils/tracing/python')
 import tracing
 
+LAMBDA = os.environ.get('IS_LAMBDA', 'no').lower() in ['true', 'yes', '1']
 
+if not LAMBDA:
+    import grpc
+    import argparse
 
+    from proto.auth import auth_pb2
+    import auth_pb2_grpc
 
+    from concurrent import futures
 
-print("python version: %s" % sys.version)
-print("Server has PID: %d" % os.getpid())
-
-
-parser = argparse.ArgumentParser()
-parser.add_argument("-a", "--addr", dest="addr", default="0.0.0.0", help="IP address")
-parser.add_argument("-p", "--port", dest="port", default="50051", help="serve port")
-parser.add_argument("-zipkin", "--zipkin", dest="url", default="http://0.0.0.0:9411/api/v2/spans", help="Zipkin endpoint url")
-args = parser.parse_args()
-
+    parser = argparse.ArgumentParser()
+    parser.add_argument("-a", "--addr", dest="addr", default="0.0.0.0", help="IP address")
+    parser.add_argument("-p", "--port", dest="port", default="50051", help="serve port")
+    parser.add_argument("-zipkin", "--zipkin", dest="url", default="http://0.0.0.0:9411/api/v2/spans", help="Zipkin endpoint url")
+    args = parser.parse_args()
 
 if tracing.IsTracingEnabled():
-
-
     tracing.initTracer("auth-python", url=args.url)
     tracing.grpcInstrumentClient()
     tracing.grpcInstrumentServer()
+
 
 class Empty:  # declare this class to enable dynamically adding new attributes
     pass
 
 def generatePolicy(principalId, effect, resource):
     authResponse = Empty()
-
     authResponse.principalId = principalId
     if effect and resource:
         policyDocument = Empty()
@@ -88,48 +71,52 @@ def generatePolicy(principalId, effect, resource):
       "numberKey": 123,
       "booleanKey": True
     }
-
     return authResponse
 
+def do_authentication(token, resource):
+    with tracing.Span("Generate Policy"):
+        if 'allow' in token:
+            ret = generatePolicy('user', 'Allow', resource)
+            resp = ret.__dict__
+            msg = "fn: Auth | token: {token} | resp: {resp} | runtime: python".format(token=token, resp=str(resp))
+        elif 'deny' in token:
+            ret = generatePolicy('user', 'Deny', resource)
+            resp = ret.__dict__
+            msg = "fn: Auth | token: {token} | resp: {resp} | runtime: python".format(token=token, resp=str(resp))
+        elif 'unauthorized':
+            msg = "Unauthorized"   # Return a 401 Unauthorized response
+        else:
+            msg = "Error: Invalid token" # Return a 500 Invalid token response
+    return msg
 
+if not LAMBDA:
+    class Greeter(auth_pb2_grpc.GreeterServicer):
+        def SayHello(self, request, context):
+            token = request.name
+            fakeMethodArn = "arn:aws:execute-api:{regionId}:{accountId}:{apiId}/{stage}/{httpVerb}/[{resource}/[{child-resources}]]"
+            msg = do_authentication(token, fakeMethodArn)
+            return auth_pb2.HelloReply(message=msg)
 
-
-class Greeter(auth_pb2_grpc.GreeterServicer):
-
-    def SayHello(self, request, context):
-
-        token = request.name
-        fakeMethodArn = "arn:aws:execute-api:{regionId}:{accountId}:{apiId}/{stage}/{httpVerb}/[{resource}/[{child-resources}]]"
-
-        with tracing.Span("Generate Policy"):
-            if 'allow' in token:
-                ret = generatePolicy('user', 'Allow', fakeMethodArn)
-                resp = ret.__dict__
-                msg = "fn: Auth | token: {token} | resp: {resp} | runtime: python".format(token=token, resp=str(resp))
-            elif 'deny' in token:
-                ret = generatePolicy('user', 'Deny', fakeMethodArn)
-                resp = ret.__dict__
-                msg = "fn: Auth | token: {token} | resp: {resp} | runtime: python".format(token=token, resp=str(resp))
-            elif 'unauthorized':
-                msg = "Unauthorized"   # Return a 401 Unauthorized response
-            else:
-                msg = "Error: Invalid token" # Return a 500 Invalid token response
-
-        return auth_pb2.HelloReply(message=msg)
+if LAMBDA:
+    class Auth():
+        def authenticate(self, token):
+            fakeMethodArn = "arn:aws:execute-api:{regionId}:{accountId}:{apiId}/{stage}/{httpVerb}/[{resource}/[{child-resources}]]"
+            msg = do_authentication(token, fakeMethodArn)
+            return msg
 
 
 def serve():
     server = grpc.server(futures.ThreadPoolExecutor(max_workers=1))
     auth_pb2_grpc.add_GreeterServicer_to_server(Greeter(), server)
-
     address = (args.addr + ":" + args.port)
     server.add_insecure_port(address)
     print("Start Auth-python server. Addr: " + address)
-
     server.start()
     server.wait_for_termination()
 
+def lambda_handler(event, context):
+    authObj = Auth()
+    return authObj.authenticate(event['name'])
 
 if __name__ == '__main__':
-    logging.basicConfig()
     serve()
