@@ -25,7 +25,7 @@
 # Install gRPC and all other dependencies
 FROM vhiveease/python-slim:latest as aesPythonBuilder
 WORKDIR /py
-COPY ./benchmarks/aes/python/requirements.txt ./
+COPY ./benchmarks/aes/python/requirements/common.txt ./requirements.txt
 RUN pip3 install --user -r requirements.txt
 COPY ./utils/tracing/python/tracing.py ./
 COPY ./benchmarks/aes/python/server.py ./

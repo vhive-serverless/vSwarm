@@ -28,18 +28,25 @@ ROOT = ../../
 
 FUNCTIONS = aes-python aes-nodejs aes-go
 ALL_IMAGES = $(addsuffix -image, $(FUNCTIONS))
+ALL_LAMBDA_IMAGES = $(addsuffix -lambda-image, $(FUNCTIONS))
 
-all: all_image
+export AWS_REGION := ${AWS_REGION}
+export AWS_ACCESS_KEY := ${AWS_ACCESS_KEY}
+export AWS_SECRET_KEY := ${AWS_SECRET_KEY}
+export AWS_ACCOUNT_ID := ${AWS_ACCOUNT_ID}
+
+all: all_image all_lambda_image
 
 all_image: $(ALL_IMAGES)
 
+all_lambda_image: $(ALL_LAMBDA_IMAGES)
 
 aes-python-image: docker/Dockerfile python/server.py
 	DOCKER_BUILDKIT=1 docker buildx build \
 	--tag vhiveease/aes-python:latest \
 	--target aesPython \
 	-f docker/Dockerfile \
-	$(ROOT)
+	$(ROOT) --load
 
 
 aes-nodejs-image: docker/Dockerfile nodejs/server.js
@@ -47,7 +54,7 @@ aes-nodejs-image: docker/Dockerfile nodejs/server.js
 	--tag vhiveease/aes-nodejs:latest \
 	--target aesNodeJS \
 	-f docker/Dockerfile \
-	$(ROOT)
+	$(ROOT) --load
 
 
 aes-go-image: docker/Dockerfile go/server.go
@@ -55,7 +62,15 @@ aes-go-image: docker/Dockerfile go/server.go
 	--tag vhiveease/aes-go:latest \
 	--target aesGo \
 	-f docker/Dockerfile \
-	$(ROOT)
+	$(ROOT) --load
+
+
+aes-python-lambda-image: docker/Dockerfile.Lambda python/server.py
+	DOCKER_BUILDKIT=1 docker buildx build \
+	--tag $(AWS_ACCOUNT_ID).dkr.ecr.$(AWS_REGION).amazonaws.com/aes-python-lambda:latest \
+	--target aesPythonLambda \
+	-f docker/Dockerfile.Lambda \
+	$(ROOT) --load
 
 
 ## Push images
@@ -63,11 +78,21 @@ aes-go-image: docker/Dockerfile go/server.go
 push-%: %-image
 	docker push docker.io/vhiveease/$(subst push-,,$@):latest
 
-push: $(addprefix push-, $(FUNCTIONS))
+push-%-lambda: %-lambda-image
+	aws ecr get-login-password --region $(AWS_REGION) | \
+		docker login --username AWS --password-stdin \
+		$(AWS_ACCOUNT_ID).dkr.ecr.$(AWS_REGION).amazonaws.com
+	python $(ROOT)/runner/aws_lambda_scripts/aws_actions.py create_ecr_repo -n $(subst push-,,$@)
+	docker push $(AWS_ACCOUNT_ID).dkr.ecr.$(AWS_REGION).amazonaws.com/$(subst push-,,$@):latest
+
+push: $(addprefix push-, $(FUNCTIONS)) $(addprefix push-, $(addsuffix -lambda, $(FUNCTIONS)))
 
 ## Pull images from docker hub
 
 pull-%:
 	docker pull docker.io/vhiveease/$(subst pull-,,$@):latest
 
-pull: $(addprefix pull-, $(FUNCTIONS))
+pull-%-lambda:
+	docker pull $(AWS_ACCOUNT_ID).dkr.ecr.$(AWS_REGION).amazonaws.com/$(subst pull-,,$@):latest
+
+pull: $(addprefix pull-, $(FUNCTIONS)) $(addprefix pull-, $(addsuffix -lambda, $(FUNCTIONS)))
