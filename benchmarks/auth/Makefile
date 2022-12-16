@@ -51,6 +51,14 @@ auth-python-lambda-image: docker/Dockerfile.Lambda python/server.py
 	$(ROOT) --load
 
 
+auth-nodejs-lambda-image: docker/Dockerfile.Lambda nodejs/server.js
+	DOCKER_BUILDKIT=1 docker buildx build \
+	--tag $(AWS_ACCOUNT_ID).dkr.ecr.$(AWS_REGION).amazonaws.com/auth-nodejs-lambda:latest \
+	--target authNodeJSLambda \
+	-f docker/Dockerfile.Lambda \
+	$(ROOT) --load
+
+
 push-%: %-image
 	docker push docker.io/$(DOCKER_HUB_ACCOUNT)/$(subst push-,,$@):latest
 

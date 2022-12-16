@@ -34,3 +34,16 @@ RUN  pip3 install -r requirements.txt --target "${LAMBDA_TASK_ROOT}"
 
 # Set the CMD to handler
 CMD [ "server.lambda_handler" ]
+
+#---------- NodeJS -----------#
+FROM public.ecr.aws/lambda/nodejs:18 as authNodeJSLambda
+
+# Copy function code
+COPY ./benchmarks/auth/nodejs/server.js ./
+COPY ./benchmarks/auth/nodejs/package.json ./
+
+# Install NPM dependencies for function
+RUN npm install
+
+# Set the CMD to your handler
+CMD [ "server.lambda_handler" ]
