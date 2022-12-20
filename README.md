@@ -15,7 +15,7 @@ tracing with [Zipkin](https://zipkin.io/) which traces both the infra components
 functions.
 
 In addition to the multi-function benchmarks, the vSwarm suite contains a set of [standalone functions](./benchmarks/README.md#standalone-functions-benchmark-summary), which support both x86 and arm64 architectures. Most of the standalone functions are compatible with [vSwarm-u](https://github.com/vhive-serverless/vSwarm-u), which allows to run them in the [gem5](https://www.gem5.org/) cycle-accurate full-system CPU simulator and study microarchitectural implications of serverless computing.
-the state-of-the-art research platform for system-and microarchitecture.  
+the state-of-the-art research platform for system-and microarchitecture.
 The standalone functions can therefore be used as microbenchmarks to first pin-point microarchitectural bottlenecks in execution of serverless workloads using [Top-Down](https://www.intel.com/content/www/us/en/develop/documentation/vtune-cookbook/top/methodologies/top-down-microarchitecture-analysis-method.html) analysis ([tool](https://github.com/andikleen/pmu-tools/wiki/toplev-manual)) on real hardware and then further explore and optimize these bottlenecks using the [gem5](https://www.gem5.org/) cycle-accurate simulator.
 
 
@@ -90,8 +90,11 @@ The software is maintained by the [vHive Ecosystem](https://vhive-serverless.git
 ### Maintainers
 
 - Invoker, timeseriesdb, runners - Dmitrii Ustiugov: [GitHub](https://github.com/ustiugov),
-[twitter](https://twitter.com/DmitriiUstiugov), [web page](https://ustiugov.github.io)
-- ML benchmarks and utils (tracing and storage modules) - Michal Baczun [GitHub](https://github.com/MBaczun)
-- ML benchmarks - Rustem Feyzkhanov [GitHub](https://github.com/ryfeus)
-- Video Analytics and Map-Reduce benchmarks - Shyam Jesalpura [GitHub](https://github.com/shyamjesal)
-- GG benchmarks - Francisco Romero [GitHub](https://github.com/faromero) and Clemente Farias [GitHub](https://github.com/cbfariasc)
+[twitter](https://twitter.com/DmitriiUstiugov/), [web page](https://ustiugov.github.io)
+- Corral Benchmark - Dmitrii Ustiugov: [GitHub](https://github.com/ustiugov),
+[twitter](https://twitter.com/DmitriiUstiugov/), [web page](https://ustiugov.github.io)
+- Map-Reduce, Stacking-training and Tuning-halving - Alan Nair [GitHub](https://github.com/alannair)
+- Chained Functions and Video analytics - Shyam Jesalpura [GitHub](https://github.com/shyamjesal)
+- GG benchmarks - Shyam Jesalpura [GitHub](https://github.com/shyamjesal)
+- Standalone functions - David Schall [GitHub](https://github.com/dhschall),[web page](https://dhschall.github.io/)
+- Multi cloud containers (lambda) - Alan Nair [GitHub](https://github.com/alannair)
