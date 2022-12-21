@@ -75,6 +75,13 @@ fibonacci-nodejs-lambda-image: docker/Dockerfile.Lambda nodejs/server.js
 	-f docker/Dockerfile.Lambda \
 	$(ROOT) --load
 
+fibonacci-go-lambda-image: docker/Dockerfile.Lambda go/server.go
+	DOCKER_BUILDKIT=1 docker buildx build \
+	--tag $(AWS_ACCOUNT_ID).dkr.ecr.$(AWS_REGION).amazonaws.com/fibonacci-go-lambda:latest \
+	--target fibonacciGoLambda \
+	-f docker/Dockerfile.Lambda \
+	$(ROOT) --load
+
 push-%: %-image
 	docker push docker.io/$(DOCKER_HUB_ACCOUNT)/$(subst push-,,$@):latest
 

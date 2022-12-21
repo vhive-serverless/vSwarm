@@ -29,12 +29,18 @@ import (
 	"fmt"
 	"net"
 	"strconv"
+	"os"
+	"strings"
 
 	pb "github.com/vhive-serverless/vSwarm-proto/proto/fibonacci"
 	tracing "github.com/vhive-serverless/vSwarm/utils/tracing/go"
 	log "github.com/sirupsen/logrus"
+
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
+
+	"github.com/aws/aws-lambda-go/events"
+	"github.com/aws/aws-lambda-go/lambda"
 )
 
 var (
@@ -68,32 +74,46 @@ func (s *server) SayHello(ctx context.Context, in *pb.HelloRequest) (*pb.HelloRe
 	return &pb.HelloReply{Message: resp}, nil
 }
 
+func HandleRequest(ctx context.Context, request events.APIGatewayProxyRequest) (string, error) {
+	x, _ := strconv.ParseInt(request.QueryStringParameters["name"], 10, 64)
+	var y = fibonacci(int(x))
+	resp := fmt.Sprintf("fn: Fib: y = fib(x) | x: %d y: %.1f | runtime: GoLang | platform: AWS LAMBDA", x, y)
+	return resp, nil
+}
+
 func main() {
-	flag.Parse()
-	if tracing.IsTracingEnabled() {
-		shutdown, err := tracing.InitBasicTracer(*zipkin, "fibonacci function")
-		if err != nil {
-			log.Warn(err)
-		}
-		defer shutdown()
-	}
+	val, ok := os.LookupEnv("IS_LAMBDA");
+	LAMBDA := (ok && (strings.ToLower(val) == "true" || strings.ToLower(val) == "yes" || strings.ToLower(val) == "1"))
 
-	lis, err := net.Listen("tcp", *address)
-	if err != nil {
-		log.Fatalf("failed to listen: %v", err)
-	}
-	log.Printf("Start fibonacci-go server. Addr : %s\n", *address)
-
-	var grpcServer *grpc.Server
-	if tracing.IsTracingEnabled() {
-		grpcServer = tracing.GetGRPCServerWithUnaryInterceptor()
+	if LAMBDA {
+		lambda.Start(HandleRequest)
 	} else {
-		grpcServer = grpc.NewServer()
-	}
-	pb.RegisterGreeterServer(grpcServer, &server{})
-	reflection.Register(grpcServer)
+		flag.Parse()
+		if tracing.IsTracingEnabled() {
+			shutdown, err := tracing.InitBasicTracer(*zipkin, "fibonacci function")
+			if err != nil {
+				log.Warn(err)
+			}
+			defer shutdown()
+		}
 
-	if err := grpcServer.Serve(lis); err != nil {
-		log.Fatalf("failed to serve: %v", err)
+		lis, err := net.Listen("tcp", *address)
+		if err != nil {
+			log.Fatalf("failed to listen: %v", err)
+		}
+		log.Printf("Start fibonacci-go server. Addr : %s\n", *address)
+
+		var grpcServer *grpc.Server
+		if tracing.IsTracingEnabled() {
+			grpcServer = tracing.GetGRPCServerWithUnaryInterceptor()
+		} else {
+			grpcServer = grpc.NewServer()
+		}
+		pb.RegisterGreeterServer(grpcServer, &server{})
+		reflection.Register(grpcServer)
+
+		if err := grpcServer.Serve(lis); err != nil {
+			log.Fatalf("failed to serve: %v", err)
+		}
 	}
 }
