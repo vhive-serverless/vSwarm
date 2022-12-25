@@ -25,7 +25,7 @@ callee, and is displayed in order from most likely to least likely tag.
 
 2. Deploy the necessary functions using the `kn_deploy` script.
     ```bash
-    ../../tools/kn_deploy.sh ./knative_yamls/s3/*
+    ../../tools/kn_deploy.sh ./knative/knative/s3/*
     ```
     Any sub-folder in the `knative_yamls` directory can be used, and all of the manifests therein
     must be deployed.

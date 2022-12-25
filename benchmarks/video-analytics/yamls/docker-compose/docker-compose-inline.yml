@@ -30,6 +30,7 @@ services:
             - -zipkin=http://zipkin:9411/api/v2/spans
         environment:
             - MAX_RECOG_SERVER_THREADS=10
+            - TRANFER_TYYPE=INLINE
 
     decoder:
         image: vhiveease/video-analytics-decoder
@@ -41,6 +42,7 @@ services:
         environment:
             - MAX_DECODER_SERVER_THREADS=10
             - CONCURRENT_RECOG=false
+            - TRANFER_TYYPE=INLINE
         depends_on: 
             - recog
 
@@ -53,5 +55,7 @@ services:
             - -p=50052
             - -sp=50051
             - -zipkin=http://zipkin:9411/api/v2/spans
+        environment:
+            - TRANFER_TYYPE=INLINE
         depends_on:
             - decoder

@@ -40,7 +40,7 @@ on:
 env:
   GOOS: linux
   GO111MODULE: on
-  KUBECONFIG: /etc/kubernetes/admin.conf
+  PLATFORMS: linux/amd64,linux/arm64
 
 jobs:
   build-and-push:
@@ -87,7 +87,7 @@ jobs:
           AWS_ACCESS_KEY: ${{ secrets.AWS_ACCESS_KEY }}
           AWS_SECRET_KEY: ${{ secrets.AWS_SECRET_KEY }}
           BUCKET_NAME: "vhive-video-bench"
-      working-directory: benchmarks/video-analytics
+      working-directory: benchmarks/video-analytics/yamls/docker-compose
       run: |
         docker-compose -f docker-compose-s3.yml up &> log_file &
         sleep 60s
@@ -97,17 +97,22 @@ jobs:
         ./tools/bin/grpcurl -plaintext localhost:50051 helloworld.Greeter.SayHello
 
     - name: show docker-compose log
-      run: cat benchmarks/video-analytics/log_file
+      run: cat benchmarks/video-analytics/yamls/docker-compose/log_file
 
   test-knative:
     name: Test Knative Deployment
     needs: build-and-push
     env:
-      GOCACHE: /root/tmp/gocache
-      GOPATH: /root/tmp/gopath
-    runs-on: [stock-knative]
+      KIND_VERSION: v0.14.0
+      K8S_VERSION: v1.23
+      YAML_DIR: benchmarks/chained-function-serving/yamls/knative/
+
+    runs-on: ubuntu-20.04
     strategy:
       fail-fast: false
+      matrix:
+        folder: [ inline, s3 ]
+
     steps:
       - uses: actions/checkout@v3
         with:
@@ -119,21 +124,47 @@ jobs:
         with:
           go-version: 1.18
 
+      ## Setup a Knative cluster to test the service
+      - name: Create k8s Kind Cluster
+        run: bash ./runner/scripts/01-kind.sh
+
+      - name: Install Serving
+        run: bash ./runner/scripts/02-serving.sh
+
+      - name: Install Kourier
+        run: bash ./runner/scripts/02-kourier.sh
+
+      - name: Setup domain
+        run: |
+          INGRESS_HOST="127.0.0.1"
+          KNATIVE_DOMAIN=$INGRESS_HOST.sslip.io
+          kubectl patch configmap -n knative-serving config-domain -p "{\"data\": {\"$KNATIVE_DOMAIN\": \"\"}}"
+
+      - name: Setup kn
+        env:
+          KN_VERSION: v1.8.1
+          KN_INSTALL_PATH: /usr/local/bin/kn
+        run: |-
+          echo "Downloading kn $KN_VERSION"
+          sudo wget --quiet -O $KN_INSTALL_PATH "https://github.com/knative/client/releases/download/knative-$KN_VERSION/kn-linux-amd64"
+          sudo chmod +x $KN_INSTALL_PATH
+          echo "Installed kn $KN_VERSION"
+
       - name: Up
         working-directory: benchmarks
         env:
           AWS_ACCESS_KEY: ${{ secrets.AWS_ACCESS_KEY }}
           AWS_SECRET_KEY: ${{ secrets.AWS_SECRET_KEY }}
-        run: ../tools/kn_deploy.sh ./video-analytics/knative_yamls/inline/*
+        run: ../tools/kn_deploy.sh ./video-analytics/yamls/knative/${{ matrix.folder }}/*
 
       - name: Test
         working-directory: tools/test-client
         run: |
           set -x
-
-          NODEPORT=$(kubectl get svc kourier-ingress -n kourier-system -o=jsonpath='{.spec.ports[0].nodePort}')
+          
+          NODEPORT=80
           HOSTNAME=$(kubectl get ksvc streaming -n default -o jsonpath='{.status.url}' | cut -c8-)
-
+          
           go build ./test-client.go
           ./test-client -addr $HOSTNAME:$NODEPORT
 
