@@ -30,7 +30,7 @@ jobs:
       fail-fast: false
     env:
       GOPRIVATE_KEY: ${{ secrets.XDT_REPO_ACCESS_KEY }}
-      GOPRIVATE: "github.com/ease-lab/vhive-xdtx"
+      GOPRIVATE: "github.com/ease-lab/vhive-xdt"
     steps:
       - name: Setup Go 1.18
         uses: actions/setup-go@v3
