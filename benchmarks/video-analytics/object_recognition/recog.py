@@ -36,7 +36,6 @@ sys.path.insert(0, os.getcwd() + '/../proto/')
 sys.path.insert(0, os.getcwd() + '/../../../../utils/tracing/python')
 sys.path.insert(0, os.getcwd() + '/../../../../utils/storage/python')
 import tracing
-from storage import Storage
 import videoservice_pb2_grpc
 import videoservice_pb2
 import destination as XDTdst
@@ -140,6 +139,7 @@ class ObjectRecognitionServicer(videoservice_pb2_grpc.ObjectRecognitionServicer)
 def serve():
     transferType = os.getenv('TRANSFER_TYPE', INLINE)
     if transferType == S3:
+        from storage import Storage
         bucketName = os.getenv('BUCKET_NAME', 'vhive-video-bench')
         global storageBackend
         storageBackend = Storage(bucketName)
