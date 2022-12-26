@@ -90,7 +90,7 @@ The software is maintained by the [vHive Ecosystem](https://vhive-serverless.git
 ### Maintainers
 
 - Invoker, timeseriesdb, runners - Dmitrii Ustiugov: [GitHub](https://github.com/ustiugov),
-[twitter](https://twitter.com/DmitriiUstiugov), [web page](http://homepages.inf.ed.ac.uk/s1373190/)
+[twitter](https://twitter.com/DmitriiUstiugov), [web page](https://ustiugov.github.io)
 - ML benchmarks and utils (tracing and storage modules) - Michal Baczun [GitHub](https://github.com/MBaczun)
 - ML benchmarks - Rustem Feyzkhanov [GitHub](https://github.com/ryfeus)
 - Video Analytics and Map-Reduce benchmarks - Shyam Jesalpura [GitHub](https://github.com/shyamjesal)
