@@ -18,7 +18,7 @@ require (
 require (
 	github.com/aws/aws-lambda-go v1.25.0 // indirect
 	github.com/aws/aws-sdk-go v1.40.7 // indirect
-	github.com/containerd/containerd v1.6.8 // indirect
+	github.com/containerd/containerd v1.6.12 // indirect
 	github.com/dustin/go-humanize v1.0.0 // indirect
 	github.com/fsnotify/fsnotify v1.4.9 // indirect
 	github.com/go-logr/logr v1.2.3 // indirect
