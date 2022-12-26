@@ -15,7 +15,7 @@ replace (
 )
 
 require (
-	github.com/containerd/containerd v1.6.8
+	github.com/containerd/containerd v1.6.12
 	github.com/ease-lab/vhive-xdt/sdk/golang v0.0.0-20221107151004-a0940018d178
 	github.com/ease-lab/vhive-xdt/utils v0.0.0-20221107151004-a0940018d178
 	github.com/sirupsen/logrus v1.9.0
