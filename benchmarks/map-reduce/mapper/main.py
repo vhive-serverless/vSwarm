@@ -65,9 +65,15 @@ XDT = "XDT"
 
 if not LAMBDA:
     class MapperServicer(mapreduce_pb2_grpc.MapperServicer):
+
+        def __init__(self, transferType, XDTStorage=None):
+            self.transferType = transferType
+            self.XDTStorage = XDTStorage
+
         def Map(self, request, context):
-            inputStorage = Storage(request.srcBucket)
-            outputStorage = Storage(request.destBucket)
+            inputStorage = Storage(bucket=request.srcBucket, transferType=S3)
+            if self.transferType == XDT:
+                outputStorage = self.XDTStorage
 
             mapArgs = {
                 'inputStorage' : inputStorage,
@@ -117,13 +123,14 @@ def serve():
     XDTconfig = dict()
     if transferType == XDT:
         XDTconfig = XDTutil.loadConfig()
+        outputStorage = Storage(bucket="", transferConfig=XDTconfig)
         log.info("XDT config:")
         log.info(XDTconfig)
 
     log.info("Using inline or s3 transfers")
     max_workers = int(os.getenv("MAX_SERVER_THREADS", 16))
     server = grpc.server(futures.ThreadPoolExecutor(max_workers=max_workers))
-    mapreduce_pb2_grpc.add_MapperServicer_to_server(MapperServicer(), server)
+    mapreduce_pb2_grpc.add_MapperServicer_to_server(MapperServicer(transferType=transferType, XDTStorage=outputStorage), server)
     server.add_insecure_port('[::]:' + args.sp)
     server.start()
     server.wait_for_termination()
@@ -132,6 +139,7 @@ def serve():
 def lambda_handler(event, context):
     mapperServicer = AWSLambdaMapperServicer()
     return mapperServicer.Map(event, context)
+
 
 if __name__ == '__main__' and not LAMBDA:
     log.basicConfig(level=log.INFO)

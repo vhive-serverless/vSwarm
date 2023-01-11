@@ -64,6 +64,7 @@ if tracing.IsTracingEnabled():
 INLINE = "INLINE"
 S3 = "S3"
 XDT = "XDT"
+ELASTICHACHE = "ELASTICACHE"
 storageBackend = None
 
 def decode(bytes):
@@ -95,21 +96,18 @@ def get_self_ip():
 
 
 class VideoDecoderServicer(videoservice_pb2_grpc.VideoDecoderServicer):
-    def __init__(self, transferType, XDTconfig=None):
+    def __init__(self, transferType, XDTclient=None):
 
         self.frameCount = 0
         self.transferType = transferType
         if transferType == XDT:
-            if XDTconfig is None:
-                log.fatal("Empty XDT config")
-            self.XDTconfig = XDTconfig
-            self.XDTclient = XDTsrc.XDTclient(config=XDTconfig)
+            self.XDTclient = XDTclient
 
     def Decode(self, request, context):
         log.info("Decoder recieved a request")
 
         videoBytes = b''
-        if self.transferType == S3:
+        if self.transferType == S3 or self.transferType == ELASTICHACHE:
             log.info("Using s3, getting bucket")
             with tracing.Span("Video fetch"):
                 videoBytes = storageBackend.get(request.s3key)
@@ -145,7 +143,7 @@ class VideoDecoderServicer(videoservice_pb2_grpc.VideoDecoderServicer):
         channel = grpc.insecure_channel(args.addr)
         stub = videoservice_pb2_grpc.ObjectRecognitionStub(channel)
         result = b''
-        if self.transferType == S3:
+        if self.transferType == S3 or self.transferType == ELASTICHACHE:
             name = "decoder-frame-" + str(self.frameCount) + ".jpg"
             with tracing.Span("Upload frame"):
                 self.frameCount += 1
@@ -160,7 +158,7 @@ class VideoDecoderServicer(videoservice_pb2_grpc.VideoDecoderServicer):
             xdtPayload = XDTutil.Payload(FunctionName="HelloXDT", Data=frame)
             if not args.dockerCompose:
                 log.info("replacing SQP hostname")
-                self.XDTconfig["SQPServerHostname"] = get_self_ip()
+                # self.XDTconfig["SQPServerHostname"] = get_self_ip()
             response_bytes, ok = self.XDTclient.Invoke(URL=args.addr, xdtPayload=xdtPayload)
             # convert response bytes to string
             result = response_bytes.decode()
@@ -169,12 +167,12 @@ class VideoDecoderServicer(videoservice_pb2_grpc.VideoDecoderServicer):
 
 def serve():
     transferType = os.getenv('TRANSFER_TYPE', INLINE)
-    if transferType == S3:
+    if transferType == S3 or transferType == ELASTICHACHE:
         from storage import Storage
         bucketName = os.getenv('BUCKET_NAME', 'vhive-video-bench')
         global storageBackend
         storageBackend = Storage(bucketName)
-    if transferType == S3 or transferType == INLINE:
+    if transferType == S3 or transferType == INLINE or transferType == ELASTICHACHE:
         max_workers = int(os.getenv("MAX_DECODER_SERVER_THREADS", 10))
         server = grpc.server(futures.ThreadPoolExecutor(max_workers=max_workers))
         videoservice_pb2_grpc.add_VideoDecoderServicer_to_server(
@@ -186,9 +184,10 @@ def serve():
         XDTconfig = XDTutil.loadConfig()
         log.info("[decode] transfering via XDT")
         log.info(XDTconfig)
+        XDTclient = XDTsrc.XDTclient(config=XDTconfig)
 
         def handler(videoBytes):
-            decoderService = VideoDecoderServicer(transferType=transferType, XDTconfig=XDTconfig)
+            decoderService = VideoDecoderServicer(transferType=transferType, XDTclient=XDTclient)
             results = decoderService.processFrames(videoBytes)
             return results.encode(), True
 

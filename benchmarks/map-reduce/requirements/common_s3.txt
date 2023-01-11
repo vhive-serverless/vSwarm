@@ -12,3 +12,5 @@ boto3==1.18.1
 grpcio-tools==1.38.1
 joblib==1.2.0
 environs==9.3.2
+pycapnp==1.2.1
+redis==3.5.3

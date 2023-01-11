@@ -32,13 +32,14 @@ COPY ./utils/storage/python/storage.py ./
 COPY ./benchmarks/video-analytics/object_recognition/* ./
 COPY ./benchmarks/video-analytics/proto/videoservice_pb2_grpc.py ./
 COPY ./benchmarks/video-analytics/proto/videoservice_pb2.py ./
-RUN --mount=type=secret,id=GOPRIVATE_KEY git clone --depth 1 https://$(cat /run/secrets/GOPRIVATE_KEY)@github.com/ease-lab/vhive-xdt /xdt
+RUN --mount=type=secret,id=GOPRIVATE_KEY git clone -b datapath-using-capnp --depth 1 https://$(cat /run/secrets/GOPRIVATE_KEY)@github.com/ease-lab/vhive-xdt /xdt
 
 FROM vhiveease/python-slim:latest as recog
 COPY --from=recogBuilder /root/.local /root/.local
 COPY --from=recogBuilder /py /app
 COPY --from=recogBuilder /xdt/sdk/python/ /app
 COPY --from=recogBuilder /xdt/proto/downXDT/ /app
+COPY --from=recogBuilder /xdt/proto/upXDT/ /app
 COPY --from=recogBuilder /xdt/proto/crossXDT/ /app
 WORKDIR /app
 ENV PATH=/root/.local/bin:$PATH
@@ -59,7 +60,7 @@ COPY ./benchmarks/video-analytics/decoder/decode.py ./
 RUN mkdir frames
 COPY ./benchmarks/video-analytics/proto/videoservice_pb2_grpc.py ./
 COPY ./benchmarks/video-analytics/proto/videoservice_pb2.py ./
-RUN --mount=type=secret,id=GOPRIVATE_KEY git clone --depth 1 https://$(cat /run/secrets/GOPRIVATE_KEY)@github.com/ease-lab/vhive-xdt /xdt
+RUN --mount=type=secret,id=GOPRIVATE_KEY git clone -b datapath-using-capnp --depth 1 https://$(cat /run/secrets/GOPRIVATE_KEY)@github.com/ease-lab/vhive-xdt /xdt
 
 FROM vhiveease/python-slim:latest as decode
 RUN apt update && apt-get install ffmpeg libsm6 libxext6  -y

@@ -59,6 +59,7 @@ args = parser.parse_args()
 INLINE = "INLINE"
 S3 = "S3"
 XDT = "XDT"
+ELASTICACHE = "ELASTICACHE"
 storageBackend = None
 
 if tracing.IsTracingEnabled():
@@ -124,7 +125,7 @@ class ObjectRecognitionServicer(videoservice_pb2_grpc.ObjectRecognitionServicer)
 
         # get the frame from s3 or inline
         frame = None
-        if self.transferType == S3:
+        if self.transferType == S3 or self.transferType == ELASTICACHE:
             log.info("retrieving target frame '%s' from s3" % request.s3key)
             with tracing.Span("Frame fetch"):
                 frame = pickle.loads(storageBackend.get(request.s3key))
@@ -138,12 +139,12 @@ class ObjectRecognitionServicer(videoservice_pb2_grpc.ObjectRecognitionServicer)
 
 def serve():
     transferType = os.getenv('TRANSFER_TYPE', INLINE)
-    if transferType == S3:
+    if transferType == S3 or transferType == ELASTICACHE:
         from storage import Storage
         bucketName = os.getenv('BUCKET_NAME', 'vhive-video-bench')
         global storageBackend
         storageBackend = Storage(bucketName)
-    if transferType == S3 or transferType == INLINE:
+    if transferType == S3 or transferType == INLINE or transferType == ELASTICACHE:
         max_workers = int(os.getenv("MAX_RECOG_SERVER_THREADS", 10))
         server = grpc.server(futures.ThreadPoolExecutor(max_workers=max_workers))
         videoservice_pb2_grpc.add_ObjectRecognitionServicer_to_server(

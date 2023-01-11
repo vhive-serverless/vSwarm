@@ -29,7 +29,9 @@ import logging as log
 NUM_MAPPERS = int(os.getenv('NUM_MAPPERS', "4"))
 NUM_REDUCERS = int(os.getenv('NUM_REDUCERS', "2"))
 
-DEFAULT_BUCKET = "storage-module-test"
+STORAGE_BUCKET_NAME = "storage-module-test"
+BUCKET_NAME = os.getenv('BUCKET_NAME', "storage-module-test")
+
 
 def DriveFunction(args: dict):
     log.info("Driver received a request")
@@ -47,8 +49,8 @@ def DriveFunction(args: dict):
     map_tasks = []
     for i in range(NUM_MAPPERS):
         task = {
-            'srcBucket' : DEFAULT_BUCKET,
-            'destBucket' : DEFAULT_BUCKET,
+            'srcBucket' : STORAGE_BUCKET_NAME,
+            'destBucket' : BUCKET_NAME,
             'keys'      : ["part-" + str(i).zfill(5)],
             'jobId'     : "0",
             'mapperId'  : i,
@@ -67,8 +69,8 @@ def DriveFunction(args: dict):
     reduce_tasks = []
     for i in range(NUM_REDUCERS):
         task = {
-            'srcBucket' : DEFAULT_BUCKET,
-            'destBucket' : DEFAULT_BUCKET,
+            'srcBucket' : BUCKET_NAME,
+            'destBucket' : STORAGE_BUCKET_NAME,
             'keys'      : reduce_input_keys[i],
             'nReducers' : NUM_REDUCERS,
             'jobId'     : "0",

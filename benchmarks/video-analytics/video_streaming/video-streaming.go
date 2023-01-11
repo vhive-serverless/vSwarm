@@ -53,9 +53,10 @@ var (
 )
 
 const (
-	INLINE = "INLINE"
-	XDT    = "XDT"
-	S3     = "S3"
+	INLINE      = "INLINE"
+	XDT         = "XDT"
+	S3          = "S3"
+	ELASTICACHE = "ELASTICACHE"
 )
 
 type server struct {
@@ -91,11 +92,11 @@ func uploadToS3(ctx context.Context, storageBackend storage.Storage) {
 		span.StartSpan(ctx)
 		defer span.EndSpan()
 	}
-	file, err := os.Open(*videoFile)
+	file, err := os.ReadFile(*videoFile)
 	if err != nil {
 		log.Fatalf("[Video Streaming] Failed to open file: %s", err)
 	}
-	storageBackend.PutFile("streaming-video.mp4", file)
+	storageBackend.Put(ctx, "streaming-video.mp4", file)
 	log.Infof("[Video Streaming] Uploaded video to s3")
 }
 
@@ -121,7 +122,7 @@ func (s *server) SayHello(ctx context.Context, req *pb_helloworld.HelloRequest) 
 		} else {
 			response = string(message)
 		}
-	} else if s.transferType == S3 || s.transferType == INLINE {
+	} else if s.transferType == S3 || s.transferType == INLINE || s.transferType == ELASTICACHE {
 		var conn *grpc.ClientConn
 		if tracing.IsTracingEnabled() {
 			conn, err = tracing.DialGRPCWithUnaryInterceptor(addr, grpc.WithBlock(), grpc.WithTransportCredentials(insecure.NewCredentials()))
@@ -134,7 +135,7 @@ func (s *server) SayHello(ctx context.Context, req *pb_helloworld.HelloRequest) 
 		defer conn.Close()
 
 		client := pb_video.NewVideoDecoderClient(conn)
-		if s.transferType == S3 {
+		if s.transferType == S3 || s.transferType == ELASTICACHE {
 			// upload video to s3
 			uploadToS3(ctx, s.storageBackend)
 			// issue request
@@ -209,12 +210,12 @@ func main() {
 		server.transferType = transferType
 	}
 
-	if server.transferType == S3 {
+	if server.transferType == S3 || server.transferType == ELASTICACHE {
 		if value, ok := os.LookupEnv("BUCKET_NAME"); ok {
 			AWS_S3_BUCKET = value
 		}
 		log.Infof("[streaming]  BUCKET = %s", AWS_S3_BUCKET)
-		storageBackend := storage.New("S3", AWS_S3_BUCKET)
+		storageBackend := storage.New(server.transferType, AWS_S3_BUCKET)
 		server.storageBackend = storageBackend
 	} else if server.transferType == XDT {
 		log.Infof("[streaming] TransferType = %s", server.transferType)

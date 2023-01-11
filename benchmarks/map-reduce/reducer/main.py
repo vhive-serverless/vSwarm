@@ -65,9 +65,15 @@ XDT = "XDT"
 
 if not LAMBDA:
     class ReducerServicer(mapreduce_pb2_grpc.ReducerServicer):
+
+        def __init__(self, transferType, XDTStorage=None):
+            self.transferType = transferType
+            self.XDTStorage = XDTStorage
+
         def Reduce(self, request, context):
-            inputStorage = Storage(request.srcBucket)
-            outputStorage = Storage(request.destBucket)
+            if self.transferType == XDT:
+                inputStorage = self.XDTStorage
+            outputStorage = Storage(bucket=request.destBucket, transferType=S3)
 
             reduceArgs = {
                 'inputStorage' : inputStorage,
@@ -107,13 +113,14 @@ def serve():
     XDTconfig = dict()
     if transferType == XDT:
         XDTconfig = XDTutil.loadConfig()
+        outputStorage = Storage(bucket="", transferConfig=XDTconfig)
         log.info("XDT config:")
         log.info(XDTconfig)
 
     log.info("Using inline or s3 transfers")
     max_workers = int(os.getenv("MAX_SERVER_THREADS", 16))
     server = grpc.server(futures.ThreadPoolExecutor(max_workers=max_workers))
-    mapreduce_pb2_grpc.add_ReducerServicer_to_server(ReducerServicer(), server)
+    mapreduce_pb2_grpc.add_ReducerServicer_to_server(ReducerServicer(transferType=transferType, XDTStorage=outputStorage), server)
     server.add_insecure_port('[::]:' + args.sp)
     server.start()
     server.wait_for_termination()

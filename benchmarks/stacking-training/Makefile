@@ -39,48 +39,48 @@ all-image: driver-image trainer-image reducer-image metatrainer-image
 all-image-push: driver-image-push trainer-image-push reducer-image-push metatrainer-image-push
 
 driver-image: Dockerfile proto/stacking_pb2_grpc.py proto/stacking_pb2.py driver/main.py
-	docker buildx build $(PLATFORM) \
-	-t vhiveease/stacking-training-driver:latest \
+	docker buildx build $(PLATFORM) --no-cache \
+	-t vhiveease/stacking-training-driver:capnp \
 	--build-arg target_arg=driver \
 	--secret id=GOPRIVATE_KEY \
 	-f Dockerfile \
 	$(ROOT) $(MODE)
 
 trainer-image: Dockerfile proto/stacking_pb2_grpc.py proto/stacking_pb2.py trainer/main.py
-	docker buildx build $(PLATFORM) \
-	-t vhiveease/stacking-training-trainer:latest \
+	docker buildx build $(PLATFORM) --no-cache \
+	-t vhiveease/stacking-training-trainer:capnp \
 	--build-arg target_arg=trainer \
 	--secret id=GOPRIVATE_KEY \
 	-f Dockerfile \
 	$(ROOT) $(MODE)
 
 reducer-image: Dockerfile proto/stacking_pb2_grpc.py proto/stacking_pb2.py reducer/main.py
-	docker buildx build $(PLATFORM) \
-	-t vhiveease/stacking-training-reducer:latest \
+	docker buildx build $(PLATFORM) --no-cache \
+	-t vhiveease/stacking-training-reducer:capnp \
 	--build-arg target_arg=reducer \
 	--secret id=GOPRIVATE_KEY \
 	-f Dockerfile \
 	$(ROOT) $(MODE)
 
 metatrainer-image: Dockerfile proto/stacking_pb2_grpc.py proto/stacking_pb2.py metatrainer/main.py
-	docker buildx build $(PLATFORM) \
-	-t vhiveease/stacking-training-metatrainer:latest \
+	docker buildx build $(PLATFORM) --no-cache \
+	-t vhiveease/stacking-training-metatrainer:capnp \
 	--build-arg target_arg=metatrainer \
 	--secret id=GOPRIVATE_KEY \
 	-f Dockerfile \
 	$(ROOT) $(MODE)
 
 driver-image-push: driver-image
-	docker push vhiveease/stacking-training-driver:latest
+	docker push vhiveease/stacking-training-driver:capnp
 
 trainer-image-push: trainer-image
-	docker push vhiveease/stacking-training-trainer:latest
+	docker push vhiveease/stacking-training-trainer:capnp
 
 reducer-image-push: reducer-image
-	docker push vhiveease/stacking-training-reducer:latest
+	docker push vhiveease/stacking-training-reducer:capnp
 
 metatrainer-image-push: metatrainer-image
-	docker push vhiveease/stacking-training-metatrainer:latest
+	docker push vhiveease/stacking-training-metatrainer:capnp
 
 proto: proto/stacking.proto proto/helloworld.proto
 	python -m grpc_tools.protoc -I./proto --python_out=./proto --grpc_python_out=./proto ./proto/stacking.proto

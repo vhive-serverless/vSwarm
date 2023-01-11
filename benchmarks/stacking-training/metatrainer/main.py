@@ -75,6 +75,7 @@ if tracing.IsTracingEnabled():
 INLINE = "INLINE"
 S3 = "S3"
 XDT = "XDT"
+ELASTICACHE = "ELASTICACHE"
 storageBackend = None
 
 # set aws credentials:
@@ -114,35 +115,24 @@ def model_dispatcher(model_name):
 
 
 class MetatrainerServicer(stacking_pb2_grpc.TrainerServicer):
-    def __init__(self, transferType, XDTconfig=None):
+    def __init__(self, storageBackend):
 
         self.benchName = BUCKET_NAME
-        self.transferType = transferType
-        if transferType == S3:
-            self.s3_client = boto3.resource(
-                service_name='s3',
-                region_name=os.getenv("AWS_REGION", 'us-west-1'),
-                aws_access_key_id=AWS_ID,
-                aws_secret_access_key=AWS_SECRET
-            )
-        elif transferType == XDT:
-            if XDTconfig is None:
-                log.fatal("Empty XDT config")
-            self.XDTconfig = XDTconfig
+        self.storageBackend = storageBackend
 
     def get_inputs(self, request) -> dict:
         inputs: dict = {}
-        inputs['dataset'] = pickle.loads(storageBackend.get(request.dataset_key))
-        inputs['meta_features'] = pickle.loads(storageBackend.get(request.meta_features_key))
-        inputs['models'] = pickle.loads(storageBackend.get(request.models_key))
+        inputs['dataset'] = pickle.loads(self.storageBackend.get(request.dataset_key))
+        inputs['meta_features'] = pickle.loads(self.storageBackend.get(request.meta_features_key))
+        inputs['models'] = pickle.loads(self.storageBackend.get(request.models_key))
         return inputs
 
     def put_outputs(self, meta_predictions, model_full):
         model_full_key = 'model_full_key'
         meta_predictions_key = 'meta_predictions_key'
 
-        meta_predictions_key = storageBackend.put(meta_predictions_key, pickle.dumps(meta_predictions))
-        model_full_key = storageBackend.put(model_full_key, pickle.dumps(model_full))
+        meta_predictions_key = self.storageBackend.put(meta_predictions_key, pickle.dumps(meta_predictions))
+        model_full_key = self.storageBackend.put(model_full_key, pickle.dumps(model_full))
 
         return meta_predictions_key, model_full_key
 
@@ -185,22 +175,21 @@ class MetatrainerServicer(stacking_pb2_grpc.TrainerServicer):
 
 def serve():
     transferType = os.getenv('TRANSFER_TYPE', S3)
-    if transferType == S3:
-        global storageBackend
+    if transferType == S3 or transferType == ELASTICACHE:
         storageBackend = Storage(BUCKET_NAME)
         log.info("Using inline or s3 transfers")
-        max_workers = int(os.getenv("MAX_SERVER_THREADS", 10))
-        server = grpc.server(futures.ThreadPoolExecutor(max_workers=max_workers))
-        stacking_pb2_grpc.add_MetatrainerServicer_to_server(
-            MetatrainerServicer(transferType=transferType), server)
-        server.add_insecure_port('[::]:' + args.sp)
-        server.start()
-        server.wait_for_termination()
     elif transferType == XDT:
-        log.fatal("XDT not yet supported")
-        XDTconfig = XDTutil.loadConfig()
+        storageBackend = Storage(transferConfig=XDTutil.loadConfig())
+        log.info("Using xdt transfers")
     else:
         log.fatal("Invalid Transfer type")
+    max_workers = int(os.getenv("MAX_SERVER_THREADS", 10))
+    server = grpc.server(futures.ThreadPoolExecutor(max_workers=max_workers))
+    stacking_pb2_grpc.add_MetatrainerServicer_to_server(
+        MetatrainerServicer(storageBackend=storageBackend), server)
+    server.add_insecure_port('[::]:' + args.sp)
+    server.start()
+    server.wait_for_termination()
 
 
 if __name__ == '__main__':

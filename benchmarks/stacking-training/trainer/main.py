@@ -52,9 +52,6 @@ import stacking_pb2
 import destination as XDTdst
 import source as XDTsrc
 import utils as XDTutil
-
-
-
 from concurrent import futures
 
 parser = argparse.ArgumentParser()
@@ -74,7 +71,7 @@ if tracing.IsTracingEnabled():
 INLINE = "INLINE"
 S3 = "S3"
 XDT = "XDT"
-storageBackend = None
+ELASTICACHE = "ELASTICACHE"
 
 # set aws credentials:
 AWS_ID = os.getenv('AWS_ACCESS_KEY', "")
@@ -113,28 +110,17 @@ def model_dispatcher(model_name):
 
 
 class TrainerServicer(stacking_pb2_grpc.TrainerServicer):
-    def __init__(self, transferType, XDTconfig=None):
+    def __init__(self, storageBackend):
 
         self.benchName = BUCKET_NAME
-        self.transferType = transferType
+        self.storageBackend = storageBackend
         self.trainer_id = ""
-        if transferType == S3:
-            self.s3_client = boto3.resource(
-                service_name='s3',
-                region_name=os.getenv("AWS_REGION", 'us-west-1'),
-                aws_access_key_id=AWS_ID,
-                aws_secret_access_key=AWS_SECRET
-            )
-        elif transferType == XDT:
-            if XDTconfig is None:
-                log.fatal("Empty XDT config")
-            self.XDTconfig = XDTconfig
 
     def Train(self, request, context):
         self.trainer_id = request.trainer_id
         log.info(f"Trainer {self.trainer_id} is invoked")
 
-        dataset = pickle.loads(storageBackend.get(request.dataset_key))
+        dataset = pickle.loads(self.storageBackend.get(request.dataset_key))
 
         with tracing.Span("Training a model"):
             model_config = pickle.loads(request.model_config)
@@ -152,8 +138,8 @@ class TrainerServicer(stacking_pb2_grpc.TrainerServicer):
         model_key = f"model_{self.trainer_id}"
         pred_key = f"pred_model_{self.trainer_id}"
 
-        model_key = storageBackend.put(model_key, pickle.dumps(model))
-        pred_key = storageBackend.put(pred_key, pickle.dumps(y_pred))
+        model_key = self.storageBackend.put(model_key, pickle.dumps(model))
+        pred_key = self.storageBackend.put(pred_key, pickle.dumps(y_pred))
 
         return stacking_pb2.TrainReply(
             model=b'',
@@ -164,22 +150,21 @@ class TrainerServicer(stacking_pb2_grpc.TrainerServicer):
 
 def serve():
     transferType = os.getenv('TRANSFER_TYPE', S3)
-    if transferType == S3:
-        global storageBackend
+    if transferType == S3 or transferType == ELASTICACHE:
         storageBackend = Storage(BUCKET_NAME)
         log.info("Using inline or s3 transfers")
-        max_workers = int(os.getenv("MAX_SERVER_THREADS", 10))
-        server = grpc.server(futures.ThreadPoolExecutor(max_workers=max_workers))
-        stacking_pb2_grpc.add_TrainerServicer_to_server(
-            TrainerServicer(transferType=transferType), server)
-        server.add_insecure_port('[::]:' + args.sp)
-        server.start()
-        server.wait_for_termination()
     elif transferType == XDT:
-        log.fatal("XDT not yet supported")
-        XDTconfig = XDTutil.loadConfig()
+        storageBackend = Storage(transferConfig=XDTutil.loadConfig())
+        log.info("Using xdt transfers")
     else:
         log.fatal("Invalid Transfer type")
+    max_workers = int(os.getenv("MAX_SERVER_THREADS", 10))
+    server = grpc.server(futures.ThreadPoolExecutor(max_workers=max_workers))
+    stacking_pb2_grpc.add_TrainerServicer_to_server(
+        TrainerServicer(storageBackend=storageBackend), server)
+    server.add_insecure_port('[::]:' + args.sp)
+    server.start()
+    server.wait_for_termination()
 
 
 if __name__ == '__main__':

@@ -65,6 +65,7 @@ if tracing.IsTracingEnabled():
 INLINE = "INLINE"
 S3 = "S3"
 XDT = "XDT"
+ELASTICACHE = "ELASTICACHE"
 storageBackend = None
 
 # set aws credentials:
@@ -104,21 +105,10 @@ def model_dispatcher(model_name):
 
 
 class ReducerServicer(stacking_pb2_grpc.ReducerServicer):
-    def __init__(self, transferType, XDTconfig=None):
+    def __init__(self, storageBackend):
 
         self.benchName = BUCKET_NAME
-        self.transferType = transferType
-        if transferType == S3:
-            self.s3_client = boto3.resource(
-                service_name='s3',
-                region_name=os.getenv("AWS_REGION", 'us-west-1'),
-                aws_access_key_id=AWS_ID,
-                aws_secret_access_key=AWS_SECRET
-            )
-        elif transferType == XDT:
-            if XDTconfig is None:
-                log.fatal("Empty XDT config")
-            self.XDTconfig = XDTconfig
+        self.storageBackend = storageBackend
 
     def Reduce(self, request, context):
         log.info(f"Reducer is invoked")
@@ -128,16 +118,16 @@ class ReducerServicer(stacking_pb2_grpc.ReducerServicer):
 
         for i, model_pred_tuple in enumerate(request.model_pred_tuples):
             with tracing.Span(f"Reducer gets model {i} from S3"):
-                models.append(pickle.loads(storageBackend.get(model_pred_tuple.model_key)))
-                predictions.append(pickle.loads(storageBackend.get(model_pred_tuple.pred_key)))
+                models.append(pickle.loads(self.storageBackend.get(model_pred_tuple.model_key)))
+                predictions.append(pickle.loads(self.storageBackend.get(model_pred_tuple.pred_key)))
 
         meta_features = np.transpose(np.array(predictions))
 
         meta_features_key = 'meta_features'
         models_key = 'models'
-        meta_features_key = storageBackend.put(meta_features_key, pickle.dumps(meta_features))
+        meta_features_key = self.storageBackend.put(meta_features_key, pickle.dumps(meta_features))
 
-        models_key = storageBackend.put(models_key, pickle.dumps(models))
+        models_key = self.storageBackend.put(models_key, pickle.dumps(models))
 
 
         return stacking_pb2.ReduceReply(
@@ -150,22 +140,21 @@ class ReducerServicer(stacking_pb2_grpc.ReducerServicer):
 
 def serve():
     transferType = os.getenv('TRANSFER_TYPE', S3)
-    if transferType == S3:
-        global storageBackend
+    if transferType == S3 or transferType == ELASTICACHE:
         storageBackend = Storage(BUCKET_NAME)
         log.info("Using inline or s3 transfers")
-        max_workers = int(os.getenv("MAX_SERVER_THREADS", 10))
-        server = grpc.server(futures.ThreadPoolExecutor(max_workers=max_workers))
-        stacking_pb2_grpc.add_ReducerServicer_to_server(
-            ReducerServicer(transferType=transferType), server)
-        server.add_insecure_port('[::]:' + args.sp)
-        server.start()
-        server.wait_for_termination()
     elif transferType == XDT:
-        log.fatal("XDT not yet supported")
-        XDTconfig = XDTutil.loadConfig()
+        storageBackend = Storage(transferConfig=XDTutil.loadConfig())
+        log.info("Using xdt transfers")
     else:
         log.fatal("Invalid Transfer type")
+    max_workers = int(os.getenv("MAX_SERVER_THREADS", 10))
+    server = grpc.server(futures.ThreadPoolExecutor(max_workers=max_workers))
+    stacking_pb2_grpc.add_ReducerServicer_to_server(
+        ReducerServicer(storageBackend=storageBackend), server)
+    server.add_insecure_port('[::]:' + args.sp)
+    server.start()
+    server.wait_for_termination()
 
 
 if __name__ == '__main__':

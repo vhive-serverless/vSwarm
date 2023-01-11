@@ -84,6 +84,7 @@ if tracing.IsTracingEnabled():
 INLINE = "INLINE"
 S3 = "S3"
 XDT = "XDT"
+ELASTICACHE = "ELASTICACHE"
 storageBackend = None
 
 # set aws credentials:
@@ -184,23 +185,12 @@ def reduce(training_responses) -> dict:
 
 
 class GreeterServicer(helloworld_pb2_grpc.GreeterServicer):
-    def __init__(self, transferType, XDTconfig=None):
+    def __init__(self, storageBackend):
 
         self.benchName = BUCKET_NAME
         self.dataset = generate_dataset()
         self.modelConfig = model_config
-        self.transferType = transferType
-        if transferType == S3:
-            self.s3_client = boto3.resource(
-                service_name='s3',
-                region_name=os.getenv("AWS_REGION", 'us-west-1'),
-                aws_access_key_id=AWS_ID,
-                aws_secret_access_key=AWS_SECRET
-            )
-        elif transferType == XDT:
-            if XDTconfig is None:
-                log.fatal("Empty XDT config")
-            self.XDTconfig = XDTconfig
+        self.storageBackend = storageBackend
 
     def train(self, arg: dict) -> dict:
         log.info(f"Invoke Trainer {arg['trainer_id']}")
@@ -278,14 +268,14 @@ class GreeterServicer(helloworld_pb2_grpc.GreeterServicer):
     def get_final(self, outputs: dict):
         log.info("Get the final outputs")
 
-        _ = pickle.loads(storageBackend.get(outputs['model_full_key']))
-        _ = pickle.loads(storageBackend.get(outputs['meta_predictions_key']))
+        _ = pickle.loads(self.storageBackend.get(outputs['model_full_key']))
+        _ = pickle.loads(self.storageBackend.get(outputs['meta_predictions_key']))
 
     # Driver code below
     def SayHello(self, request, context):
         log.info("Driver received a request")
 
-        dataset_key = storageBackend.put("dataset", pickle.dumps(self.dataset))
+        dataset_key = self.storageBackend.put("dataset", pickle.dumps(self.dataset))
 
         training_responses = self.train_all(dataset_key)
 
@@ -300,27 +290,28 @@ class GreeterServicer(helloworld_pb2_grpc.GreeterServicer):
 
 def serve():
     transferType = os.getenv('TRANSFER_TYPE', S3)
-    if transferType == S3:
-        global storageBackend
+    if transferType == S3 or transferType == ELASTICACHE:
         storageBackend = Storage(BUCKET_NAME)
         log.info("Using inline or s3 transfers")
-        max_workers = int(os.getenv("MAX_SERVER_THREADS", 10))
-        server = grpc.server(futures.ThreadPoolExecutor(max_workers=max_workers))
-        helloworld_pb2_grpc.add_GreeterServicer_to_server(
-            GreeterServicer(transferType=transferType), server)
-        SERVICE_NAMES = (
-            helloworld_pb2.DESCRIPTOR.services_by_name['Greeter'].full_name,
-            reflection.SERVICE_NAME,
-        )
-        reflection.enable_server_reflection(SERVICE_NAMES, server)
-        server.add_insecure_port('[::]:' + args.sp)
-        server.start()
-        server.wait_for_termination()
     elif transferType == XDT:
-        log.fatal("XDT not yet supported")
-        XDTconfig = XDTutil.loadConfig()
+        storageBackend = Storage(transferConfig=XDTutil.loadConfig())
+        log.info("Using xdt transfers")
     else:
         log.fatal("Invalid Transfer type")
+    max_workers = int(os.getenv("MAX_SERVER_THREADS", 10))
+    server = grpc.server(futures.ThreadPoolExecutor(max_workers=max_workers))
+    helloworld_pb2_grpc.add_GreeterServicer_to_server(
+        GreeterServicer(storageBackend=storageBackend), server)
+    SERVICE_NAMES = (
+        helloworld_pb2.DESCRIPTOR.services_by_name['Greeter'].full_name,
+        reflection.SERVICE_NAME,
+    )
+    reflection.enable_server_reflection(SERVICE_NAMES, server)
+    server.add_insecure_port('[::]:' + args.sp)
+    server.start()
+    server.wait_for_termination()
+
+
 
 
 if __name__ == '__main__':

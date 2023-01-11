@@ -35,6 +35,7 @@ OUTPUT_MAPPER_PREFIX = "artemiy/task/mapper/"
 INPUT_REDUCER_PREFIX = OUTPUT_MAPPER_PREFIX
 OUTPUT_REDUCER_PREFIX = "artemiy/task/reducer/"
 
+
 def MapFunction(args : dict):
     log.info(f"Mapper {args['mapperId']} is invoked")
 

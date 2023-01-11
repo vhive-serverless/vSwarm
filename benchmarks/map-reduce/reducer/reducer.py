@@ -33,7 +33,7 @@ import tracing
 INPUT_MAPPER_PREFIX = "artemiy/"
 OUTPUT_MAPPER_PREFIX = "artemiy/task/mapper/"
 INPUT_REDUCER_PREFIX = OUTPUT_MAPPER_PREFIX
-OUTPUT_REDUCER_PREFIX = "artemiy/task/reducer/"
+OUTPUT_REDUCER_PREFIX = "output-xdt/task/reducer/"
 
 def ReduceFunction(args : dict):
     log.info(f"Reducer {args['reducerId']} is invoked")
@@ -51,6 +51,7 @@ def ReduceFunction(args : dict):
     start_time = time.time()
 
     with tracing.Span("Compute reducer result"):
+        log.info("received %d responses", len(responses))
         for resp in responses:
             try:
                 for srcIp, val in pickle.loads(resp).items():
@@ -75,7 +76,6 @@ def ReduceFunction(args : dict):
             "processingtime": str(time_in_secs),
             "memoryUsage": str(resource.getrusage(resource.RUSAGE_SELF).ru_maxrss)
         }
-
         args["outputStorage"].put(reduceKey, pickle.dumps(results), metadata)
 
     return {
