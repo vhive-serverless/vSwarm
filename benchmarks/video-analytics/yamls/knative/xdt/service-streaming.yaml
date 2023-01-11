@@ -35,13 +35,13 @@ spec:
     spec:
       containerConcurrency: 1
       containers:
-        - image: docker.io/vhiveease/video-analytics-streaming:latest
+        - image: docker.io/vhiveease/video-analytics-streaming:capnp
           imagePullPolicy: Always
           env:
             - name: TRANSFER_TYPE
               value: "XDT"
             - name: ROUTING
-              value: "CutThrough"
+              value: "Store&Forward"
             - name: TRACING_ENABLED
               value: "true"
             - name: ZIPKIN_ENDPOINT

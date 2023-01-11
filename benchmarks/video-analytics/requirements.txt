@@ -11,3 +11,4 @@ boto3==1.18.1
 redis==3.5.3
 grpcio-tools==1.38.1
 environs==9.3.2
+pycapnp==1.2.1

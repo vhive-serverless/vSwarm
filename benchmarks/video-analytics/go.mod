@@ -3,10 +3,10 @@ module tests/video_analytics
 go 1.18
 
 replace (
-	github.com/ease-lab/vhive-xdt/proto/crossXDT => github.com/ease-lab/vhive-xdt/proto/crossXDT v0.0.0-20221107151004-a0940018d178
-	github.com/ease-lab/vhive-xdt/proto/downXDT => github.com/ease-lab/vhive-xdt/proto/downXDT v0.0.0-20221107151004-a0940018d178
-	github.com/ease-lab/vhive-xdt/proto/upXDT => github.com/ease-lab/vhive-xdt/proto/upXDT v0.0.0-20221107151004-a0940018d178
-	github.com/ease-lab/vhive-xdt/utils => github.com/ease-lab/vhive-xdt/utils v0.0.0-20221107151004-a0940018d178
+	github.com/ease-lab/vhive-xdt/proto/crossXDT => github.com/ease-lab/vhive-xdt/proto/crossXDT v0.0.0-20230108221914-1278c1926ff8
+	github.com/ease-lab/vhive-xdt/proto/downXDT => github.com/ease-lab/vhive-xdt/proto/downXDT v0.0.0-20230108221914-1278c1926ff8
+	github.com/ease-lab/vhive-xdt/proto/upXDT => github.com/ease-lab/vhive-xdt/proto/upXDT v0.0.0-20230108221914-1278c1926ff8
+	github.com/ease-lab/vhive-xdt/utils => github.com/ease-lab/vhive-xdt/utils v0.0.0-20230108221914-1278c1926ff8
 	github.com/vhive-serverless/vSwarm/examples/protobuf/helloworld => ../../utils/protobuf/helloworld
 	github.com/vhive-serverless/vSwarm/utils/storage/go => ../../utils/storage/go
 	github.com/vhive-serverless/vSwarm/utils/tracing/go => ../../utils/tracing/go
@@ -16,7 +16,7 @@ replace (
 
 require (
 	github.com/containerd/containerd v1.6.12
-	github.com/ease-lab/vhive-xdt/sdk/golang v0.0.0-20221107151004-a0940018d178
+	github.com/ease-lab/vhive-xdt/sdk/golang v0.0.0-20230108221914-1278c1926ff8
 	github.com/ease-lab/vhive-xdt/utils v0.0.0-00010101000000-000000000000
 	github.com/sirupsen/logrus v1.9.0
 	github.com/vhive-serverless/vSwarm/examples/protobuf/helloworld v0.0.0-00010101000000-000000000000

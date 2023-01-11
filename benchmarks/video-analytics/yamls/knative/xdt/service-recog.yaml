@@ -35,7 +35,7 @@ spec:
     spec:
       containerConcurrency: 1
       containers:
-        - image: docker.io/vhiveease/video-analytics-recog:latest
+        - image: docker.io/vhiveease/video-analytics-recog:capnp
           imagePullPolicy: Always
           env:
             - name: TRANSFER_TYPE
@@ -45,7 +45,7 @@ spec:
             - name: ENABLE_TRACING
               value: "true"
             - name: ROUTING
-              value: "CutThrough"
+              value: "Store&Forward"
             - name: TRACING_ENABLED
               value: "true"
             - name: DST_SERVER_PORT

@@ -35,21 +35,17 @@ spec:
     spec:
       containerConcurrency: 1
       containers:
-        - image: docker.io/vhiveease/mapreduce-mapper:latest
+        - image: docker.io/vhiveease/mapreduce-mapper:capnp
           imagePullPolicy: Always
           env:
             - name: TRANSFER_TYPE
               value: "S3"
             - name: AWS_ACCESS_KEY
-              valueFrom:
-                secretKeyRef:
-                  name: awscreds
-                  key: awsaccess
+              value: ${AWS_ACCESS_KEY}
             - name: AWS_SECRET_KEY
-              valueFrom:
-                secretKeyRef:
-                  name: awscreds
-                  key: awssecret
+              value: ${AWS_SECRET_KEY}
+            - name: BUCKET_NAME
+              value: ${BUCKET_NAME}
             - name: AWS_REGION
               value: "us-west-1"
             - name: MAX_SERVER_THREADS

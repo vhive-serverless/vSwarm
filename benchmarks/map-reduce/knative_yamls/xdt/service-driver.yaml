@@ -35,7 +35,7 @@ spec:
     spec:
       containerConcurrency: 1
       containers:
-        - image: docker.io/vhiveease/mapreduce-driver:latest
+        - image: docker.io/vhiveease/mapreduce-driver:capnp
           imagePullPolicy: Always
           env:
             - name: TRANSFER_TYPE
