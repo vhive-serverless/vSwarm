@@ -179,13 +179,6 @@ func benchFanIn(ctx context.Context, prodAddr, consAddr string, fanInAmount int)
 	if *withTracing {
 		dialOptions = append(dialOptions, grpc.WithUnaryInterceptor(otelgrpc.UnaryClientInterceptor()))
 	}
-	conn, err := grpc.Dial(prodAddr, dialOptions...)
-	if err != nil {
-		log.Fatalf("did not connect: %v", err)
-	}
-	defer conn.Close()
-
-	c := pb_client.NewProdConDriverClient(conn)
 
 	ctx, cancel := context.WithTimeout(ctx, grpcTimeout)
 	defer cancel()
@@ -193,6 +186,13 @@ func benchFanIn(ctx context.Context, prodAddr, consAddr string, fanInAmount int)
 	errorChannel := make(chan error, fanInAmount)
 	for i := 0; i < fanInAmount; i++ {
 		go func() {
+			conn, err := grpc.Dial(prodAddr, dialOptions...)
+			if err != nil {
+				log.Fatalf("did not connect: %v", err)
+			}
+			defer conn.Close()
+
+			c := pb_client.NewProdConDriverClient(conn)
 			benchResponse, err := c.Benchmark(ctx, &pb_client.BenchType{Name: FANIN, FanAmount: int64(fanInAmount)})
 			if err != nil {
 				log.Warnf("Failed to invoke %s, err=%v", prodAddr, err)
