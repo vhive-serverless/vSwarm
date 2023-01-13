@@ -70,12 +70,11 @@ func (s *ubenchServer) putData(ctx context.Context) (pb_client.BenchResponse, er
 func (s *ubenchServer) fanOut(ctx context.Context, fanAmount int64, addr string) pb_client.BenchResponse {
 	errorChannel := make(chan error, fanAmount)
 	if s.transferType == INLINE || s.transferType == S3 || s.transferType == ELASTICACHE {
-		client, conn := getGRPCclient(addr)
-		defer conn.Close()
-		payloadToSend := s.payloadData
-
 		for i := int64(0); i < fanAmount; i++ {
 			go func(threadNumber int64) {
+				client, conn := getGRPCclient(addr)
+				defer conn.Close()
+				payloadToSend := s.payloadData
 				if s.transferType == S3 || s.transferType == ELASTICACHE {
 					key := uploadToStorage(ctx, s.payloadData, fmt.Sprintf("%s-%d", s.randomStr, threadNumber), s.storageBackend)
 					payloadToSend = []byte(key)
