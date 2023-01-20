@@ -198,7 +198,7 @@ func main() {
 	if transferType == XDT {
 		config := utils.ReadConfig()
 		if !*dockerCompose {
-			config.SQPServerHostname = utils.FetchSelfIP()
+			config.SrcServerHostname = utils.FetchSelfIP()
 		}
 		xdtClient, err := sdk.NewXDTclient(config)
 		if err != nil {
