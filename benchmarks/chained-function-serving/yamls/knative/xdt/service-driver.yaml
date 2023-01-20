@@ -30,6 +30,9 @@ spec:
     spec:
       containers:
         - image: vhiveease/chained-functions-serving-driver:latest
+          resources:
+            limits:
+              cpu: "0.1"
           imagePullPolicy: Always
           env:
             - name: ENABLE_TRACING

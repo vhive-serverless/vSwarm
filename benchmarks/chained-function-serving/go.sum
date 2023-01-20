@@ -1,5 +1,7 @@
 bazil.org/fuse v0.0.0-20160811212531-371fbbdaa898/go.mod h1:Xbm+BRKSBEpa4q4hTSxohYNQpsxXPbPry4JJWOB3LB8=
 bazil.org/fuse v0.0.0-20200407214033-5883e5a4b512/go.mod h1:FbcW6z/2VytnFDhZfumh8Ss8zxHE6qpMP5sHTRe0EaM=
+capnproto.org/go/capnp/v3 v3.0.0-alpha.18 h1:58GV9qbCjf2+P/iKwfwB2NLs9jpO85tnMnLp6sbmuXM=
+capnproto.org/go/capnp/v3 v3.0.0-alpha.18/go.mod h1:Dynqh9/LE2Wy7jYd2wIoYgqFwh3hZHCmG7j6/uCWX6c=
 cloud.google.com/go v0.26.0/go.mod h1:aQUYkXzVsufM+DwF1aE+0xfcU+56JwCaLick0ClmMTw=
 cloud.google.com/go v0.34.0/go.mod h1:aQUYkXzVsufM+DwF1aE+0xfcU+56JwCaLick0ClmMTw=
 cloud.google.com/go v0.38.0/go.mod h1:990N+gfupTy94rShfmMCWGDn0LpTmnzTp2qbd1dvSRU=
@@ -327,16 +329,14 @@ github.com/eapache/go-xerial-snappy v0.0.0-20180814174437-776d5712da21/go.mod h1
 github.com/eapache/queue v1.1.0/go.mod h1:6eCeP0CKFpHLu8blIFXhExK/dRa7WDZfr6jVFPTqq+I=
 github.com/ease-lab/vSwarm/utils/tracing/go v0.0.0-20220609140039-b4da20ea6b36 h1:q3V3nnOBXbna8TKlUm3UWQ6tlEc7DPXMpmUbcfHST9c=
 github.com/ease-lab/vSwarm/utils/tracing/go v0.0.0-20220609140039-b4da20ea6b36/go.mod h1:CbSlx/UNGRhqRVRDI5LonBkR8eNJshY0yQ+2PsqBwtw=
-github.com/ease-lab/vhive-xdt/proto/crossXDT v0.0.0-20221107151004-a0940018d178 h1:i4rTDmD2xr9mTcixjzsoXS+p4H1U/4DxUmIgL3z2slo=
-github.com/ease-lab/vhive-xdt/proto/crossXDT v0.0.0-20221107151004-a0940018d178/go.mod h1:eo3MQtX36codGw53nxIbUt0DLKjL2wJ7DMg0DcWkheE=
-github.com/ease-lab/vhive-xdt/proto/downXDT v0.0.0-20221107151004-a0940018d178 h1:ljb0gvReM28W9mGypqkqROJpwFgntzuihhm8ziLcWZ8=
-github.com/ease-lab/vhive-xdt/proto/downXDT v0.0.0-20221107151004-a0940018d178/go.mod h1:lo5m2vMXg2HfHm4B7RL3CK5vfkWthl6kxO+Ea3OjxRE=
-github.com/ease-lab/vhive-xdt/proto/upXDT v0.0.0-20221107151004-a0940018d178 h1:wsmNaD0Iqdh96ZAx0mYbEOKAnKBwffYzAU8XwpxRc3o=
-github.com/ease-lab/vhive-xdt/proto/upXDT v0.0.0-20221107151004-a0940018d178/go.mod h1:TE7S4MWKKH1PbH0O9uIa4Stbl1w2KnCwsiNUN0dHulU=
-github.com/ease-lab/vhive-xdt/sdk/golang v0.0.0-20221107151004-a0940018d178 h1:P4tME2P0FwVCQra4Wgqg8IZSu/HlYo48A0WS6rZ5oQY=
-github.com/ease-lab/vhive-xdt/sdk/golang v0.0.0-20221107151004-a0940018d178/go.mod h1:3AMnWkjfiY4nLMaRAD3LT0FAbcscEPQNPbNKqvv7dC4=
-github.com/ease-lab/vhive-xdt/utils v0.0.0-20221107151004-a0940018d178 h1:TB2MOhiTYI5hQbaZW+ZrP90FYwRZSBdTDfiyvOKNVDA=
-github.com/ease-lab/vhive-xdt/utils v0.0.0-20221107151004-a0940018d178/go.mod h1:JB1OIQyDgrTsSHoiLEc2S48Kxpv/Hr7dPUvoFOjKhFs=
+github.com/ease-lab/vhive-xdt/proto/crossXDT v0.0.0-20230120162229-416ab629476b h1:iCVTlcB0FZnBhMCfW26IKYD0nsaWWDX9LHj8h3xjdE0=
+github.com/ease-lab/vhive-xdt/proto/crossXDT v0.0.0-20230120162229-416ab629476b/go.mod h1:jEFTKKXEA/vvxWiFSVFWen4zNwRQWn1+ukELHbO8qFw=
+github.com/ease-lab/vhive-xdt/proto/downXDT v0.0.0-20230120162229-416ab629476b h1:Q3yMmtljx66eE/MeItegfVcEL7v69Dcr+xslAEzNOFQ=
+github.com/ease-lab/vhive-xdt/proto/downXDT v0.0.0-20230120162229-416ab629476b/go.mod h1:lo5m2vMXg2HfHm4B7RL3CK5vfkWthl6kxO+Ea3OjxRE=
+github.com/ease-lab/vhive-xdt/sdk/golang v0.0.0-20230120162229-416ab629476b h1:WtNZGjzSx4w4zTxEc4IoL5ReWf1j87/Z1UVeMl6ec/I=
+github.com/ease-lab/vhive-xdt/sdk/golang v0.0.0-20230120162229-416ab629476b/go.mod h1:I7QhCHYiegrM9KQxPaoWDbOzSg65+Kt5hJqynvln2Eo=
+github.com/ease-lab/vhive-xdt/utils v0.0.0-20230120162229-416ab629476b h1:r2fAPUeUWb7mla9v9Ge5+ZkZREmyxDPJFQ5rXqImf+0=
+github.com/ease-lab/vhive-xdt/utils v0.0.0-20230120162229-416ab629476b/go.mod h1:JB1OIQyDgrTsSHoiLEc2S48Kxpv/Hr7dPUvoFOjKhFs=
 github.com/elazarl/goproxy v0.0.0-20180725130230-947c36da3153/go.mod h1:/Zj4wYkgs4iZTTu3o/KG3Itv/qCCa8VVMlb3i9OVuzc=
 github.com/emicklei/go-restful v0.0.0-20170410110728-ff4f55a20633/go.mod h1:otzb+WCGbkyDHkqmQmT5YD2WR4BBwUdeQoFo8l/7tVs=
 github.com/emicklei/go-restful v2.9.5+incompatible/go.mod h1:otzb+WCGbkyDHkqmQmT5YD2WR4BBwUdeQoFo8l/7tVs=
@@ -727,6 +727,7 @@ github.com/pelletier/go-toml v1.2.0/go.mod h1:5z9KED0ma1S8pY6P1sdut58dfprrGBbd/9
 github.com/pelletier/go-toml v1.8.1/go.mod h1:T2/BmBdy8dvIRq1a/8aqjN41wvWlN4lrapLU/GW4pbc=
 github.com/pelletier/go-toml v1.9.3/go.mod h1:u1nR/EPcESfeI/szUZKdtJ0xRNbUoANCkoOuaOx1Y+c=
 github.com/peterbourgon/diskv v2.0.1+incompatible/go.mod h1:uqqh8zWWbv1HBMNONnaR/tNboyR3/BZd58JJSHlUSCU=
+github.com/philhofer/fwd v1.1.1 h1:GdGcTjf5RNAxwS4QLsiMzJYj5KEvPJD3Abr261yRQXQ=
 github.com/pierrec/lz4 v2.6.1+incompatible/go.mod h1:pdkljMzZIN41W+lC3N2tnIh5sFi+IEE17M5jbnwPHcY=
 github.com/pkg/errors v0.8.0/go.mod h1:bwawxfHBFNV+L2hUp1rHADufV3IMtnDRdf1r5NINEl0=
 github.com/pkg/errors v0.8.1-0.20171018195549-f15c970de5b7/go.mod h1:bwawxfHBFNV+L2hUp1rHADufV3IMtnDRdf1r5NINEl0=
@@ -837,6 +838,7 @@ github.com/syndtr/gocapability v0.0.0-20170704070218-db04d3cc01c8/go.mod h1:hkRG
 github.com/syndtr/gocapability v0.0.0-20180916011248-d98352740cb2/go.mod h1:hkRG7XYTFWNJGYcbNJQlaLq0fg1yr4J4t/NcTQtrfww=
 github.com/syndtr/gocapability v0.0.0-20200815063812-42c35b437635/go.mod h1:hkRG7XYTFWNJGYcbNJQlaLq0fg1yr4J4t/NcTQtrfww=
 github.com/tchap/go-patricia v2.2.6+incompatible/go.mod h1:bmLyhP68RS6kStMGxByiQ23RP/odRBOTVjwp2cDyi6I=
+github.com/tinylib/msgp v1.1.5 h1:2gXmtWueD2HefZHQe1QOy9HVzmFrLOVvsXwXBQ0ayy0=
 github.com/tmc/grpc-websocket-proxy v0.0.0-20170815181823-89b8d40f7ca8/go.mod h1:ncp9v5uamzpCO7NfCPTXjqaC+bZgJeR0sMTm6dMHP7U=
 github.com/tmc/grpc-websocket-proxy v0.0.0-20190109142713-0ad062ec5ee5/go.mod h1:ncp9v5uamzpCO7NfCPTXjqaC+bZgJeR0sMTm6dMHP7U=
 github.com/tmc/grpc-websocket-proxy v0.0.0-20201229170055-e5319fda7802/go.mod h1:ncp9v5uamzpCO7NfCPTXjqaC+bZgJeR0sMTm6dMHP7U=
@@ -1087,6 +1089,7 @@ golang.org/x/sync v0.0.0-20200317015054-43a5402ce75a/go.mod h1:RxMgew5VJxzue5/jJ
 golang.org/x/sync v0.0.0-20200625203802-6e8e738ad208/go.mod h1:RxMgew5VJxzue5/jJTE5uejpjVlOe/izrB70Jof72aM=
 golang.org/x/sync v0.0.0-20201020160332-67f06af15bc9/go.mod h1:RxMgew5VJxzue5/jJTE5uejpjVlOe/izrB70Jof72aM=
 golang.org/x/sync v0.0.0-20201207232520-09787c993a3a/go.mod h1:RxMgew5VJxzue5/jJTE5uejpjVlOe/izrB70Jof72aM=
+golang.org/x/sync v0.0.0-20210220032951-036812b2e83c h1:5KslGYwFpkhGh+Q16bwMP3cOontH8FOep7tGV86Y7SQ=
 golang.org/x/sync v0.0.0-20210220032951-036812b2e83c/go.mod h1:RxMgew5VJxzue5/jJTE5uejpjVlOe/izrB70Jof72aM=
 golang.org/x/sys v0.0.0-20180823144017-11551d06cbcc/go.mod h1:STP8DvDyc/dI5b8T5hshtkjS+E42TnysNCUPdjciGhY=
 golang.org/x/sys v0.0.0-20180830151530-49385e6e1522/go.mod h1:STP8DvDyc/dI5b8T5hshtkjS+E42TnysNCUPdjciGhY=
