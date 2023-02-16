@@ -4,7 +4,7 @@ go 1.18
 
 require (
 	github.com/cloudevents/sdk-go/v2 v2.10.1
-	github.com/containerd/containerd v1.6.12
+	github.com/containerd/containerd v1.6.18
 	github.com/golang/protobuf v1.5.2
 	github.com/sirupsen/logrus v1.9.0
 	github.com/stretchr/testify v1.7.1
