@@ -3,7 +3,7 @@ module github.com/vhive-serverless/vSwarm/utils/tracing/go
 go 1.18
 
 require (
-	github.com/containerd/containerd v1.6.12
+	github.com/containerd/containerd v1.6.18
 	github.com/sirupsen/logrus v1.9.0
 	go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc v0.33.0
 	go.opentelemetry.io/otel v1.11.1
