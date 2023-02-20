@@ -62,6 +62,10 @@ func (s *Server) Run() error {
 		return fmt.Errorf("server port must be set")
 	}
 
+	if s.hotels == nil {
+		s.hotels = loadRecommendations(s.MongoSession)
+	}
+
 	opts := []grpc.ServerOption{
 		grpc.KeepaliveParams(keepalive.ServerParameters{
 			Timeout: 120 * time.Second,
@@ -94,7 +98,9 @@ func (s *Server) Run() error {
 // GiveRecommendation returns recommendations within a given requirement.
 func (s *Server) GetRecommendations(ctx context.Context, req *pb.Request) (*pb.Result, error) {
 	res := new(pb.Result)
-	// fmt.Printf("GetRecommendations\n")
+	// fmt.Printf("GetRecommendations:\n")
+	// fmt.Printf("%+v\n", s.hotels)
+
 	require := req.Require
 	if require == "dis" {
 		p1 := &geoindex.GeoPoint{
@@ -152,6 +158,33 @@ func (s *Server) GetRecommendations(ctx context.Context, req *pb.Request) (*pb.R
 	}
 
 	return res, nil
+}
+
+// loadRecommendations loads hotel recommendations from mongodb.
+func loadRecommendations(session *mgo.Session) map[string]Hotel {
+	// session, err := mgo.Dial("mongodb-recommendation")
+	// if err != nil {
+	// 	panic(err)
+	// }
+	// defer session.Close()
+	s := session.Copy()
+	defer s.Close()
+
+	c := s.DB("recommendation-db").C("recommendation")
+
+	// unmarshal json profiles
+	var hotels []Hotel
+	err := c.Find(bson.M{}).All(&hotels)
+	if err != nil {
+		log.Println("Failed get hotels data: ", err)
+	}
+
+	profiles := make(map[string]Hotel)
+	for _, hotel := range hotels {
+		profiles[hotel.HId] = hotel
+	}
+
+	return profiles
 }
 
 type Hotel struct {
