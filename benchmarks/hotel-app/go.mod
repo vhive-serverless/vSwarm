@@ -30,11 +30,11 @@ require (
 	github.com/bradfitz/gomemcache v0.0.0-20220106215444-fb4bf637b56d
 	github.com/hailocab/go-geoindex v0.0.0-20160127134810-64631bfe9711
 	github.com/sirupsen/logrus v1.9.0
-	github.com/vhive-serverless/vSwarm-proto v0.3.0
-	github.com/vhive-serverless/vSwarm/utils/tracing/go v0.0.0-00010101000000-000000000000
+	github.com/vhive-serverless/vSwarm-proto v0.4.1
+	github.com/vhive-serverless/vSwarm/utils/tracing/go v0.0.0-20221008101717-930188b36b99
 	go.mongodb.org/mongo-driver v1.11.1
-	golang.org/x/net v0.0.0-20221002022538-bcab6841153b
-	google.golang.org/grpc v1.49.0
+	golang.org/x/net v0.5.0
+	google.golang.org/grpc v1.53.0
 	gopkg.in/mgo.v2 v2.0.0-20190816093944-a6b53ec6cb22
 )
 
@@ -58,9 +58,9 @@ require (
 	go.opentelemetry.io/otel/sdk v1.8.0 // indirect
 	go.opentelemetry.io/otel/trace v1.11.1 // indirect
 	golang.org/x/crypto v0.0.0-20220622213112-05595931fe9d // indirect
-	golang.org/x/sync v0.0.0-20210220032951-036812b2e83c // indirect
-	golang.org/x/sys v0.0.0-20220728004956-3c1f35247d10 // indirect
-	golang.org/x/text v0.3.7 // indirect
-	google.golang.org/genproto v0.0.0-20220722212130-b98a9ff5e252 // indirect
-	google.golang.org/protobuf v1.28.0 // indirect
+	golang.org/x/sync v0.1.0 // indirect
+	golang.org/x/sys v0.4.0 // indirect
+	golang.org/x/text v0.6.0 // indirect
+	google.golang.org/genproto v0.0.0-20230110181048-76db0878b65f // indirect
+	google.golang.org/protobuf v1.28.1 // indirect
 )
