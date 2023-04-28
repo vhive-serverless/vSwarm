@@ -1,3 +1,4 @@
+#!/bin/bash
 # MIT License
 #
 # Copyright (c) 2021 Shyam Jesalpura and EASE lab
