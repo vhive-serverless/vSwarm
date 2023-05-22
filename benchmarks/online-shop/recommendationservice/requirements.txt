@@ -17,12 +17,9 @@ google-api-core[grpc]==2.8.2
     #   google-cloud-core
     #   google-cloud-monitoring
     #   google-cloud-trace
-    #   google-python-cloud-debugger
     #   opencensus
 google-api-python-client==2.52.0
-    # via
-    #   google-cloud-profiler
-    #   google-python-cloud-debugger
+    # via google-cloud-profiler
 google-auth==2.9.1
     # via
     #   google-api-core
@@ -30,12 +27,10 @@ google-auth==2.9.1
     #   google-auth-httplib2
     #   google-cloud-core
     #   google-cloud-profiler
-    #   google-python-cloud-debugger
 google-auth-httplib2==0.1.0
     # via
     #   google-api-python-client
     #   google-cloud-profiler
-    #   google-python-cloud-debugger
 google-cloud-core==2.3.2
     # via google-cloud-trace
 google-cloud-monitoring==2.10.1
@@ -100,10 +95,8 @@ pyparsing==2.4.7
 python-json-logger==2.0.2
     # via -r requirements.in
 pyyaml==6.0
-    # via
-    #   -r requirements.in
-    #   google-python-cloud-debugger
-requests==2.28.1
+    # via -r requirements.in
+requests==2.31.0
     # via
     #   -r requirements.in
     #   google-api-core
@@ -116,12 +109,8 @@ six==1.16.0
     # via
     #   google-auth
     #   google-auth-httplib2
-    #   google-python-cloud-debugger
     #   grpcio
 uritemplate==3.0.1
     # via google-api-python-client
 urllib3==1.26.10
     # via requests
-
-# The following packages are considered to be unsafe in a requirements file:
-# setuptools
