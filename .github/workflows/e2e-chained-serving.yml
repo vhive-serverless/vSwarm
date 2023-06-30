@@ -122,7 +122,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        folder: [inline, fanin-basic, fanout-basic, elasticache]
+        folder: [inline, fanin-basic, fanout-basic, elasticache, xdt]
 
     steps:
       - uses: actions/checkout@v3
@@ -198,6 +198,13 @@ jobs:
         run: |
           kubectl expose deployment redis --type=ClusterIP --name=redis-service
           kubectl get svc redis-service
+
+      - name: Setup knative for XDT
+        if: matrix.folder == 'xdt'
+        working-directory: runner/scripts/xdt-serving
+        run: |
+          kubectl apply --filename serving-core.yaml
+          kubectl apply --filename serving-crds.yaml
 
       - name: Up for elasticache
         if: matrix.folder == 'elasticache'
