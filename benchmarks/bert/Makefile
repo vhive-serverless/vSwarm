@@ -1,3 +1,4 @@
+DOCKER_HUB_ACCOUNT=vhiveease
 SHELL := /bin/bash
 
 MAKEFILE_NAME := $(lastword $(MAKEFILE_LIST))
@@ -93,7 +94,7 @@ bert-python-image: docker/Dockerfile python/server.py
 		--build-arg GROUP=$(GROUPNAME) \
 		--build-arg USER=$(UNAME) \
 		--build-arg BASE_IMAGE=mlperf-inference-bert \
-		--tag bert-python:latest \
+		--tag $(DOCKER_HUB_ACCOUNT)/bert-python:latest \
 		-f docker/Dockerfile \
 		$(ROOT) --load
 		
@@ -102,7 +103,7 @@ bert-python-image: docker/Dockerfile python/server.py
 
 .PHONY: launch_docker
 launch_docker:
-	$(DOCKER_RUN_CMD) --rm -it -w /workspace --mount type=bind,source=$(HOST_VOL)/build,target=/workspace/build bert-python
+	$(DOCKER_RUN_CMD) --rm -it -w /workspace --mount type=bind,source=$(HOST_VOL)/build,target=/workspace/build $(DOCKER_HUB_ACCOUNT)/bert-python
 
 .PHONY: clean
 clean:

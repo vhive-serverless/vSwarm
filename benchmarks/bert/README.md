@@ -19,4 +19,4 @@ The detailed and general description how to run benchmarks local you can find [h
    ```bash
    ./tools/bin/grpcurl -plaintext localhost:50000 helloworld.Greeter.SayHello
    ```
-    This will outputs the min, max and mean inference time of 100 inferences, this may take around 20 seconds.
+    This will outputs the min, max and mean inference time of 1 inference, this may take around a few seconds. You can change the defaul settings in python/config/user.conf
