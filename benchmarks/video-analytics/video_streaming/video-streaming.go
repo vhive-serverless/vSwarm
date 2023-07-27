@@ -210,7 +210,7 @@ func main() {
 	}
 
 	if server.transferType == S3 {
-		if value, ok := os.LookupEnv("BUCKET_NAME"); ok {
+		if value, ok := os.LookupEnv("BUCKET_NAME"); ok && value != "" {
 			AWS_S3_BUCKET = value
 		}
 		log.Infof("[streaming]  BUCKET = %s", AWS_S3_BUCKET)
