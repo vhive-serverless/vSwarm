@@ -8,6 +8,12 @@
         },
         {
             "pattern": "^https://opensource.org*"
+        },
+        {
+            "pattern": "^https://twitter.com/"
+        },
+        {
+            "pattern": "^https://www.intel.com/content/www/us/en/develop/documentation/vtune-cookbook/top/methodologies/top-down-microarchitecture-analysis-method.html"
         }
     ],
     "replacementPatterns": [
