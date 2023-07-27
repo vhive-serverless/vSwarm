@@ -1,11 +1,11 @@
 # Use https://dependabot.com/docs/config-file/validator/ to check for errors.
 version: 2
-registries:
-  dockerhub:
-    type: docker-registry
-    url: https://registry.hub.docker.com
-    username: ${{secrets.DOCKER_HUB_USERNAME}} 
-    token: ${{secrets.DOCKER_HUB_ACCESS_TOKEN}}
+#registries:
+#  dockerhub:
+#    type: docker-registry
+#    url: https://registry.hub.docker.com
+#    username: ${{secrets.DOCKER_HUB_USERNAME}}
+#    token: ${{secrets.DOCKER_HUB_ACCESS_TOKEN}}
 
 updates:
   - package-ecosystem: "gomod"
