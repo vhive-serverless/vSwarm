@@ -136,7 +136,9 @@ func main() {
 	}
 	defer listener.Close()
 
-	log.Printf("Started relay server at %s", *address)
+	log.Printf("Started relay server at %s\n", *address)
+	log.Printf("Downstream function: %s at addr %s:%s\n", *functionName, *functionEndpointURL, *functionEndpointPort)
+	log.Printf("Input generator: %s, bound: [%d:%d]\n", *generatorString, *lowerBound, *upperBound)
 
 	if err := grpcServer.Serve(listener); err != nil {
 		log.Fatalf("failed to serve: %v", err)

@@ -30,7 +30,6 @@ relay:
 	go build -v -o ./server github.com/vhive-serverless/vSwarm/tools/relay
 
 relay-docker:
-	go mod tidy
 	DOCKER_BUILDKIT=1 \
 	docker build \
 	--tag vhiveease/relay:latest \
