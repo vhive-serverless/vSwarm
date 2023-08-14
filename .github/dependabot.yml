@@ -24,6 +24,14 @@ updates:
       - dependency-name: "*"
         update-types: [ "version-update:semver-patch" ]
 
+    - package-ecosystem: "gomod"
+    directory: "/benchmarks/bert"
+    schedule:
+      interval: "weekly"
+    ignore:
+      - dependency-name: "*"
+        update-types: [ "version-update:semver-patch" ]
+        
   - package-ecosystem: "gomod"
     directory: "/benchmarks/hotel-app"
     schedule:

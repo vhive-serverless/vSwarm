@@ -1,0 +1,33 @@
+version: "3.9"
+services:
+  bert-python:
+    image: vhiveease/bert-python:latest
+    container_name: bert-python
+    working_dir: /workspace
+    entrypoint:
+      - python3
+      - python/server.py
+      - --addr=0.0.0.0
+      - --port=50051
+    ports:
+      - target: 50051
+    # deploy:
+    #   resources:
+    #     reservations:
+    #       devices:
+    #         - driver: nvidia
+    #           count: 2
+    #           capabilities: [gpu]
+      
+
+  relay:
+    image: vhiveease/relay:latest
+    entrypoint:
+      - /app/server
+      - --addr=0.0.0.0:50000
+      - --function-endpoint-url=bert-python
+      - --function-endpoint-port=50051
+      - --function-name=bert-python
+    ports:
+        - published: 50000
+          target: 50000
