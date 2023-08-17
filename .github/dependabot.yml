@@ -24,7 +24,7 @@ updates:
       - dependency-name: "*"
         update-types: [ "version-update:semver-patch" ]
 
-    - package-ecosystem: "gomod"
+  - package-ecosystem: "gomod"
     directory: "/benchmarks/bert"
     schedule:
       interval: "weekly"
