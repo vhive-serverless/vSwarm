@@ -1,0 +1,30 @@
+version: "3.9"
+services:
+
+  paymentservice:
+    image: vhiveease/onlineshop-paymentservice:latest
+    container_name: 'paymentservice'
+    build:
+      context: ./../../paymentservice/
+      dockerfile: ./Dockerfile
+    environment:
+      - PORT=50051
+      - DISABLE_PROFILER=true
+      - DISABLE_DEBUGGER=true
+      - DISABLE_TRACING=true
+    ports:
+    - target: 50051
+
+  relay:
+    image: vhiveease/relay:latest
+    entrypoint:
+      - /app/server
+      - --addr=0.0.0.0:50000
+      - --function-endpoint-url=paymentservice
+      - --function-endpoint-port=50051
+      - --function-name=paymentservice
+      - --generator=unique
+      - --value=100
+    ports:
+      - published: 50000
+        target: 50000

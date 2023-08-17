@@ -1,0 +1,88 @@
+# Use https://dependabot.com/docs/config-file/validator/ to check for errors.
+version: 2
+#registries:
+#  dockerhub:
+#    type: docker-registry
+#    url: https://registry.hub.docker.com
+#    username: ${{secrets.DOCKER_HUB_USERNAME}}
+#    token: ${{secrets.DOCKER_HUB_ACCESS_TOKEN}}
+
+updates:
+  - package-ecosystem: "gomod"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    ignore:
+      - dependency-name: "*"
+        update-types: [ "version-update:semver-patch" ]
+
+  - package-ecosystem: "gomod"
+    directory: "/benchmarks/aes"
+    schedule:
+      interval: "weekly"
+    ignore:
+      - dependency-name: "*"
+        update-types: [ "version-update:semver-patch" ]
+
+  - package-ecosystem: "gomod"
+    directory: "/benchmarks/bert"
+    schedule:
+      interval: "weekly"
+    ignore:
+      - dependency-name: "*"
+        update-types: [ "version-update:semver-patch" ]
+        
+  - package-ecosystem: "gomod"
+    directory: "/benchmarks/hotel-app"
+    schedule:
+      interval: "weekly"
+    ignore:
+      - dependency-name: "*"
+        update-types: [ "version-update:semver-patch" ]
+
+  - package-ecosystem: "gomod"
+    directory: "/benchmarks/chained-function-serving"
+    schedule:
+      interval: "weekly"
+    ignore:
+      - dependency-name: "*"
+        update-types: [ "version-update:semver-patch" ]
+
+  - package-ecosystem: "gomod"
+    directory: "/benchmarks/chained-function-eventing"
+    schedule:
+      interval: "weekly"
+    ignore:
+      - dependency-name: "*"
+        update-types: [ "version-update:semver-patch" ]
+
+  - package-ecosystem: "gomod"
+    directory: "/utils/tracing/go"
+    schedule:
+      interval: "weekly"
+    ignore:
+      - dependency-name: "*"
+        update-types: [ "version-update:semver-patch" ]
+
+  - package-ecosystem: "gomod"
+    directory: "/tools/invoker"
+    schedule:
+      interval: "weekly"
+    ignore:
+      - dependency-name: "*"
+        update-types: [ "version-update:semver-patch" ]
+
+  - package-ecosystem: "gomod"
+    directory: "/tools/deployer"
+    schedule:
+      interval: "weekly"
+    ignore:
+      - dependency-name: "*"
+        update-types: [ "version-update:semver-patch" ]
+
+  # Enable version updates for Actions
+  - package-ecosystem: "github-actions"
+    # Look for `.github/workflows` in the `root` directory
+    directory: "/"
+    schedule:
+      interval: "weekly"

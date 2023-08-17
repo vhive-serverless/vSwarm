@@ -1,0 +1,188 @@
+# MIT License
+#
+# Copyright (c) 2021 Michal Baczun and EASE lab
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
+
+name: Tuning Halving End-to-End Tests
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 9 * * 1'
+  push:
+    branches: [ main ]
+    paths:
+      - 'benchmarks/tuning-halving/*'
+      - 'utils/*'
+  pull_request:
+    branches: [ main ]
+    paths:
+      - 'benchmarks/tuning-halving/*'
+      - 'utils/*'
+
+env:
+  GOOS: linux
+  GO111MODULE: on
+  AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY }}
+  AWS_ACCESS_KEY: ${{ secrets.AWS_ACCESS_KEY }}
+  AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_KEY }}
+  AWS_SECRET_KEY: ${{ secrets.AWS_SECRET_KEY }}
+  AWS_DEFAULT_REGION: 'us-west-1'
+  AWS_REGION: 'us-west-1'
+  AWS_ACCOUNT_ID: ${{ secrets.AWS_ACCOUNT_ID }}
+
+jobs:
+  build-and-push:
+    name: Build and Push all images
+    runs-on: ubuntu-20.04
+    strategy:
+      fail-fast: false
+    steps:
+    - name: Check out code into the Go module directory
+      uses: actions/checkout@v3
+      with:
+        lfs: 'true'
+
+    - name: Login to Docker Hub
+      uses: docker/login-action@v2
+      with:
+        username: ${{ secrets.DOCKER_HUB_USERNAME }}
+        password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
+
+    - name: Set up Docker Buildx
+      id: buildx
+      uses: docker/setup-buildx-action@v2
+
+    - name: Build and Push
+      working-directory: benchmarks/tuning-halving
+      env:
+        GOPRIVATE_KEY: ${{ secrets.XDT_REPO_ACCESS_KEY }}
+      run: make all-image-push
+
+  test-compose:
+    name: Test Docker Compose
+    needs: build-and-push
+    runs-on: ubuntu-20.04
+    strategy:
+      fail-fast: false
+    steps:
+    - name: Check out code into the Go module directory
+      uses: actions/checkout@v3
+      with:
+        lfs: 'true'
+
+    - name: start docker-compose benchmark
+      working-directory: benchmarks/tuning-halving
+      env:
+        BUCKET_NAME: vhive-tuning
+      run: |
+        docker-compose -f docker-compose-s3.yml up &> log_file &
+        sleep 60s
+
+    - name: invoke the chain
+      run: |
+        ./tools/bin/grpcurl -plaintext localhost:50051 helloworld.Greeter.SayHello
+
+    - name: show docker-compose log
+      run: cat benchmarks/tuning-halving/log_file
+
+  test-knative:
+    name: Test Knative Deployment
+    needs: build-and-push
+    env:
+      KIND_VERSION: v0.14.0
+      K8S-VERSION: v1.23
+
+    runs-on: ubuntu-20.04
+    strategy:
+      fail-fast: false
+
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          lfs: 'true'
+
+      - name: Checkout LFS objects
+        run: git lfs checkout
+
+      - uses: actions/setup-go@v4
+        with:
+          go-version: 1.18
+
+      - name: Create k8s Kind Cluster
+        run: bash ./runner/scripts/01-kind.sh
+
+      - name: Install Serving
+        run: bash ./runner/scripts/02-serving.sh
+
+      - name: Install Kourier
+        run: bash ./runner/scripts/02-kourier.sh
+
+      - name: Setup domain
+        run: |
+          INGRESS_HOST="127.0.0.1"
+          KNATIVE_DOMAIN=$INGRESS_HOST.sslip.io
+          kubectl patch configmap -n knative-serving config-domain -p "{\"data\": {\"$KNATIVE_DOMAIN\": \"\"}}"
+
+      - name: Setup kn
+        env:
+          KN_VERSION: v1.8.1
+          KN_INSTALL_PATH: /usr/local/bin/kn
+        run: |-
+          echo "Downloading kn $KN_VERSION"
+          sudo wget --quiet -O $KN_INSTALL_PATH "https://github.com/knative/client/releases/download/knative-$KN_VERSION/kn-linux-amd64"
+          sudo chmod +x $KN_INSTALL_PATH
+          echo "Installed kn $KN_VERSION"
+
+      - name: Deploy Functions as Knative Services
+        env:
+          BUCKET_NAME: vhive-tuning
+        run: tools/kn_deploy.sh benchmarks/tuning-halving/knative_yamls/s3/*
+
+      - name: Check if the Service is Ready
+        working-directory: benchmarks/tuning-halving/knative_yamls/s3
+        run: |
+          kubectl wait --for=condition=Ready -f service-driver.yaml --timeout 120s
+          kubectl get -f service-driver.yaml
+          kubectl wait --for=condition=Ready -f service-trainer.yaml --timeout 120s
+          kubectl get -f service-trainer.yaml
+
+      - name: Test the Function Deployment
+        working-directory: tools/test-client
+        run: |
+          set -x
+          NODEPORT=80
+          HOSTNAME=$(kubectl get ksvc driver -n default -o jsonpath='{.status.url}' | cut -c8-)
+          go build ./test-client.go
+          ./test-client -addr $HOSTNAME:$NODEPORT
+
+      - name: Print Logs
+        if: ${{ always() }}
+        run: |
+          set -x
+          kubectl logs -n default -c user-container -l serving.knative.dev/service=driver
+          kubectl logs -n default -c user-container -l serving.knative.dev/service=trainer
+
+      - name: Delete the Deployed Services
+        working-directory: benchmarks/stacking-training/knative_yamls/s3
+        if: ${{ always() }}
+        run: |
+          kubectl delete -f ./service-driver.yaml --namespace default --wait
+          kubectl delete -f ./service-trainer.yaml --namespace default --wait

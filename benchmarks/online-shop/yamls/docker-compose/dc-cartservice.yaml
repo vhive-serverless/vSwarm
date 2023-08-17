@@ -1,0 +1,39 @@
+version: "3.9"
+services:
+
+  cartservice:
+    image: vhiveease/onlineshop-cartservice:latest
+    container_name: 'cartservice'
+    build:
+      context: ./../../cartservice/
+      dockerfile: ./Dockerfile
+    environment:
+      # - PORT=9555
+      - DISABLE_PROFILER=true
+      - DISABLE_DEBUGGER=true
+      - DISABLE_TRACING=true
+      - REDIS_ADDR=redis:6379
+    ports:
+    - target: 7070
+
+
+  relay:
+    image: vhiveease/relay:latest
+    entrypoint:
+      - /app/server
+      - --addr=0.0.0.0:50000
+      - --function-endpoint-url=cartservice
+      - --function-endpoint-port=7070
+      - --function-name=cartservice
+      - --generator=unique
+      - --value=12345
+      - --function-method=AddItem
+    ports:
+      - published: 50000
+        target: 50000
+
+    # Database
+  redis:
+    image: redis:alpine
+    ports:
+    - target: 6379

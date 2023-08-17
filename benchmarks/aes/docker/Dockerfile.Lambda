@@ -1,0 +1,71 @@
+# MIT License
+
+# Copyright (c) 2022 Alan Nair and The vHive Ecosystem
+
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
+
+#---------- PYTHON -----------#
+FROM public.ecr.aws/lambda/python:3.9 as aesPythonLambda
+
+# Copy function code
+COPY ./utils/tracing/python/tracing.py ${LAMBDA_TASK_ROOT}
+COPY ./benchmarks/aes/python/server.py ${LAMBDA_TASK_ROOT}
+
+# Install the function's dependencies using file requirements.txt
+# from your project folder.
+COPY ./benchmarks/aes/python/requirements/aws_lambda.txt ./requirements.txt
+RUN  pip3 install -r requirements.txt --target "${LAMBDA_TASK_ROOT}"
+
+# Set the CMD to handler
+CMD [ "server.lambda_handler" ]
+
+#---------- NodeJS -----------#
+FROM public.ecr.aws/lambda/nodejs:18 as aesNodeJSLambda
+
+# Copy function code
+COPY ./benchmarks/aes/nodejs/server.js ./
+COPY ./benchmarks/aes/nodejs/package.json ./
+
+# Install NPM dependencies for function
+RUN npm install
+
+# Set the CMD to your handler
+CMD [ "server.lambda_handler" ]
+
+#---------- GoLang -----------#
+# First stage (Builder):
+FROM vhiveease/golang-builder:latest AS aesGoLambdaBuilder
+WORKDIR /app/app/
+RUN apt-get install git ca-certificates
+
+COPY ./utils/tracing/go ../../utils/tracing/go
+COPY ./benchmarks/aes/go/go.mod ./
+COPY ./benchmarks/aes/go/go.sum ./
+COPY ./benchmarks/aes/go/server.go ./
+
+RUN go mod tidy
+RUN CGO_ENABLED=0 GOOS=linux go build -v -o ./server server.go
+
+# Second stage (Runner):
+FROM scratch as aesGoLambda
+WORKDIR /app/
+COPY --from=aesGoLambdaBuilder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
+COPY --from=aesGoLambdaBuilder /app/app/server .
+
+ENTRYPOINT [ "/app/server" ]

@@ -1,0 +1,33 @@
+{
+    "ignorePatterns": [
+		{
+			"pattern": "^http://localhost:*"
+		},
+        {
+            "pattern": "^http://127.0.0.1:*"
+        },
+        {
+            "pattern": "^https://opensource.org*"
+        },
+        {
+            "pattern": "^https://twitter.com/"
+        },
+        {
+            "pattern": "^https://www.intel.com/content/www/us/en/develop/documentation/vtune-cookbook/top/methodologies/top-down-microarchitecture-analysis-method.html"
+        }
+    ],
+    "replacementPatterns": [
+        {
+            "pattern": "^/",
+            "replacement": "/github/workspace/"
+        }
+    ],
+    "httpHeaders": [
+        {
+            "urls": ["https://docs.github.com/"],
+            "headers": {
+                "Accept-Encoding": "zstd, br, gzip, deflate"
+            }
+        }
+    ]
+}

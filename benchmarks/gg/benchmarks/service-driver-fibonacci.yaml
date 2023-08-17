@@ -1,0 +1,30 @@
+apiVersion: serving.knative.dev/v1
+kind: Service
+metadata:
+  name: gg-driver-fibonacci
+  namespace: default
+spec:
+  template:
+    metadata:
+        annotations:
+          autoscaling.knative.dev/maxScale: "1"
+          autoscaling.knative.dev/minScale: "1"
+    spec:
+      containers:
+        - image: docker.io/vhiveease/gg-driver-fibonacci:latest
+          imagePullPolicy: Always
+          args: ["-addr", "gg-port-0.default.svc.cluster.local", "-p", "80"]
+          env:
+            - name: AWS_ACCESS_KEY_ID
+              value: ${AWS_ACCESS_KEY}
+            - name: AWS_SECRET_ACCESS_KEY
+              value: ${AWS_SECRET_KEY}
+            - name: GG_S3_REGION
+              value: us-west-1
+            - name: GG_S3_BUCKET
+              value: gg-ease
+            - name: GG_STORAGE_URI
+              value: s3://${AWS_ACCESS_KEY}:${AWS_SECRET_KEY}@gg-ease/?region=us-west-1
+          ports:
+            - containerPort: 80
+              name: h2c

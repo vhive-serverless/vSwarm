@@ -1,0 +1,2 @@
+# by default mirrors common requirements (not Lambda requirements)
+-r requirements/common_s3.txt

@@ -1,0 +1,32 @@
+version: "3.9"
+services:
+
+  currencyservice:
+    image: vhiveease/onlineshop-currencyservice:latest
+    container_name: 'currencyservice'
+    build:
+      context: ./../../currencyservice/
+      dockerfile: ./Dockerfile
+    environment:
+      - PORT=7000
+      - DISABLE_PROFILER=true
+      - DISABLE_DEBUGGER=true
+      - DISABLE_TRACING=true
+    entrypoint: [ "node", "server.js" ]
+    ports:
+    - target: 7000
+
+  relay:
+    image: vhiveease/relay:latest
+    entrypoint:
+      - /app/server
+      - --addr=0.0.0.0:50000
+      - --function-endpoint-url=currencyservice
+      - --function-endpoint-port=7000
+      - --function-name=currencyservice
+      - --generator=unique
+      - --value=100
+      - --function-method=Convert
+    ports:
+      - published: 50000
+        target: 50000

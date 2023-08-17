@@ -1,0 +1,15 @@
+{
+  "name": "grpc-examples",
+  "version": "0.1.0",
+  "dependencies": {
+    "@grpc/grpc-js": "1.6.7",
+    "@grpc/proto-loader": "0.6.12",
+    "async": "3.2.3",
+    "google-protobuf": "3.20.1",
+    "jimp": "0.16.1",
+    "lodash": "4.17.21",
+    "minimist": "1.2.6",
+    "tracing": "./utils/tracing/nodejs/",
+    "mustache": "4.2.0"
+  }
+}

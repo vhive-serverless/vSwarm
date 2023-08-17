@@ -1,0 +1,28 @@
+version: "3.9"
+services:
+
+  emailservice:
+    image: vhiveease/onlineshop-emailservice:latest
+    container_name: 'emailservice'
+    build:
+      context: ./../../emailservice/
+      dockerfile: ./Dockerfile
+    environment:
+      - DISABLE_PROFILER=true
+      - DISABLE_DEBUGGER=true
+      - DISABLE_TRACING=true
+    ports:
+    - target: 8080
+
+  relay:
+    image: vhiveease/relay:latest
+    entrypoint:
+      - /app/server
+      - --addr=0.0.0.0:50000
+      - --function-endpoint-url=emailservice
+      - --function-endpoint-port=8080
+      - --function-name=emailservice
+      - --generator=unique
+    ports:
+      - published: 50000
+        target: 50000

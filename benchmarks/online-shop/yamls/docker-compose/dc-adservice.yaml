@@ -1,0 +1,32 @@
+version: "3.9"
+services:
+
+  adservice:
+    image: vhiveease/onlineshop-adservice:latest
+    container_name: 'adservice'
+    build:
+      context: ./../../adservice/
+      dockerfile: ./Dockerfile
+    environment:
+      - PORT=9555
+      - DISABLE_PROFILER=true
+      - DISABLE_DEBUGGER=true
+      - DISABLE_TRACING=true
+    ports:
+    - published: 9555
+      target: 9555
+
+
+  relay:
+    image: vhiveease/relay:latest
+    entrypoint:
+      - /app/server
+      - --addr=0.0.0.0:50000
+      - --function-endpoint-url=adservice
+      - --function-endpoint-port=9555
+      - --function-name=adservice
+      - --generator=unique
+      - --value=donuts
+    ports:
+      - published: 50000
+        target: 50000

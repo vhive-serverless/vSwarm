@@ -1,0 +1,47 @@
+version: "3.9"
+services:
+
+  recommendationservice:
+    image: vhiveease/onlineshop-recommendationservice:latest
+    container_name: 'recommendationservice'
+    build:
+      context: ./../../recommendationservice/
+      dockerfile: ./Dockerfile
+    environment:
+      - PORT=8080
+      - PRODUCT_CATALOG_SERVICE_ADDR=productcatalogservice:3550
+      - DISABLE_PROFILER=true
+      - DISABLE_DEBUGGER=true
+      - DISABLE_TRACING=true
+    ports:
+    - target: 8080
+    depends_on:
+      - productcatalogservice
+
+  productcatalogservice:
+    image: vhiveease/onlineshop-productcatalogservice:latest
+    container_name: 'productcatalogservice'
+    build:
+      context: ./../../productcatalogservice/
+      dockerfile: ./Dockerfile
+    environment:
+      - PORT=3550
+      - DISABLE_PROFILER=true
+      - DISABLE_DEBUGGER=true
+      - DISABLE_TRACING=true
+    ports:
+    - target: 3550
+
+  relay:
+    image: vhiveease/relay:latest
+    entrypoint:
+      - /app/server
+      - --addr=0.0.0.0:50000
+      - --function-endpoint-url=recommendationservice
+      - --function-endpoint-port=8080
+      - --function-name=recommendationservice
+      - --generator=unique
+      - --value=12345
+    ports:
+      - published: 50000
+        target: 50000

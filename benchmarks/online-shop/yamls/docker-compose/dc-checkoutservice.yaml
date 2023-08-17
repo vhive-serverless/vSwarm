@@ -1,0 +1,127 @@
+version: "3.9"
+services:
+
+  checkoutservice:
+    image: vhiveease/onlineshop-checkoutservice:latest
+    container_name: 'checkoutservice'
+    build:
+      context: ./../../checkoutservice/
+      dockerfile: ./Dockerfile
+    environment:
+      - PORT=5050
+      - SHIPPING_SERVICE_ADDR=shippingservice:50051
+      - PRODUCT_CATALOG_SERVICE_ADDR=productcatalogservice:3550
+      - CART_SERVICE_ADDR=cartservice:7070
+      - CURRENCY_SERVICE_ADDR=currencyservice:7000
+      - EMAIL_SERVICE_ADDR=emailservice:8080
+      - PAYMENT_SERVICE_ADDR=paymentservice:50051
+      - DISABLE_PROFILER=true
+      - DISABLE_DEBUGGER=true
+      - DISABLE_TRACING=true
+    ports:
+    - target: 5050
+    depends_on:
+      - shippingservice
+      - productcatalogservice
+      - cartservice
+      - currencyservice
+      - emailservice
+      - paymentservice
+
+  shippingservice:
+    image: vhiveease/onlineshop-shippingservice:latest
+    container_name: 'shippingservice'
+    build:
+      context: ./../../shippingservice/
+      dockerfile: ./Dockerfile
+    environment:
+      - PORT=50051
+      - DISABLE_PROFILER=true
+      - DISABLE_DEBUGGER=true
+      - DISABLE_TRACING=true
+    ports:
+    - target: 50051
+
+  productcatalogservice:
+    image: vhiveease/onlineshop-productcatalogservice:latest
+    container_name: 'productcatalogservice'
+    build:
+      context: ./../../productcatalogservice/
+      dockerfile: ./Dockerfile
+    environment:
+      - PORT=3550
+      - DISABLE_PROFILER=true
+      - DISABLE_DEBUGGER=true
+      - DISABLE_TRACING=true
+    ports:
+    - target: 3550
+
+  cartservice:
+    image: vhiveease/onlineshop-cartservice:latest
+    container_name: 'cartservice'
+    build:
+      context: ./../../cartservice/
+      dockerfile: ./Dockerfile
+    environment:
+      # - PORT=9555
+      - DISABLE_PROFILER=true
+      - DISABLE_DEBUGGER=true
+      - DISABLE_TRACING=true
+    ports:
+    - target: 7070
+
+
+  currencyservice:
+    image: vhiveease/onlineshop-currencyservice:latest
+    container_name: 'currencyservice'
+    build:
+      context: ./../../currencyservice/
+      dockerfile: ./Dockerfile
+    environment:
+      - PORT=7000
+      - DISABLE_PROFILER=true
+      - DISABLE_DEBUGGER=true
+      - DISABLE_TRACING=true
+    ports:
+    - target: 7000
+
+  emailservice:
+    image: vhiveease/onlineshop-emailservice:latest
+    container_name: 'emailservice'
+    build:
+      context: ./../../emailservice/
+      dockerfile: ./Dockerfile
+    environment:
+      - DISABLE_PROFILER=true
+      - DISABLE_DEBUGGER=true
+      - DISABLE_TRACING=true
+    ports:
+    - target: 8080
+
+  paymentservice:
+    image: vhiveease/onlineshop-paymentservice:latest
+    container_name: 'paymentservice'
+    build:
+      context: ./../../paymentservice/
+      dockerfile: ./Dockerfile
+    environment:
+      - PORT=50051
+      - DISABLE_PROFILER=true
+      - DISABLE_DEBUGGER=true
+      - DISABLE_TRACING=true
+    ports:
+    - target: 50051
+
+  relay:
+    image: vhiveease/relay:latest
+    entrypoint:
+      - /app/server
+      - --addr=0.0.0.0:50000
+      - --function-endpoint-url=checkoutservice
+      - --function-endpoint-port=5050
+      - --function-name=checkoutservice
+      - --generator=unique
+      - --value=12345
+    ports:
+      - published: 50000
+        target: 50000

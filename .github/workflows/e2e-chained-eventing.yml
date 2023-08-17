@@ -1,0 +1,113 @@
+# MIT License
+#
+# Copyright (c) 2021 Mert Bora Alper and EASE lab
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
+
+name: Chained Eventing End-to-End Tests
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron:  '0 9 * * 1'
+  push:
+    branches: [ main ]
+    paths:
+      - 'benchmarks/chained-function-eventing/*'
+      - 'utils/*'
+  pull_request:
+    branches: [ main ]
+    paths:
+      - 'benchmarks/chained-function-eventing/*'
+      - 'utils/*'
+
+env:
+  GOOS: linux
+  GO111MODULE: on
+  KUBECONFIG: /etc/kubernetes/admin.conf
+
+jobs:
+  build-and-push:
+    name: Build and Push all images
+    runs-on: ubuntu-20.04
+    strategy:
+      fail-fast: false
+    steps:
+    - name: Check out code into the Go module directory
+      uses: actions/checkout@v3
+      with:
+        lfs: 'true'
+
+    - name: Login to Docker Hub
+      uses: docker/login-action@v2
+      with:
+        username: ${{ secrets.DOCKER_HUB_USERNAME }}
+        password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
+
+    - name: Set up Docker Buildx
+      id: buildx
+      uses: docker/setup-buildx-action@v2
+
+    - name: Build and Push
+      working-directory: benchmarks/chained-function-eventing
+      env:
+        GOPRIVATE_KEY: ${{ secrets.XDT_REPO_ACCESS_KEY }}
+      run: make all-image-push
+
+  test-knative-eventing:
+    name: Test Knative Eventing Benchmarks
+    needs: build-and-push
+    runs-on: [stock-knative]
+    strategy:
+      fail-fast: false
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          lfs: 'true'
+      - name: Checkout LFS objects
+        run: git lfs checkout
+
+      - name: Up
+        working-directory: benchmarks/chained-function-eventing/manifests
+        run: ./apply.sh && sleep 60
+
+      - name: Describe
+        run: |
+          set -x
+          kubectl get -n chained-functions-eventing broker
+          kubectl get -n chained-functions-eventing sinkbinding
+          kubectl get -n chained-functions-eventing ksvc
+          kubectl get -n chained-functions-eventing trigger
+
+
+      - name: Test
+        run: |
+          set -x
+
+          NODEPORT=$(kubectl get svc kourier-ingress -n kourier-system -o=jsonpath='{.spec.ports[0].nodePort}')
+          HOSTNAME=$(kubectl get ksvc producer -n chained-functions-eventing -o jsonpath='{.status.url}' | cut -c8-)
+
+          ./tools/bin/grpcurl -max-time 10 -d '{"name": "Bora", "vHiveMetadata": "eyAiV29ya2Zsb3dJZCI6ICJXRklEIiwgIkludm9jYXRpb25JZCI6ICJJVklEIiwgIkludm9rZWRPbiI6ICIyMDIxLTA3LTEzVDA5OjM4OjE3Ljc5OTI3NzE0Mi0wNDowMCIgfQ=="}' -plaintext $HOSTNAME:$NODEPORT helloworld.Greeter.SayHello
+
+      - name: Down
+        if: ${{ always() }}
+        working-directory: benchmarks/chained-function-eventing/manifests
+        run: |
+          ./delete.sh
+          kubectl config set-context --current --namespace=default

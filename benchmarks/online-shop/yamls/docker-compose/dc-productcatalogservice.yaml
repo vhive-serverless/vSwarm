@@ -1,0 +1,31 @@
+version: "3.9"
+services:
+
+  productcatalogservice:
+    image: vhiveease/onlineshop-productcatalogservice:latest
+    container_name: 'productcatalogservice'
+    build:
+      context: ./../../productcatalogservice/
+      dockerfile: ./Dockerfile
+    environment:
+      - PORT=3550
+      - DISABLE_PROFILER=true
+      - DISABLE_DEBUGGER=true
+      - DISABLE_TRACING=true
+    ports:
+    - target: 3550
+
+  relay:
+    image: vhiveease/relay:latest
+    entrypoint:
+      - /app/server
+      - --addr=0.0.0.0:50000
+      - --function-endpoint-url=productcatalogservice
+      - --function-endpoint-port=3550
+      - --function-name=productcatalogservice
+      - --generator=unique
+      - --value=loremipsum
+      - --function-method=ListProducts
+    ports:
+      - published: 50000
+        target: 50000

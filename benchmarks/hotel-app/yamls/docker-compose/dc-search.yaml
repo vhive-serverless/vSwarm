@@ -1,0 +1,105 @@
+# MIT License
+
+# Copyright (c) 2022 EASE lab
+
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
+
+version: "3.9"
+services:
+
+  ## Utils ##
+  relay:
+    image: vhiveease/relay:latest
+    entrypoint:
+      - /app/server
+      - --addr=0.0.0.0:50000
+      - --function-endpoint-url=search
+      - --function-endpoint-port=8083
+      - --function-name=search
+    ports:
+        - published: 50000
+          target: 50000
+    depends_on:
+      - search
+
+
+  ## Function ###
+  search:
+    image: vhiveease/hotel-app-search:latest
+    container_name: search
+    entrypoint:
+      - /app/server
+      - --url=0.0.0.0
+      - --port=8083
+      - --geoaddr=geo:8084
+      - --rateaddr=rate:8085
+    ports:
+      - "8083:8083"
+    depends_on:
+      - geo
+      - rate
+
+
+  ## Dependent geo function ###
+  geo:
+    image: vhiveease/hotel-app-geo:latest
+    container_name: geo
+    entrypoint:
+      - /app/server
+      - --url=0.0.0.0
+      - --port=8084
+      - --db_addr=geo-db:27017
+    depends_on:
+      - geo-db
+
+  ## Database ##
+  geo-db:
+    image: vhiveease/mongodb
+    container_name: geo-db
+
+
+  ## Dependent rate function ###
+  rate:
+    image: vhiveease/hotel-app-rate:latest
+    container_name: rate
+    entrypoint:
+      - /app/server
+      - --url=0.0.0.0
+      - --port=8085
+      - --db_addr=rate-db:27017
+      - --memcached_addr=rate-mmc:11211
+    depends_on:
+      - rate-db
+      - rate-mmc
+
+
+  ## Database ##
+  rate-db:
+    image: vhiveease/mongodb
+    container_name: rate-db
+  ## Memcached ##
+  rate-mmc:
+    image: vhiveease/memcached
+    container_name: 'rate-mmc'
+    environment:
+      - MEMCACHED_CACHE_SIZE=128
+      - MEMCACHED_THREADS=2
+    logging:
+      options:
+        max-size: 50m

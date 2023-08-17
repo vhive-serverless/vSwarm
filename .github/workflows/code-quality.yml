@@ -1,0 +1,50 @@
+name: Code quality checks
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+env:
+  GOOS: linux
+  GO111MODULE: on
+
+jobs:
+  resolve-modules:
+    name: Resolve Modules
+    runs-on: ubuntu-20.04
+    outputs:
+      matrix: ${{ steps.set-matrix.outputs.matrix }}
+    steps:
+      - name: Checkout Sources
+        uses: actions/checkout@v3
+      - id: set-matrix
+        run: ./utils/golangci-lint/resolve-modules.sh
+
+  golangci:
+    name: GolangCI Lint
+    needs: resolve-modules
+    runs-on: ubuntu-20.04
+    strategy:
+      matrix: ${{ fromJson(needs.resolve-modules.outputs.matrix) }}
+      fail-fast: false
+    env:
+      GOPRIVATE_KEY: ${{ secrets.XDT_REPO_ACCESS_KEY }}
+      GOPRIVATE: "github.com/ease-lab/vhive-xdt"
+    steps:
+      - name: Setup Go 1.18
+        uses: actions/setup-go@v4
+        with:
+          go-version: 1.18
+      - name: Checkout code into go module directory
+        uses: actions/checkout@v3
+
+      - run: git config --global url."https://ease-lab:$(echo $GOPRIVATE_KEY)@github.com/ease-lab/vhive-xdt".insteadOf "https://github.com/ease-lab/vhive-xdt"
+
+      - name: Lint with golangci-lint
+        uses: golangci/golangci-lint-action@v3.6.0
+        with:
+          working-directory: ${{ matrix.workdir }}
+          skip-cache: true
+          skip-pkg-cache: true
+          skip-build-cache: true
