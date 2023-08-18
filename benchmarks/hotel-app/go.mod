@@ -29,9 +29,9 @@ replace github.com/vhive-serverless/vSwarm/utils/tracing/go => ../../utils/traci
 require (
 	github.com/bradfitz/gomemcache v0.0.0-20220106215444-fb4bf637b56d
 	github.com/hailocab/go-geoindex v0.0.0-20160127134810-64631bfe9711
-	github.com/sirupsen/logrus v1.9.0
-	github.com/vhive-serverless/vSwarm-proto v0.3.0
-	github.com/vhive-serverless/vSwarm/utils/tracing/go v0.0.0-00010101000000-000000000000
+	github.com/sirupsen/logrus v1.9.2
+	github.com/vhive-serverless/vSwarm-proto v0.4.2
+	github.com/vhive-serverless/vSwarm/utils/tracing/go v0.0.0-20221008101717-930188b36b99
 	go.mongodb.org/mongo-driver v1.12.1
 	golang.org/x/net v0.14.0
 	google.golang.org/grpc v1.55.0
@@ -57,7 +57,7 @@ require (
 	go.opentelemetry.io/otel/sdk v1.8.0 // indirect
 	go.opentelemetry.io/otel/trace v1.11.1 // indirect
 	golang.org/x/crypto v0.12.0 // indirect
-	golang.org/x/sync v0.0.0-20220722155255-886fb9371eb4 // indirect
+	golang.org/x/sync v0.1.0 // indirect
 	golang.org/x/sys v0.11.0 // indirect
 	golang.org/x/text v0.12.0 // indirect
 	google.golang.org/genproto v0.0.0-20230306155012-7f2fa6fef1f4 // indirect
