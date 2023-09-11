@@ -43,7 +43,7 @@ jobs:
 
     steps:
       - name: Check out code into the Go module directory
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           lfs: "true"
 
@@ -119,7 +119,7 @@ jobs:
 
     steps:
       - name: Check out code into the Go module directory
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           lfs: "true"
 
@@ -159,7 +159,7 @@ jobs:
             fibonacci-nodejs-tracing,
           ]
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           lfs: "true"
       - name: Checkout LFS objects

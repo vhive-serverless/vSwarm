@@ -27,7 +27,7 @@ jobs:
     strategy:
       fail-fast: false
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - uses: actions/setup-go@v4
         with:
@@ -61,7 +61,7 @@ jobs:
         sudo systemctl start redis
 
     - name: Check out code into the Go module directory
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
 
     - name: Get extra python packages
       run: pip3 install -r ./utils/tracing/python/requirements.txt && pip3 install -r ./utils/storage/python/requirements.txt
@@ -84,7 +84,7 @@ jobs:
     strategy:
       fail-fast: false
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - name: build local images
       run: make all-image
     - name: Python client with docker-compose
