@@ -28,9 +28,9 @@ clean: clean-proto
 
 ROOT = ../../
 
-all: all_image
+all: all-image
 
-all_image: $(ALL_IMAGES)
+all-image: $(ALL_IMAGES)
 
 fibonacci-python-image:  Dockerfile python/server.py
 	DOCKER_BUILDKIT=1 docker build \
