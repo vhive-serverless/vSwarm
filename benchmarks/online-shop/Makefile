@@ -4,9 +4,9 @@ ALL_IMAGES = $(addsuffix -image, $(FUNCTIONS))
 
 ROOT = .
 
-all: all_image
+all: all-image
 
-all_image: $(ALL_IMAGES)
+all-image: $(ALL_IMAGES)
 
 adservice-image: ./adservice/Dockerfile
 	DOCKER_BUILDKIT=1 docker build \

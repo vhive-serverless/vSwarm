@@ -35,11 +35,11 @@ export AWS_ACCESS_KEY := ${AWS_ACCESS_KEY}
 export AWS_SECRET_KEY := ${AWS_SECRET_KEY}
 export AWS_ACCOUNT_ID := ${AWS_ACCOUNT_ID}
 
-all: all_image all_lambda_image
+all: all-image all-lambda-image
 
-all_image: $(ALL_IMAGES)
+all-image: $(ALL_IMAGES)
 
-all_lambda_image: $(ALL_LAMBDA_IMAGES)
+all-lambda-image: $(ALL_LAMBDA_IMAGES)
 
 aes-python-image: docker/Dockerfile python/server.py
 	DOCKER_BUILDKIT=1 docker buildx build \

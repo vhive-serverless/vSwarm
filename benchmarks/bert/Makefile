@@ -29,9 +29,9 @@ else
 	DOCKER_RUN_CMD := docker run --gpus=all
 endif
 
-all: all_image
+all: all-image
 
-all_image: $(ALL_IMAGES)
+all-image: $(ALL_IMAGES)
 
 .PHONY: setup
 setup:

@@ -13,11 +13,11 @@ clean: clean-proto
 
 ROOT = ../../
 
-all: all_image all_lambda_image
+all: all-image all-lambda-image
 
-all_image: $(ALL_IMAGES)
+all-image: $(ALL_IMAGES)
 
-all_lambda_image: $(ALL_LAMBDA_IMAGES)
+all-lambda-image: $(ALL_LAMBDA_IMAGES)
 
 auth-python-image: docker/Dockerfile python/server.py
 	DOCKER_BUILDKIT=1 docker buildx build \
