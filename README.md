@@ -24,7 +24,7 @@ The standalone functions can therefore be used as microbenchmarks to first pin-p
 - `benchmarks` contains all of the available benchmark source code and manifests.
 - `utils` contains utilities for use within serverless functions, e.g. the tracing module.
 - `tools` is for command-line tools and services useful outside of serverless functions, such as
-   deployment or invokation.
+   deployment or invocation.
 - `runner` is for setting up self-hosted GitHub Actions runners.
 - `docs` contains additional documentation on a number of relevant topics.
 
