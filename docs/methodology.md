@@ -38,7 +38,7 @@ In gRPC requests, vHive Metadata is passed as field
 vHive metadata is stored in `vhivemetadata` extension attribute of type
 byte array---this is also what TimeseriesDB looks for.
 
-Developers can use `utils/benchmarking/eventing/vhivemetadata` to read
+Developers can use `tools/benchmarking_eventing/vhivemetadata` to read
 and create vHive metadata objects.
 
 ## Benchmarking
