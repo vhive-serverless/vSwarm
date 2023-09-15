@@ -4,7 +4,7 @@ vHive and how to run the benchmarks.
 
 ## Introduction
 The key points are:
-- The invoker ([examples/invoker](/tools/invoker)) steers load to
+- The invoker ([tools/invoker](/tools/invoker)) steers load to
 a collection of serverless benchmarks (also called _workflows_).
 - Benchmarks can comprise a single or a collection of functions calling
 one another, as well as asynchronous (i.e., eventing) pipelines.
@@ -42,19 +42,19 @@ Developers can use `tools/benchmarking_eventing/vhivemetadata` to read
 and create vHive metadata objects.
 
 ## Benchmarking
-You can use [examples/invoker](/tools/invoker) (the "invoker") to
+You can use [tools/invoker](/tools/invoker) (the "invoker") to
 get the end-to-end latencies of your serving and eventing workflows.
 
 **On any node**, execute the following instructions below **at the root
-of vHive repository** using **bash**:
+of vSwarm repository** using **bash**:
 1. Build the invoker:
     ```bash
-    (cd examples/invoker; go build github.com/ease-lab/vhive/examples/invoker)
+    (cd tools/invoker; go build github.com/ease-lab/vswarm/tools/invoker)
     ```
 
     - Keep the parenthesis so not to change your working directory.
 2. Create your `endpoints.json` file. It is created automatically for
-    you if you use [examples/deployer](/tools/deployer) (the
+    you if you use [tools/deployer](/tools/deployer) (the
     "deployer"), however eventing workflows are not supported by the
     deployer so the following guide is presented; you may use it for
     manually deployed serving workflows too.
@@ -95,7 +95,7 @@ of vHive repository** using **bash**:
     ```
 3. Execute the invoker:
     ```bash
-    ./examples/invoker/invoker
+    ./tools/invoker/invoker
     ```
 
     **Command-line Arguments:**
