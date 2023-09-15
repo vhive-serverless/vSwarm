@@ -30,8 +30,8 @@ import (
 	"os/exec"
 	"path/filepath"
 
-	"github.com/vhive-serverless/vSwarm/tools/endpoint"
 	log "github.com/sirupsen/logrus"
+	"github.com/vhive-serverless/vSwarm/tools/endpoint"
 )
 
 // Functions is an object for unmarshalled JSON with functions to deploy.
@@ -57,7 +57,7 @@ var (
 
 func main() {
 	funcPath := flag.String("funcPath", "./configs/knative_workloads", "Path to the folder with *.yml files")
-	funcJSONFile := flag.String("jsonFile", "./examples/deployer/functions.json", "Path to the JSON file with functions to deploy")
+	funcJSONFile := flag.String("jsonFile", "./tools/deployer/functions.json", "Path to the JSON file with functions to deploy")
 	endpointsFile := flag.String("endpointsFile", "endpoints.json", "File with endpoints' metadata")
 	deploymentConcurrency := flag.Int("conc", 5, "Number of functions to deploy concurrently (for serving)")
 
