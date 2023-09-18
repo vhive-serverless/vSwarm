@@ -71,7 +71,7 @@ jobs:
 
       - name: Set up Docker Buildx
         id: buildx
-        uses: docker/setup-buildx-action@v2
+        uses: docker/setup-buildx-action@v3
 
       - name: Install AWS CLI
         uses: unfor19/install-aws-cli-action@master
