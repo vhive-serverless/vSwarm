@@ -26,8 +26,8 @@ import (
 	"encoding/json"
 	"flag"
 	"fmt"
-	"io/ioutil"
 	"os/exec"
+	"os"
 	"path/filepath"
 
 	log "github.com/sirupsen/logrus"
@@ -76,7 +76,7 @@ func main() {
 
 func getFuncSlice(file string) []functionType {
 	log.Debug("Opening JSON file with functions: ", file)
-	byteValue, err := ioutil.ReadFile(file)
+	byteValue, err := os.ReadFile(file)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -149,7 +149,7 @@ func writeEndpoints(filePath string, urls []string) {
 	if err != nil {
 		log.Fatalln("failed to marshal", err)
 	}
-	if err := ioutil.WriteFile(filePath, data, 0644); err != nil {
+	if err := os.WriteFile(filePath, data, 0644); err != nil {
 		log.Fatalln("failed to write", err)
 	}
 }

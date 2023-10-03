@@ -1,6 +1,6 @@
 module github.com/vhive-serverless/vSwarm/utils/tracing/go
 
-go 1.18
+go 1.21
 
 require (
 	github.com/containerd/containerd v1.6.12

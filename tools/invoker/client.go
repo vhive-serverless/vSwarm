@@ -28,7 +28,6 @@ import (
 	"encoding/json"
 	"flag"
 	"fmt"
-	"io/ioutil"
 	"os"
 	"strconv"
 	"sync"
@@ -112,7 +111,7 @@ func main() {
 }
 
 func readEndpoints(path string) (endpoints []*endpoint.Endpoint, _ error) {
-	data, err := ioutil.ReadFile(path)
+	data, err := os.ReadFile(path)
 	if err != nil {
 		return nil, err
 	}

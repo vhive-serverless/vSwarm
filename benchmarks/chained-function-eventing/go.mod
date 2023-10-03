@@ -1,6 +1,6 @@
 module chained_function_eventing
 
-go 1.18
+go 1.21
 
 replace github.com/vhive-serverless/vSwarm/tools/benchmarking_eventing => ../../tools/benchmarking_eventing
 

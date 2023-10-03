@@ -1,6 +1,6 @@
 module tests/video_analytics
 
-go 1.18
+go 1.21
 
 replace (
 	github.com/ease-lab/vhive-xdt/proto/crossXDT => github.com/ease-lab/vhive-xdt/proto/crossXDT v0.0.0-20221107151004-a0940018d178
