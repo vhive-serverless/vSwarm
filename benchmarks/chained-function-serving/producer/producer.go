@@ -24,13 +24,14 @@ package main
 
 import (
 	"context"
+	"crypto/rand"
 	"flag"
 	"fmt"
-	storage "github.com/vhive-serverless/vSwarm/utils/storage/go"
-	"math/rand"
 	"net"
 	"os"
 	"strconv"
+
+	storage "github.com/vhive-serverless/vSwarm/utils/storage/go"
 
 	sdk "github.com/ease-lab/vhive-xdt/sdk/golang"
 	"github.com/ease-lab/vhive-xdt/utils"

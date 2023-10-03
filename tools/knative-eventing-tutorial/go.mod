@@ -1,6 +1,6 @@
 module pipeline
 
-go 1.18
+go 1.21
 
 require (
 	github.com/cloudevents/sdk-go/v2 v2.10.1

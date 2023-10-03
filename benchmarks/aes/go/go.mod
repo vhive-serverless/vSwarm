@@ -22,7 +22,7 @@
 
 module aes
 
-go 1.18
+go 1.21
 
 replace github.com/vhive-serverless/vSwarm/utils/tracing/go => ../../../utils/tracing/go
 

@@ -1,6 +1,6 @@
 module tests/tracing/python/client-server
 
-go 1.18
+go 1.21
 
 replace github.com/vhive-serverless/vSwarm/utils/tracing/go => ../../../go
 

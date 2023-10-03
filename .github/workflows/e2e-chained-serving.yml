@@ -133,7 +133,7 @@ jobs:
 
       - uses: actions/setup-go@v4
         with:
-          go-version: 1.18
+          go-version: '1.21'
 
       ## Setup a Knative cluster to test the service
       - name: Create k8s Kind Cluster

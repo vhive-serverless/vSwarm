@@ -43,7 +43,7 @@ jobs:
  
       - uses: actions/setup-go@v4
         with:
-          go-version: '1.18'
+          go-version: '1.21'
       
       - name: Login to Docker Hub
         uses: docker/login-action@v3
@@ -65,8 +65,8 @@ jobs:
 
       - name: Setup go dependencies
         run: |
-          go install google.golang.org/protobuf/cmd/protoc-gen-go@v1.26
-          go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@v1.1
+          go install google.golang.org/protobuf/cmd/protoc-gen-go@v1.31
+          go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@v1.3.0
           # chmod +x $(go env GOPATH)/bin/*
           # export PATH="$PATH:$(go env GOPATH)/bin"
 
@@ -91,7 +91,7 @@ jobs:
 
       - uses: actions/setup-go@v4
         with:
-          go-version: '1.18'
+          go-version: '1.21'
 
       - name: Start container
         working-directory: benchmarks/aes

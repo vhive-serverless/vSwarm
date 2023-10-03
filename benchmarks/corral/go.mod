@@ -1,6 +1,6 @@
 module tests/word_count/v2
 
-go 1.18
+go 1.21
 
 replace (
 	github.com/bcongdon/corral => github.com/ease-lab/corral v0.0.0-20221114011422-c2c72270c3e8

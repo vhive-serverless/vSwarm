@@ -1,3 +1,3 @@
 module github.com/vhive-serverless/vSwarm/tools/endpoint
 
-go 1.18
+go 1.21
