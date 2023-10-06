@@ -89,7 +89,7 @@ updates:
 
 
   - package-ecosystem: pip
-    directory: "/"
+    directory: "/utils/tracing/python"
     schedule:
       interval: daily
       time: "13:00"
