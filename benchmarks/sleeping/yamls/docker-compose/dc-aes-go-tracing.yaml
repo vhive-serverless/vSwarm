@@ -22,23 +22,39 @@
 
 version: "3.9"
 services:
-  sleeping-go:
-    image: vhiveease/sleeping-go:latest
-    container_name: sleeping-go
+  aes-go:
+    image: vhiveease/aes-go:latest
+    container_name: aes-go
     entrypoint:
       - /app/server
       - --addr=0.0.0.0:50051
+      - --zipkin=http://zipkin:9411/api/v2/spans
     ports:
       - target: 50051
+    environment:
+      - ENABLE_TRACING=true
+    depends_on:
+      - zipkin
 
   relay:
     image: vhiveease/relay:latest
     entrypoint:
       - /app/server
       - --addr=0.0.0.0:50000
-      - --function-endpoint-url=sleeping-go
+      - --function-endpoint-url=aes-go
       - --function-endpoint-port=50051
-      - --function-name=sleeping-go
+      - --function-name=aes-go
+      - --zipkin=http://zipkin:9411/api/v2/spans
     ports:
         - published: 50000
           target: 50000
+    environment:
+      - ENABLE_TRACING=true
+    depends_on:
+      - zipkin
+
+  zipkin:
+    image: openzipkin/zipkin
+    ports:
+      - published: 9411
+        target: 9411
