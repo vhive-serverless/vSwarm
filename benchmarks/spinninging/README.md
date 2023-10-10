@@ -14,7 +14,7 @@ The detailed and general description how to run benchmarks local you can find [h
 ### Invoke once
 2. Start the function with docker-compose
    ```bash
-   docker-compose -f yamls/docker-compose/dc-aes-go.yaml up
+   docker-compose -f yamls/docker-compose/dc-spinning-go.yaml up
    ```
 3. In a new terminal, invoke the interface function with grpcurl.
    ```bash
@@ -41,7 +41,7 @@ The detailed and general description on how to run benchmarks on knative cluster
 1. Build or pull the function images using `make all-images` or `make pull`.
 2. Start the function with knative
    ```bash
-   kn service apply -f ./yamls/knative/kn-aes-go.yaml
+   kn service apply -f ./yamls/knative/kn-sleeping-go.yaml
    ```
 3. **Note the URL provided in the output. The part without the `http://` we'll call `$URL`. Replace any instance of `$URL` in the code below with it.**
 ### Invoke once

@@ -20,25 +20,32 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-version: "3.9"
-services:
-  aes-go:
-    image: vhiveease/aes-go:latest
-    container_name: aes-go
-    entrypoint:
-      - /app/server
-      - --addr=0.0.0.0:50051
-    ports:
-      - target: 50051
+apiVersion: serving.knative.dev/v1
+kind: Service
+metadata:
+  name: sleeping-go-tracing
+  namespace: default
+spec:
+  template:
+    spec:
+      containers:
+        - image: docker.io/vhiveease/relay:latest
+          env:
+            - name: ENABLE_TRACING
+              value: "true"
 
-  relay:
-    image: vhiveease/relay:latest
-    entrypoint:
-      - /app/server
-      - --addr=0.0.0.0:50000
-      - --function-endpoint-url=aes-go
-      - --function-endpoint-port=50051
-      - --function-name=aes-go
-    ports:
-        - published: 50000
-          target: 50000
+          ports:
+            - name: h2c
+              containerPort: 50000
+          args:
+            - --addr=0.0.0.0:50000
+            - --function-endpoint-url=0.0.0.0
+            - --function-endpoint-port=50051
+            - --function-name=sleeping-go
+        - image: docker.io/vhiveease/sleeping-go:latest
+          env:
+            - name: ENABLE_TRACING
+              value: "true"
+          args:
+            - --addr=0.0.0.0:50051
+            - --zipkin=http://zipkin:9411/api/v2/spans

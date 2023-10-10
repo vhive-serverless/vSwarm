@@ -1,20 +1,13 @@
-# AES benchmark
-
-The AES benchmark use the AES128 algorithm to encrypt a certain message string. As we are using the aes gRPC protocol for this benchmark the message will be the `plaintext_message` variable. If you do not specify a plaintext_message a default plaintext_message is taken. You can change the default plaintext_message with the argument `default-plaintext`.
-
-AES requires a secret key for encryption. The functions use a default key but you can specify your own by passing it with the `key` argument to the function. See source code for more details.
-
-The same functionality is implemented in different runtimes, namely Python, NodeJS and golang.
-
+# Sleeping benchmark
 
 ## Running this benchmark locally (using docker)
 
-The detailed and general description how to run benchmarks local you can find [here](../../docs/running_locally.md). The following steps show it on the aes-go function.
+The detailed and general description how to run benchmarks local you can find [here](../../docs/running_locally.md). The following steps show it on the sleeping-go function.
 1. Build or pull the function images using `make all-images` or `make pull`.
 ### Invoke once
 2. Start the function with docker-compose
    ```bash
-   docker-compose -f yamls/docker-compose/dc-aes-go.yaml up
+   docker-compose -f yamls/docker-compose/dc-sleeping-go.yaml up
    ```
 3. In a new terminal, invoke the interface function with grpcurl.
    ```bash
@@ -37,17 +30,17 @@ The detailed and general description how to run benchmarks local you can find [h
 
 ## Running this benchmark (using knative)
 
-The detailed and general description on how to run benchmarks on knative clusters you can find [here](../../docs/running_benchmarks.md). The following steps show it on the aes-go function.
+The detailed and general description on how to run benchmarks on knative clusters you can find [here](../../docs/running_benchmarks.md). The following steps show it on the sleeping-go function.
 1. Build or pull the function images using `make all-images` or `make pull`.
 2. Start the function with knative
    ```bash
-   kn service apply -f ./yamls/knative/kn-aes-go.yaml
+   kn service apply -f ./yamls/knative/kn-sleeping-go.yaml
    ```
 3. **Note the URL provided in the output. The part without the `http://` we'll call `$URL`. Replace any instance of `$URL` in the code below with it.**
 ### Invoke once
 4. In a new terminal, invoke the interface function with test-client.
    ```bash
-   ./test-client --addr $URL:80 --name "Example text for AES"
+   ./test-client --addr $URL:80 --name "Example text for Sleeping"
    ```
 ### Invoke multiple times
 4. Run the invoker
