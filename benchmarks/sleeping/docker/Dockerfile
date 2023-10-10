@@ -28,9 +28,9 @@ WORKDIR /app/app/
 RUN apt-get install git ca-certificates
 
 COPY ./utils/tracing/go ../../utils/tracing/go
-COPY ./benchmarks/aes/go/go.mod ./
-COPY ./benchmarks/aes/go/go.sum ./
-COPY ./benchmarks/aes/go/server.go ./
+COPY ./benchmarks/sleeping/go/go.mod ./
+COPY ./benchmarks/sleeping/go/go.sum ./
+COPY ./benchmarks/sleeping/go/server.go ./
 
 RUN go mod tidy
 RUN CGO_ENABLED=0 GOOS=linux go build -v -o ./server server.go
