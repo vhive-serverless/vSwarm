@@ -26,7 +26,7 @@ clean: clean-proto
 
 ROOT = ../../
 
-FUNCTIONS = aes-go
+FUNCTIONS = sleeping-go
 ALL_IMAGES = $(addsuffix -image, $(FUNCTIONS))
 ALL_LAMBDA_IMAGES = $(addsuffix -lambda-image, $(FUNCTIONS))
 
@@ -42,19 +42,19 @@ all-image: $(ALL_IMAGES)
 all-lambda-image: $(ALL_LAMBDA_IMAGES)
 
 
-aes-go-image: docker/Dockerfile go/server.go
+sleeping-go-image: docker/Dockerfile go/server.go
 	DOCKER_BUILDKIT=1 docker buildx build \
-	--tag vhiveease/aes-go:latest \
-	--target aesGo \
+	--tag vhiveease/sleeping-go:latest \
+	--target sleepingGo \
 	-f docker/Dockerfile \
 	$(ROOT) --load
 
 
 
-aes-go-lambda-image: docker/Dockerfile.Lambda go/server.go
+sleeping-go-lambda-image: docker/Dockerfile.Lambda go/server.go
 	DOCKER_BUILDKIT=1 docker buildx build \
-	--tag $(AWS_ACCOUNT_ID).dkr.ecr.$(AWS_REGION).amazonaws.com/aes-go-lambda:latest \
-	--target aesGoLambda \
+	--tag $(AWS_ACCOUNT_ID).dkr.ecr.$(AWS_REGION).amazonaws.com/sleeping-go-lambda:latest \
+	--target sleepingGoLambda \
 	-f docker/Dockerfile.Lambda \
 	$(ROOT) --load
 
