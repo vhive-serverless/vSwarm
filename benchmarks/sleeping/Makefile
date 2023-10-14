@@ -37,7 +37,7 @@ export AWS_ACCOUNT_ID := ${AWS_ACCOUNT_ID}
 
 all: all-image all-lambda-image
 
-all-images: $(ALL_IMAGES)
+all-image: $(ALL_IMAGES)
 
 all-lambda-image: $(ALL_LAMBDA_IMAGES)
 
