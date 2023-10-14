@@ -38,7 +38,7 @@ The detailed and general description how to run benchmarks local you can find [h
 ## Running this benchmark (using knative)
 
 The detailed and general description on how to run benchmarks on knative clusters you can find [here](../../docs/running_benchmarks.md). The following steps show it on the aes-go function.
-1. Build or pull the function images using `make all-images` or `make pull`.
+1. Build or pull the function images using `make all-image` or `make pull`.
 2. Start the function with knative
    ```bash
    kn service apply -f ./yamls/knative/kn-aes-go.yaml
