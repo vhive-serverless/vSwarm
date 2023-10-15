@@ -10,7 +10,7 @@ require (
 	github.com/google/uuid v1.3.0
 	github.com/sirupsen/logrus v1.8.1
 	go.opencensus.io v0.23.0
-	golang.org/x/net v0.7.0
+	golang.org/x/net v0.17.0
 	google.golang.org/grpc v1.48.0
 )
 
@@ -30,8 +30,8 @@ require (
 	github.com/uber/jaeger-client-go v2.25.0+incompatible // indirect
 	golang.org/x/oauth2 v0.0.0-20220411215720-9780585627b5 // indirect
 	golang.org/x/sync v0.0.0-20210220032951-036812b2e83c // indirect
-	golang.org/x/sys v0.5.0 // indirect
-	golang.org/x/text v0.7.0 // indirect
+	golang.org/x/sys v0.13.0 // indirect
+	golang.org/x/text v0.13.0 // indirect
 	google.golang.org/api v0.78.0 // indirect
 	google.golang.org/appengine v1.6.7 // indirect
 	google.golang.org/genproto v0.0.0-20220518221133-4f43b3371335 // indirect
