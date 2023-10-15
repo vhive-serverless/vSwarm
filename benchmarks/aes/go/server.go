@@ -87,8 +87,14 @@ func (s *server) ShowEncryption(ctx context.Context, in *pb.PlainTextMessage) (*
 		time.Sleep(10 * time.Millisecond)
 	}
 	elapsedTime := time.Since(startTime)
-	fmt.Printf("Low Workload Loop: %s\n", elapsedTime)
-	return &pb.ReturnEncryptionInfo{EncryptionInfo: fmt.Sprintf("Low Workload Loop elapsedTime: %s", elapsedTime)}, nil
+
+	startTime1 := time.Now()
+	for i := 0; i < 1000000000; i++ {
+		// Simulate a CPU-bound task (e.g., intense computation)
+		_ = i * i
+	}
+	elapsedTime1 := time.Since(startTime1)
+	return &pb.ReturnEncryptionInfo{EncryptionInfo: fmt.Sprintf("Low Workload: %s \nHigh Workload:%s \n", elapsedTime, elapsedTime1)}, nil
 }
 
 func HandleRequest(ctx context.Context, request events.APIGatewayProxyRequest) (string, error) {
