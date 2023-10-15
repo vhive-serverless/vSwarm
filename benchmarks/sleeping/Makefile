@@ -61,7 +61,7 @@ aes-go-lambda-image: docker/Dockerfile.Lambda go/server.go
 ## Push images
 
 push-%: %-image
-	docker push localhost:5000/$(subst push-,,$@):latest
+	docker push docker.io/kt05docker/$(subst push-,,$@):latest
 
 push-%-lambda: %-lambda-image
 	aws ecr get-login-password --region $(AWS_REGION) | \
@@ -75,7 +75,7 @@ push: $(addprefix push-, $(FUNCTIONS)) $(addprefix push-, $(addsuffix -lambda, $
 ## Pull images from docker hub
 
 pull-%:
-	docker pull localhost:5000/$(subst pull-,,$@):latest
+	docker pull docker.io/kt05docker/$(subst pull-,,$@):latest
 
 pull-%-lambda:
 	docker pull $(AWS_ACCOUNT_ID).dkr.ecr.$(AWS_REGION).amazonaws.com/$(subst pull-,,$@):latest
