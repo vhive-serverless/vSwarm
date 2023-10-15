@@ -44,7 +44,7 @@ all-lambda-image: $(ALL_LAMBDA_IMAGES)
 
 aes-go-image: docker/Dockerfile go/server.go
 	DOCKER_BUILDKIT=1 docker buildx build \
-	--tag vhiveease/aes-go:latest \
+	--tag kt05docker/aes-go:latest \
 	--target aesGo \
 	-f docker/Dockerfile \
 	$(ROOT) --load
