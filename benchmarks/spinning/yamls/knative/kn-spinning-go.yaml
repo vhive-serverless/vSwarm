@@ -38,6 +38,6 @@ spec:
             - --function-endpoint-url=0.0.0.0
             - --function-endpoint-port=50051
             - --function-name=spinning-go
-        - image: docker.io/vhiveease/spinning-go:latest
+        - image: docker.io/kt05docker/spinning-go:latest
           args:
             - --addr=0.0.0.0:50051
