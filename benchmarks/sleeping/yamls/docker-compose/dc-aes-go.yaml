@@ -23,7 +23,7 @@
 version: "3.9"
 services:
   aes-go:
-    image: vhiveease/aes-go:latest
+    image: localhost:5000/aes-go:latest
     container_name: aes-go
     entrypoint:
       - /app/server
