@@ -42,7 +42,7 @@ spec:
             - --function-endpoint-url=0.0.0.0
             - --function-endpoint-port=50051
             - --function-name=aes-go
-        - image: docker.io/vhiveease/aes-go:latest
+        - image: localhost:5000/aes-go:latest
           env:
             - name: ENABLE_TRACING
               value: "true"
