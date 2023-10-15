@@ -23,7 +23,7 @@
 
 #---------- GoLang -----------#
 # First stage (Builder):
-FROM kt05docker/golang-builder:latest AS sleepingGoBuilder
+FROM vhiveease/golang-builder:latest AS sleepingGoBuilder
 WORKDIR /app/app/
 RUN apt-get install git ca-certificates
 

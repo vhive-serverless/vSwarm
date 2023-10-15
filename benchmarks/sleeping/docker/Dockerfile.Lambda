@@ -22,7 +22,7 @@
 
 #---------- GoLang -----------#
 # First stage (Builder):
-FROM kt05docker/golang-builder:latest AS sleepingGoLambdaBuilder
+FROM vhiveease/golang-builder:latest AS sleepingGoLambdaBuilder
 WORKDIR /app/app/
 RUN apt-get install git ca-certificates
 
