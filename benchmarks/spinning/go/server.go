@@ -25,9 +25,6 @@ package main
 
 import (
 	"context"
-	"crypto/aes"
-	"crypto/cipher"
-	"encoding/hex"
 	"flag"
 	"fmt"
 	"net"
@@ -52,27 +49,6 @@ var (
 	key_string = flag.String("key", "6368616e676520746869732070617373", "The key which is used for encryption")
 )
 
-func AESModeCTR(plaintext []byte) []byte {
-	// Reference: cipher documentation
-	// https://golang.org/pkg/crypto/cipher/#Stream
-
-	key, _ := hex.DecodeString(*key_string)
-	block, err := aes.NewCipher(key)
-	if err != nil {
-		panic(err)
-	}
-
-	// The IV needs to be unique, but not secure. Therefore it's common to
-	// include it at the beginning of the ciphertext.
-	// We will use 0 to be predictable
-	iv := make([]byte, aes.BlockSize)
-	ciphertext := make([]byte, len(plaintext))
-
-	stream := cipher.NewCTR(block, iv)
-	stream.XORKeyStream(ciphertext, plaintext)
-	return ciphertext
-}
-
 // server is used to implement aes.AesServer.
 type server struct {
 	pb.UnimplementedAesServer
@@ -87,7 +63,7 @@ func (s *server) ShowEncryption(ctx context.Context, in *pb.PlainTextMessage) (*
 	}
 	elapsedTime := time.Since(startTime)
 	fmt.Printf("High Workload Loop: %s\n", elapsedTime)
-	return &pb.ReturnEncryptionInfo{EncryptionInfo: fmt.Sprintf("%s", elapsedTime)}, nil
+	return &pb.ReturnEncryptionInfo{EncryptionInfo: fmt.Sprintf("High Workload Loop elapsedTime: %s", elapsedTime)}, nil
 }
 
 func HandleRequest(ctx context.Context, request events.APIGatewayProxyRequest) (string, error) {
@@ -98,7 +74,7 @@ func HandleRequest(ctx context.Context, request events.APIGatewayProxyRequest) (
 	}
 	elapsedTime := time.Since(startTime)
 	fmt.Printf("High Workload Loop: %s\n", elapsedTime)
-	return fmt.Sprintf("%s", elapsedTime), nil
+	return fmt.Sprintf("High Workload Loop elapsedTime: %s", elapsedTime), nil
 }
 
 func main() {

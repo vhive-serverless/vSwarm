@@ -20,32 +20,25 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-apiVersion: serving.knative.dev/v1
-kind: Service
-metadata:
-  name: aes-go-tracing
-  namespace: default
-spec:
-  template:
-    spec:
-      containers:
-        - image: docker.io/vhiveease/relay:latest
-          env:
-            - name: ENABLE_TRACING
-              value: "true"
+version: "3.9"
+services:
+  spinning-go:
+    image: vhiveease/spinning-go:latest
+    container_name: spinning-go
+    entrypoint:
+      - /app/server
+      - --addr=0.0.0.0:50051
+    ports:
+      - target: 50051
 
-          ports:
-            - name: h2c
-              containerPort: 50000
-          args:
-            - --addr=0.0.0.0:50000
-            - --function-endpoint-url=0.0.0.0
-            - --function-endpoint-port=50051
-            - --function-name=aes-go
-        - image: docker.io/vhiveease/aes-go:latest
-          env:
-            - name: ENABLE_TRACING
-              value: "true"
-          args:
-            - --addr=0.0.0.0:50051
-            - --zipkin=http://zipkin:9411/api/v2/spans
+  relay:
+    image: vhiveease/relay:latest
+    entrypoint:
+      - /app/server
+      - --addr=0.0.0.0:50000
+      - --function-endpoint-url=spinning-go
+      - --function-endpoint-port=50051
+      - --function-name=spinning-go
+    ports:
+        - published: 50000
+          target: 50000

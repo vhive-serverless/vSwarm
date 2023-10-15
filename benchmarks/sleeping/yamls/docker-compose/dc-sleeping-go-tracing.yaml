@@ -22,9 +22,9 @@
 
 version: "3.9"
 services:
-  aes-go:
-    image: vhiveease/aes-go:latest
-    container_name: aes-go
+  sleeping-go:
+    image: kt05docker/sleeping-go:latest
+    container_name: sleeping-go
     entrypoint:
       - /app/server
       - --addr=0.0.0.0:50051
@@ -41,9 +41,9 @@ services:
     entrypoint:
       - /app/server
       - --addr=0.0.0.0:50000
-      - --function-endpoint-url=aes-go
+      - --function-endpoint-url=sleeping-go
       - --function-endpoint-port=50051
-      - --function-name=aes-go
+      - --function-name=sleeping-go
       - --zipkin=http://zipkin:9411/api/v2/spans
     ports:
         - published: 50000

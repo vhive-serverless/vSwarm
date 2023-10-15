@@ -62,7 +62,7 @@ func (s *server) ShowEncryption(ctx context.Context, in *pb.PlainTextMessage) (*
 	}
 	elapsedTime := time.Since(startTime)
 	fmt.Printf("Low Workload Loop: %s\n", elapsedTime)
-	return &pb.ReturnEncryptionInfo{EncryptionInfo: fmt.Sprintf("%s", elapsedTime)}, nil
+	return &pb.ReturnEncryptionInfo{EncryptionInfo: fmt.Sprintf("Low Workload Loop elapsedTime: %s", elapsedTime)}, nil
 }
 
 func HandleRequest(ctx context.Context, request events.APIGatewayProxyRequest) (string, error) {
@@ -72,7 +72,7 @@ func HandleRequest(ctx context.Context, request events.APIGatewayProxyRequest) (
 	}
 	elapsedTime := time.Since(startTime)
 	fmt.Printf("Low Workload Loop: %s\n", elapsedTime)
-	return fmt.Sprintf("%s", elapsedTime), nil
+	return fmt.Sprintf("Low Workload Loop elapsedTime: %s", elapsedTime), nil
 }
 
 func main() {

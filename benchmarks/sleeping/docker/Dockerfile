@@ -23,7 +23,7 @@
 
 #---------- GoLang -----------#
 # First stage (Builder):
-FROM vhiveease/golang-builder:latest AS aesGoBuilder
+FROM vhiveease/golang-builder:latest AS sleepingGoBuilder
 WORKDIR /app/app/
 RUN apt-get install git ca-certificates
 
@@ -36,10 +36,10 @@ RUN go mod tidy
 RUN CGO_ENABLED=0 GOOS=linux go build -v -o ./server server.go
 
 # Second stage (Runner):
-FROM scratch as aesGo
+FROM scratch as sleepingGo
 WORKDIR /app/
-COPY --from=aesGoBuilder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
-COPY --from=aesGoBuilder /app/app/server .
+COPY --from=sleepingGoBuilder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
+COPY --from=sleepingGoBuilder /app/app/server .
 
 ENTRYPOINT [ "/app/server" ]
 

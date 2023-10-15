@@ -20,32 +20,27 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-apiVersion: serving.knative.dev/v1
-kind: Service
-metadata:
-  name: aes-go-tracing
-  namespace: default
-spec:
-  template:
-    spec:
-      containers:
-        - image: docker.io/vhiveease/relay:latest
-          env:
-            - name: ENABLE_TRACING
-              value: "true"
+#---------- GoLang -----------#
+# First stage (Builder):
+FROM vhiveease/golang-builder:latest AS spinningGoBuilder
+WORKDIR /app/app/
+RUN apt-get install git ca-certificates
 
-          ports:
-            - name: h2c
-              containerPort: 50000
-          args:
-            - --addr=0.0.0.0:50000
-            - --function-endpoint-url=0.0.0.0
-            - --function-endpoint-port=50051
-            - --function-name=aes-go
-        - image: docker.io/kt05docker/aes-go:latest
-          env:
-            - name: ENABLE_TRACING
-              value: "true"
-          args:
-            - --addr=0.0.0.0:50051
-            - --zipkin=http://zipkin:9411/api/v2/spans
+COPY ./utils/tracing/go ../../utils/tracing/go
+COPY ./benchmarks/spinning/go/go.mod ./
+COPY ./benchmarks/spinning/go/go.sum ./
+COPY ./benchmarks/spinning/go/server.go ./
+
+RUN go mod tidy
+RUN CGO_ENABLED=0 GOOS=linux go build -v -o ./server server.go
+
+# Second stage (Runner):
+FROM scratch as spinningGo
+WORKDIR /app/
+COPY --from=spinningGoBuilder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
+COPY --from=spinningGoBuilder /app/app/server .
+
+ENTRYPOINT [ "/app/server" ]
+
+
+EXPOSE 50051

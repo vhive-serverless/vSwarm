@@ -1,6 +1,6 @@
 # MIT License
 
-# Copyright (c) 2022 EASE lab
+# Copyright (c) 2022 Alan Nair and The vHive Ecosystem
 
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -20,25 +20,24 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-version: "3.9"
-services:
-  aes-go:
-    image: kt05docker/aes-go:latest
-    container_name: aes-go
-    entrypoint:
-      - /app/server
-      - --addr=0.0.0.0:50051
-    ports:
-      - target: 50051
+#---------- GoLang -----------#
+# First stage (Builder):
+FROM vhiveease/golang-builder:latest AS spinningGoLambdaBuilder
+WORKDIR /app/app/
+RUN apt-get install git ca-certificates
 
-  relay:
-    image: vhiveease/relay:latest
-    entrypoint:
-      - /app/server
-      - --addr=0.0.0.0:50000
-      - --function-endpoint-url=aes-go
-      - --function-endpoint-port=50051
-      - --function-name=aes-go
-    ports:
-        - published: 50000
-          target: 50000
+COPY ./utils/tracing/go ../../utils/tracing/go
+COPY ./benchmarks/spinning/go/go.mod ./
+COPY ./benchmarks/spinning/go/go.sum ./
+COPY ./benchmarks/spinning/go/server.go ./
+
+RUN go mod tidy
+RUN CGO_ENABLED=0 GOOS=linux go build -v -o ./server server.go
+
+# Second stage (Runner):
+FROM scratch as spinningGoLambda
+WORKDIR /app/
+COPY --from=spinningGoLambdaBuilder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
+COPY --from=spinningGoLambdaBuilder /app/app/server .
+
+ENTRYPOINT [ "/app/server" ]
