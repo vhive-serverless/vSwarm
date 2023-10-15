@@ -38,6 +38,6 @@ spec:
             - --function-endpoint-url=0.0.0.0
             - --function-endpoint-port=50051
             - --function-name=aes-go
-        - image: localhost:5000/aes-go:latest
+        - image: docker.io/kt05docker/aes-go:latest
           args:
             - --addr=0.0.0.0:50051
