@@ -37,7 +37,7 @@ services:
       - zipkin
 
   relay:
-    image: vhiveease/relay:latest
+    image: kt05docker/relay:latest
     entrypoint:
       - /app/server
       - --addr=0.0.0.0:50000
