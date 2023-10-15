@@ -33,6 +33,7 @@ import (
 	"net"
 	"os"
 	"strings"
+	"time"
 
 	log "github.com/sirupsen/logrus"
 	pb "github.com/vhive-serverless/vSwarm-proto/proto/aes"
@@ -51,7 +52,6 @@ var (
 	key_string                = flag.String("key", "6368616e676520746869732070617373", "The key which is used for encryption")
 	default_plaintext_message = flag.String("default-plaintext", "defaultplaintext", "Default plaintext when the function is called with the plaintext_message world")
 )
-
 
 func AESModeCTR(plaintext []byte) []byte {
 	// Reference: cipher documentation
@@ -81,16 +81,14 @@ type server struct {
 
 // ShowEncryption implements aes.AesServer
 func (s *server) ShowEncryption(ctx context.Context, in *pb.PlainTextMessage) (*pb.ReturnEncryptionInfo, error) {
-	var plaintext, ciphertext []byte
-	if in.GetPlaintextMessage() == "" || in.GetPlaintextMessage() == "world" {
-		plaintext = []byte(*default_plaintext_message)
-	} else {
-		plaintext = []byte(in.GetPlaintextMessage())
+	startTime := time.Now()
+	for i := 0; i < 1000; i++ {
+		// Simulate an I/O-bound task by sleeping
+		time.Sleep(10 * time.Millisecond)
 	}
-	// Do the encryption
-	ciphertext = AESModeCTR(plaintext)
-	resp := fmt.Sprintf("fn: AES | plaintext: %s | ciphertext: %x | runtime: golang", plaintext, ciphertext)
-	return &pb.ReturnEncryptionInfo{EncryptionInfo: resp}, nil
+	elapsedTime := time.Since(startTime)
+	fmt.Printf("Low Workload Loop: %s\n", elapsedTime)
+	return &pb.ReturnEncryptionInfo{EncryptionInfo: fmt.Sprintf("Low Workload Loop elapsedTime: %s", elapsedTime)}, nil
 }
 
 func HandleRequest(ctx context.Context, request events.APIGatewayProxyRequest) (string, error) {
@@ -108,8 +106,8 @@ func HandleRequest(ctx context.Context, request events.APIGatewayProxyRequest) (
 }
 
 func main() {
-	val, ok := os.LookupEnv("IS_LAMBDA");
-	LAMBDA := (ok && (strings.ToLower(val) == "true"	|| strings.ToLower(val) == "yes" || strings.ToLower(val) == "1"))
+	val, ok := os.LookupEnv("IS_LAMBDA")
+	LAMBDA := (ok && (strings.ToLower(val) == "true" || strings.ToLower(val) == "yes" || strings.ToLower(val) == "1"))
 
 	if LAMBDA {
 		lambda.Start(HandleRequest)
