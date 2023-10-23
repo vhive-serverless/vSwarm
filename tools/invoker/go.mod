@@ -19,7 +19,7 @@ require (
 	github.com/vhive-serverless/vSwarm/tools/invoker/proto v0.0.0-20231002141623-fe250ed33dde
 	github.com/vhive-serverless/vSwarm/utils/tracing/go v0.0.0-20231002141623-fe250ed33dde
 	go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc v0.45.0
-	google.golang.org/grpc v1.58.2
+	google.golang.org/grpc v1.59.0
 )
 
 require (
