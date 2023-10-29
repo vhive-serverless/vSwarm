@@ -58,14 +58,7 @@ func (s *server) ShowEncryption(ctx context.Context, in *pb.PlainTextMessage) (*
 		time.Sleep(10 * time.Millisecond)
 	}
 	elapsedTime := time.Since(startTime)
-
-	startTime1 := time.Now()
-	for i := 0; i < 1000000000; i++ {
-		// Simulate a CPU-bound task (e.g., intense computation)
-		_ = i * i
-	}
-	elapsedTime1 := time.Since(startTime1)
-	return &pb.ReturnEncryptionInfo{EncryptionInfo: fmt.Sprintf("\nLow Workload: %s \nHigh Workload:%s \n", elapsedTime, elapsedTime1)}, nil
+	return &pb.ReturnEncryptionInfo{EncryptionInfo: fmt.Sprintf("\nLow Workload: %s \n", elapsedTime)}, nil
 }
 
 func main() {
