@@ -41,7 +41,7 @@ spec:
             - --addr=0.0.0.0:50000
             - --function-endpoint-url=0.0.0.0
             - --function-endpoint-port=50051
-            - --function-name=sleeping-go
+            - --function-name=aes-go
         - image: docker.io/kt05docker/sleeping-go:latest
           env:
             - name: ENABLE_TRACING
