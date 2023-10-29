@@ -65,7 +65,7 @@ func main() {
 	flag.Parse()
 	if tracing.IsTracingEnabled() {
 		log.Printf("Start tracing on : %s\n", *zipkin)
-		shutdown, err := tracing.InitBasicTracer(*zipkin, "aes function")
+		shutdown, err := tracing.InitBasicTracer(*zipkin, "sleeping function")
 		if err != nil {
 			log.Warn(err)
 		}
@@ -76,7 +76,7 @@ func main() {
 	if err != nil {
 		log.Fatalf("failed to listen: %v", err)
 	}
-	log.Printf("Start AES-go server. Addr: %s\n", *address)
+	log.Printf("Start SLEEPING-go server. Addr: %s\n", *address)
 
 	var grpcServer *grpc.Server
 	if tracing.IsTracingEnabled() {
