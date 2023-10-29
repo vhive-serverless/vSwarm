@@ -58,16 +58,32 @@ func (s *server) ShowEncryption(ctx context.Context, in *pb.PlainTextMessage) (*
 		time.Sleep(10 * time.Millisecond)
 	}
 	elapsedTime := time.Since(startTime)
-	return &pb.ReturnEncryptionInfo{EncryptionInfo: fmt.Sprintf("\nLow Workload: %s\n", elapsedTime)}, nil
+
+	startTime1 := time.Now()
+	for i := 0; i < 1000000000; i++ {
+		// Simulate a CPU-bound task (e.g., intense computation)
+		_ = i * i
+	}
+	elapsedTime1 := time.Since(startTime1)
+	return &pb.ReturnEncryptionInfo{EncryptionInfo: fmt.Sprintf("\nLow Workload: %s \nHigh Workload:%s \n", elapsedTime, elapsedTime1)}, nil
 }
 
 func main() {
 	flag.Parse()
+	if tracing.IsTracingEnabled() {
+		log.Printf("Start tracing on : %s\n", *zipkin)
+		shutdown, err := tracing.InitBasicTracer(*zipkin, "aes function")
+		if err != nil {
+			log.Warn(err)
+		}
+		defer shutdown()
+	}
+
 	lis, err := net.Listen("tcp", *address)
 	if err != nil {
 		log.Fatalf("failed to listen: %v", err)
 	}
-	log.Printf("Start Sleeping-go server. Addr: %s\n", *address)
+	log.Printf("Start AES-go server. Addr: %s\n", *address)
 
 	var grpcServer *grpc.Server
 	if tracing.IsTracingEnabled() {
