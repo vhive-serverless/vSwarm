@@ -25,14 +25,9 @@ package main
 
 import (
 	"context"
-	"crypto/aes"
-	"crypto/cipher"
-	"encoding/hex"
 	"flag"
 	"fmt"
 	"net"
-	"os"
-	"strings"
 	"time"
 
 	log "github.com/sirupsen/logrus"
@@ -41,9 +36,6 @@ import (
 
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
-
-	"github.com/aws/aws-lambda-go/events"
-	"github.com/aws/aws-lambda-go/lambda"
 )
 
 var (
@@ -52,27 +44,6 @@ var (
 	key_string                = flag.String("key", "6368616e676520746869732070617373", "The key which is used for encryption")
 	default_plaintext_message = flag.String("default-plaintext", "defaultplaintext", "Default plaintext when the function is called with the plaintext_message world")
 )
-
-func AESModeCTR(plaintext []byte) []byte {
-	// Reference: cipher documentation
-	// https://golang.org/pkg/crypto/cipher/#Stream
-
-	key, _ := hex.DecodeString(*key_string)
-	block, err := aes.NewCipher(key)
-	if err != nil {
-		panic(err)
-	}
-
-	// The IV needs to be unique, but not secure. Therefore it's common to
-	// include it at the beginning of the ciphertext.
-	// We will use 0 to be predictable
-	iv := make([]byte, aes.BlockSize)
-	ciphertext := make([]byte, len(plaintext))
-
-	stream := cipher.NewCTR(block, iv)
-	stream.XORKeyStream(ciphertext, plaintext)
-	return ciphertext
-}
 
 // server is used to implement aes.AesServer.
 type server struct {
@@ -97,54 +68,33 @@ func (s *server) ShowEncryption(ctx context.Context, in *pb.PlainTextMessage) (*
 	return &pb.ReturnEncryptionInfo{EncryptionInfo: fmt.Sprintf("\nLow Workload: %s \nHigh Workload:%s \n", elapsedTime, elapsedTime1)}, nil
 }
 
-func HandleRequest(ctx context.Context, request events.APIGatewayProxyRequest) (string, error) {
-	var plaintext, ciphertext []byte
-	plaintext_string := request.QueryStringParameters["plaintext"]
-	if plaintext_string == "" || plaintext_string == "world" {
-		plaintext = []byte(*default_plaintext_message)
-	} else {
-		plaintext = []byte(plaintext_string)
+func main() {
+	flag.Parse()
+	if tracing.IsTracingEnabled() {
+		log.Printf("Start tracing on : %s\n", *zipkin)
+		shutdown, err := tracing.InitBasicTracer(*zipkin, "aes function")
+		if err != nil {
+			log.Warn(err)
+		}
+		defer shutdown()
 	}
 
-	ciphertext = AESModeCTR(plaintext)
-	responsemsg := fmt.Sprintf("fn: AES | plaintext: %s | ciphertext: %x | runtime: golang | platform: AWS Lambda", plaintext, ciphertext)
-	return responsemsg, nil
-}
+	lis, err := net.Listen("tcp", *address)
+	if err != nil {
+		log.Fatalf("failed to listen: %v", err)
+	}
+	log.Printf("Start AES-go server. Addr: %s\n", *address)
 
-func main() {
-	val, ok := os.LookupEnv("IS_LAMBDA")
-	LAMBDA := (ok && (strings.ToLower(val) == "true" || strings.ToLower(val) == "yes" || strings.ToLower(val) == "1"))
-
-	if LAMBDA {
-		lambda.Start(HandleRequest)
+	var grpcServer *grpc.Server
+	if tracing.IsTracingEnabled() {
+		grpcServer = tracing.GetGRPCServerWithUnaryInterceptor()
 	} else {
-		flag.Parse()
-		if tracing.IsTracingEnabled() {
-			log.Printf("Start tracing on : %s\n", *zipkin)
-			shutdown, err := tracing.InitBasicTracer(*zipkin, "aes function")
-			if err != nil {
-				log.Warn(err)
-			}
-			defer shutdown()
-		}
+		grpcServer = grpc.NewServer()
+	}
+	pb.RegisterAesServer(grpcServer, &server{})
+	reflection.Register(grpcServer)
 
-		lis, err := net.Listen("tcp", *address)
-		if err != nil {
-			log.Fatalf("failed to listen: %v", err)
-		}
-		log.Printf("Start AES-go server. Addr: %s\n", *address)
-
-		var grpcServer *grpc.Server
-		if tracing.IsTracingEnabled() {
-			grpcServer = tracing.GetGRPCServerWithUnaryInterceptor()
-		} else {
-			grpcServer = grpc.NewServer()
-		}
-		pb.RegisterAesServer(grpcServer, &server{})
-		reflection.Register(grpcServer)
-
-		if err := grpcServer.Serve(lis); err != nil {
-			log.Fatalf("failed to serve: %v", err)
-		}
+	if err := grpcServer.Serve(lis); err != nil {
+		log.Fatalf("failed to serve: %v", err)
 	}
 }

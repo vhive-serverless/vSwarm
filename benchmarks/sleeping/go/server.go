@@ -63,15 +63,6 @@ func (s *server) ShowEncryption(ctx context.Context, in *pb.PlainTextMessage) (*
 
 func main() {
 	flag.Parse()
-	if tracing.IsTracingEnabled() {
-		log.Printf("Start tracing on : %s\n", *zipkin)
-		shutdown, err := tracing.InitBasicTracer(*zipkin, "sleeping function")
-		if err != nil {
-			log.Warn(err)
-		}
-		defer shutdown()
-	}
-
 	lis, err := net.Listen("tcp", *address)
 	if err != nil {
 		log.Fatalf("failed to listen: %v", err)
