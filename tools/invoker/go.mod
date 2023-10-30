@@ -12,7 +12,7 @@ replace (
 require (
 	github.com/containerd/containerd v1.7.6
 	github.com/golang/protobuf v1.5.3
-	github.com/google/uuid v1.3.1
+	github.com/google/uuid v1.4.0
 	github.com/sirupsen/logrus v1.9.3
 	github.com/vhive-serverless/vSwarm/tools/benchmarking_eventing v0.0.0-20231002141623-fe250ed33dde
 	github.com/vhive-serverless/vSwarm/tools/endpoint v0.0.0-20231002141623-fe250ed33dde
@@ -23,7 +23,6 @@ require (
 )
 
 require (
-	cloud.google.com/go/compute/metadata v0.2.3 // indirect
 	github.com/go-logr/logr v1.2.4 // indirect
 	github.com/go-logr/stdr v1.2.2 // indirect
 	github.com/openzipkin/zipkin-go v0.4.2 // indirect
