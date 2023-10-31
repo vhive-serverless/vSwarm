@@ -34,7 +34,6 @@ import (
 	"sync/atomic"
 	"time"
 
-	ctrdlog "github.com/containerd/containerd/log"
 	"github.com/google/uuid"
 	log "github.com/sirupsen/logrus"
 	"google.golang.org/grpc"
@@ -74,7 +73,7 @@ func main() {
 	flag.Parse()
 
 	log.SetFormatter(&log.TextFormatter{
-		TimestampFormat: ctrdlog.RFC3339NanoFixed,
+		TimestampFormat: time.RFC3339Nano,
 		FullTimestamp:   true,
 	})
 	log.SetOutput(os.Stdout)

@@ -29,8 +29,8 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"time"
 
-	ctrdlog "github.com/containerd/containerd/log"
 	"github.com/sirupsen/logrus"
 	"go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc"
 	"go.opentelemetry.io/otel"
@@ -83,7 +83,7 @@ func newZipkinExporter(url string, logger *log.Logger) (*zipkin.Exporter, error)
 // are functions, which distinguishes them from knative queue proxies if used in a cluster.
 func InitBasicTracer(url string, serviceName string) (func(), error) {
 	logrus.SetFormatter(&logrus.TextFormatter{
-		TimestampFormat: ctrdlog.RFC3339NanoFixed,
+		TimestampFormat: time.RFC3339Nano,
 		FullTimestamp:   true,
 	})
 	var logger = log.New(os.Stderr, "tracer-log", log.Ldate|log.Ltime|log.Llongfile)
