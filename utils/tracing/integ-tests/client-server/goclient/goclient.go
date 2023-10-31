@@ -29,11 +29,10 @@ import (
 	"os"
 	"time"
 
-	ctrdlog "github.com/containerd/containerd/log"
 	pb "github.com/vhive-serverless/vSwarm-proto/proto/helloworld"
 
-	tracing "github.com/vhive-serverless/vSwarm/utils/tracing/go"
 	log "github.com/sirupsen/logrus"
+	tracing "github.com/vhive-serverless/vSwarm/utils/tracing/go"
 	"go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
@@ -50,7 +49,7 @@ func main() {
 	time.Sleep(10 * time.Second)
 
 	log.SetFormatter(&log.TextFormatter{
-		TimestampFormat: ctrdlog.RFC3339NanoFixed,
+		TimestampFormat: time.RFC3339Nano,
 		FullTimestamp:   true,
 	})
 	log.SetOutput(os.Stdout)

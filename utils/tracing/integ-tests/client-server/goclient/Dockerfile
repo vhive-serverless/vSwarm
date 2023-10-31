@@ -20,10 +20,9 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-FROM vhiveease/golang:latest as builder
+FROM vhiveease/golang-builder:latest as builder
 
 WORKDIR /utils/tracing/integ-tests/client-server/goclient
-RUN apk add --no-cache make
 COPY ./utils/tracing/integ-tests/client-server/goclient ./
 COPY ./utils/tracing/go /utils/tracing/go
 RUN mkdir /log
@@ -32,6 +31,6 @@ RUN go mod download && \
 
 FROM scratch
 WORKDIR /app
-COPY --from=builder /log/ /app/log/ 
+COPY --from=builder /log/ /app/log/
 COPY --from=builder /utils/tracing/integ-tests/client-server/goclient/client-bin /app/exe
 ENTRYPOINT [ "/app/exe" ]
