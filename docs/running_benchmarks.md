@@ -2,15 +2,15 @@
 
 All of the benchmarks in the vSwarm benchmarking suite can be run on a Knative cluster. The majority of them can also
 be run locally with docker-compose to test and demonstrate their functionality without serverless 
-deployment. This document is concerned with running benchmarks with [vHive](https://github.com/ease-lab/vhive),
+deployment. This document is concerned with running benchmarks with [vHive](https://github.com/vhive-serverless/vhive),
 for instructions on testing benchmarks locally with docker-compose see the [running locally guide](./running_locally.md).
 
 ### Running Benchmarks on Knative Clusters
 
 **You will need a vHive Knative cluster**. To set up a stock knative cluster see the vHive
-[stock knative setup guide](https://github.com/ease-lab/vhive/blob/main/docs/developers_guide.md#testing-stock-knative-setup-or-images)
+[stock knative setup guide](https://github.com/vhive-serverless/vhive/blob/main/docs/developers_guide.md#testing-stock-knative-setup-or-images)
 for a default knative cluster, or consider using the 
-[vHive quickstart guide](https://github.com/ease-lab/vhive/blob/main/docs/quickstart_guide.md).
+[vHive quickstart guide](https://github.com/vhive-serverless/vhive/blob/main/docs/quickstart_guide.md).
 
 1. Deploy the benchmark functions as Knative services. The manifests for each benchmark function
     can be found in a sub-directory of the benchmark, e.g. 
@@ -79,8 +79,8 @@ should be included in every function, which prompts the function to emit traces 
 collected by a zipkin span collector.
 
 Before deploying the functions, the zipkin span collector has to be set up. In vHive the
-[`setup_zipkin.sh`](https://github.com/ease-lab/vhive/blob/main/scripts/setup_zipkin.sh) script can
-be used to do this. Refer to the [knative tracing](https://github.com/ease-lab/vhive/blob/main/docs/developers_guide.md#knative-request-tracing)
+`./setup_tool setup_zipkin` command can be used to do this. Refer to the
+[knative tracing](https://github.com/vhive-serverless/vhive/blob/main/docs/developers_guide.md#knative-request-tracing)
 section of the vHive developers guide for further information.
 
 Once the span collector is deployed, the benchmark functions can be deployed as normal.
