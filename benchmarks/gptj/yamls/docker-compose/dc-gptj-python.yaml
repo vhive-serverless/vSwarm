@@ -1,0 +1,27 @@
+services:
+  gptj-python:
+    image: vhiveease/gptj-python:latest
+    container_name: gptj-python
+    working_dir: /workspace
+    entrypoint:
+      - python3
+      - python/server.py
+      - --addr=0.0.0.0
+      - --port=50051
+      - --dataset-path=python/data/cnn_eval.json
+      - --mlperf_conf=python/config/mlperf.conf
+      - --user_conf=python/config/user.conf
+    ports:
+      - 50051:50051
+
+  relay:
+    image: vhiveease/relay:latest
+    entrypoint:
+      - /app/server
+      - --addr=0.0.0.0:50000
+      - --function-endpoint-url=gptj-python
+      - --function-endpoint-port=50051
+      - --function-name=gptj-python
+    ports:
+        - published: 50000
+          target: 50000

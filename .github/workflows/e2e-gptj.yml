@@ -1,0 +1,196 @@
+name: GPTJ End-to-End Tests
+
+on:
+  workflow_dispatch:
+    schedule:
+      - cron: "0 9 * * 1"
+  push:
+    branches: [main]
+    paths:
+      - "benchmarks/gptj/**"
+      - "utils/**"
+      - "tools/**"
+      - "runner/**"
+
+  pull_request:
+    branches: [main]
+    paths:
+      - "benchmarks/gptj/**"
+      - "utils/**"
+      - "tools/**"
+      - "runner/**"
+
+env:
+  GOOS: linux
+  GO111MODULE: on
+  PORT: 50051
+  PLATFORMS: linux/amd64,linux/arm64
+
+jobs:
+  build-and-push:
+    name: Build and push all images
+    runs-on: ubuntu-20.04
+    strategy:
+      fail-fast: false
+      matrix:
+        service:
+          [
+            gptj-python
+          ]
+    steps:
+      - name: Check out code into the Go module directory
+        uses: actions/checkout@v4
+        with:
+          lfs: "true"
+
+      - uses: actions/setup-go@v4
+        with:
+          go-version: '1.21'
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_HUB_USERNAME }}
+          password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+
+      - name: Set up Docker Buildx
+        id: buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build and push
+        env:
+            GOPRIVATE_KEY: ${{ secrets.XDT_REPO_ACCESS_KEY }}
+        uses: docker/build-push-action@v5
+        with:
+          push: true
+          file: benchmarks/gptj/Dockerfile
+          platforms: ${{ env.PLATFORMS }}
+          target: ${{ matrix.target }}
+          tags: vhiveease/${{ matrix.service }}:latest
+          build-args: SERVICE=${{ matrix.service }}
+          context: .
+
+
+
+  test-compose:
+    name: Test Docker Compose
+    needs: build-and-push
+    env:
+      YAML_DIR: benchmarks/gptj/yamls/docker-compose/
+    runs-on: ubuntu-20.04
+    strategy:
+      fail-fast: false
+      matrix:
+        service:
+          [
+            gptj-python,
+          ]
+
+    steps:
+      - name: Check out code into the Go module directory
+        uses: actions/checkout@v4
+        with:
+          lfs: "true"
+
+      - name: start docker-compose benchmark
+        run: |
+          docker-compose -f ${{ env.YAML_DIR }}/dc-${{ matrix.service }}.yaml pull
+          docker-compose -f ${{ env.YAML_DIR }}/dc-${{ matrix.service }}.yaml up &> log_file &
+          sleep 60s
+          cat log_file
+
+      - name: invoke the chain
+        run: |
+          ./tools/bin/grpcurl -plaintext -d '{"regenerate": "false"}' localhost:50051 gptj.GptJBenchmark.GetBenchmark
+
+      - name: invoke the relay
+        working-directory: tools/test-client
+        run: |
+          go build ./test-client.go
+          ./test-client --addr localhost:50000 --name "Example text for CI"
+
+      - name: show docker-compose log
+        run: cat log_file
+
+  test-knative:
+    name: Test Knative Deployment
+    needs: build-and-push
+    env:
+      KIND_VERSION: v0.14.0
+      K8S_VERSION: v1.23
+      YAML_DIR: benchmarks/gptj/yamls/knative/
+
+    runs-on: ubuntu-20.04
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - service: gptj-python
+            file: kn-gptj-python.yaml
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          lfs: "true"
+      - name: Checkout LFS objects
+        run: git lfs checkout
+
+      - uses: actions/setup-go@v4
+        with:
+          go-version: '1.21'
+
+      ## Setup a Knative cluster to test the service
+      - name: Create k8s Kind Cluster
+        run: bash ./runner/scripts/01-kind.sh
+
+      - name: Install Serving
+        run: bash ./runner/scripts/02-serving.sh
+
+      - name: Install Kourier
+        run: bash ./runner/scripts/02-kourier.sh
+
+      - name: Setup domain
+        run: |
+          INGRESS_HOST="127.0.0.1"
+          KNATIVE_DOMAIN=$INGRESS_HOST.sslip.io
+          kubectl patch configmap -n knative-serving config-domain -p "{\"data\": {\"$KNATIVE_DOMAIN\": \"\"}}"
+
+      - name: Deploy knative
+        run: |
+          kubectl apply -f ${{ env.YAML_DIR }}/${{ matrix.file }}
+
+      - name: Check if service is ready
+        run: |
+          kubectl wait --for=condition=Ready -f ${{ env.YAML_DIR }}/${{ matrix.file }} --timeout 900s
+          kubectl get service
+          kubectl get -f ${{ env.YAML_DIR }}/${{ matrix.file }}
+
+      - name: Test invoking once
+        working-directory: tools/test-client
+        run: |
+          set -x
+          go build ./test-client.go
+
+          NODEPORT=80
+          url=$(kubectl get kservice ${{ matrix.service }} | awk '$2 ~ /http/ {sub(/http\:\/\//,""); print $2}')
+
+          ./test-client --addr $url:$NODEPORT --name "Example text for CI"
+
+
+      - name: Print logs
+        if: ${{ always() }}
+        run: |
+          set -x
+
+          pod_list=$(kubectl get pods -n default -o jsonpath="{.items[*].name}")
+          for pod in $pod_list
+          do
+            kubectl logs $pod
+          done
+
+      - name: Down
+        if: ${{ always() }}
+        run: |
+          kubectl delete -f ${{ env.YAML_DIR }}/${{ matrix.file }} --namespace default --wait
