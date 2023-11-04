@@ -26,7 +26,6 @@ package main
 import (
 	"context"
 	"flag"
-	"fmt"
 	"net"
 	"time"
 
@@ -52,8 +51,7 @@ type server struct {
 
 // ShowEncryption implements aes.AesServer
 func (s *server) ShowEncryption(ctx context.Context, in *pb.PlainTextMessage) (*pb.ReturnEncryptionInfo, error) {
-	startTime := time.Now()
-	for i := 0; i < 30; i++ {
+	for a := 0; a < 30; a++ {
 		startTime1 := time.Now()
 		for time.Since(startTime1) > time.Minute {
 			// Simulate an I/O-bound task by sleeping
@@ -66,8 +64,8 @@ func (s *server) ShowEncryption(ctx context.Context, in *pb.PlainTextMessage) (*
 			_ = i * i
 		}
 	}
-	elapsedTime := time.Since(startTime)
-	return &pb.ReturnEncryptionInfo{EncryptionInfo: fmt.Sprintf("\nHigh Workload:%s \n", elapsedTime)}, nil
+	return &pb.ReturnEncryptionInfo{EncryptionInfo: "new test"}, nil
+	//return &pb.ReturnEncryptionInfo{EncryptionInfo: fmt.Sprintf("\nHigh Workload:%s \n", elapsedTime)}, nil
 }
 
 func main() {
