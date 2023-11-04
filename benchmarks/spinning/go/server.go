@@ -52,13 +52,22 @@ type server struct {
 
 // ShowEncryption implements aes.AesServer
 func (s *server) ShowEncryption(ctx context.Context, in *pb.PlainTextMessage) (*pb.ReturnEncryptionInfo, error) {
-	startTime1 := time.Now()
-	for i := 0; i < 1000000000; i++ {
-		// Simulate a CPU-bound task (e.g., intense computation)
-		_ = i * i
+	startTime := time.Now()
+	for i := 0; i < 30; i++ {
+		startTime1 := time.Now()
+		for time.Since(startTime1) > time.Minute {
+			// Simulate an I/O-bound task by sleeping
+			time.Sleep(10 * time.Millisecond)
+		}
+		startTime2 := time.Now()
+		i := 0
+		for time.Since(startTime2) > time.Minute {
+			// Simulate a CPU-bound task (e.g., intense computation)
+			_ = i * i
+		}
 	}
-	elapsedTime1 := time.Since(startTime1)
-	return &pb.ReturnEncryptionInfo{EncryptionInfo: fmt.Sprintf("\nHigh Workload:%s \n", elapsedTime1)}, nil
+	elapsedTime := time.Since(startTime)
+	return &pb.ReturnEncryptionInfo{EncryptionInfo: fmt.Sprintf("\nHigh Workload:%s \n", elapsedTime)}, nil
 }
 
 func main() {
