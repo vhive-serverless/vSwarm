@@ -53,13 +53,13 @@ type server struct {
 func (s *server) ShowEncryption(ctx context.Context, in *pb.PlainTextMessage) (*pb.ReturnEncryptionInfo, error) {
 	for a := 0; a < 30; a++ {
 		startTime1 := time.Now()
-		for time.Since(startTime1) > time.Minute {
+		for time.Since(startTime1) < time.Minute {
 			// Simulate an I/O-bound task by sleeping
 			time.Sleep(10 * time.Millisecond)
 		}
 		startTime2 := time.Now()
 		i := 0
-		for time.Since(startTime2) > time.Minute {
+		for time.Since(startTime2) < time.Minute {
 			// Simulate a CPU-bound task (e.g., intense computation)
 			_ = i * i
 		}
