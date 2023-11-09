@@ -35,8 +35,9 @@ An example input file for eventing can look like this:
 
 ### Invoker usage
 `make invoker` can be used to build a binary of the invoker. Once this and the input file are ready, calling `./invoker` will start the process.
+> Note: You need to have go and protoc installed on your machine to build the invoker. Refere to [this](https://golang.org/doc/install) for installation instructions or our install scripts `./utils/install_go.sh` and `./utils/install_protoc.sh`.
 
-Additional inputs can be provided to set the desired duration (`--time`), requests per second (`-rps`) or port (`-port`) to be used. `-dbg` can be set for extra debug logs, and additionally tracing can be enabled for the invoker using the boolean `-trace` flag, in which case the `-zipkin` option may also need to be used in order to specify the address of the zipkin span collector. 
+Additional inputs can be provided to set the desired duration (`--time`), requests per second (`-rps`) or port (`-port`) to be used. `-dbg` can be set for extra debug logs, and additionally tracing can be enabled for the invoker using the boolean `-trace` flag, in which case the `-zipkin` option may also need to be used in order to specify the address of the zipkin span collector.
 
 Example usage:
 ```bash
