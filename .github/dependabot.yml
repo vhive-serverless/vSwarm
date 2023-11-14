@@ -63,7 +63,11 @@ updates:
     ignore:
       - dependency-name: "*"
         update-types: [ "version-update:semver-patch" ]
-
+    groups:
+      otel:
+        patterns:
+          - "go.opentelemetry.io/otel*"
+          
   - package-ecosystem: "gomod"
     directory: "/tools/invoker"
     schedule:
