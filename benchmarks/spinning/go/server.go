@@ -26,10 +26,10 @@ package main
 import (
 	"context"
 	"flag"
-	"fmt"
 	"net"
 	"runtime"
 	"sync"
+	"time"
 
 	log "github.com/sirupsen/logrus"
 	pb "github.com/vhive-serverless/vSwarm-proto/proto/aes"
@@ -76,24 +76,24 @@ func isPrime(num int) bool {
 
 // ShowEncryption implements aes.AesServer
 func (s *server) ShowEncryption(ctx context.Context, in *pb.PlainTextMessage) (*pb.ReturnEncryptionInfo, error) {
-	numCPU := runtime.NumCPU()
-	runtime.GOMAXPROCS(numCPU)
+	start := time.Now()
+	for time.Since(start) < time.Minute*2 {
+		numCPU := runtime.NumCPU()
+		runtime.GOMAXPROCS(numCPU)
 
-	const limit = 10000000000000000000000000
-	ch := make(chan int)
-	var wg sync.WaitGroup
+		const limit = 10000000000000000000000000
+		ch := make(chan int)
+		var wg sync.WaitGroup
+		for i := 0; i < numCPU; i++ {
+			wg.Add(1)
+			go generatePrimes(&wg, ch, (i*limit)/numCPU, ((i+1)*limit)/numCPU)
+		}
 
-	fmt.Printf("Generating prime numbers up to %d using %d goroutines...\n", limit, numCPU)
-
-	for i := 0; i < numCPU; i++ {
-		wg.Add(1)
-		go generatePrimes(&wg, ch, (i*limit)/numCPU, ((i+1)*limit)/numCPU)
+		go func() {
+			wg.Wait()
+			close(ch)
+		}()
 	}
-
-	go func() {
-		wg.Wait()
-		close(ch)
-	}()
 	return &pb.ReturnEncryptionInfo{EncryptionInfo: "new test1"}, nil
 	//return &pb.ReturnEncryptionInfo{EncryptionInfo: fmt.Sprintf("\nHigh Workload:%s \n", elapsedTime)}, nil
 }
