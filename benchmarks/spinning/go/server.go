@@ -81,7 +81,7 @@ func (s *server) ShowEncryption(ctx context.Context, in *pb.PlainTextMessage) (*
 		numCPU := runtime.NumCPU()
 		runtime.GOMAXPROCS(numCPU)
 
-		const limit = 10000000000000000000000000
+		const limit = 100000000
 		ch := make(chan int)
 		var wg sync.WaitGroup
 		for i := 0; i < numCPU; i++ {
