@@ -79,7 +79,7 @@ func (s *server) ShowEncryption(ctx context.Context, in *pb.PlainTextMessage) (*
 	numCPU := runtime.NumCPU()
 	runtime.GOMAXPROCS(numCPU)
 
-	const limit = 1000000
+	const limit = 10000000000000000000000000
 	ch := make(chan int)
 	var wg sync.WaitGroup
 
@@ -94,7 +94,7 @@ func (s *server) ShowEncryption(ctx context.Context, in *pb.PlainTextMessage) (*
 		wg.Wait()
 		close(ch)
 	}()
-	return &pb.ReturnEncryptionInfo{EncryptionInfo: "new test"}, nil
+	return &pb.ReturnEncryptionInfo{EncryptionInfo: "new test1"}, nil
 	//return &pb.ReturnEncryptionInfo{EncryptionInfo: fmt.Sprintf("\nHigh Workload:%s \n", elapsedTime)}, nil
 }
 
