@@ -26,8 +26,10 @@ package main
 import (
 	"context"
 	"flag"
+	"fmt"
 	"net"
-	"time"
+	"runtime"
+	"sync"
 
 	log "github.com/sirupsen/logrus"
 	pb "github.com/vhive-serverless/vSwarm-proto/proto/aes"
@@ -49,21 +51,49 @@ type server struct {
 	pb.UnimplementedAesServer
 }
 
-// ShowEncryption implements aes.AesServer
-func (s *server) ShowEncryption(ctx context.Context, in *pb.PlainTextMessage) (*pb.ReturnEncryptionInfo, error) {
-	for a := 0; a < 30; a++ {
-		startTime1 := time.Now()
-		for time.Since(startTime1) < time.Minute {
-			// Simulate an I/O-bound task by sleeping
-			time.Sleep(10 * time.Millisecond)
-		}
-		startTime2 := time.Now()
-		i := 0
-		for time.Since(startTime2) < time.Minute {
-			// Simulate a CPU-bound task (e.g., intense computation)
-			_ = i * i
+func generatePrimes(wg *sync.WaitGroup, ch chan<- int, start, end int) {
+	defer wg.Done()
+
+	for i := start; i <= end; i++ {
+		if isPrime(i) {
+			ch <- i
 		}
 	}
+	close(ch)
+}
+
+func isPrime(num int) bool {
+	if num < 2 {
+		return false
+	}
+	for i := 2; i*i <= num; i++ {
+		if num%i == 0 {
+			return false
+		}
+	}
+	return true
+}
+
+// ShowEncryption implements aes.AesServer
+func (s *server) ShowEncryption(ctx context.Context, in *pb.PlainTextMessage) (*pb.ReturnEncryptionInfo, error) {
+	numCPU := runtime.NumCPU()
+	runtime.GOMAXPROCS(numCPU)
+
+	const limit = 1000000
+	ch := make(chan int)
+	var wg sync.WaitGroup
+
+	fmt.Printf("Generating prime numbers up to %d using %d goroutines...\n", limit, numCPU)
+
+	for i := 0; i < numCPU; i++ {
+		wg.Add(1)
+		go generatePrimes(&wg, ch, (i*limit)/numCPU, ((i+1)*limit)/numCPU)
+	}
+
+	go func() {
+		wg.Wait()
+		close(ch)
+	}()
 	return &pb.ReturnEncryptionInfo{EncryptionInfo: "new test"}, nil
 	//return &pb.ReturnEncryptionInfo{EncryptionInfo: fmt.Sprintf("\nHigh Workload:%s \n", elapsedTime)}, nil
 }
