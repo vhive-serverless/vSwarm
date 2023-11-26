@@ -43,7 +43,7 @@ all-lambda-image: $(ALL_LAMBDA_IMAGES)
 
 aes-python-image: docker/Dockerfile python/server.py
 	DOCKER_BUILDKIT=1 docker buildx build \
-	--tag vhiveease/aes-python:latest \
+	--tag kt05docker/aes-python:latest \
 	--target aesPython \
 	-f docker/Dockerfile \
 	$(ROOT) --load
@@ -91,7 +91,7 @@ aes-go-lambda-image: docker/Dockerfile.Lambda go/server.go
 ## Push images
 
 push-%: %-image
-	docker push docker.io/vhiveease/$(subst push-,,$@):latest
+	docker push docker.io/kt05docker/$(subst push-,,$@):latest
 
 push-%-lambda: %-lambda-image
 	aws ecr get-login-password --region $(AWS_REGION) | \
@@ -105,7 +105,7 @@ push: $(addprefix push-, $(FUNCTIONS)) $(addprefix push-, $(addsuffix -lambda, $
 ## Pull images from docker hub
 
 pull-%:
-	docker pull docker.io/vhiveease/$(subst pull-,,$@):latest
+	docker pull docker.io/kt05docker/$(subst pull-,,$@):latest
 
 pull-%-lambda:
 	docker pull $(AWS_ACCOUNT_ID).dkr.ecr.$(AWS_REGION).amazonaws.com/$(subst pull-,,$@):latest

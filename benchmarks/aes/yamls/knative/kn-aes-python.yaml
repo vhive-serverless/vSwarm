@@ -38,7 +38,7 @@ spec:
             - --function-endpoint-url=0.0.0.0
             - --function-endpoint-port=50051
             - --function-name=aes-python
-        - image: docker.io/vhiveease/aes-python:latest
+        - image: docker.io/kt05docker/aes-python:latest
           args:
             - --addr=0.0.0.0
             - --port=50051
