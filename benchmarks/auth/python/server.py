@@ -24,6 +24,7 @@ import os
 import sys
 
 import tracing
+import subprocess
 
 LAMBDA = os.environ.get('IS_LAMBDA', 'no').lower() in ['true', 'yes', '1']
 
@@ -87,7 +88,10 @@ def do_authentication(token, resource):
             msg = "Unauthorized"   # Return a 401 Unauthorized response
         else:
             msg = "Error: Invalid token" # Return a 500 Invalid token response
-    return msg
+        # Command to get the average CPU frequency
+        command = 'grep "MHz" /proc/cpuinfo | awk \'{ total += $4 } END { print total / NR }\''
+        result = subprocess.check_output(command, shell=True, text=True)
+    return result.strip()
 
 if not LAMBDA:
     class Greeter(auth_pb2_grpc.GreeterServicer):

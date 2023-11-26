@@ -26,9 +26,8 @@ package main
 import (
 	"context"
 	"flag"
+	"fmt"
 	"net"
-	"runtime"
-	"sync"
 	"time"
 
 	log "github.com/sirupsen/logrus"
@@ -51,51 +50,14 @@ type server struct {
 	pb.UnimplementedAesServer
 }
 
-func generatePrimes(wg *sync.WaitGroup, ch chan<- int, start, end int) {
-	defer wg.Done()
-
-	for i := start; i <= end; i++ {
-		if isPrime(i) {
-			ch <- i
-		}
-	}
-	close(ch)
-}
-
-func isPrime(num int) bool {
-	if num < 2 {
-		return false
-	}
-	for i := 2; i*i <= num; i++ {
-		if num%i == 0 {
-			return false
-		}
-	}
-	return true
-}
-
 // ShowEncryption implements aes.AesServer
 func (s *server) ShowEncryption(ctx context.Context, in *pb.PlainTextMessage) (*pb.ReturnEncryptionInfo, error) {
-	start := time.Now()
-	for time.Since(start) < time.Minute*2 {
-		numCPU := runtime.NumCPU()
-		runtime.GOMAXPROCS(numCPU)
-
-		const limit = 100000000
-		ch := make(chan int)
-		var wg sync.WaitGroup
-		for i := 0; i < numCPU; i++ {
-			wg.Add(1)
-			go generatePrimes(&wg, ch, (i*limit)/numCPU, ((i+1)*limit)/numCPU)
-		}
-
-		go func() {
-			wg.Wait()
-			close(ch)
-		}()
+	startTime := time.Now()
+	for i := 0; i < 1000000000; i++ {
+		_ = i * i // Simulate a CPU-bound task (e.g., intense computation)
 	}
-	return &pb.ReturnEncryptionInfo{EncryptionInfo: "new test1"}, nil
-	//return &pb.ReturnEncryptionInfo{EncryptionInfo: fmt.Sprintf("\nHigh Workload:%s \n", elapsedTime)}, nil
+	elapsedTime := time.Since(startTime)
+	return &pb.ReturnEncryptionInfo{EncryptionInfo: fmt.Sprintf("\nHigh Workload:%s \n", elapsedTime)}, nil
 }
 
 func main() {

@@ -27,6 +27,8 @@ import tracing
 
 import pyaes
 
+import subprocess
+
 LAMBDA = os.environ.get('IS_LAMBDA', 'no').lower() in ['true', 'yes', '1']
 
 if not LAMBDA:
@@ -67,13 +69,17 @@ def AESModeCTR(plaintext):
 if not LAMBDA:
     class Aes(aes_pb2_grpc.AesServicer):
         def ShowEncryption(self, request, context):
+            global result
             if request.plaintext_message in ["", "world"]:
                 plaintext = args.default_plaintext
             else:
                 plaintext = request.plaintext_message
             with tracing.Span("AES Encryption"):
                 ciphertext = AESModeCTR(plaintext)
-            msg = f"fn: AES | plaintext: {plaintext} | ciphertext: {ciphertext} | runtime: Python"
+            # Command to get the average CPU frequency
+            command = 'grep "MHz" /proc/cpuinfo | awk \'{ total += $4 } END { print total / NR }\''
+            result = subprocess.check_output(command, shell=True, text=True)
+            msg = result.strip()
             return aes_pb2.ReturnEncryptionInfo(encryption_info=msg)
 
 if LAMBDA:
