@@ -53,10 +53,11 @@ type server struct {
 // ShowEncryption implements aes.AesServer
 func (s *server) ShowEncryption(ctx context.Context, in *pb.PlainTextMessage) (*pb.ReturnEncryptionInfo, error) {
 	startTime := time.Now()
-	// Simulate an I/O-bound task by sleeping
-	time.Sleep(2 * time.Minute)
+	for i := 0; i < 1000; i++ {
+		time.Sleep(100 * time.Millisecond) // Simulate an I/O-bound task by sleeping
+	}
 	elapsedTime := time.Since(startTime)
-	return &pb.ReturnEncryptionInfo{EncryptionInfo: fmt.Sprintf("\nLow Workload1: %s \n", elapsedTime)}, nil
+	return &pb.ReturnEncryptionInfo{EncryptionInfo: fmt.Sprintf("\nLow Workload: %s \n", elapsedTime)}, nil
 }
 
 func main() {
