@@ -23,7 +23,7 @@
 version: "3.9"
 services:
   aes-python:
-    image: vhiveease/aes-python:latest
+    image: kt05docker/aes-python:latest
     container_name: aes-python
     entrypoint:
       - python
