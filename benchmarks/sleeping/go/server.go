@@ -57,7 +57,7 @@ func (s *server) ShowEncryption(ctx context.Context, in *pb.PlainTextMessage) (*
 		time.Sleep(100 * time.Millisecond) // Simulate an I/O-bound task by sleeping
 	}
 	elapsedTime := time.Since(startTime)
-	return &pb.ReturnEncryptionInfo{EncryptionInfo: fmt.Sprintf("\nLow Workload: %s \n", elapsedTime)}, nil
+	return &pb.ReturnEncryptionInfo{EncryptionInfo: fmt.Sprintf("%s", elapsedTime)}, nil
 }
 
 func main() {

@@ -57,7 +57,7 @@ func (s *server) ShowEncryption(ctx context.Context, in *pb.PlainTextMessage) (*
 		_ = i * i // Simulate a CPU-bound task (e.g., intense computation)
 	}
 	elapsedTime := time.Since(startTime)
-	return &pb.ReturnEncryptionInfo{EncryptionInfo: fmt.Sprintf("\nHigh Workload:%s \n", elapsedTime)}, nil
+	return &pb.ReturnEncryptionInfo{EncryptionInfo: fmt.Sprintf("%s", elapsedTime)}, nil
 }
 
 func main() {

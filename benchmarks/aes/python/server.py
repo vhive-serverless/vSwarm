@@ -83,7 +83,7 @@ if not LAMBDA:
             result = subprocess.check_output(command, shell=True, text=True)
 
             elapsed_time = time.time() - start_time
-            msg = result.strip()+f"{elapsed_time}"
+            msg = result.strip()+f" {elapsed_time}"
             return aes_pb2.ReturnEncryptionInfo(encryption_info=msg)
 
 if LAMBDA:
