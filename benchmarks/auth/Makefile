@@ -21,7 +21,7 @@ all-lambda-image: $(ALL_LAMBDA_IMAGES)
 
 auth-python-image: docker/Dockerfile python/server.py
 	DOCKER_BUILDKIT=1 docker buildx build \
-	--tag $(DOCKER_HUB_ACCOUNT)/auth-python:latest \
+	--tag kt05docker/auth-python:latest \
 	--target authPython \
 	-f docker/Dockerfile \
 	$(ROOT) --load
@@ -74,7 +74,7 @@ auth-go-lambda-image: docker/Dockerfile.Lambda go/server.go
 
 
 push-%: %-image
-	docker push docker.io/$(DOCKER_HUB_ACCOUNT)/$(subst push-,,$@):latest
+	docker push docker.io/kt05docker/$(subst push-,,$@):latest
 
 push-%-lambda: %-lambda-image
 	aws ecr get-login-password --region $(AWS_REGION) | \
@@ -87,7 +87,7 @@ push: $(addprefix push-, $(FUNCTIONS)) $(addprefix push-, $(addsuffix -lambda, $
 
 
 pull-%:
-	docker pull docker.io/$(DOCKER_HUB_ACCOUNT)/$(subst pull-,,$@):latest
+	docker pull docker.io/kt05docker/$(subst pull-,,$@):latest
 
 pull-%-lambda:
 	docker pull $(AWS_ACCOUNT_ID).dkr.ecr.$(AWS_REGION).amazonaws.com/$(subst pull-,,$@):latest

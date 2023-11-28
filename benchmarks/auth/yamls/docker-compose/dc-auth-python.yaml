@@ -23,7 +23,7 @@
 version: "3.9"
 services:
   auth-python:
-    image: vhiveease/auth-python:latest
+    image: kt05docker/auth-python:latest
     container_name: auth-python
     entrypoint:
       - python

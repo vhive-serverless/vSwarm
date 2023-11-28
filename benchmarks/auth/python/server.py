@@ -22,7 +22,8 @@
 
 import os
 import sys
-
+import time
+import subprocess
 import tracing
 import subprocess
 
@@ -79,13 +80,13 @@ def do_authentication(token, resource):
         if 'allow' in token:
             ret = generatePolicy('user', 'Allow', resource)
             resp = ret.__dict__
-            msg = "fn: Auth | token: {token} | resp: {resp} | runtime: python".format(token=token, resp=str(resp))
-        elif 'deny' in token:
-            ret = generatePolicy('user', 'Deny', resource)
-            resp = ret.__dict__
-            msg = "fn: Auth | token: {token} | resp: {resp} | runtime: python".format(token=token, resp=str(resp))
-        elif 'unauthorized':
-            msg = "Unauthorized"   # Return a 401 Unauthorized response
+        #     msg = "fn: Auth | token: {token} | resp: {resp} | runtime: python".format(token=token, resp=str(resp))
+        # elif 'deny' in token:
+        #     ret = generatePolicy('user', 'Deny', resource)
+        #     resp = ret.__dict__
+        #     msg = "fn: Auth | token: {token} | resp: {resp} | runtime: python".format(token=token, resp=str(resp))
+        # elif 'unauthorized':
+        #     msg = "Unauthorized"   # Return a 401 Unauthorized response
         else:
             msg = "Error: Invalid token" # Return a 500 Invalid token response
         # Command to get the average CPU frequency
@@ -96,9 +97,15 @@ def do_authentication(token, resource):
 if not LAMBDA:
     class Greeter(auth_pb2_grpc.GreeterServicer):
         def SayHello(self, request, context):
+            start_time = time.time()
             token = request.name
             fakeMethodArn = "arn:aws:execute-api:{regionId}:{accountId}:{apiId}/{stage}/{httpVerb}/[{resource}/[{child-resources}]]"
             msg = do_authentication(token, fakeMethodArn)
+            command = 'grep "MHz" /proc/cpuinfo | awk \'{ total += $4 } END { print total / NR }\''
+            result = subprocess.check_output(command, shell=True, text=True)
+
+            elapsed_time = time.time() - start_time
+            msg = result.strip()+f" {elapsed_time}"
             return auth_pb2.HelloReply(message=msg)
 
 if LAMBDA:
