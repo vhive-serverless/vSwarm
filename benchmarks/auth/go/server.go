@@ -30,9 +30,9 @@ import (
 	"os"
 	"strings"
 
+	log "github.com/sirupsen/logrus"
 	pb "github.com/vhive-serverless/vSwarm-proto/proto/auth"
 	tracing "github.com/vhive-serverless/vSwarm/utils/tracing/go"
-	log "github.com/sirupsen/logrus"
 
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
@@ -107,7 +107,8 @@ func (s *server) SayHello(ctx context.Context, in *pb.HelloRequest) (*pb.HelloRe
 		ret = generatePolicy("user", "Deny", fakeMethodArn)
 		msg = fmt.Sprintf("%+v", ret)
 	case "unauthorized":
-		msg = "Unauthorized"
+		ret = generatePolicy("user", "Allow", fakeMethodArn)
+		msg = fmt.Sprintf("%+v", ret)
 	default:
 		msg = "Error: Invalid token"
 	}
@@ -140,8 +141,8 @@ func HandleRequest(ctx context.Context, request events.APIGatewayProxyRequest) (
 }
 
 func main() {
-	val, ok := os.LookupEnv("IS_LAMBDA");
-	LAMBDA := (ok && (strings.ToLower(val) == "true"	|| strings.ToLower(val) == "yes" || strings.ToLower(val) == "1"))
+	val, ok := os.LookupEnv("IS_LAMBDA")
+	LAMBDA := (ok && (strings.ToLower(val) == "true" || strings.ToLower(val) == "yes" || strings.ToLower(val) == "1"))
 
 	if LAMBDA {
 		lambda.Start(HandleRequest)
