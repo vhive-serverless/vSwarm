@@ -97,15 +97,13 @@ def do_authentication(token, resource):
 if not LAMBDA:
     class Greeter(auth_pb2_grpc.GreeterServicer):
         def SayHello(self, request, context):
-            start_time = time.time()
             token = request.name
             fakeMethodArn = "arn:aws:execute-api:{regionId}:{accountId}:{apiId}/{stage}/{httpVerb}/[{resource}/[{child-resources}]]"
             msg = do_authentication(token, fakeMethodArn)
             command = 'grep "MHz" /proc/cpuinfo | awk \'{ total += $4 } END { print total / NR }\''
             result = subprocess.check_output(command, shell=True, text=True)
 
-            elapsed_time = time.time() - start_time
-            msg = result.strip()+f" {elapsed_time}"
+            msg = result.strip()
             return auth_pb2.HelloReply(message=msg)
 
 if LAMBDA:

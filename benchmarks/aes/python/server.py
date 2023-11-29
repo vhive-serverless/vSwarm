@@ -71,7 +71,6 @@ def AESModeCTR(plaintext):
 if not LAMBDA:
     class Aes(aes_pb2_grpc.AesServicer):
         def ShowEncryption(self, request, context):
-            start_time = time.time()
             if request.plaintext_message in ["", "world"]:
                 plaintext = args.default_plaintext
             else:
@@ -81,9 +80,7 @@ if not LAMBDA:
             # Command to get the average CPU frequency
             command = 'grep "MHz" /proc/cpuinfo | awk \'{ total += $4 } END { print total / NR }\''
             result = subprocess.check_output(command, shell=True, text=True)
-
-            elapsed_time = time.time() - start_time
-            msg = result.strip()+f" {elapsed_time}"
+            msg = result.strip()
             return aes_pb2.ReturnEncryptionInfo(encryption_info=msg)
 
 if LAMBDA:
