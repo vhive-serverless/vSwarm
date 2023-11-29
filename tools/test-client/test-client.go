@@ -33,7 +33,7 @@ import (
 func main() {
 	// read flags
 	flagAddress := flag.String("addr", "localhost:50000", "Server IP address")
-	flagName := flag.String("name", "world", "The message that is passed on using gRPC")
+	//flagName := flag.String("name", "world", "The message that is passed on using gRPC")
 	flag.Parse()
 	// Set up a connection to the server.
 	greeterClientCtx, greeterClientCancel := context.WithTimeout(context.Background(), 5*time.Second)
@@ -45,10 +45,10 @@ func main() {
 	defer conn.Close()
 	c := pb.NewGreeterClient(conn)
 	// Contact the server and print out its response.
-	name := *flagName
+	//name := *flagName
 	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Minute)
 	defer cancel()
-	r, err := c.SayHello(ctx, &pb.HelloRequest{Name: name})
+	r, err := c.SayHello(ctx, &pb.HelloRequest{Name: "allow"})
 	if err != nil {
 		log.Fatalf("could not greet: %v", err)
 	}
