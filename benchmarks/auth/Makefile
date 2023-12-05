@@ -50,13 +50,6 @@ auth-python-lambda-image: docker/Dockerfile.Lambda python/server.py
 	-f docker/Dockerfile.Lambda \
 	$(ROOT) --load
 
-auth-python-lambda-image: docker/Dockerfile.Lambda python/server.py
-	DOCKER_BUILDKIT=1 docker buildx build \
-	--tag $(AWS_ACCOUNT_ID).dkr.ecr.$(AWS_REGION).amazonaws.com/auth-python-lambda:latest \
-	--target authPythonLambda \
-	-f docker/Dockerfile.Lambda \
-	$(ROOT) --load
-
 auth-nodejs-lambda-image: docker/Dockerfile.Lambda nodejs/server.js
 	DOCKER_BUILDKIT=1 docker buildx build \
 	--tag $(AWS_ACCOUNT_ID).dkr.ecr.$(AWS_REGION).amazonaws.com/auth-nodejs-lambda:latest \
