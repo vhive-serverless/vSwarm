@@ -77,22 +77,22 @@ def generatePolicy(principalId, effect, resource):
 
 def do_authentication(token, resource):
     with tracing.Span("Generate Policy"):
-        if 'allow' in token:
+        # if 'allow' in token:
             ret = generatePolicy('user', 'Allow', resource)
             resp = ret.__dict__
-        #     msg = "fn: Auth | token: {token} | resp: {resp} | runtime: python".format(token=token, resp=str(resp))
+            msg = "fn: Auth | token: {token} | resp: {resp} | runtime: python".format(token=token, resp=str(resp))
         # elif 'deny' in token:
         #     ret = generatePolicy('user', 'Deny', resource)
         #     resp = ret.__dict__
         #     msg = "fn: Auth | token: {token} | resp: {resp} | runtime: python".format(token=token, resp=str(resp))
         # elif 'unauthorized':
         #     msg = "Unauthorized"   # Return a 401 Unauthorized response
-        else:
-            msg = "Error: Invalid token" # Return a 500 Invalid token response
-        # Command to get the average CPU frequency
-        command = 'grep "MHz" /proc/cpuinfo | awk \'{ total += $4 } END { print total / NR }\''
-        result = subprocess.check_output(command, shell=True, text=True)
-    return result.strip()
+        # else:
+        #     msg = "Error: Invalid token" # Return a 500 Invalid token response
+        # # Command to get the average CPU frequency
+        # command = 'grep "MHz" /proc/cpuinfo | awk \'{ total += $4 } END { print total / NR }\''
+        # result = subprocess.check_output(command, shell=True, text=True)
+    return msg
 
 if not LAMBDA:
     class Greeter(auth_pb2_grpc.GreeterServicer):
@@ -100,10 +100,6 @@ if not LAMBDA:
             token = request.name
             fakeMethodArn = "arn:aws:execute-api:{regionId}:{accountId}:{apiId}/{stage}/{httpVerb}/[{resource}/[{child-resources}]]"
             msg = do_authentication(token, fakeMethodArn)
-            command = 'grep "MHz" /proc/cpuinfo | awk \'{ total += $4 } END { print total / NR }\''
-            result = subprocess.check_output(command, shell=True, text=True)
-
-            msg = result.strip()
             return auth_pb2.HelloReply(message=msg)
 
 if LAMBDA:

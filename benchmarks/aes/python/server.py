@@ -77,11 +77,7 @@ if not LAMBDA:
                 plaintext = request.plaintext_message
             with tracing.Span("AES Encryption"):
                 ciphertext = AESModeCTR(plaintext)
-            # Command to get the average CPU frequency
-            command = 'grep "MHz" /proc/cpuinfo | awk \'{ total += $4 } END { print total / NR }\''
-            result = subprocess.check_output(command, shell=True, text=True)
-            msg = result.strip()
-            return aes_pb2.ReturnEncryptionInfo(encryption_info=msg)
+            return aes_pb2.ReturnEncryptionInfo(encryption_info=plaintext)
 
 if LAMBDA:
     class Aes():
