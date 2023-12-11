@@ -56,7 +56,7 @@ jobs:
         with:
           lfs: "true"
 
-      - uses: actions/setup-go@v4
+      - uses: actions/setup-go@v5
         with:
           go-version: '1.21'
 
@@ -170,7 +170,7 @@ jobs:
       - name: Checkout LFS objects
         run: git lfs checkout
 
-      - uses: actions/setup-go@v4
+      - uses: actions/setup-go@v5
         with:
           go-version: '1.21'
 

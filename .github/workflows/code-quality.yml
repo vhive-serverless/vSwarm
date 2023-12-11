@@ -33,7 +33,7 @@ jobs:
       GOPRIVATE: "github.com/ease-lab/vhive-xdt"
     steps:
       - name: Setup Go
-        uses: actions/setup-go@v4
+        uses: actions/setup-go@v5
         with:
           go-version: '1.21'
       - name: Checkout code into go module directory
