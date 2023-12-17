@@ -60,6 +60,7 @@ var (
 	generatorString = flag.String("generator", "unique", "Generator type (unique / linear / random)")
 	value           = flag.String("value", "helloWorld", "String input to pass to benchmark")
 	functionMethod  = flag.String("function-method", "default", "Which method of benchmark to invoke")
+	verbose         = flag.Bool("verbose", false, "Enable verbose log printing")
 
 	// Client
 	grpcClient     grpcClients.GrpcClient
@@ -67,14 +68,16 @@ var (
 )
 
 func isDebuggingEnabled() bool {
+	debugging := false
 	if val, ok := os.LookupEnv("ENABLE_DEBUGGING"); !ok || val == "false" {
-		return false
+		debugging = false
 	} else if val == "true" {
-		return true
+		debugging = true
 	} else {
 		log.Fatalf("ENABLE_DEBUGGING has unexpected value: `%s`", val)
 		return false
 	}
+	return debugging || *verbose
 }
 
 func main() {
@@ -99,7 +102,9 @@ func main() {
 	serviceName := grpcClients.FindServiceName(*functionName)
 	grpcClient = grpcClients.FindGrpcClient(serviceName)
 	ctx := context.Background()
-	grpcClient.Init(ctx, *functionEndpointURL, *functionEndpointPort)
+	if err := grpcClient.Init(ctx, *functionEndpointURL, *functionEndpointPort); err != nil {
+		log.Fatalf("Fail to init client: %s", err)
+	}
 	defer grpcClient.Close()
 
 	// Configure the Input generator
@@ -146,13 +151,12 @@ func main() {
 }
 
 func (s *server) SayHello(ctx context.Context, in *pb.HelloRequest) (*pb.HelloReply, error) {
-	log.Info("Received from invoker: ", in.GetName())
 
 	// Create new packet
 	pkt := inputGenerator.Next()
-	log.Debug("Send to func: ", pkt)
-	reply := grpcClient.Request(ctx, pkt)
-	log.Debug("Recv from func: ", reply)
+	log.Debugf("Send to func: %s\n", pkt)
+	reply, err := grpcClient.Request(ctx, pkt)
+	log.Debugf("Recv from func: %s\n", reply)
 
-	return &pb.HelloReply{Message: reply}, nil
+	return &pb.HelloReply{Message: reply}, err
 }
