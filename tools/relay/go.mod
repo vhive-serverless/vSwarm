@@ -6,7 +6,7 @@ replace github.com/vhive-serverless/vSwarm/utils/tracing/go => ../../utils/traci
 
 require (
 	github.com/sirupsen/logrus v1.9.3
-	github.com/vhive-serverless/vSwarm-proto v0.4.3-0.20231030051952-95c2986277cc
+	github.com/vhive-serverless/vSwarm-proto v0.5.0
 	github.com/vhive-serverless/vSwarm/utils/tracing/go v0.0.0-20230802102142-dbfda39fc27c
 	google.golang.org/grpc v1.60.1
 )
