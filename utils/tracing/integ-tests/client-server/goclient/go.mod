@@ -5,7 +5,6 @@ go 1.21
 replace github.com/vhive-serverless/vSwarm/utils/tracing/go => ../../../go
 
 require (
-	github.com/containerd/containerd v1.7.8
 	github.com/sirupsen/logrus v1.9.3
 	github.com/vhive-serverless/vSwarm-proto v0.4.2
 	github.com/vhive-serverless/vSwarm/utils/tracing/go v0.0.0-20231031171541-78afffdd0161
@@ -14,7 +13,6 @@ require (
 )
 
 require (
-	github.com/containerd/log v0.1.0 // indirect
 	github.com/go-logr/logr v1.3.0 // indirect
 	github.com/go-logr/stdr v1.2.2 // indirect
 	github.com/golang/protobuf v1.5.3 // indirect
