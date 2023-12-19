@@ -35,8 +35,6 @@ require (
 )
 
 require (
-	github.com/containerd/containerd v1.7.8 // indirect
-	github.com/containerd/log v0.1.0 // indirect
 	github.com/go-logr/logr v1.3.0 // indirect
 	github.com/go-logr/stdr v1.2.2 // indirect
 	github.com/golang/protobuf v1.5.3 // indirect
