@@ -45,18 +45,36 @@ var (
 	default_plaintext_message = flag.String("default-plaintext", "defaultplaintext", "Default plaintext when the function is called with the plaintext_message world")
 )
 
+const (
+	arraySize   = 1000 // in megabytes
+	numAccesses = 500000
+)
+
 // server is used to implement aes.AesServer.
 type server struct {
 	pb.UnimplementedAesServer
 }
 
+
 // ShowEncryption implements aes.AesServer
 func (s *server) ShowEncryption(ctx context.Context, in *pb.PlainTextMessage) (*pb.ReturnEncryptionInfo, error) {
-	startTime := time.Now()
-	for i := 0; i < 2000; i++ {
-		_ = i * i // Simulate a CPU-bound task (e.g., intense computation)
+	// Seed the random number generator
+	rand.Seed(time.Now().UnixNano())
+
+	// Create a large byte slice
+	data := make([]byte, arraySize*1024*1024)
+
+	// Fill the slice with random data
+	for i := range data {
+		data[i] = byte(rand.Intn(256))
 	}
-	elapsedTime := time.Since(startTime)
+
+	// Perform random accesses
+	for i := 0; i < numAccesses; i++ {
+		index := rand.Intn(len(data))
+		_ = data[index] // Accessing the data to make it memory-bound
+	}
+	
 	return &pb.ReturnEncryptionInfo{EncryptionInfo: fmt.Sprintf("%s", elapsedTime)}, nil
 }
 
@@ -64,7 +82,7 @@ func main() {
 	flag.Parse()
 	if tracing.IsTracingEnabled() {
 		log.Printf("Start tracing on : %s\n", *zipkin)
-		shutdown, err := tracing.InitBasicTracer(*zipkin, "spinning function")
+		shutdown, err := tracing.InitBasicTracer(*zipkin, "memory function")
 		if err != nil {
 			log.Warn(err)
 		}
@@ -75,7 +93,7 @@ func main() {
 	if err != nil {
 		log.Fatalf("failed to listen: %v", err)
 	}
-	log.Printf("Start SPINNING-go server. Addr: %s\n", *address)
+	log.Printf("Start MEMORY-go server. Addr: %s\n", *address)
 
 	var grpcServer *grpc.Server
 	if tracing.IsTracingEnabled() {
