@@ -22,7 +22,8 @@ require (
 )
 
 require (
-	github.com/containerd/containerd v1.6.12 // indirect
+	github.com/containerd/containerd v1.6.26 // indirect
+	github.com/containerd/log v0.1.0 // indirect
 	github.com/go-logr/logr v1.3.0 // indirect
 	github.com/go-logr/stdr v1.2.2 // indirect
 	github.com/openzipkin/zipkin-go v0.4.2 // indirect
