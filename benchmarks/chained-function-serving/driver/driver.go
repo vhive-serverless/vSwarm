@@ -154,7 +154,7 @@ func main() {
 func SayHello(ctx context.Context, address string) {
 	dialOptions := []grpc.DialOption{grpc.WithBlock(), grpc.WithTransportCredentials(insecure.NewCredentials())}
 	if *withTracing {
-		dialOptions = append(dialOptions, grpc.WithUnaryInterceptor(otelgrpc.UnaryClientInterceptor()))
+		dialOptions = append(dialOptions, grpc.WithStatsHandler(otelgrpc.NewClientHandler()))
 	}
 	conn, err := grpc.Dial(address, dialOptions...)
 	if err != nil {
@@ -177,7 +177,7 @@ func benchFanIn(ctx context.Context, prodAddr, consAddr string, fanInAmount int)
 	log.Infof("using fanIn ubench")
 	dialOptions := []grpc.DialOption{grpc.WithBlock(), grpc.WithTransportCredentials(insecure.NewCredentials())}
 	if *withTracing {
-		dialOptions = append(dialOptions, grpc.WithUnaryInterceptor(otelgrpc.UnaryClientInterceptor()))
+		dialOptions = append(dialOptions, grpc.WithStatsHandler(otelgrpc.NewClientHandler()))
 	}
 
 	ctx, cancel := context.WithTimeout(ctx, grpcTimeout)
@@ -221,7 +221,7 @@ func reduce(ctx context.Context, consEndpoint string, capabilities []string) {
 	log.Infof("Attempting reduction using addr:%s", consEndpoint)
 	dialOptions := []grpc.DialOption{grpc.WithBlock(), grpc.WithTransportCredentials(insecure.NewCredentials())}
 	if *withTracing {
-		dialOptions = append(dialOptions, grpc.WithUnaryInterceptor(otelgrpc.UnaryClientInterceptor()))
+		dialOptions = append(dialOptions, grpc.WithStatsHandler(otelgrpc.NewClientHandler()))
 	}
 	conn, err := grpc.Dial(consEndpoint, dialOptions...)
 	if err != nil {
@@ -243,7 +243,7 @@ func benchFanOut(ctx context.Context, prodAddr string, fanOutAmount int) {
 	log.Infof("using fanOut ubench")
 	dialOptions := []grpc.DialOption{grpc.WithBlock(), grpc.WithTransportCredentials(insecure.NewCredentials())}
 	if *withTracing {
-		dialOptions = append(dialOptions, grpc.WithUnaryInterceptor(otelgrpc.UnaryClientInterceptor()))
+		dialOptions = append(dialOptions, grpc.WithStatsHandler(otelgrpc.NewClientHandler()))
 	}
 	conn, err := grpc.Dial(prodAddr, dialOptions...)
 	if err != nil {
@@ -266,7 +266,7 @@ func benchBroadcast(ctx context.Context, prodAddr string, broadcast int) {
 	log.Infof("using broadcast ubench")
 	dialOptions := []grpc.DialOption{grpc.WithBlock(), grpc.WithTransportCredentials(insecure.NewCredentials())}
 	if *withTracing {
-		dialOptions = append(dialOptions, grpc.WithUnaryInterceptor(otelgrpc.UnaryClientInterceptor()))
+		dialOptions = append(dialOptions, grpc.WithStatsHandler(otelgrpc.NewClientHandler()))
 	}
 	conn, err := grpc.Dial(prodAddr, dialOptions...)
 	if err != nil {

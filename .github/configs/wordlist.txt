@@ -230,6 +230,8 @@ grpcServer
 grpcurl
 gz
 gVisor
+Gptj
+gpt
 Harald
 HDDs
 HelloRequest

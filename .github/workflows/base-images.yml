@@ -29,6 +29,7 @@ jobs:
         images:
           [
             golang-builder,
+            golang,
             python-slim,
             node-slim,
             mongodb,
