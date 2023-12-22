@@ -23,25 +23,28 @@
 
 #---------- golang-builder -----------#
 FROM golang:1.21 AS golang-builder
-LABEL maintainer="https://github.com/ease-lab"
+LABEL maintainer="https://github.com/vhive-serverless"
+
+FROM golang:1.21-alpine AS golang
+LABEL maintainer="https://github.com/vhive-serverless"
 
 
 #---------- python-builder -----------#
 FROM  python:3.8-slim AS python-slim
-LABEL maintainer="https://github.com/ease-lab"
+LABEL maintainer="https://github.com/vhive-serverless"
 
 
 #---------- nodejs-builder -----------#
 FROM  node:18.6-slim AS node-slim
-LABEL maintainer="https://github.com/ease-lab"
+LABEL maintainer="https://github.com/vhive-serverless"
 
 
 
 #---------- MongoDB -----------#
 FROM  mongo:4.2 AS mongodb
-LABEL maintainer="https://github.com/ease-lab"
+LABEL maintainer="https://github.com/vhive-serverless"
 
 #---------- Memcached -----------#
 FROM  memcached:1.6 AS memcached
-LABEL maintainer="https://github.com/ease-lab"
+LABEL maintainer="https://github.com/vhive-serverless"
 

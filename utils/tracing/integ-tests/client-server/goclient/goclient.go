@@ -62,7 +62,7 @@ func main() {
 
 	server := fmt.Sprintf("%v:%v", *address, *clientPort)
 	conn, err := grpc.Dial(server, grpc.WithBlock(), grpc.WithTransportCredentials(insecure.NewCredentials()),
-		grpc.WithUnaryInterceptor(otelgrpc.UnaryClientInterceptor()))
+		grpc.WithStatsHandler(otelgrpc.NewClientHandler()))
 	if err != nil {
 		log.Fatalf("fail to dial: %s", err)
 	}

@@ -159,7 +159,7 @@ func SayHello(address, workflowID string) {
 	dialOptions := make([]grpc.DialOption, 0)
 	dialOptions = append(dialOptions, grpc.WithTransportCredentials(insecure.NewCredentials()), grpc.WithBlock())
 	if *withTracing {
-		dialOptions = append(dialOptions, grpc.WithUnaryInterceptor(otelgrpc.UnaryClientInterceptor()))
+		dialOptions = append(dialOptions, grpc.WithStatsHandler(otelgrpc.NewClientHandler()))
 	}
 	conn, err := grpc.Dial(address, dialOptions...)
 	if err != nil {

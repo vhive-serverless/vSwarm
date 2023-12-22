@@ -136,24 +136,24 @@ func InitCustomTracer(url string, traceRate float64, logger *log.Logger, attr ..
 // GetGRPCServerWithUnaryInterceptor returns a grpc server instrumented with an opentelemetry
 // interceptor which enables tracing of grpc requests.
 func GetGRPCServerWithUnaryInterceptor() *grpc.Server {
-	return grpc.NewServer(grpc.UnaryInterceptor(otelgrpc.UnaryServerInterceptor()))
+	return grpc.NewServer(grpc.StatsHandler(otelgrpc.NewServerHandler()))
 }
 
 // DialGRPCWithUnaryInterceptor creates a connection to the provided address, which is instrumented
 // with an opentelemetry client interceptor enabling the tracing to client grpc messages.
 func DialGRPCWithUnaryInterceptor(addr string, opts ...grpc.DialOption) (*grpc.ClientConn, error) {
-	opts = append(opts, grpc.WithUnaryInterceptor(otelgrpc.UnaryClientInterceptor()))
+	opts = append(opts, grpc.WithStatsHandler(otelgrpc.NewClientHandler()))
 	return grpc.Dial(addr, opts...)
 }
 
 // GetServerInterceptor returns a ServerOption that will instrumented a grpc server with an
 // opentelemetry interceptor which enables tracing of grpc requests.
 func GetServerInterceptor() grpc.ServerOption {
-	return grpc.UnaryInterceptor(otelgrpc.UnaryServerInterceptor())
+	return grpc.StatsHandler(otelgrpc.NewServerHandler())
 }
 
 // GetClientInterceptor returns a DialOption that will instrumented a grpc client with an
 // opentelemetry interceptor which enables tracing of grpc requests.
 func GetClientInterceptor() grpc.DialOption {
-	return grpc.WithUnaryInterceptor(otelgrpc.UnaryClientInterceptor())
+	return grpc.WithStatsHandler(otelgrpc.NewClientHandler())
 }
