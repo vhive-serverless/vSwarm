@@ -34,7 +34,6 @@ all: $(ALL_IMAGES)
 memory-go-image: docker/Dockerfile go/server.go
 	DOCKER_BUILDKIT=1 docker buildx build \
 	--tag kt05docker/memory-go:latest \
-	--target memoryGo \
 	-f docker/Dockerfile \
 	$(ROOT) --load
 
