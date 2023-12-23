@@ -35,7 +35,7 @@ RUN go mod tidy
 RUN CGO_ENABLED=0 GOOS=linux go build -v -o ./server server.go
 
 # Second stage (Runner):
-FROM scratch 
+FROM scratch as memoryGo
 WORKDIR /app/
 COPY --from=memoryGoBuilder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
 COPY --from=memoryGoBuilder /app/app/server .
