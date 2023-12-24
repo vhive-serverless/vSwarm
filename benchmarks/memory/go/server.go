@@ -29,6 +29,7 @@ import (
 	"fmt"
 	"net"
 	"time"
+	"math/rand"
 
 	log "github.com/sirupsen/logrus"
 	pb "github.com/vhive-serverless/vSwarm-proto/proto/aes"
@@ -59,6 +60,7 @@ type server struct {
 // ShowEncryption implements aes.AesServer
 func (s *server) ShowEncryption(ctx context.Context, in *pb.PlainTextMessage) (*pb.ReturnEncryptionInfo, error) {
 	// Seed the random number generator
+	startTime := time.Now()
 	rand.Seed(time.Now().UnixNano())
 
 	// Create a large byte slice
@@ -74,7 +76,7 @@ func (s *server) ShowEncryption(ctx context.Context, in *pb.PlainTextMessage) (*
 		index := rand.Intn(len(data))
 		_ = data[index] // Accessing the data to make it memory-bound
 	}
-	
+	elapsedTime := time.Since(startTime)
 	return &pb.ReturnEncryptionInfo{EncryptionInfo: fmt.Sprintf("%s", elapsedTime)}, nil
 }
 
