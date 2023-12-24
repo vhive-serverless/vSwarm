@@ -47,8 +47,8 @@ var (
 )
 
 const (
-	arraySize   = 1000 // in megabytes
-	numAccesses = 500000
+	arraySize   = 1 // in megabytes
+	numAccesses = 500
 )
 
 // server is used to implement aes.AesServer.
