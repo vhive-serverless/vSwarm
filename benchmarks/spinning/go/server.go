@@ -53,7 +53,7 @@ type server struct {
 // ShowEncryption implements aes.AesServer
 func (s *server) ShowEncryption(ctx context.Context, in *pb.PlainTextMessage) (*pb.ReturnEncryptionInfo, error) {
 	startTime := time.Now()
-	for i := 0; i < 1000000; i++ {
+	for i := 0; i < 100000000; i++ {
 		_ = i * i // Simulate a CPU-bound task (e.g., intense computation)
 	}
 	elapsedTime := time.Since(startTime)
