@@ -48,8 +48,8 @@ var (
 
 const (
 	arraySize   = 1 // in megabytes
-	numAccesses = 1000000
-	sleepMicrosecs = 1                  // Sleep duration in microseconds
+	numAccesses = 1000
+	sleepDuration = time.Microsecond * time.Duration(1)
 )
 
 // server is used to implement aes.AesServer.
@@ -71,6 +71,7 @@ func (s *server) ShowEncryption(ctx context.Context, in *pb.PlainTextMessage) (*
 	for i := 0; i < numAccesses; i++ {
 		randomIndex := rand.Intn(arraySize)
 		data[randomIndex] += 1 // Modify the value to ensure the memory access is not optimized away
+		time.Sleep(sleepDuration)
 	}
 	elapsedTime := time.Since(startTime)
 	return &pb.ReturnEncryptionInfo{EncryptionInfo: fmt.Sprintf("%s", elapsedTime)}, nil
