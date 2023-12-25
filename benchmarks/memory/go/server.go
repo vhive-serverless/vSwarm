@@ -48,7 +48,7 @@ var (
 
 const (
 	arraySize   = 1 // in megabytes
-	numAccesses = 100
+	numAccesses = 10000
 	sleepMicrosecs = 1                  // Sleep duration in microseconds
 )
 
