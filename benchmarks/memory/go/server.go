@@ -47,7 +47,7 @@ var (
 )
 
 const (
-	arraySize   = 10 // in megabytes
+	arraySize   = 1000 // in megabytes
     numAccesses = 500000
 )
 
