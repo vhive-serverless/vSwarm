@@ -68,7 +68,7 @@ func (s *server) ShowEncryption(ctx context.Context, in *pb.PlainTextMessage) (*
 
 	// Perform random accesses
 	for i := 0; i < numAccesses; i++ {
-		randomIndex := rand.Intn(arraySize)
+		randomIndex := rand.Intn(len(data))
 		data[randomIndex] += 1 // Modify the value to ensure the memory access is not optimized away
 	}
 	elapsedTime := time.Since(startTime)
