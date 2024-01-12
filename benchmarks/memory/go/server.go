@@ -54,7 +54,7 @@ type server struct {
 
 const (
 	arraySize   = 1000 // in megabytes
-    numAccesses = 10000000
+    numAccesses = 1000000
 )
 
 // ShowEncryption implements aes.AesServer
