@@ -79,7 +79,7 @@ func (s *server) ShowEncryption(ctx context.Context, in *pb.PlainTextMessage) (*
 	for i := 0; i < numAccesses; i++ {
 		sequentialIndex := i % (dataSize / cacheLineSize)
 		index := sequentialIndex * cacheLineSize
-		data[randomIndex] += 1 // Modify the value to ensure the memory access is not optimized away
+		data[index] += 1 // Modify the value to ensure the memory access is not optimized away
 	}
 	elapsedTime := time.Since(startTime)
 	return &pb.ReturnEncryptionInfo{EncryptionInfo: fmt.Sprintf("%s", elapsedTime)}, nil
