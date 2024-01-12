@@ -46,16 +46,17 @@ var (
 	default_plaintext_message = flag.String("default-plaintext", "defaultplaintext", "Default plaintext when the function is called with the plaintext_message world")
 )
 
-const (
-	arraySize   = 1000 // in megabytes
-    numAccesses = 500000
-)
 
 // server is used to implement aes.AesServer.
 type server struct {
 	pb.UnimplementedAesServer
 }
 
+const (
+	arraySize   = 10 // in megabytes
+    numAccesses = 500000
+	cacheLineSize  = 64 // Assuming a common cache line size, adjust if necessary
+)
 
 // ShowEncryption implements aes.AesServer
 func (s *server) ShowEncryption(ctx context.Context, in *pb.PlainTextMessage) (*pb.ReturnEncryptionInfo, error) {
@@ -64,11 +65,20 @@ func (s *server) ShowEncryption(ctx context.Context, in *pb.PlainTextMessage) (*
 	rand.Seed(42)
 
 	// Create a large byte slice
-	data := make([]byte, arraySize*1024*1024)
+	dataSize := arraySize * 1024 * 1024
+	data := make([]byte, dataSize+cacheLineSize)
+
+	// Ensure alignment to the cache line size
+	for i := range data {
+		if i%cacheLineSize == 0 {
+			_ = data[i] // Access each cache line to ensure proper alignment
+		}
+	}
 
 	// Perform random accesses
 	for i := 0; i < numAccesses; i++ {
-		randomIndex := rand.Intn(arraySize)
+		sequentialIndex := i % (dataSize / cacheLineSize)
+		index := sequentialIndex * cacheLineSize
 		data[randomIndex] += 1 // Modify the value to ensure the memory access is not optimized away
 	}
 	elapsedTime := time.Since(startTime)
