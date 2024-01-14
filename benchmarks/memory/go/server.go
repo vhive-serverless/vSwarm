@@ -53,9 +53,8 @@ type server struct {
 }
 
 const (
-	arraySize   = 1000 // in megabytes
-    numAccesses = 1000000
-	cacheLineSize = 64   // Assuming a common cache line size, adjust if necessary
+	arraySize   = 10 // in megabytes
+    numAccesses = 500000
 )
 
 // ShowEncryption implements aes.AesServer
@@ -64,24 +63,14 @@ func (s *server) ShowEncryption(ctx context.Context, in *pb.PlainTextMessage) (*
 	startTime := time.Now()
 	rand.Seed(42)
 
-	// Create a large byte slice with proper alignment
-	dataSize := arraySize * 1024 * 1024
-	data := make([]byte, dataSize+cacheLineSize)
+	// Create a large byte slice
+	data := make([]byte, arraySize*1024*1024)
 
-	// Ensure alignment to the cache line size
-	for i := range data {
-		if i%cacheLineSize == 0 {
-			_ = data[i] // Access each cache line to ensure proper alignment
-		}
-	}
-
-	// Perform sequential accesses to enhance spatial locality
+	// Perform random accesses
 	for i := 0; i < numAccesses; i++ {
-		// Sequential access pattern with a stride equal to the cache line size
-		sequentialIndex := (i * cacheLineSize) % dataSize
-		data[sequentialIndex] += 1 // Modify the value to ensure the memory access is not optimized away
+		randomIndex := rand.Intn(len(data))
+		data[randomIndex] += 1 // Modify the value to ensure the memory access is not optimized away
 	}
-	
 	elapsedTime := time.Since(startTime)
 	return &pb.ReturnEncryptionInfo{EncryptionInfo: fmt.Sprintf("%s", elapsedTime)}, nil
 }
