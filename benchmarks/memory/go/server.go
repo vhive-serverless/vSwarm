@@ -29,7 +29,6 @@ import (
 	"fmt"
 	"net"
 	"time"
-	"math/rand"
 
 	log "github.com/sirupsen/logrus"
 	pb "github.com/vhive-serverless/vSwarm-proto/proto/aes"
