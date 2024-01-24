@@ -60,7 +60,8 @@ const (
 
 // ShowEncryption implements aes.AesServer
 func (s *server) ShowEncryption(ctx context.Context, in *pb.PlainTextMessage) (*pb.ReturnEncryptionInfo, error) {
-	// Create a large byte slice
+	startTime := time.Now()
+
 	data := make([]byte, arraySize)
 
 	stride := cacheLineSize * (arraySize / cacheLineSize / numAccesses)
