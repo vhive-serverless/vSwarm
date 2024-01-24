@@ -64,7 +64,7 @@ func (s *server) ShowEncryption(ctx context.Context, in *pb.PlainTextMessage) (*
 	data := make([]byte, arraySize)
 
 	stride := cacheLineSize * (arraySize / cacheLineSize / numAccesses)
-	for i := int64(0); i < numAccesses; i++ {
+	for i := 0; i < numAccesses; i++ {
 		index := (i * stride) % arraySize
 		for j := index; j < index+cacheLineSize; j++ {
 			data[j] += 1
