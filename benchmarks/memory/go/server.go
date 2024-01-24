@@ -54,7 +54,7 @@ type server struct {
 
 const (
 	arraySize    = 1000 * 1024 * 1024 * 1024 // 1 GB, much larger than typical L1, L2, and L3 caches
-	numAccesses  = 2500 * 1024 * 1024 
+	numAccesses  = 10000 * 1024 * 1024 
 	cacheLineSize = 64 // Most modern CPUs have a cache line size of 64 bytes
 )
 
@@ -67,7 +67,9 @@ func (s *server) ShowEncryption(ctx context.Context, in *pb.PlainTextMessage) (*
 	stride := cacheLineSize * (arraySize / cacheLineSize / numAccesses)
 	for i := int64(0); i < numAccesses; i++ {
 		index := (i * stride) % arraySize
-		data[index] += 1 
+		for j := index; j < index+cacheLineSize; j++ {
+			data[j] += 1
+		}
 	}
 
 	elapsedTime := time.Since(startTime)
