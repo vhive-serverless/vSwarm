@@ -53,9 +53,9 @@ type server struct {
 }
 
 const (
-	arraySize   = 512*1024*1024 // 256MB
-    numAccesses = 1000000
-	stride      = 16 * 1024 * 1024  // This should be larger than the cache line size of L1 and L2 cache
+	arraySize    = 1024 * 1024 * 1024 // 1 GB, much larger than typical L1, L2, and L3 caches
+	numAccesses  = 500000
+	cacheLineSize = 64 // Most modern CPUs have a cache line size of 64 bytes
 )
 
 // ShowEncryption implements aes.AesServer
@@ -67,11 +67,12 @@ func (s *server) ShowEncryption(ctx context.Context, in *pb.PlainTextMessage) (*
 	// Create a large byte slice
 	data := make([]byte, arraySize)
 
-	// Perform random accesses
+	// Perform accesses to ensure each access is likely a cache miss
 	for i := 0; i < numAccesses; i++ {
-		index := (i * stride) % len(data)
-		data[index] += 1 // Modify the value to ensure the memory access is not optimized away
+		index := (rand.Int63() % (arraySize / cacheLineSize)) * cacheLineSize
+		data[index] += 1 // Minimal computation
 	}
+
 	elapsedTime := time.Since(startTime)
 	return &pb.ReturnEncryptionInfo{EncryptionInfo: fmt.Sprintf("%s", elapsedTime)}, nil
 }
