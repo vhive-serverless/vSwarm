@@ -52,32 +52,33 @@ type server struct {
 }
 
 const (
-	arraySize    = 1000 * 1024 * 1024 * 1024 // 1 GB, much larger than typical L1, L2, and L3 caches
-	numAccesses  = 10000 * 1024 * 1024 
-	cacheLineSize = 64 // Most modern CPUs have a cache line size of 64 bytes
-)
-
-// ShowEncryption implements aes.AesServer
-func (s *server) ShowEncryption(ctx context.Context, in *pb.PlainTextMessage) (*pb.ReturnEncryptionInfo, error) {
-	startTime := time.Now()
-
-	data := make([]byte, arraySize)
-
-	index := 0
-	stride := cacheLineSize * (arraySize / cacheLineSize / numAccesses)
-	for i := 0; i < numAccesses; i++ {
-		for j := index; j < index+cacheLineSize; j++ {
-			_ = data[j] // Just read the data to ensure memory access
+	const (
+		arraySize     = 1000 * 1024 * 1024 * 1024 // 1 GB
+		numAccesses   = 10000 * 1024 * 1024
+		cacheLineSize = 64 // Most modern CPUs have a cache line size of 64 bytes
+	)
+	
+	func (s *server) ShowEncryption(ctx context.Context, in *pb.PlainTextMessage) (*pb.ReturnEncryptionInfo, error) {
+		startTime := time.Now()
+	
+		data := make([]byte, arraySize)
+	
+		// Generate random indices beforehand to avoid the cost of random generation during the timed section
+		indices := make([]int64, numAccesses)
+		for i := range indices {
+			indices[i] = rand.Int63n(arraySize / cacheLineSize) * cacheLineSize
 		}
-		index += stride
-		if index >= arraySize {
-			index -= arraySize
+	
+		// Access data at random indices
+		for _, index := range indices {
+			for j := index; j < index+cacheLineSize; j++ {
+				_ = data[j] // Just read the data to ensure memory access
+			}
 		}
+	
+		elapsedTime := time.Since(startTime)
+		return &pb.ReturnEncryptionInfo{EncryptionInfo: fmt.Sprintf("%s", elapsedTime)}, nil
 	}
-
-	elapsedTime := time.Since(startTime)
-	return &pb.ReturnEncryptionInfo{EncryptionInfo: fmt.Sprintf("%s", elapsedTime)}, nil
-}
 
 func main() {
 	flag.Parse()
