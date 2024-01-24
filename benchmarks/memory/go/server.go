@@ -64,6 +64,7 @@ func (s *server) ShowEncryption(ctx context.Context, in *pb.PlainTextMessage) (*
 	data := make([]byte, arraySize)
 
 	index := int64(0)
+	stride := cacheLineSize * (arraySize / cacheLineSize / numAccesses)
 	for i := 0; i < numAccesses; i++ {
 		for j := index; j < index+cacheLineSize; j++ {
 			_ = data[j] // Just read the data to ensure memory access
