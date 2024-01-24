@@ -29,6 +29,7 @@ import (
 	"fmt"
 	"net"
 	"time"
+	"math/rand"
 
 	log "github.com/sirupsen/logrus"
 	pb "github.com/vhive-serverless/vSwarm-proto/proto/aes"
@@ -51,23 +52,26 @@ type server struct {
 	pb.UnimplementedAesServer
 }
 
-func memoryIntensiveTask(data []byte) {
-	// Simple operation: Iterate over the data and perform a trivial computation.
-	for i := range data {
-		data[i] = data[i] ^ 0xFF // Trivial computation to ensure the loop isn't optimized away.
-	}
-}
+const (
+	arraySize    = 1000 * 1024 * 1024 * 1024 // 1 GB, much larger than typical L1, L2, and L3 caches
+	numAccesses  = 2500 * 1024 * 1024 
+	cacheLineSize = 64 // Most modern CPUs have a cache line size of 64 bytes
+)
 
 // ShowEncryption implements aes.AesServer
 func (s *server) ShowEncryption(ctx context.Context, in *pb.PlainTextMessage) (*pb.ReturnEncryptionInfo, error) {
+	// Seed the random number generator
 	startTime := time.Now()
+    rand.Seed(42)
 
-	// Allocate a large amount of memory.
-	const dataSize = 8 * 1024 * 1024 * 1024 // 8GB
-	data := make([]byte, dataSize)
+	// Create a large byte slice
+	data := make([]byte, arraySize)
 
-	// Perform a memory-intensive task.
-	memoryIntensiveTask(data)
+	// Perform accesses to ensure each access is likely a cache miss
+	for i := 0; i < numAccesses; i++ {
+		index := (rand.Int63() % (arraySize / cacheLineSize)) * cacheLineSize
+		data[index] += 1 // Minimal computation
+	}
 
 	elapsedTime := time.Since(startTime)
 	return &pb.ReturnEncryptionInfo{EncryptionInfo: fmt.Sprintf("%s", elapsedTime)}, nil
