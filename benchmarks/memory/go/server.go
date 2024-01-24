@@ -60,17 +60,13 @@ const (
 
 // ShowEncryption implements aes.AesServer
 func (s *server) ShowEncryption(ctx context.Context, in *pb.PlainTextMessage) (*pb.ReturnEncryptionInfo, error) {
-	// Seed the random number generator
-	startTime := time.Now()
-    rand.Seed(42)
-
 	// Create a large byte slice
 	data := make([]byte, arraySize)
 
-	// Perform accesses to ensure each access is likely a cache miss
-	for i := 0; i < numAccesses; i++ {
-		index := (rand.Int63() % (arraySize / cacheLineSize)) * cacheLineSize
-		data[index] += 1 // Minimal computation
+	stride := cacheLineSize * (arraySize / cacheLineSize / numAccesses)
+	for i := int64(0); i < numAccesses; i++ {
+		index := (i * stride) % arraySize
+		data[index] += 1 
 	}
 
 	elapsedTime := time.Since(startTime)
