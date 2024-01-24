@@ -53,9 +53,9 @@ type server struct {
 }
 
 const (
-	arraySize   = 256*1024*1024 // 256MB
-    numAccesses = 500000
-	stride      = 4096 // This should be larger than the line size of L1 and L2 cache
+	arraySize   = 512*1024*1024 // 256MB
+    numAccesses = 1000000
+	stride      = 16 * 1024 * 1024  // This should be larger than the cache line size of L1 and L2 cache
 )
 
 // ShowEncryption implements aes.AesServer
