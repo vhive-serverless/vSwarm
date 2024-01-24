@@ -53,22 +53,25 @@ type server struct {
 }
 
 const (
-	arraySize    = 4 * 1024 * 1024 * 1024 // 1 GB, much larger than typical L1, L2, and L3 caches
+	arraySize    = 8 * 1024 * 1024 * 1024 // 8 GB, much larger than typical L1, L2, and L3 caches
 	numAccesses  = 500 * 1024 * 1024 
+	stride    = 16 * 1024 * 1024       // 16 MB stride
 )
 
 // ShowEncryption implements aes.AesServer
 func (s *server) ShowEncryption(ctx context.Context, in *pb.PlainTextMessage) (*pb.ReturnEncryptionInfo, error) {
 	// Seed the random number generator
 	startTime := time.Now()
-    rand.Seed(time.Now().UnixNano())
+    rand.Seed(42)
 
 	// Create a large byte slice
 	data := make([]byte, arraySize)
 
 	// Perform accesses to ensure each access is likely a cache miss
 	for i := 0; i < numAccesses; i++ {
-        index := rand.Intn(len(data))
+        // Calculate a pseudo-random index
+        randomOffset := rand.Intn(stride)
+        index := ((i * stride) + randomOffset) % len(data)
         data[index] = byte(rand.Intn(256))
     }
 
