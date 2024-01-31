@@ -26,7 +26,6 @@ package main
 import (
 	"context"
 	"flag"
-	"fmt"
 	"net"
 	"time"
 
@@ -41,8 +40,6 @@ import (
 var (
 	zipkin                    = flag.String("zipkin", "http://localhost:9411/api/v2/spans", "zipkin url")
 	address                   = flag.String("addr", "0.0.0.0:50051", "Address:Port the grpc server is listening to")
-	key_string                = flag.String("key", "6368616e676520746869732070617373", "The key which is used for encryption")
-	default_plaintext_message = flag.String("default-plaintext", "defaultplaintext", "Default plaintext when the function is called with the plaintext_message world")
 )
 
 // server is used to implement aes.AesServer.
@@ -57,7 +54,7 @@ func (s *server) ShowEncryption(ctx context.Context, in *pb.PlainTextMessage) (*
 		time.Sleep(50 * time.Millisecond) // Simulate an I/O-bound task by sleeping
 	}
 	elapsedTime := time.Since(startTime)
-	return &pb.ReturnEncryptionInfo{EncryptionInfo: fmt.Sprintf("%s", elapsedTime)}, nil
+	return &pb.ReturnEncryptionInfo{EncryptionInfo: elapsedTime.String()}, nil
 }
 
 func main() {
