@@ -23,7 +23,7 @@
 version: "3.9"
 services:
   spinning-go:
-    image: kt05docker/spinning-go:latest
+    image: vhiveease/spinning-go:latest
     container_name: spinning-go
     entrypoint:
       - /app/server

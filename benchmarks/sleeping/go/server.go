@@ -40,6 +40,7 @@ import (
 var (
 	zipkin                    = flag.String("zipkin", "http://localhost:9411/api/v2/spans", "zipkin url")
 	address                   = flag.String("addr", "0.0.0.0:50051", "Address:Port the grpc server is listening to")
+	delay = flag.Int("sleep-delay", 50, "Delay the function sleeps before sending the response (in milliseconds)")
 )
 
 // server is used to implement aes.AesServer.
@@ -50,10 +51,9 @@ type server struct {
 // ShowEncryption implements aes.AesServer
 func (s *server) ShowEncryption(ctx context.Context, in *pb.PlainTextMessage) (*pb.ReturnEncryptionInfo, error) {
 	startTime := time.Now()
-	for i := 0; i < 1; i++ {
-		time.Sleep(50 * time.Millisecond) // Simulate an I/O-bound task by sleeping
-	}
+	time.Sleep(time.Duration(*delay)* time.Millisecond) // Simulate an I/O-bound task by sleeping
 	elapsedTime := time.Since(startTime)
+	
 	return &pb.ReturnEncryptionInfo{EncryptionInfo: elapsedTime.String()}, nil
 }
 
@@ -65,6 +65,7 @@ func main() {
 		if err != nil {
 			log.Warn(err)
 		}
+
 		defer shutdown()
 	}
 

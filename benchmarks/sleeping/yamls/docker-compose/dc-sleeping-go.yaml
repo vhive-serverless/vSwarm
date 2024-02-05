@@ -23,7 +23,7 @@
 version: "3.9"
 services:
   sleeping-go:
-    image: kt05docker/sleeping-go:latest
+    image: vhiveease/sleeping-go:latest
     container_name: sleeping-go
     entrypoint:
       - /app/server

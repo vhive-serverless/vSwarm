@@ -37,6 +37,6 @@ spec:
             - --function-endpoint-url=0.0.0.0
             - --function-endpoint-port=50051
             - --function-name=aes-go
-        - image: docker.io/kt05docker/sleeping-go:latest
+        - image: docker.io/vhiveease/sleeping-go:latest
           args:
             - --addr=0.0.0.0:50051

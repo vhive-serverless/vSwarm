@@ -33,7 +33,7 @@ all: $(ALL_IMAGES)
 
 sleeping-go-image: docker/Dockerfile go/server.go
 	DOCKER_BUILDKIT=1 docker buildx build \
-	--tag kt05docker/sleeping-go:latest \
+	--tag vhiveease/sleeping-go:latest \
 	--target sleepingGo \
 	-f docker/Dockerfile \
 	$(ROOT) --load
@@ -41,13 +41,13 @@ sleeping-go-image: docker/Dockerfile go/server.go
 ## Push images
 
 push-%: %-image
-	docker push docker.io/kt05docker/$(subst push-,,$@):latest
+	docker push docker.io/vhiveease/$(subst push-,,$@):latest
 
 push: $(addprefix push-, $(FUNCTIONS))
 
 ## Pull images from docker hub
 
 pull-%:
-	docker pull docker.io/kt05docker/$(subst pull-,,$@):latest
+	docker pull docker.io/vhiveease/$(subst pull-,,$@):latest
 
 pull: $(addprefix pull-, $(FUNCTIONS))

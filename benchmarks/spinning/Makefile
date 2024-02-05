@@ -33,19 +33,19 @@ all: $(ALL_IMAGES)
 
 spinning-go-image: docker/Dockerfile go/server.go
 	DOCKER_BUILDKIT=1 docker buildx build \
-	--tag kt05docker/spinning-go:latest \
+	--tag vhiveease/spinning-go:latest \
 	--target spinningGo \
 	-f docker/Dockerfile \
 	$(ROOT) --load
 
 ## Push images
 push-%: %-image
-	docker push docker.io/kt05docker/$(subst push-,,$@):latest
+	docker push docker.io/vhiveease/$(subst push-,,$@):latest
 
 push: $(addprefix push-, $(FUNCTIONS))
 
 ## Pull images from docker hub
 pull-%:
-	docker pull docker.io/kt05docker/$(subst pull-,,$@):latest
+	docker pull docker.io/vhiveease/$(subst pull-,,$@):latest
 
 pull: $(addprefix pull-, $(FUNCTIONS))

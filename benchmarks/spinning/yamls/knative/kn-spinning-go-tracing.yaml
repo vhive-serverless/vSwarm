@@ -42,7 +42,7 @@ spec:
             - --function-endpoint-url=0.0.0.0
             - --function-endpoint-port=50051
             - --function-name=aes-go
-        - image: docker.io/kt05docker/spinning-go:latest
+        - image: docker.io/vhiveease/spinning-go:latest
           env:
             - name: ENABLE_TRACING
               value: "true"

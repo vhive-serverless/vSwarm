@@ -1,3 +1,11 @@
+# Spinning benchmark
+
+The spinning benchmark simulates a simple cpu bounded bounded task by allowing multiplication for 30000000 iterations.
+
+This benchmark can be used to verify that increasing in cpu frequency significantly decrease the latency of CPU-bounded workload.
+
+The functionality is implemented in golang.
+
 ## Running this benchmark (using knative)
 
 1. Build or pull the function images using `make all` or `make pull`.
@@ -9,7 +17,7 @@
 ### Invoke once
 4. In a new terminal, invoke the interface function with test-client.
    ```bash
-   ./test-client --addr spinning-go.default.192.168.1.240.sslip.io:80 --name "Example text for Sleeping"
+   ./test-client --addr spinning-go.default.192.168.1.240.sslip.io:80 --name "Example text for Spinning"
    ```
 ### Invoke multiple times
 4. Run the invoker

@@ -1,3 +1,11 @@
+# Sleeping benchmark
+
+The sleeping benchmark simulates a simple I/O bounded task by sleeping for 50 ms.
+
+This benchmark can be used to verify that increasing in cpu frequency would not significantly affect the latency of I/O bounded workload.
+
+The functionality is implemented in golang.
+
 ## Running this benchmark (using knative)
 
 1. Build or pull the function images using `make all` or `make pull`.
