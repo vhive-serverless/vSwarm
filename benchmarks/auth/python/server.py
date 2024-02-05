@@ -75,18 +75,18 @@ def generatePolicy(principalId, effect, resource):
 
 def do_authentication(token, resource):
     with tracing.Span("Generate Policy"):
-        if 'allow' in token:
+        # if 'allow' in token:
             ret = generatePolicy('user', 'Allow', resource)
             resp = ret.__dict__
             msg = "fn: Auth | token: {token} | resp: {resp} | runtime: python".format(token=token, resp=str(resp))
-        elif 'deny' in token:
-            ret = generatePolicy('user', 'Deny', resource)
-            resp = ret.__dict__
-            msg = "fn: Auth | token: {token} | resp: {resp} | runtime: python".format(token=token, resp=str(resp))
-        elif 'unauthorized':
-            msg = "Unauthorized"   # Return a 401 Unauthorized response
-        else:
-            msg = "Error: Invalid token" # Return a 500 Invalid token response
+        # elif 'deny' in token:
+        #     ret = generatePolicy('user', 'Deny', resource)
+        #     resp = ret.__dict__
+        #     msg = "fn: Auth | token: {token} | resp: {resp} | runtime: python".format(token=token, resp=str(resp))
+        # elif 'unauthorized':
+        #     msg = "Unauthorized"   # Return a 401 Unauthorized response
+        # else:
+        #     msg = "Error: Invalid token" # Return a 500 Invalid token response
     return msg
 
 if not LAMBDA:
