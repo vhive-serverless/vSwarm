@@ -9,7 +9,7 @@
 ### Invoke once
 4. In a new terminal, invoke the interface function with test-client.
    ```bash
-   ./test-client --addr spinning-go.default.192.168.1.240.sslip.io:80 --name "Example text for Sleeping"
+   ./test-client --addr spinning-go.default.192.168.1.240.sslip.io:80 --name "Example text for Spinning"
    ```
 ### Invoke multiple times
 4. Run the invoker
