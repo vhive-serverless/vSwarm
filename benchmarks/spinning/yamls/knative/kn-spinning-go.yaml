@@ -28,6 +28,8 @@ metadata:
 spec:
   template:
     spec:
+      nodeSelector:
+        loader-nodetype: worker-high
       containers:
         - image: docker.io/vhiveease/relay:latest
           ports:
