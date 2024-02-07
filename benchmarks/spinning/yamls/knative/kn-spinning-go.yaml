@@ -41,5 +41,3 @@ spec:
         - image: docker.io/kt05docker/spinning-go:latest
           args:
             - --addr=0.0.0.0:50051
-      nodeSelector:
-        loader-nodetype: worker-high
