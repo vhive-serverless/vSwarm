@@ -1,0 +1,816 @@
+{
+    "aes-go": {
+        "name": "aes-go",
+        "yaml": "/users/ArunAMS/vSwarm/benchmarks/aes/yamls/knative/kn-aes-go.yaml",
+        "cpu": {
+            "0-percentile": 3.0,
+            "1-percentile": 3.0,
+            "5-percentile": 3.0,
+            "25-percentile": 3.0,
+            "50-percentile": 3.0,
+            "75-percentile": 3.166666666666667,
+            "95-percentile": 3.3000000000000003,
+            "99-percentile": 3.3266666666666667,
+            "100-percentile": 3.3333333333333335
+        },
+        "memory": {
+            "0-percentile": 18.0,
+            "1-percentile": 18.0,
+            "5-percentile": 18.0,
+            "25-percentile": 18.0,
+            "50-percentile": 18.0,
+            "75-percentile": 18.166666666666664,
+            "95-percentile": 18.299999999999997,
+            "99-percentile": 18.326666666666664,
+            "100-percentile": 18.333333333333332
+        },
+        "duration": {
+            "0-percentile": 8.397,
+            "1-percentile": 8.44749,
+            "5-percentile": 8.64945,
+            "25-percentile": 9.153375,
+            "50-percentile": 9.34952380952381,
+            "75-percentile": 9.490516666666668,
+            "95-percentile": 18.592524999999988,
+            "99-percentile": 27.296238333333346,
+            "100-percentile": 29.472166666666666
+        }
+    },
+    "aes-python": {
+        "name": "aes-python",
+        "yaml": "/users/ArunAMS/vSwarm/benchmarks/aes/yamls/knative/kn-aes-python.yaml",
+        "cpu": {
+            "0-percentile": 51.0,
+            "1-percentile": 51.0,
+            "5-percentile": 51.0,
+            "25-percentile": 51.0,
+            "50-percentile": 51.0,
+            "75-percentile": 53.5,
+            "95-percentile": 59.5,
+            "99-percentile": 60.699999999999996,
+            "100-percentile": 61.0
+        },
+        "memory": {
+            "0-percentile": 40.0,
+            "1-percentile": 40.015,
+            "5-percentile": 40.075,
+            "25-percentile": 40.375,
+            "50-percentile": 40.58333333333333,
+            "75-percentile": 40.75,
+            "95-percentile": 40.95,
+            "99-percentile": 40.99,
+            "100-percentile": 41.0
+        },
+        "duration": {
+            "0-percentile": 11.373,
+            "1-percentile": 11.382845,
+            "5-percentile": 11.422225,
+            "25-percentile": 11.598645833333332,
+            "50-percentile": 11.716416666666666,
+            "75-percentile": 12.184058333333333,
+            "95-percentile": 27.552424999999978,
+            "99-percentile": 40.647951666666685,
+            "100-percentile": 43.92183333333333
+        }
+    },
+    "aes-nodejs": {
+        "name": "aes-nodejs",
+        "yaml": "/users/ArunAMS/vSwarm/benchmarks/aes/yamls/knative/kn-aes-nodejs.yaml",
+        "cpu": {
+            "0-percentile": 4.0,
+            "1-percentile": 4.0,
+            "5-percentile": 4.0,
+            "25-percentile": 4.0,
+            "50-percentile": 4.0,
+            "75-percentile": 4.833333333333334,
+            "95-percentile": 5.5,
+            "99-percentile": 5.633333333333334,
+            "100-percentile": 5.666666666666667
+        },
+        "memory": {
+            "0-percentile": 42.0,
+            "1-percentile": 42.0,
+            "5-percentile": 42.0,
+            "25-percentile": 42.0,
+            "50-percentile": 42.0,
+            "75-percentile": 42.16666666666667,
+            "95-percentile": 42.300000000000004,
+            "99-percentile": 42.32666666666667,
+            "100-percentile": 42.333333333333336
+        },
+        "duration": {
+            "0-percentile": 12.058,
+            "1-percentile": 12.12686,
+            "5-percentile": 12.4023,
+            "25-percentile": 13.182875000000001,
+            "50-percentile": 13.636309523809524,
+            "75-percentile": 14.022633333333332,
+            "95-percentile": 20.09123749999999,
+            "99-percentile": 25.687114166666674,
+            "100-percentile": 27.086083333333335
+        }
+    },
+    "auth-go": {
+        "name": "auth-go",
+        "yaml": "/users/ArunAMS/vSwarm/benchmarks/auth/yamls/knative/kn-auth-go.yaml",
+        "cpu": {
+            "0-percentile": 3.0,
+            "1-percentile": 3.01,
+            "5-percentile": 3.05,
+            "25-percentile": 3.25,
+            "50-percentile": 3.5,
+            "75-percentile": 3.583333333333333,
+            "95-percentile": 3.65,
+            "99-percentile": 3.663333333333333,
+            "100-percentile": 3.6666666666666665
+        },
+        "memory": {
+            "0-percentile": 18.0,
+            "1-percentile": 18.0,
+            "5-percentile": 18.0,
+            "25-percentile": 18.0,
+            "50-percentile": 18.0,
+            "75-percentile": 18.0,
+            "95-percentile": 18.0,
+            "99-percentile": 18.0,
+            "100-percentile": 18.0
+        },
+        "duration": {
+            "0-percentile": 8.511,
+            "1-percentile": 8.54378,
+            "5-percentile": 8.6749,
+            "25-percentile": 8.975395833333334,
+            "50-percentile": 9.13345238095238,
+            "75-percentile": 9.276774999999999,
+            "95-percentile": 14.425924999999989,
+            "99-percentile": 19.305585000000004,
+            "100-percentile": 20.525499999999997
+        }
+    },
+    "auth-python": {
+        "name": "auth-python",
+        "yaml": "/users/ArunAMS/vSwarm/benchmarks/auth/yamls/knative/kn-auth-python.yaml",
+        "cpu": {
+            "0-percentile": 51.0,
+            "1-percentile": 51.0,
+            "5-percentile": 51.0,
+            "25-percentile": 51.0,
+            "50-percentile": 51.0,
+            "75-percentile": 56.875,
+            "95-percentile": 70.975,
+            "99-percentile": 73.79499999999999,
+            "100-percentile": 74.5
+        },
+        "memory": {
+            "0-percentile": 40.0,
+            "1-percentile": 40.0,
+            "5-percentile": 40.0,
+            "25-percentile": 40.0,
+            "50-percentile": 40.0,
+            "75-percentile": 40.0625,
+            "95-percentile": 40.2125,
+            "99-percentile": 40.2425,
+            "100-percentile": 40.25
+        },
+        "duration": {
+            "0-percentile": 9.425,
+            "1-percentile": 9.435835,
+            "5-percentile": 9.479175,
+            "25-percentile": 9.979458333333334,
+            "50-percentile": 10.284559523809525,
+            "75-percentile": 10.533200000000003,
+            "95-percentile": 16.962887499999994,
+            "99-percentile": 22.847044166666674,
+            "100-percentile": 24.318083333333334
+        }
+    },
+    "auth-nodejs": {
+        "name": "auth-nodejs",
+        "yaml": "/users/ArunAMS/vSwarm/benchmarks/auth/yamls/knative/kn-auth-nodejs.yaml",
+        "cpu": {
+            "0-percentile": 4.0,
+            "1-percentile": 4.0,
+            "5-percentile": 4.0,
+            "25-percentile": 4.0,
+            "50-percentile": 4.0,
+            "75-percentile": 6.0,
+            "95-percentile": 7.6,
+            "99-percentile": 7.92,
+            "100-percentile": 8.0
+        },
+        "memory": {
+            "0-percentile": 35.0,
+            "1-percentile": 35.01,
+            "5-percentile": 35.05,
+            "25-percentile": 35.25,
+            "50-percentile": 35.5,
+            "75-percentile": 35.58333333333333,
+            "95-percentile": 35.65,
+            "99-percentile": 35.663333333333334,
+            "100-percentile": 35.666666666666664
+        },
+        "duration": {
+            "0-percentile": 12.084,
+            "1-percentile": 12.106,
+            "5-percentile": 12.193999999999999,
+            "25-percentile": 12.469854166666664,
+            "50-percentile": 13.139511904761903,
+            "75-percentile": 16.339,
+            "95-percentile": 24.66127499999999,
+            "99-percentile": 29.810788333333342,
+            "100-percentile": 31.098166666666668
+        }
+    },
+    "fibonacci-go": {
+        "name": "fibonacci-go",
+        "yaml": "/users/ArunAMS/vSwarm/benchmarks/fibonacci/yamls/knative/kn-fibonacci-go.yaml",
+        "cpu": {
+            "0-percentile": 3.0,
+            "1-percentile": 3.0,
+            "5-percentile": 3.0,
+            "25-percentile": 3.0,
+            "50-percentile": 3.0,
+            "75-percentile": 4.0625,
+            "95-percentile": 6.612499999999999,
+            "99-percentile": 7.122499999999999,
+            "100-percentile": 7.25
+        },
+        "memory": {
+            "0-percentile": 17.0,
+            "1-percentile": 17.0,
+            "5-percentile": 17.0,
+            "25-percentile": 17.0,
+            "50-percentile": 17.166666666666664,
+            "75-percentile": 17.375,
+            "95-percentile": 17.475,
+            "99-percentile": 17.495,
+            "100-percentile": 17.5
+        },
+        "duration": {
+            "0-percentile": 9.23,
+            "1-percentile": 9.230715,
+            "5-percentile": 9.233575,
+            "25-percentile": 9.277375,
+            "50-percentile": 9.370964285714287,
+            "75-percentile": 9.450041666666667,
+            "95-percentile": 20.836849999999984,
+            "99-percentile": 31.883903333333343,
+            "100-percentile": 34.64566666666666
+        }
+    },
+    "fibonacci-python": {
+        "name": "fibonacci-python",
+        "yaml": "/users/ArunAMS/vSwarm/benchmarks/fibonacci/yamls/knative/kn-fibonacci-python.yaml",
+        "cpu": {
+            "0-percentile": 50.0,
+            "1-percentile": 50.01,
+            "5-percentile": 50.05,
+            "25-percentile": 50.25,
+            "50-percentile": 50.5,
+            "75-percentile": 50.58333333333333,
+            "95-percentile": 50.65,
+            "99-percentile": 50.663333333333334,
+            "100-percentile": 50.666666666666664
+        },
+        "memory": {
+            "0-percentile": 42.0,
+            "1-percentile": 42.0,
+            "5-percentile": 42.0,
+            "25-percentile": 42.0,
+            "50-percentile": 42.0,
+            "75-percentile": 42.0,
+            "95-percentile": 42.0,
+            "99-percentile": 42.0,
+            "100-percentile": 42.0
+        },
+        "duration": {
+            "0-percentile": 9.395,
+            "1-percentile": 9.45726,
+            "5-percentile": 9.706299999999999,
+            "25-percentile": 10.278395833333333,
+            "50-percentile": 10.51963095238095,
+            "75-percentile": 10.79203333333333,
+            "95-percentile": 14.971687499999993,
+            "99-percentile": 18.379470833333336,
+            "100-percentile": 19.231416666666664
+        }
+    },
+    "fibonacci-nodejs": {
+        "name": "fibonacci-nodejs",
+        "yaml": "/users/ArunAMS/vSwarm/benchmarks/fibonacci/yamls/knative/kn-fibonacci-nodejs.yaml",
+        "cpu": {
+            "0-percentile": 4.0,
+            "1-percentile": 4.0,
+            "5-percentile": 4.0,
+            "25-percentile": 4.0,
+            "50-percentile": 4.0,
+            "75-percentile": 7.75,
+            "95-percentile": 16.749999999999993,
+            "99-percentile": 18.549999999999997,
+            "100-percentile": 19.0
+        },
+        "memory": {
+            "0-percentile": 41.0,
+            "1-percentile": 41.0,
+            "5-percentile": 41.0,
+            "25-percentile": 41.0,
+            "50-percentile": 41.16666666666667,
+            "75-percentile": 41.375,
+            "95-percentile": 41.475,
+            "99-percentile": 41.495,
+            "100-percentile": 41.5
+        },
+        "duration": {
+            "0-percentile": 11.71,
+            "1-percentile": 11.760380000000001,
+            "5-percentile": 11.9619,
+            "25-percentile": 12.511000000000001,
+            "50-percentile": 12.810440476190477,
+            "75-percentile": 13.038491666666665,
+            "95-percentile": 15.160949999999996,
+            "99-percentile": 16.966323333333335,
+            "100-percentile": 17.417666666666666
+        }
+    },
+    "gptj-python": {
+        "name": "gptj-python",
+        "yaml": "/users/ArunAMS/vSwarm/benchmarks/gptj/yamls/knative/kn-gptj-python.yaml",
+        "cpu": {
+            "0-percentile": 6.0,
+            "1-percentile": 6.0,
+            "5-percentile": 6.0,
+            "25-percentile": 6.0,
+            "50-percentile": 6.0,
+            "75-percentile": 6.0,
+            "95-percentile": 6.0,
+            "99-percentile": 6.0,
+            "100-percentile": 6.0
+        },
+        "memory": {
+            "0-percentile": 243.0,
+            "1-percentile": 243.0,
+            "5-percentile": 243.0,
+            "25-percentile": 243.0,
+            "50-percentile": 243.0,
+            "75-percentile": 243.16666666666669,
+            "95-percentile": 243.3,
+            "99-percentile": 243.32666666666668,
+            "100-percentile": 243.33333333333334
+        },
+        "duration": {
+            "0-percentile": 9.656,
+            "1-percentile": 9.708250000000001,
+            "5-percentile": 9.917250000000001,
+            "25-percentile": 10.411354166666667,
+            "50-percentile": 10.632714285714286,
+            "75-percentile": 10.800991666666668,
+            "95-percentile": 11.1791625,
+            "99-percentile": 11.425899166666667,
+            "100-percentile": 11.487583333333333
+        }
+    },
+    "hotel-app-geo": {
+        "name": "hotel-app-geo",
+        "yaml": "/users/ArunAMS/vSwarm/benchmarks/hotel-app/yamls/knative/kn-geo.yaml",
+        "cpu": {
+            "0-percentile": 4.0,
+            "1-percentile": 4.0,
+            "5-percentile": 4.0,
+            "25-percentile": 4.0,
+            "50-percentile": 4.0,
+            "75-percentile": 4.0625,
+            "95-percentile": 4.2125,
+            "99-percentile": 4.2425,
+            "100-percentile": 4.25
+        },
+        "memory": {
+            "0-percentile": 18.0,
+            "1-percentile": 18.015,
+            "5-percentile": 18.075,
+            "25-percentile": 18.375,
+            "50-percentile": 18.583333333333336,
+            "75-percentile": 18.75,
+            "95-percentile": 18.95,
+            "99-percentile": 18.99,
+            "100-percentile": 19.0
+        },
+        "duration": {
+            "0-percentile": 8.762,
+            "1-percentile": 8.773990000000001,
+            "5-percentile": 8.821950000000001,
+            "25-percentile": 9.369229166666667,
+            "50-percentile": 11.875166666666669,
+            "75-percentile": 17.256458333333335,
+            "95-percentile": 19.8053625,
+            "99-percentile": 20.231939166666667,
+            "100-percentile": 20.338583333333332
+        }
+    },
+    "hotel-app-profile": {
+        "name": "hotel-app-profile",
+        "yaml": "/users/ArunAMS/vSwarm/benchmarks/hotel-app/yamls/knative/kn-profile.yaml",
+        "cpu": {
+            "0-percentile": 4.0,
+            "1-percentile": 4.0,
+            "5-percentile": 4.0,
+            "25-percentile": 4.0,
+            "50-percentile": 4.0,
+            "75-percentile": 4.0,
+            "95-percentile": 4.0,
+            "99-percentile": 4.0,
+            "100-percentile": 4.0
+        },
+        "memory": {
+            "0-percentile": 19.0,
+            "1-percentile": 19.01,
+            "5-percentile": 19.05,
+            "25-percentile": 19.25,
+            "50-percentile": 19.5,
+            "75-percentile": 19.75,
+            "95-percentile": 19.95,
+            "99-percentile": 19.99,
+            "100-percentile": 20.0
+        },
+        "duration": {
+            "0-percentile": 9.487,
+            "1-percentile": 9.52506,
+            "5-percentile": 9.6773,
+            "25-percentile": 10.189,
+            "50-percentile": 16.290107142857142,
+            "75-percentile": 20.98795,
+            "95-percentile": 23.506549999999997,
+            "99-percentile": 24.036509999999996,
+            "100-percentile": 24.168999999999997
+        }
+    },
+    "hotel-app-recommendation": {
+        "name": "hotel-app-recommendation",
+        "yaml": "/users/ArunAMS/vSwarm/benchmarks/hotel-app/yamls/knative/kn-recommendation.yaml",
+        "cpu": {
+            "0-percentile": 4.0,
+            "1-percentile": 4.0,
+            "5-percentile": 4.0,
+            "25-percentile": 4.0,
+            "50-percentile": 4.0,
+            "75-percentile": 5.0625,
+            "95-percentile": 7.612499999999999,
+            "99-percentile": 8.122499999999999,
+            "100-percentile": 8.25
+        },
+        "memory": {
+            "0-percentile": 19.0,
+            "1-percentile": 19.0,
+            "5-percentile": 19.0,
+            "25-percentile": 19.0,
+            "50-percentile": 19.166666666666664,
+            "75-percentile": 19.375,
+            "95-percentile": 19.475,
+            "99-percentile": 19.495,
+            "100-percentile": 19.5
+        },
+        "duration": {
+            "0-percentile": 8.67,
+            "1-percentile": 8.700525,
+            "5-percentile": 8.822625,
+            "25-percentile": 18.376645833333335,
+            "50-percentile": 23.508880952380952,
+            "75-percentile": 25.783733333333334,
+            "95-percentile": 36.51091249999998,
+            "99-percentile": 45.96904916666668,
+            "100-percentile": 48.33358333333333
+        }
+    },
+    "hotel-app-reservation": {
+        "name": "hotel-app-reservation",
+        "yaml": "/users/ArunAMS/vSwarm/benchmarks/hotel-app/yamls/knative/kn-reservation.yaml",
+        "cpu": {
+            "0-percentile": 4.0,
+            "1-percentile": 4.0,
+            "5-percentile": 4.0,
+            "25-percentile": 4.0,
+            "50-percentile": 4.0,
+            "75-percentile": 4.875,
+            "95-percentile": 6.974999999999999,
+            "99-percentile": 7.395,
+            "100-percentile": 7.5
+        },
+        "memory": {
+            "0-percentile": 19.0,
+            "1-percentile": 19.0,
+            "5-percentile": 19.0,
+            "25-percentile": 19.0,
+            "50-percentile": 19.0,
+            "75-percentile": 19.0625,
+            "95-percentile": 19.2125,
+            "99-percentile": 19.2425,
+            "100-percentile": 19.25
+        },
+        "duration": {
+            "0-percentile": 10.008,
+            "1-percentile": 10.017515,
+            "5-percentile": 10.055575,
+            "25-percentile": 13.964020833333334,
+            "50-percentile": 21.276678571428572,
+            "75-percentile": 24.614041666666665,
+            "95-percentile": 29.822124999999996,
+            "99-percentile": 33.23175833333334,
+            "100-percentile": 34.08416666666667
+        }
+    },
+    "hotel-app-user": {
+        "name": "hotel-app-user",
+        "yaml": "/users/ArunAMS/vSwarm/benchmarks/hotel-app/yamls/knative/kn-user.yaml",
+        "cpu": {
+            "0-percentile": 4.0,
+            "1-percentile": 4.0,
+            "5-percentile": 4.0,
+            "25-percentile": 4.0,
+            "50-percentile": 4.0,
+            "75-percentile": 4.125,
+            "95-percentile": 4.425,
+            "99-percentile": 4.484999999999999,
+            "100-percentile": 4.5
+        },
+        "memory": {
+            "0-percentile": 20.0,
+            "1-percentile": 20.015,
+            "5-percentile": 20.075,
+            "25-percentile": 20.375,
+            "50-percentile": 20.583333333333336,
+            "75-percentile": 20.6875,
+            "95-percentile": 20.7375,
+            "99-percentile": 20.7475,
+            "100-percentile": 20.75
+        },
+        "duration": {
+            "0-percentile": 9.928,
+            "1-percentile": 9.928495000000002,
+            "5-percentile": 9.930475000000001,
+            "25-percentile": 19.5544375,
+            "50-percentile": 24.715964285714286,
+            "75-percentile": 27.0455,
+            "95-percentile": 30.620712499999996,
+            "99-percentile": 33.10620916666667,
+            "100-percentile": 33.727583333333335
+        }
+    },
+    "adservice": {
+        "name": "adservice",
+        "yaml": "/users/ArunAMS/vSwarm/benchmarks/online-shop/yamls/knative/kn-adservice.yaml",
+        "cpu": {
+            "0-percentile": 50.0,
+            "1-percentile": 50.0,
+            "5-percentile": 50.0,
+            "25-percentile": 50.0,
+            "50-percentile": 51.83333333333333,
+            "75-percentile": 74.5,
+            "95-percentile": 124.49999999999997,
+            "99-percentile": 134.49999999999997,
+            "100-percentile": 137.0
+        },
+        "memory": {
+            "0-percentile": 186.0,
+            "1-percentile": 186.03,
+            "5-percentile": 186.15,
+            "25-percentile": 186.75,
+            "50-percentile": 187.5,
+            "75-percentile": 188.125,
+            "95-percentile": 188.425,
+            "99-percentile": 188.485,
+            "100-percentile": 188.5
+        },
+        "duration": {
+            "0-percentile": 16.916,
+            "1-percentile": 16.933765,
+            "5-percentile": 17.004825,
+            "25-percentile": 21.345895833333334,
+            "50-percentile": 29.192464285714287,
+            "75-percentile": 33.421391666666665,
+            "95-percentile": 46.83489999999999,
+            "99-percentile": 56.005913333333346,
+            "100-percentile": 58.29866666666667
+        }
+    },
+    "cartservice": {
+        "name": "cartservice",
+        "yaml": "/users/ArunAMS/vSwarm/benchmarks/online-shop/yamls/knative/kn-cartservice.yaml",
+        "cpu": {
+            "0-percentile": 14.0,
+            "1-percentile": 14.06,
+            "5-percentile": 14.3,
+            "25-percentile": 15.5,
+            "50-percentile": 17.0,
+            "75-percentile": 20.166666666666664,
+            "95-percentile": 22.7,
+            "99-percentile": 23.206666666666667,
+            "100-percentile": 23.333333333333332
+        },
+        "memory": {
+            "0-percentile": 59.0,
+            "1-percentile": 59.02,
+            "5-percentile": 59.1,
+            "25-percentile": 59.5,
+            "50-percentile": 60.0,
+            "75-percentile": 60.16666666666667,
+            "95-percentile": 60.300000000000004,
+            "99-percentile": 60.32666666666667,
+            "100-percentile": 60.333333333333336
+        },
+        "duration": {
+            "0-percentile": 11.109,
+            "1-percentile": 12.240295,
+            "5-percentile": 16.765475000000002,
+            "25-percentile": 26.526416666666663,
+            "50-percentile": 29.24775,
+            "75-percentile": 30.873275,
+            "95-percentile": 63.962462499999944,
+            "99-percentile": 93.1977591666667,
+            "100-percentile": 100.50658333333332
+        }
+    },
+    "currencyservice": {
+        "name": "currencyservice",
+        "yaml": "/users/ArunAMS/vSwarm/benchmarks/online-shop/yamls/knative/kn-currencyservice.yaml",
+        "cpu": {
+            "0-percentile": 4.0,
+            "1-percentile": 4.0,
+            "5-percentile": 4.0,
+            "25-percentile": 4.0,
+            "50-percentile": 4.0,
+            "75-percentile": 5.666666666666666,
+            "95-percentile": 6.999999999999999,
+            "99-percentile": 7.266666666666667,
+            "100-percentile": 7.333333333333333
+        },
+        "memory": {
+            "0-percentile": 34.0,
+            "1-percentile": 34.0,
+            "5-percentile": 34.0,
+            "25-percentile": 34.0,
+            "50-percentile": 34.0,
+            "75-percentile": 34.16666666666667,
+            "95-percentile": 34.300000000000004,
+            "99-percentile": 34.32666666666667,
+            "100-percentile": 34.333333333333336
+        },
+        "duration": {
+            "0-percentile": 32.101,
+            "1-percentile": 32.12091,
+            "5-percentile": 32.20055,
+            "25-percentile": 32.87545833333333,
+            "50-percentile": 33.50290476190476,
+            "75-percentile": 34.14414166666667,
+            "95-percentile": 38.351237499999996,
+            "99-percentile": 41.96418083333334,
+            "100-percentile": 42.867416666666664
+        }
+    },
+    "emailservice": {
+        "name": "emailservice",
+        "yaml": "/users/ArunAMS/vSwarm/benchmarks/online-shop/yamls/knative/kn-emailservice.yaml",
+        "cpu": {
+            "0-percentile": 54.0,
+            "1-percentile": 54.0,
+            "5-percentile": 54.0,
+            "25-percentile": 54.0,
+            "50-percentile": 54.0,
+            "75-percentile": 54.0625,
+            "95-percentile": 54.2125,
+            "99-percentile": 54.2425,
+            "100-percentile": 54.25
+        },
+        "memory": {
+            "0-percentile": 52.0,
+            "1-percentile": 52.015,
+            "5-percentile": 52.075,
+            "25-percentile": 52.375,
+            "50-percentile": 52.58333333333333,
+            "75-percentile": 52.75,
+            "95-percentile": 52.95,
+            "99-percentile": 52.99,
+            "100-percentile": 53.0
+        },
+        "duration": {
+            "0-percentile": 11.445,
+            "1-percentile": 12.532185,
+            "5-percentile": 16.880924999999998,
+            "25-percentile": 26.073479166666665,
+            "50-percentile": 28.55235714285714,
+            "75-percentile": 30.0968,
+            "95-percentile": 35.736287499999996,
+            "99-percentile": 38.5630575,
+            "100-percentile": 39.269749999999995
+        }
+    },
+    "paymentservice": {
+        "name": "paymentservice",
+        "yaml": "/users/ArunAMS/vSwarm/benchmarks/online-shop/yamls/knative/kn-paymentservice.yaml",
+        "cpu": {
+            "0-percentile": 4.0,
+            "1-percentile": 4.01,
+            "5-percentile": 4.05,
+            "25-percentile": 4.25,
+            "50-percentile": 4.5,
+            "75-percentile": 6.25,
+            "95-percentile": 7.6499999999999995,
+            "99-percentile": 7.93,
+            "100-percentile": 8.0
+        },
+        "memory": {
+            "0-percentile": 32.0,
+            "1-percentile": 32.01,
+            "5-percentile": 32.05,
+            "25-percentile": 32.25,
+            "50-percentile": 32.5,
+            "75-percentile": 32.75,
+            "95-percentile": 32.95,
+            "99-percentile": 32.99,
+            "100-percentile": 33.0
+        },
+        "duration": {
+            "0-percentile": 33.409,
+            "1-percentile": 33.42847,
+            "5-percentile": 33.50635,
+            "25-percentile": 33.93741666666667,
+            "50-percentile": 34.344952380952385,
+            "75-percentile": 35.0124,
+            "95-percentile": 39.3290875,
+            "99-percentile": 42.793084166666674,
+            "100-percentile": 43.659083333333335
+        }
+    },
+    "productcatalogservice": {
+        "name": "productcatalogservice",
+        "yaml": "/users/ArunAMS/vSwarm/benchmarks/online-shop/yamls/knative/kn-productcatalogservice.yaml",
+        "cpu": {
+            "0-percentile": 4.0,
+            "1-percentile": 4.0,
+            "5-percentile": 4.0,
+            "25-percentile": 4.0,
+            "50-percentile": 4.0,
+            "75-percentile": 4.0,
+            "95-percentile": 4.0,
+            "99-percentile": 4.0,
+            "100-percentile": 4.0
+        },
+        "memory": {
+            "0-percentile": 24.0,
+            "1-percentile": 24.0,
+            "5-percentile": 24.0,
+            "25-percentile": 24.0,
+            "50-percentile": 24.0,
+            "75-percentile": 24.166666666666664,
+            "95-percentile": 24.299999999999997,
+            "99-percentile": 24.326666666666664,
+            "100-percentile": 24.333333333333332
+        },
+        "duration": {
+            "0-percentile": 29.263,
+            "1-percentile": 29.269820000000003,
+            "5-percentile": 29.297100000000004,
+            "25-percentile": 29.873604166666667,
+            "50-percentile": 30.467869047619047,
+            "75-percentile": 31.49589166666667,
+            "95-percentile": 35.3515625,
+            "99-percentile": 38.05344583333334,
+            "100-percentile": 38.72891666666667
+        }
+    },
+    "shippingservice": {
+        "name": "shippingservice",
+        "yaml": "/users/ArunAMS/vSwarm/benchmarks/online-shop/yamls/knative/kn-shippingservice.yaml",
+        "cpu": {
+            "0-percentile": 3.0,
+            "1-percentile": 3.0,
+            "5-percentile": 3.0,
+            "25-percentile": 3.0,
+            "50-percentile": 3.166666666666667,
+            "75-percentile": 4.75,
+            "95-percentile": 8.149999999999999,
+            "99-percentile": 8.829999999999998,
+            "100-percentile": 9.0
+        },
+        "memory": {
+            "0-percentile": 22.0,
+            "1-percentile": 22.015,
+            "5-percentile": 22.075,
+            "25-percentile": 22.375,
+            "50-percentile": 22.583333333333336,
+            "75-percentile": 22.75,
+            "95-percentile": 22.95,
+            "99-percentile": 22.99,
+            "100-percentile": 23.0
+        },
+        "duration": {
+            "0-percentile": 8.974,
+            "1-percentile": 8.974495000000001,
+            "5-percentile": 8.976475,
+            "25-percentile": 18.345416666666665,
+            "50-percentile": 23.471083333333333,
+            "75-percentile": 25.865791666666667,
+            "95-percentile": 30.164025,
+            "99-percentile": 33.15160500000001,
+            "100-percentile": 33.898500000000006
+        }
+    }
+}
