@@ -1,0 +1,141 @@
+[
+    {
+        "yaml-location": "/users/ArunAMS/vSwarm/benchmarks/aes/yamls/knative/kn-aes-go.yaml",
+        "predeployment-commands": [],
+        "postdeployment-commands": []
+    },
+    {
+        "yaml-location": "/users/ArunAMS/vSwarm/benchmarks/aes/yamls/knative/kn-aes-python.yaml",
+        "predeployment-commands": [],
+        "postdeployment-commands": []
+    },
+    {
+        "yaml-location": "/users/ArunAMS/vSwarm/benchmarks/aes/yamls/knative/kn-aes-nodejs.yaml",
+        "predeployment-commands": [],
+        "postdeployment-commands": []
+    },
+    {
+        "yaml-location": "/users/ArunAMS/vSwarm/benchmarks/auth/yamls/knative/kn-auth-go.yaml",
+        "predeployment-commands": [],
+        "postdeployment-commands": []
+    },
+    {
+        "yaml-location": "/users/ArunAMS/vSwarm/benchmarks/auth/yamls/knative/kn-auth-python.yaml",
+        "predeployment-commands": [],
+        "postdeployment-commands": []
+    },
+    {
+        "yaml-location": "/users/ArunAMS/vSwarm/benchmarks/auth/yamls/knative/kn-auth-nodejs.yaml",
+        "predeployment-commands": [],
+        "postdeployment-commands": []
+    },
+    {
+        "yaml-location": "/users/ArunAMS/vSwarm/benchmarks/fibonacci/yamls/knative/kn-fibonacci-go.yaml",
+        "predeployment-commands": [],
+        "postdeployment-commands": []
+    },
+    {
+        "yaml-location": "/users/ArunAMS/vSwarm/benchmarks/fibonacci/yamls/knative/kn-fibonacci-python.yaml",
+        "predeployment-commands": [],
+        "postdeployment-commands": []
+    },
+    {
+        "yaml-location": "/users/ArunAMS/vSwarm/benchmarks/fibonacci/yamls/knative/kn-fibonacci-nodejs.yaml",
+        "predeployment-commands": [],
+        "postdeployment-commands": []
+    },
+    {
+        "yaml-location": "/users/ArunAMS/vSwarm/benchmarks/gptj/yamls/knative/kn-gptj-python.yaml",
+        "predeployment-commands": [],
+        "postdeployment-commands": []
+    },
+    {
+        "yaml-location": "/users/ArunAMS/vSwarm/benchmarks/hotel-app/yamls/knative/kn-geo.yaml",
+        "predeployment-commands": [
+            "kubectl apply -f /users/ArunAMS/vSwarm/benchmarks/hotel-app/yamls/knative/database.yaml",
+            "kubectl apply -f /users/ArunAMS/vSwarm/benchmarks/hotel-app/yamls/knative/memcached.yaml"
+        ],
+        "postdeployment-commands": []
+    },
+    {
+        "yaml-location": "/users/ArunAMS/vSwarm/benchmarks/hotel-app/yamls/knative/kn-profile.yaml",
+        "predeployment-commands": [
+            "kubectl apply -f /users/ArunAMS/vSwarm/benchmarks/hotel-app/yamls/knative/database.yaml",
+            "kubectl apply -f /users/ArunAMS/vSwarm/benchmarks/hotel-app/yamls/knative/memcached.yaml"
+        ],
+        "postdeployment-commands": []
+    },
+    {
+        "yaml-location": "/users/ArunAMS/vSwarm/benchmarks/hotel-app/yamls/knative/kn-recommendation.yaml",
+        "predeployment-commands": [
+            "kubectl apply -f /users/ArunAMS/vSwarm/benchmarks/hotel-app/yamls/knative/database.yaml",
+            "kubectl apply -f /users/ArunAMS/vSwarm/benchmarks/hotel-app/yamls/knative/memcached.yaml"
+        ],
+        "postdeployment-commands": []
+    },
+    {
+        "yaml-location": "/users/ArunAMS/vSwarm/benchmarks/hotel-app/yamls/knative/kn-reservation.yaml",
+        "predeployment-commands": [
+            "kubectl apply -f /users/ArunAMS/vSwarm/benchmarks/hotel-app/yamls/knative/database.yaml",
+            "kubectl apply -f /users/ArunAMS/vSwarm/benchmarks/hotel-app/yamls/knative/memcached.yaml"
+        ],
+        "postdeployment-commands": []
+    },
+    {
+        "yaml-location": "/users/ArunAMS/vSwarm/benchmarks/hotel-app/yamls/knative/kn-user.yaml",
+        "predeployment-commands": [
+            "kubectl apply -f /users/ArunAMS/vSwarm/benchmarks/hotel-app/yamls/knative/database.yaml",
+            "kubectl apply -f /users/ArunAMS/vSwarm/benchmarks/hotel-app/yamls/knative/memcached.yaml"
+        ],
+        "postdeployment-commands": []
+    },
+    {
+        "yaml-location": "/users/ArunAMS/vSwarm/benchmarks/online-shop/yamls/knative/kn-adservice.yaml",
+        "predeployment-commands": [
+            "kubectl apply -f /users/ArunAMS/vSwarm/benchmarks/online-shop/yamls/knative/database.yaml"
+        ],
+        "postdeployment-commands": []
+    },
+    {
+        "yaml-location": "/users/ArunAMS/vSwarm/benchmarks/online-shop/yamls/knative/kn-cartservice.yaml",
+        "predeployment-commands": [
+            "kubectl apply -f /users/ArunAMS/vSwarm/benchmarks/online-shop/yamls/knative/database.yaml"
+        ],
+        "postdeployment-commands": []
+    },
+    {
+        "yaml-location": "/users/ArunAMS/vSwarm/benchmarks/online-shop/yamls/knative/kn-currencyservice.yaml",
+        "predeployment-commands": [
+            "kubectl apply -f /users/ArunAMS/vSwarm/benchmarks/online-shop/yamls/knative/database.yaml"
+        ],
+        "postdeployment-commands": []
+    },
+    {
+        "yaml-location": "/users/ArunAMS/vSwarm/benchmarks/online-shop/yamls/knative/kn-emailservice.yaml",
+        "predeployment-commands": [
+            "kubectl apply -f /users/ArunAMS/vSwarm/benchmarks/online-shop/yamls/knative/database.yaml"
+        ],
+        "postdeployment-commands": []
+    },
+    {
+        "yaml-location": "/users/ArunAMS/vSwarm/benchmarks/online-shop/yamls/knative/kn-paymentservice.yaml",
+        "predeployment-commands": [
+            "kubectl apply -f /users/ArunAMS/vSwarm/benchmarks/online-shop/yamls/knative/database.yaml"
+        ],
+        "postdeployment-commands": []
+    },
+    {
+        "yaml-location": "/users/ArunAMS/vSwarm/benchmarks/online-shop/yamls/knative/kn-productcatalogservice.yaml",
+        "predeployment-commands": [
+            "kubectl apply -f /users/ArunAMS/vSwarm/benchmarks/online-shop/yamls/knative/database.yaml"
+        ],
+        "postdeployment-commands": []
+    },
+    {
+        "yaml-location": "/users/ArunAMS/vSwarm/benchmarks/online-shop/yamls/knative/kn-shippingservice.yaml",
+        "predeployment-commands": [
+            "kubectl apply -f /users/ArunAMS/vSwarm/benchmarks/online-shop/yamls/knative/database.yaml"
+        ],
+        "postdeployment-commands": []
+    }
+]
