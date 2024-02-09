@@ -1,7 +1,7 @@
 {
     "aes-go": {
         "name": "aes-go",
-        "yaml": "/users/ArunAMS/vSwarm/benchmarks/aes/yamls/knative/kn-aes-go.yaml",
+        "yaml": "../../benchmarks/aes/yamls/knative/kn-aes-go.yaml",
         "cpu": {
             "0-percentile": 3.0,
             "1-percentile": 3.0,
@@ -38,7 +38,7 @@
     },
     "aes-python": {
         "name": "aes-python",
-        "yaml": "/users/ArunAMS/vSwarm/benchmarks/aes/yamls/knative/kn-aes-python.yaml",
+        "yaml": "../../benchmarks/aes/yamls/knative/kn-aes-python.yaml",
         "cpu": {
             "0-percentile": 51.0,
             "1-percentile": 51.0,
@@ -75,7 +75,7 @@
     },
     "aes-nodejs": {
         "name": "aes-nodejs",
-        "yaml": "/users/ArunAMS/vSwarm/benchmarks/aes/yamls/knative/kn-aes-nodejs.yaml",
+        "yaml": "../../benchmarks/aes/yamls/knative/kn-aes-nodejs.yaml",
         "cpu": {
             "0-percentile": 4.0,
             "1-percentile": 4.0,
@@ -112,7 +112,7 @@
     },
     "auth-go": {
         "name": "auth-go",
-        "yaml": "/users/ArunAMS/vSwarm/benchmarks/auth/yamls/knative/kn-auth-go.yaml",
+        "yaml": "../../benchmarks/auth/yamls/knative/kn-auth-go.yaml",
         "cpu": {
             "0-percentile": 3.0,
             "1-percentile": 3.01,
@@ -149,7 +149,7 @@
     },
     "auth-python": {
         "name": "auth-python",
-        "yaml": "/users/ArunAMS/vSwarm/benchmarks/auth/yamls/knative/kn-auth-python.yaml",
+        "yaml": "../../benchmarks/auth/yamls/knative/kn-auth-python.yaml",
         "cpu": {
             "0-percentile": 51.0,
             "1-percentile": 51.0,
@@ -186,7 +186,7 @@
     },
     "auth-nodejs": {
         "name": "auth-nodejs",
-        "yaml": "/users/ArunAMS/vSwarm/benchmarks/auth/yamls/knative/kn-auth-nodejs.yaml",
+        "yaml": "../../benchmarks/auth/yamls/knative/kn-auth-nodejs.yaml",
         "cpu": {
             "0-percentile": 4.0,
             "1-percentile": 4.0,
@@ -223,7 +223,7 @@
     },
     "fibonacci-go": {
         "name": "fibonacci-go",
-        "yaml": "/users/ArunAMS/vSwarm/benchmarks/fibonacci/yamls/knative/kn-fibonacci-go.yaml",
+        "yaml": "../../benchmarks/fibonacci/yamls/knative/kn-fibonacci-go.yaml",
         "cpu": {
             "0-percentile": 3.0,
             "1-percentile": 3.0,
@@ -260,7 +260,7 @@
     },
     "fibonacci-python": {
         "name": "fibonacci-python",
-        "yaml": "/users/ArunAMS/vSwarm/benchmarks/fibonacci/yamls/knative/kn-fibonacci-python.yaml",
+        "yaml": "../../benchmarks/fibonacci/yamls/knative/kn-fibonacci-python.yaml",
         "cpu": {
             "0-percentile": 50.0,
             "1-percentile": 50.01,
@@ -297,7 +297,7 @@
     },
     "fibonacci-nodejs": {
         "name": "fibonacci-nodejs",
-        "yaml": "/users/ArunAMS/vSwarm/benchmarks/fibonacci/yamls/knative/kn-fibonacci-nodejs.yaml",
+        "yaml": "../../benchmarks/fibonacci/yamls/knative/kn-fibonacci-nodejs.yaml",
         "cpu": {
             "0-percentile": 4.0,
             "1-percentile": 4.0,
@@ -334,7 +334,7 @@
     },
     "gptj-python": {
         "name": "gptj-python",
-        "yaml": "/users/ArunAMS/vSwarm/benchmarks/gptj/yamls/knative/kn-gptj-python.yaml",
+        "yaml": "../../benchmarks/gptj/yamls/knative/kn-gptj-python.yaml",
         "cpu": {
             "0-percentile": 6.0,
             "1-percentile": 6.0,
@@ -371,7 +371,7 @@
     },
     "hotel-app-geo": {
         "name": "hotel-app-geo",
-        "yaml": "/users/ArunAMS/vSwarm/benchmarks/hotel-app/yamls/knative/kn-geo.yaml",
+        "yaml": "../../benchmarks/hotel-app/yamls/knative/kn-geo.yaml",
         "cpu": {
             "0-percentile": 4.0,
             "1-percentile": 4.0,
@@ -408,7 +408,7 @@
     },
     "hotel-app-profile": {
         "name": "hotel-app-profile",
-        "yaml": "/users/ArunAMS/vSwarm/benchmarks/hotel-app/yamls/knative/kn-profile.yaml",
+        "yaml": "../../benchmarks/hotel-app/yamls/knative/kn-profile.yaml",
         "cpu": {
             "0-percentile": 4.0,
             "1-percentile": 4.0,
@@ -445,7 +445,7 @@
     },
     "hotel-app-recommendation": {
         "name": "hotel-app-recommendation",
-        "yaml": "/users/ArunAMS/vSwarm/benchmarks/hotel-app/yamls/knative/kn-recommendation.yaml",
+        "yaml": "../../benchmarks/hotel-app/yamls/knative/kn-recommendation.yaml",
         "cpu": {
             "0-percentile": 4.0,
             "1-percentile": 4.0,
@@ -482,7 +482,7 @@
     },
     "hotel-app-reservation": {
         "name": "hotel-app-reservation",
-        "yaml": "/users/ArunAMS/vSwarm/benchmarks/hotel-app/yamls/knative/kn-reservation.yaml",
+        "yaml": "../../benchmarks/hotel-app/yamls/knative/kn-reservation.yaml",
         "cpu": {
             "0-percentile": 4.0,
             "1-percentile": 4.0,
@@ -519,7 +519,7 @@
     },
     "hotel-app-user": {
         "name": "hotel-app-user",
-        "yaml": "/users/ArunAMS/vSwarm/benchmarks/hotel-app/yamls/knative/kn-user.yaml",
+        "yaml": "../../benchmarks/hotel-app/yamls/knative/kn-user.yaml",
         "cpu": {
             "0-percentile": 4.0,
             "1-percentile": 4.0,
@@ -556,7 +556,7 @@
     },
     "adservice": {
         "name": "adservice",
-        "yaml": "/users/ArunAMS/vSwarm/benchmarks/online-shop/yamls/knative/kn-adservice.yaml",
+        "yaml": "../../benchmarks/online-shop/yamls/knative/kn-adservice.yaml",
         "cpu": {
             "0-percentile": 50.0,
             "1-percentile": 50.0,
@@ -593,7 +593,7 @@
     },
     "cartservice": {
         "name": "cartservice",
-        "yaml": "/users/ArunAMS/vSwarm/benchmarks/online-shop/yamls/knative/kn-cartservice.yaml",
+        "yaml": "../../benchmarks/online-shop/yamls/knative/kn-cartservice.yaml",
         "cpu": {
             "0-percentile": 14.0,
             "1-percentile": 14.06,
@@ -630,7 +630,7 @@
     },
     "currencyservice": {
         "name": "currencyservice",
-        "yaml": "/users/ArunAMS/vSwarm/benchmarks/online-shop/yamls/knative/kn-currencyservice.yaml",
+        "yaml": "../../benchmarks/online-shop/yamls/knative/kn-currencyservice.yaml",
         "cpu": {
             "0-percentile": 4.0,
             "1-percentile": 4.0,
@@ -667,7 +667,7 @@
     },
     "emailservice": {
         "name": "emailservice",
-        "yaml": "/users/ArunAMS/vSwarm/benchmarks/online-shop/yamls/knative/kn-emailservice.yaml",
+        "yaml": "../../benchmarks/online-shop/yamls/knative/kn-emailservice.yaml",
         "cpu": {
             "0-percentile": 54.0,
             "1-percentile": 54.0,
@@ -704,7 +704,7 @@
     },
     "paymentservice": {
         "name": "paymentservice",
-        "yaml": "/users/ArunAMS/vSwarm/benchmarks/online-shop/yamls/knative/kn-paymentservice.yaml",
+        "yaml": "../../benchmarks/online-shop/yamls/knative/kn-paymentservice.yaml",
         "cpu": {
             "0-percentile": 4.0,
             "1-percentile": 4.01,
@@ -741,7 +741,7 @@
     },
     "productcatalogservice": {
         "name": "productcatalogservice",
-        "yaml": "/users/ArunAMS/vSwarm/benchmarks/online-shop/yamls/knative/kn-productcatalogservice.yaml",
+        "yaml": "../../benchmarks/online-shop/yamls/knative/kn-productcatalogservice.yaml",
         "cpu": {
             "0-percentile": 4.0,
             "1-percentile": 4.0,
@@ -778,7 +778,7 @@
     },
     "shippingservice": {
         "name": "shippingservice",
-        "yaml": "/users/ArunAMS/vSwarm/benchmarks/online-shop/yamls/knative/kn-shippingservice.yaml",
+        "yaml": "../../benchmarks/online-shop/yamls/knative/kn-shippingservice.yaml",
         "cpu": {
             "0-percentile": 3.0,
             "1-percentile": 3.0,
