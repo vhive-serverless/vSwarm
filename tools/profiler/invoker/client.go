@@ -30,6 +30,7 @@ import (
 	"fmt"
 	"os"
 	"strconv"
+	"strings"
 	"sync"
 	"sync/atomic"
 	"time"
@@ -152,7 +153,6 @@ loop:
 
 	duration := time.Since(start).Seconds()
 	realRPS = float64(completed) / duration
-	addDurations(End())
 	log.Infof("Issued / completed requests: %d, %d", issued, completed)
 	log.Infof("Real / target RPS: %.2f / %v", realRPS, targetRPS)
 	log.Println("Experiment finished!")
@@ -176,7 +176,7 @@ func SayHello(address, workflowID string) {
 	ctx, cancel := context.WithTimeout(context.Background(), grpcTimeout)
 	defer cancel()
 
-	_, err = c.SayHello(ctx, &pb.HelloRequest{
+	response, err := c.SayHello(ctx, &pb.HelloRequest{
 		Name: "Invoke relay",
 		VHiveMetadata: vhivemetadata.MakeVHiveMetadata(
 			workflowID,
@@ -184,9 +184,19 @@ func SayHello(address, workflowID string) {
 			time.Now().UTC(),
 		),
 	})
+
 	if err != nil {
 		log.Warnf("Failed to invoke %v, err=%v", address, err)
 	} else {
+		words := strings.Fields(response.Message)
+		lastWord := words[len(words)-1]
+		duration, err := strconv.ParseInt(lastWord, 10, 64)
+		if err == nil {
+			log.Debugf("Invoked %v. Response: %v\n", address, response.Message)
+			latSlice.Lock()
+			latSlice.slice = append(latSlice.slice, duration)
+			latSlice.Unlock()
+		} 
 		atomic.AddInt64(&completed, 1)
 	}
 }
@@ -199,8 +209,6 @@ func invokeEventingFunction(endpoint *endpoint.Endpoint) {
 }
 
 func invokeServingFunction(endpoint *endpoint.Endpoint) {
-	defer getDuration(startMeasurement(endpoint.Hostname)) // measure entire invocation time
-
 	address := fmt.Sprintf("%s:%d", endpoint.Hostname, *portFlag)
 	log.Debug("Invoking: ", address)
 
@@ -213,23 +221,6 @@ type LatencySlice struct {
 	slice []int64
 }
 
-func startMeasurement(msg string) (string, time.Time) {
-	return msg, time.Now()
-}
-
-func getDuration(msg string, start time.Time) {
-	latency := time.Since(start)
-	log.Debugf("Invoked %v in %v usec\n", msg, latency.Microseconds())
-	addDurations([]time.Duration{latency})
-}
-
-func addDurations(ds []time.Duration) {
-	latSlice.Lock()
-	for _, d := range ds {
-		latSlice.slice = append(latSlice.slice, d.Microseconds())
-	}
-	latSlice.Unlock()
-}
 
 func writeLatencies(rps float64, latencyOutputFile string) {
 	latSlice.Lock()
