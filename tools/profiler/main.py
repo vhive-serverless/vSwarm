@@ -314,7 +314,7 @@ def main():
         metavar="float",
         type=float,
         required=False,
-        default=50 * 2,
+        default=100,
         help="Run Duration",
     )
 
@@ -326,7 +326,7 @@ def main():
         "--stat_file",
         metavar="path",
         required=False,
-        default="output.json",
+        default="profile.json",
         help="JSON file where profile details are stored",
     )
 
@@ -335,7 +335,7 @@ def main():
         "--png_folder",
         metavar="path",
         required=False,
-        default="png/",
+        default="png",
         help="Output folder where plots are stored",
     )
 
