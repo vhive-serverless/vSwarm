@@ -16,6 +16,11 @@ The profiler utilizes the single node stock-only cluster setup as per [vHive qui
 * `chained-function-eventing`: Eventing functions cannot be profiled
 * `video-analytics`, `chained-function-serving`, `hotel-app:rate`, `hotel-app:search`, `hotel-app:search-tracing`, `onlineshop:checkoutservice`, `onlineshop:recommendationservice` : Pipelined functions cannot be profiled. 
 
+### Python packages
+```bash
+pip3 install numpy jq typing matplotlib argparse PyYAML
+```
+
 ## Profiling
 
 ```bash
