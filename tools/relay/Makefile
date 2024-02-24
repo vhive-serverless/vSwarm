@@ -32,15 +32,15 @@ relay:
 relay-docker:
 	DOCKER_BUILDKIT=1 \
 	docker build \
-	--tag vhiveease/relay:latest \
+	--tag vhiveease/relay-latency:latest \
 	--target relay \
 	-f Dockerfile \
 	$(ROOT)
 
 ## Push images
 push:
-	docker push docker.io/vhiveease/relay:latest
+	docker push docker.io/vhiveease/relay-latency:latest
 
 ## Pull images from docker hub
 pull:
-	docker pull docker.io/vhiveease/relay:latest
+	docker pull docker.io/vhiveease/relay-latency:latest

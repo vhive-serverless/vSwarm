@@ -126,7 +126,11 @@ func runExperiment(endpoints []*endpoint.Endpoint, runDuration int, targetRPS fl
 	Start(TimeseriesDBAddr, endpoints, workflowIDs)
 
 	timeout := time.After(time.Duration(runDuration) * time.Second)
-	tick := time.Tick(time.Duration(1000/targetRPS) * time.Millisecond)
+	d := time.Duration(1000000/targetRPS) * time.Microsecond
+	if d <= 0 {
+		log.Fatalln("Target RPS is too high")
+	}
+	tick := time.Tick(d)
 	start := time.Now()
 loop:
 	for {
