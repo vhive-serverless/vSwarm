@@ -28,6 +28,8 @@ import (
 	"fmt"
 	"net"
 	"os"
+	"strconv"
+	"time"
 
 	pb "github.com/vhive-serverless/vSwarm-proto/proto/helloworld"
 
@@ -61,6 +63,8 @@ var (
 	value           = flag.String("value", "helloWorld", "String input to pass to benchmark")
 	functionMethod  = flag.String("function-method", "default", "Which method of benchmark to invoke")
 	verbose         = flag.Bool("verbose", false, "Enable verbose log printing")
+
+	latencyOutputFile = flag.String("latf", "lat.csv", "CSV file for the latency measurements in microseconds")
 
 	// Client
 	grpcClient     grpcClients.GrpcClient
@@ -148,6 +152,7 @@ func main() {
 	if err := grpcServer.Serve(listener); err != nil {
 		log.Fatalf("failed to serve: %v", err)
 	}
+
 }
 
 func (s *server) SayHello(ctx context.Context, in *pb.HelloRequest) (*pb.HelloReply, error) {
@@ -155,8 +160,16 @@ func (s *server) SayHello(ctx context.Context, in *pb.HelloRequest) (*pb.HelloRe
 	// Create new packet
 	pkt := inputGenerator.Next()
 	log.Debugf("Send to func: %s\n", pkt)
-	reply, err := grpcClient.Request(ctx, pkt)
-	log.Debugf("Recv from func: %s\n", reply)
 
-	return &pb.HelloReply{Message: reply}, err
+	startTime := time.Now()
+	reply, err := grpcClient.Request(ctx, pkt)
+	endTime := time.Now()
+	elapsedMicroseconds := int64(endTime.Sub(startTime).Microseconds())
+
+	log.Debugf("Recv from func: %s dur: %d\n", reply, elapsedMicroseconds)
+
+	elapsedTime := strconv.FormatInt(elapsedMicroseconds, 10)
+	finalReply := reply + " | " + elapsedTime
+
+	return &pb.HelloReply{Message: finalReply}, err
 }

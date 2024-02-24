@@ -1,0 +1,7 @@
+[
+    {
+        "yaml-location": "./yamls/kn-aes-go.yaml",
+        "predeployment-commands": [],
+        "postdeployment-commands": []
+    }
+]

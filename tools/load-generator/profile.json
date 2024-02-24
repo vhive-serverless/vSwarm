@@ -1,0 +1,816 @@
+{
+    "aes-go": {
+        "name": "aes-go",
+        "yaml": "../../benchmarks/aes/yamls/knative/kn-aes-go.yaml",
+        "cpu": {
+            "0-percentile": 3.0,
+            "1-percentile": 3.0,
+            "5-percentile": 3.0,
+            "25-percentile": 3.0,
+            "50-percentile": 3.0,
+            "75-percentile": 3.067513368983957,
+            "95-percentile": 3.2592044134727063,
+            "99-percentile": 3.3013636363636363,
+            "100-percentile": 3.3181818181818183
+        },
+        "memory": {
+            "0-percentile": 18.0,
+            "1-percentile": 18.0,
+            "5-percentile": 18.35833333333333,
+            "25-percentile": 21.039772727272727,
+            "50-percentile": 22.798418972332016,
+            "75-percentile": 23.84157754010695,
+            "95-percentile": 24.490853658536587,
+            "99-percentile": 24.625681818181818,
+            "100-percentile": 24.65909090909091
+        },
+        "duration": {
+            "0-percentile": 0.584,
+            "1-percentile": 0.5921066666666667,
+            "5-percentile": 0.6337438888888888,
+            "25-percentile": 0.6867670289855072,
+            "50-percentile": 0.7153520757020757,
+            "75-percentile": 0.7434741830065361,
+            "95-percentile": 0.7660032945736434,
+            "99-percentile": 0.7746408364195596,
+            "100-percentile": 0.7849611111111113
+        }
+    },
+    "aes-python": {
+        "name": "aes-python",
+        "yaml": "../../benchmarks/aes/yamls/knative/kn-aes-python.yaml",
+        "cpu": {
+            "0-percentile": 50.0,
+            "1-percentile": 50.0,
+            "5-percentile": 50.0,
+            "25-percentile": 50.57386363636364,
+            "50-percentile": 50.77766798418972,
+            "75-percentile": 50.849598930481285,
+            "95-percentile": 50.99634146341464,
+            "99-percentile": 51.04886363636364,
+            "100-percentile": 51.06818181818182
+        },
+        "memory": {
+            "0-percentile": 41.0,
+            "1-percentile": 41.215,
+            "5-percentile": 41.71666666666666,
+            "25-percentile": 44.27272727272727,
+            "50-percentile": 45.865612648221344,
+            "75-percentile": 46.80414438502674,
+            "95-percentile": 47.25554587688734,
+            "99-percentile": 47.324318181818185,
+            "100-percentile": 47.34090909090909
+        },
+        "duration": {
+            "0-percentile": 2.623,
+            "1-percentile": 2.64106,
+            "5-percentile": 2.682045555555556,
+            "25-percentile": 2.7464147342995178,
+            "50-percentile": 2.8021070207570213,
+            "75-percentile": 3.02351797385621,
+            "95-percentile": 3.6705706395348825,
+            "99-percentile": 3.8270697382461876,
+            "100-percentile": 4.0471
+        }
+    },
+    "aes-nodejs": {
+        "name": "aes-nodejs",
+        "yaml": "../../benchmarks/aes/yamls/knative/kn-aes-nodejs.yaml",
+        "cpu": {
+            "0-percentile": 4.0,
+            "1-percentile": 4.0,
+            "5-percentile": 4.0,
+            "25-percentile": 4.0,
+            "50-percentile": 4.0,
+            "75-percentile": 4.037433155080214,
+            "95-percentile": 4.2353077816492455,
+            "99-percentile": 4.278409090909091,
+            "100-percentile": 4.295454545454546
+        },
+        "memory": {
+            "0-percentile": 43.0,
+            "1-percentile": 43.0,
+            "5-percentile": 43.71666666666666,
+            "25-percentile": 46.50568181818182,
+            "50-percentile": 48.53162055335969,
+            "75-percentile": 49.781417112299465,
+            "95-percentile": 50.48719512195122,
+            "99-percentile": 50.62568181818182,
+            "100-percentile": 50.65909090909091
+        },
+        "duration": {
+            "0-percentile": 2.07,
+            "1-percentile": 2.6756633333333335,
+            "5-percentile": 2.9656238888888886,
+            "25-percentile": 3.1015618357487926,
+            "50-percentile": 3.1597801587301593,
+            "75-percentile": 3.2452263480392176,
+            "95-percentile": 3.4706877583979323,
+            "99-percentile": 3.589564516979473,
+            "100-percentile": 3.743288888888888
+        }
+    },
+    "auth-go": {
+        "name": "auth-go",
+        "yaml": "../../benchmarks/auth/yamls/knative/kn-auth-go.yaml",
+        "cpu": {
+            "0-percentile": 3.0,
+            "1-percentile": 3.0,
+            "5-percentile": 3.0,
+            "25-percentile": 3.0,
+            "50-percentile": 3.0,
+            "75-percentile": 3.235294117647059,
+            "95-percentile": 3.3924695459579177,
+            "99-percentile": 3.5906666666666673,
+            "100-percentile": 3.7333333333333334
+        },
+        "memory": {
+            "0-percentile": 18.0,
+            "1-percentile": 18.22,
+            "5-percentile": 18.733333333333334,
+            "25-percentile": 21.166666666666668,
+            "50-percentile": 23.0,
+            "75-percentile": 24.235294117647058,
+            "95-percentile": 24.985714285714284,
+            "99-percentile": 25.104666666666667,
+            "100-percentile": 25.133333333333333
+        },
+        "duration": {
+            "0-percentile": 0.601,
+            "1-percentile": 0.6106333333333334,
+            "5-percentile": 0.6376266666666667,
+            "25-percentile": 0.693581038647343,
+            "50-percentile": 0.7269429181929187,
+            "75-percentile": 0.7567883578431375,
+            "95-percentile": 0.7833937661498709,
+            "99-percentile": 0.7966316913564749,
+            "100-percentile": 0.8098055555555557
+        }
+    },
+    "auth-python": {
+        "name": "auth-python",
+        "yaml": "../../benchmarks/auth/yamls/knative/kn-auth-python.yaml",
+        "cpu": {
+            "0-percentile": 50.0,
+            "1-percentile": 50.0,
+            "5-percentile": 50.0,
+            "25-percentile": 50.25,
+            "50-percentile": 50.608695652173914,
+            "75-percentile": 50.73529411764706,
+            "95-percentile": 50.90177187153931,
+            "99-percentile": 52.26177777777778,
+            "100-percentile": 53.28888888888889
+        },
+        "memory": {
+            "0-percentile": 40.0,
+            "1-percentile": 40.0,
+            "5-percentile": 40.36666666666667,
+            "25-percentile": 43.083333333333336,
+            "50-percentile": 45.130434782608695,
+            "75-percentile": 46.205882352941174,
+            "95-percentile": 46.79878183831672,
+            "99-percentile": 46.92511111111111,
+            "100-percentile": 46.955555555555556
+        },
+        "duration": {
+            "0-percentile": 1.551,
+            "1-percentile": 1.6067000000000002,
+            "5-percentile": 1.6762422222222224,
+            "25-percentile": 1.7689864734299516,
+            "50-percentile": 1.8337699633699636,
+            "75-percentile": 1.900869158496732,
+            "95-percentile": 2.4661275193798446,
+            "99-percentile": 2.5776823702215803,
+            "100-percentile": 2.8009277777777775
+        }
+    },
+    "auth-nodejs": {
+        "name": "auth-nodejs",
+        "yaml": "../../benchmarks/auth/yamls/knative/kn-auth-nodejs.yaml",
+        "cpu": {
+            "0-percentile": 3.0,
+            "1-percentile": 3.0,
+            "5-percentile": 3.0,
+            "25-percentile": 3.5833333333333335,
+            "50-percentile": 3.782608695652174,
+            "75-percentile": 3.8529411764705883,
+            "95-percentile": 4.018604651162791,
+            "99-percentile": 4.266444444444446,
+            "100-percentile": 4.4222222222222225
+        },
+        "memory": {
+            "0-percentile": 37.0,
+            "1-percentile": 37.22,
+            "5-percentile": 37.733333333333334,
+            "25-percentile": 40.0,
+            "50-percentile": 41.21739130434783,
+            "75-percentile": 42.088235294117645,
+            "95-percentile": 42.593244739756365,
+            "99-percentile": 42.68822222222222,
+            "100-percentile": 42.71111111111111
+        },
+        "duration": {
+            "0-percentile": 2.398,
+            "1-percentile": 2.4046333333333334,
+            "5-percentile": 2.4209222222222215,
+            "25-percentile": 2.460679951690821,
+            "50-percentile": 2.4938214285714286,
+            "75-percentile": 2.5301590277777772,
+            "95-percentile": 2.661198352713177,
+            "99-percentile": 2.74822847812441,
+            "100-percentile": 2.8869722222222207
+        }
+    },
+    "fibonacci-go": {
+        "name": "fibonacci-go",
+        "yaml": "../../benchmarks/fibonacci/yamls/knative/kn-fibonacci-go.yaml",
+        "cpu": {
+            "0-percentile": 3.0,
+            "1-percentile": 3.0,
+            "5-percentile": 3.0,
+            "25-percentile": 3.0,
+            "50-percentile": 3.0,
+            "75-percentile": 3.0,
+            "95-percentile": 3.187514518002323,
+            "99-percentile": 3.2195454545454543,
+            "100-percentile": 3.227272727272727
+        },
+        "memory": {
+            "0-percentile": 18.0,
+            "1-percentile": 18.0,
+            "5-percentile": 18.0375,
+            "25-percentile": 20.698863636363637,
+            "50-percentile": 22.5098814229249,
+            "75-percentile": 23.593582887700535,
+            "95-percentile": 24.22799070847851,
+            "99-percentile": 24.337272727272726,
+            "100-percentile": 24.363636363636363
+        },
+        "duration": {
+            "0-percentile": 0.614,
+            "1-percentile": 0.6211616666666666,
+            "5-percentile": 0.6396988888888889,
+            "25-percentile": 0.678990458937198,
+            "50-percentile": 0.718439987789988,
+            "75-percentile": 0.7477587826797388,
+            "95-percentile": 0.7726492894056847,
+            "99-percentile": 0.7807000370347119,
+            "100-percentile": 0.7903999999999998
+        }
+    },
+    "fibonacci-python": {
+        "name": "fibonacci-python",
+        "yaml": "../../benchmarks/fibonacci/yamls/knative/kn-fibonacci-python.yaml",
+        "cpu": {
+            "0-percentile": 49.0,
+            "1-percentile": 49.22,
+            "5-percentile": 49.68333333333333,
+            "25-percentile": 49.916666666666664,
+            "50-percentile": 50.30434782608695,
+            "75-percentile": 50.529411764705884,
+            "95-percentile": 50.691472868217055,
+            "99-percentile": 50.75555555555555,
+            "100-percentile": 50.77777777777778
+        },
+        "memory": {
+            "0-percentile": 42.0,
+            "1-percentile": 42.0,
+            "5-percentile": 42.05,
+            "25-percentile": 44.833333333333336,
+            "50-percentile": 46.56521739130435,
+            "75-percentile": 47.529411764705884,
+            "95-percentile": 48.03720930232558,
+            "99-percentile": 48.114666666666665,
+            "100-percentile": 48.13333333333333
+        },
+        "duration": {
+            "0-percentile": 1.358,
+            "1-percentile": 1.5179766666666668,
+            "5-percentile": 1.6216105555555558,
+            "25-percentile": 1.724057971014493,
+            "50-percentile": 1.7881125152625144,
+            "75-percentile": 1.854904411764705,
+            "95-percentile": 2.385302325581394,
+            "99-percentile": 2.4998870001883104,
+            "100-percentile": 2.727266666666665
+        }
+    },
+    "fibonacci-nodejs": {
+        "name": "fibonacci-nodejs",
+        "yaml": "../../benchmarks/fibonacci/yamls/knative/kn-fibonacci-nodejs.yaml",
+        "cpu": {
+            "0-percentile": 4.0,
+            "1-percentile": 4.0,
+            "5-percentile": 4.0,
+            "25-percentile": 4.0,
+            "50-percentile": 4.0,
+            "75-percentile": 4.0,
+            "95-percentile": 4.018604651162791,
+            "99-percentile": 4.704444444444447,
+            "100-percentile": 5.222222222222222
+        },
+        "memory": {
+            "0-percentile": 41.0,
+            "1-percentile": 41.22,
+            "5-percentile": 41.733333333333334,
+            "25-percentile": 44.333333333333336,
+            "50-percentile": 46.21739130434783,
+            "75-percentile": 47.38235294117647,
+            "95-percentile": 48.125913621262455,
+            "99-percentile": 48.239333333333335,
+            "100-percentile": 48.266666666666666
+        },
+        "duration": {
+            "0-percentile": 1.722,
+            "1-percentile": 1.9281883333333334,
+            "5-percentile": 2.2542227777777777,
+            "25-percentile": 2.4377015700483096,
+            "50-percentile": 2.5095320512820516,
+            "75-percentile": 2.5675540849673206,
+            "95-percentile": 2.700350872093023,
+            "99-percentile": 2.7804160881300612,
+            "100-percentile": 2.934527777777778
+        }
+    },
+    "gptj-python": {
+        "name": "gptj-python",
+        "yaml": "../../benchmarks/gptj/yamls/knative/kn-gptj-python.yaml",
+        "cpu": {
+            "0-percentile": 6.0,
+            "1-percentile": 6.0,
+            "5-percentile": 6.05,
+            "25-percentile": 6.75,
+            "50-percentile": 6.869565217391305,
+            "75-percentile": 7.0588235294117645,
+            "95-percentile": 7.252270210409745,
+            "99-percentile": 7.294222222222222,
+            "100-percentile": 7.311111111111111
+        },
+        "memory": {
+            "0-percentile": 249.0,
+            "1-percentile": 249.0,
+            "5-percentile": 249.0,
+            "25-percentile": 250.25,
+            "50-percentile": 251.08695652173913,
+            "75-percentile": 251.61764705882354,
+            "95-percentile": 251.9017718715393,
+            "99-percentile": 251.98000000000002,
+            "100-percentile": 252.0
+        },
+        "duration": {
+            "0-percentile": 2.063,
+            "1-percentile": 2.0912716666666666,
+            "5-percentile": 2.1259838888888885,
+            "25-percentile": 2.1734047101449274,
+            "50-percentile": 2.2229969474969464,
+            "75-percentile": 2.274976184640522,
+            "95-percentile": 2.330856686046511,
+            "99-percentile": 2.3723507877722674,
+            "100-percentile": 2.410727777777777
+        }
+    },
+    "hotel-app-geo": {
+        "name": "hotel-app-geo",
+        "yaml": "../../benchmarks/hotel-app/yamls/knative/kn-geo.yaml",
+        "cpu": {
+            "0-percentile": 3.0,
+            "1-percentile": 3.0,
+            "5-percentile": 3.0,
+            "25-percentile": 3.1666666666666665,
+            "50-percentile": 3.5652173913043477,
+            "75-percentile": 3.7058823529411766,
+            "95-percentile": 3.7663344407530452,
+            "99-percentile": 4.009555555555557,
+            "100-percentile": 4.177777777777778
+        },
+        "memory": {
+            "0-percentile": 19.0,
+            "1-percentile": 19.22,
+            "5-percentile": 20.05,
+            "25-percentile": 23.25,
+            "50-percentile": 25.652173913043477,
+            "75-percentile": 27.323529411764707,
+            "95-percentile": 28.28471760797342,
+            "99-percentile": 28.44377777777778,
+            "100-percentile": 28.488888888888887
+        },
+        "duration": {
+            "0-percentile": 0.514,
+            "1-percentile": 0.5568550000000001,
+            "5-percentile": 0.6613205555555556,
+            "25-percentile": 0.7764921497584544,
+            "50-percentile": 0.8179923687423685,
+            "75-percentile": 0.848272589869281,
+            "95-percentile": 0.8776526808785527,
+            "99-percentile": 0.9001861979787834,
+            "100-percentile": 0.9335166666666664
+        }
+    },
+    "hotel-app-profile": {
+        "name": "hotel-app-profile",
+        "yaml": "../../benchmarks/hotel-app/yamls/knative/kn-profile.yaml",
+        "cpu": {
+            "0-percentile": 4.0,
+            "1-percentile": 4.0,
+            "5-percentile": 4.0,
+            "25-percentile": 4.0,
+            "50-percentile": 4.0,
+            "75-percentile": 4.0,
+            "95-percentile": 4.163617886178862,
+            "99-percentile": 4.196590909090909,
+            "100-percentile": 4.204545454545454
+        },
+        "memory": {
+            "0-percentile": 19.0,
+            "1-percentile": 19.43,
+            "5-percentile": 20.395833333333332,
+            "25-percentile": 24.25,
+            "50-percentile": 26.66501976284585,
+            "75-percentile": 27.871657754010695,
+            "95-percentile": 28.65447154471545,
+            "99-percentile": 28.786363636363635,
+            "100-percentile": 28.818181818181817
+        },
+        "duration": {
+            "0-percentile": 1.513,
+            "1-percentile": 1.530371666666667,
+            "5-percentile": 1.5718616666666665,
+            "25-percentile": 1.65198345410628,
+            "50-percentile": 1.7024009157509148,
+            "75-percentile": 1.7397437908496736,
+            "95-percentile": 1.7745512273901807,
+            "99-percentile": 1.8022914462368966,
+            "100-percentile": 1.917927777777778
+        }
+    },
+    "hotel-app-recommendation": {
+        "name": "hotel-app-recommendation",
+        "yaml": "../../benchmarks/hotel-app/yamls/knative/kn-recommendation.yaml",
+        "cpu": {
+            "0-percentile": 3.0,
+            "1-percentile": 3.0,
+            "5-percentile": 3.0,
+            "25-percentile": 3.5738636363636367,
+            "50-percentile": 3.7776679841897236,
+            "75-percentile": 3.8495989304812834,
+            "95-percentile": 3.9246515679442506,
+            "99-percentile": 3.98,
+            "100-percentile": 4.0
+        },
+        "memory": {
+            "0-percentile": 19.0,
+            "1-percentile": 19.215,
+            "5-percentile": 19.71666666666667,
+            "25-percentile": 22.1875,
+            "50-percentile": 24.57608695652174,
+            "75-percentile": 25.90909090909091,
+            "95-percentile": 26.750058072009292,
+            "99-percentile": 26.87818181818182,
+            "100-percentile": 26.90909090909091
+        },
+        "duration": {
+            "0-percentile": 0.707,
+            "1-percentile": 0.7403733333333333,
+            "5-percentile": 0.8590527777777777,
+            "25-percentile": 0.9531379227053138,
+            "50-percentile": 0.9860642857142861,
+            "75-percentile": 1.0175313316993466,
+            "95-percentile": 1.0476947997416026,
+            "99-percentile": 1.0801311022534688,
+            "100-percentile": 1.1121500000000006
+        }
+    },
+    "hotel-app-reservation": {
+        "name": "hotel-app-reservation",
+        "yaml": "../../benchmarks/hotel-app/yamls/knative/kn-reservation.yaml",
+        "cpu": {
+            "0-percentile": 3.0,
+            "1-percentile": 3.22,
+            "5-percentile": 3.683333333333333,
+            "25-percentile": 3.9166666666666665,
+            "50-percentile": 3.9565217391304346,
+            "75-percentile": 3.9705882352941178,
+            "95-percentile": 4.1354374307862685,
+            "99-percentile": 4.169555555555556,
+            "100-percentile": 4.177777777777778
+        },
+        "memory": {
+            "0-percentile": 20.0,
+            "1-percentile": 20.0,
+            "5-percentile": 20.416666666666664,
+            "25-percentile": 23.416666666666668,
+            "50-percentile": 25.130434782608695,
+            "75-percentile": 26.470588235294116,
+            "95-percentile": 27.33145071982281,
+            "99-percentile": 27.476222222222223,
+            "100-percentile": 27.511111111111113
+        },
+        "duration": {
+            "0-percentile": 1.202,
+            "1-percentile": 1.4950933333333332,
+            "5-percentile": 1.6464044444444446,
+            "25-percentile": 1.7526500000000003,
+            "50-percentile": 1.8005885836385835,
+            "75-percentile": 1.840152246732026,
+            "95-percentile": 1.8792585271317828,
+            "99-percentile": 1.9248171828510456,
+            "100-percentile": 2.003683333333334
+        }
+    },
+    "hotel-app-user": {
+        "name": "hotel-app-user",
+        "yaml": "../../benchmarks/hotel-app/yamls/knative/kn-user.yaml",
+        "cpu": {
+            "0-percentile": 4.0,
+            "1-percentile": 4.0,
+            "5-percentile": 4.0,
+            "25-percentile": 4.0,
+            "50-percentile": 4.0,
+            "75-percentile": 4.088235294117647,
+            "95-percentile": 4.294241417497231,
+            "99-percentile": 4.51088888888889,
+            "100-percentile": 4.644444444444445
+        },
+        "memory": {
+            "0-percentile": 21.0,
+            "1-percentile": 21.22,
+            "5-percentile": 21.733333333333334,
+            "25-percentile": 24.666666666666668,
+            "50-percentile": 26.08695652173913,
+            "75-percentile": 27.176470588235293,
+            "95-percentile": 27.756810631229236,
+            "99-percentile": 27.845333333333333,
+            "100-percentile": 27.866666666666667
+        },
+        "duration": {
+            "0-percentile": 1.926,
+            "1-percentile": 1.9332116666666666,
+            "5-percentile": 1.9595761111111114,
+            "25-percentile": 2.0158915458937203,
+            "50-percentile": 2.055246520146521,
+            "75-percentile": 2.091980269607844,
+            "95-percentile": 2.1313205103359167,
+            "99-percentile": 2.145134624317368,
+            "100-percentile": 2.1595222222222215
+        }
+    },
+    "adservice": {
+        "name": "adservice",
+        "yaml": "../../benchmarks/online-shop/yamls/knative/kn-adservice.yaml",
+        "cpu": {
+            "0-percentile": 38.0,
+            "1-percentile": 38.0,
+            "5-percentile": 38.05,
+            "25-percentile": 39.0,
+            "50-percentile": 39.69565217391305,
+            "75-percentile": 40.23529411764706,
+            "95-percentile": 40.99955703211517,
+            "99-percentile": 41.61511111111111,
+            "100-percentile": 41.955555555555556
+        },
+        "memory": {
+            "0-percentile": 183.0,
+            "1-percentile": 183.0,
+            "5-percentile": 183.73333333333332,
+            "25-percentile": 187.91666666666666,
+            "50-percentile": 191.1304347826087,
+            "75-percentile": 193.61764705882354,
+            "95-percentile": 194.9294573643411,
+            "99-percentile": 195.16444444444446,
+            "100-percentile": 195.22222222222223
+        },
+        "duration": {
+            "0-percentile": 4.329,
+            "1-percentile": 4.571986666666667,
+            "5-percentile": 4.78501111111111,
+            "25-percentile": 5.173797463768116,
+            "50-percentile": 5.613109462759462,
+            "75-percentile": 6.115855269607842,
+            "95-percentile": 6.841859560723511,
+            "99-percentile": 7.429053444855942,
+            "100-percentile": 8.363327777777776
+        }
+    },
+    "cartservice": {
+        "name": "cartservice",
+        "yaml": "../../benchmarks/online-shop/yamls/knative/kn-cartservice.yaml",
+        "cpu": {
+            "0-percentile": 6.0,
+            "1-percentile": 6.0,
+            "5-percentile": 6.358333333333333,
+            "25-percentile": 6.829545454545454,
+            "50-percentile": 6.911067193675889,
+            "75-percentile": 7.157754010695188,
+            "95-percentile": 7.715185830429733,
+            "99-percentile": 8.305,
+            "100-percentile": 8.5
+        },
+        "memory": {
+            "0-percentile": 61.0,
+            "1-percentile": 61.0,
+            "5-percentile": 61.50833333333333,
+            "25-percentile": 67.48295454545455,
+            "50-percentile": 70.5088932806324,
+            "75-percentile": 72.18716577540107,
+            "95-percentile": 73.26846689895471,
+            "99-percentile": 73.455,
+            "100-percentile": 73.5
+        },
+        "duration": {
+            "0-percentile": 2.361,
+            "1-percentile": 2.3854283333333335,
+            "5-percentile": 2.473817777777778,
+            "25-percentile": 2.6019339371980674,
+            "50-percentile": 2.704132234432234,
+            "75-percentile": 2.817422916666666,
+            "95-percentile": 2.9715597222222225,
+            "99-percentile": 3.1362516310966058,
+            "100-percentile": 7.434977777777778
+        }
+    },
+    "currencyservice": {
+        "name": "currencyservice",
+        "yaml": "../../benchmarks/online-shop/yamls/knative/kn-currencyservice.yaml",
+        "cpu": {
+            "0-percentile": 4.0,
+            "1-percentile": 4.0,
+            "5-percentile": 4.0,
+            "25-percentile": 4.0,
+            "50-percentile": 4.0,
+            "75-percentile": 4.0,
+            "95-percentile": 4.182170542635659,
+            "99-percentile": 4.363777777777778,
+            "100-percentile": 4.488888888888889
+        },
+        "memory": {
+            "0-percentile": 33.0,
+            "1-percentile": 33.0,
+            "5-percentile": 33.41666666666667,
+            "25-percentile": 36.166666666666664,
+            "50-percentile": 37.82608695652174,
+            "75-percentile": 38.76470588235294,
+            "95-percentile": 39.289479512735326,
+            "99-percentile": 39.39644444444445,
+            "100-percentile": 39.422222222222224
+        },
+        "duration": {
+            "0-percentile": 2.226,
+            "1-percentile": 2.5685783333333334,
+            "5-percentile": 2.769601111111111,
+            "25-percentile": 2.8888789855072465,
+            "50-percentile": 2.944980402930403,
+            "75-percentile": 3.0031439133986932,
+            "95-percentile": 3.1451607235142114,
+            "99-percentile": 3.236922684075074,
+            "100-percentile": 3.388177777777778
+        }
+    },
+    "emailservice": {
+        "name": "emailservice",
+        "yaml": "../../benchmarks/online-shop/yamls/knative/kn-emailservice.yaml",
+        "cpu": {
+            "0-percentile": 52.0,
+            "1-percentile": 52.215,
+            "5-percentile": 52.67916666666667,
+            "25-percentile": 52.91477272727273,
+            "50-percentile": 52.955533596837945,
+            "75-percentile": 53.157754010695186,
+            "95-percentile": 53.330894308943094,
+            "99-percentile": 53.35727272727273,
+            "100-percentile": 53.36363636363637
+        },
+        "memory": {
+            "0-percentile": 56.0,
+            "1-percentile": 56.215,
+            "5-percentile": 56.71666666666666,
+            "25-percentile": 58.80681818181819,
+            "50-percentile": 59.577075098814234,
+            "75-percentile": 60.13502673796792,
+            "95-percentile": 60.51840882694541,
+            "99-percentile": 60.57681818181818,
+            "100-percentile": 60.59090909090909
+        },
+        "duration": {
+            "0-percentile": 2.4,
+            "1-percentile": 2.417478333333333,
+            "5-percentile": 2.4553305555555553,
+            "25-percentile": 2.547253985507246,
+            "50-percentile": 2.6467774114774123,
+            "75-percentile": 2.7795509803921576,
+            "95-percentile": 3.579400872093024,
+            "99-percentile": 3.833163307701967,
+            "100-percentile": 3.9199500000000014
+        }
+    },
+    "paymentservice": {
+        "name": "paymentservice",
+        "yaml": "../../benchmarks/online-shop/yamls/knative/kn-paymentservice.yaml",
+        "cpu": {
+            "0-percentile": 4.0,
+            "1-percentile": 4.0,
+            "5-percentile": 4.0,
+            "25-percentile": 4.0,
+            "50-percentile": 4.0,
+            "75-percentile": 4.0,
+            "95-percentile": 4.11582462253194,
+            "99-percentile": 4.150681818181818,
+            "100-percentile": 4.159090909090909
+        },
+        "memory": {
+            "0-percentile": 33.0,
+            "1-percentile": 33.215,
+            "5-percentile": 34.43333333333334,
+            "25-percentile": 37.03977272727273,
+            "50-percentile": 38.420948616600796,
+            "75-percentile": 39.41310160427807,
+            "95-percentile": 39.944889663182344,
+            "99-percentile": 40.06181818181818,
+            "100-percentile": 40.09090909090909
+        },
+        "duration": {
+            "0-percentile": 2.841,
+            "1-percentile": 2.89322,
+            "5-percentile": 2.9539066666666667,
+            "25-percentile": 3.0394317632850236,
+            "50-percentile": 3.0996258852258856,
+            "75-percentile": 3.1731397875817002,
+            "95-percentile": 3.3155790051679603,
+            "99-percentile": 3.4374723586090035,
+            "100-percentile": 3.599344444444446
+        }
+    },
+    "productcatalogservice": {
+        "name": "productcatalogservice",
+        "yaml": "../../benchmarks/online-shop/yamls/knative/kn-productcatalogservice.yaml",
+        "cpu": {
+            "0-percentile": 3.0,
+            "1-percentile": 3.22,
+            "5-percentile": 3.683333333333333,
+            "25-percentile": 3.9166666666666665,
+            "50-percentile": 3.9565217391304346,
+            "75-percentile": 3.9705882352941178,
+            "95-percentile": 4.1774086378737545,
+            "99-percentile": 4.261777777777778,
+            "100-percentile": 4.288888888888889
+        },
+        "memory": {
+            "0-percentile": 23.0,
+            "1-percentile": 23.22,
+            "5-percentile": 23.783333333333335,
+            "25-percentile": 27.083333333333332,
+            "50-percentile": 29.17391304347826,
+            "75-percentile": 30.41176470588235,
+            "95-percentile": 31.12591362126246,
+            "99-percentile": 31.23933333333333,
+            "100-percentile": 31.266666666666666
+        },
+        "duration": {
+            "0-percentile": 1.087,
+            "1-percentile": 1.0967916666666668,
+            "5-percentile": 1.1190005555555556,
+            "25-percentile": 1.1769830917874395,
+            "50-percentile": 1.2255110500610502,
+            "75-percentile": 1.2755824346405227,
+            "95-percentile": 1.3291250322997412,
+            "99-percentile": 1.3675410062142992,
+            "100-percentile": 1.3926055555555552
+        }
+    },
+    "shippingservice": {
+        "name": "shippingservice",
+        "yaml": "../../benchmarks/online-shop/yamls/knative/kn-shippingservice.yaml",
+        "cpu": {
+            "0-percentile": 3.0,
+            "1-percentile": 3.0,
+            "5-percentile": 3.0,
+            "25-percentile": 3.5833333333333335,
+            "50-percentile": 3.782608695652174,
+            "75-percentile": 3.8529411764705883,
+            "95-percentile": 4.060575858250277,
+            "99-percentile": 4.348666666666667,
+            "100-percentile": 4.533333333333333
+        },
+        "memory": {
+            "0-percentile": 23.0,
+            "1-percentile": 23.22,
+            "5-percentile": 23.733333333333334,
+            "25-percentile": 26.416666666666668,
+            "50-percentile": 28.304347826086957,
+            "75-percentile": 29.323529411764707,
+            "95-percentile": 29.873643410852715,
+            "99-percentile": 29.957555555555558,
+            "100-percentile": 29.977777777777778
+        },
+        "duration": {
+            "0-percentile": 0.895,
+            "1-percentile": 0.9532716666666666,
+            "5-percentile": 0.9974088888888888,
+            "25-percentile": 1.052881521739131,
+            "50-percentile": 1.085633516483516,
+            "75-percentile": 1.1153132761437905,
+            "95-percentile": 1.1456142764857873,
+            "99-percentile": 1.182935254221329,
+            "100-percentile": 1.210077777777777
+        }
+    }
+}
