@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: parking-proxy
+spec:
+  containers:
+  - name: webserver
+    image: firesh/nginx-lua
+    ports:
+    - containerPort: 80
