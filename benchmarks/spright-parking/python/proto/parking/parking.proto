@@ -1,0 +1,17 @@
+syntax = "proto3";
+
+option go_package = "github.com/vhive-serverless/vSwarm-proto/proto/parking";
+
+package parking;
+
+service Greeter {
+    rpc SayHello(ParkingRequest) returns (ParkingReply) {}
+}
+
+message ParkingRequest {
+    string name = 1;
+}
+
+message ParkingReply {
+    string result = 1;
+}
