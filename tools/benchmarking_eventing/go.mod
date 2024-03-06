@@ -3,7 +3,7 @@ module eventing
 go 1.21
 
 require (
-	github.com/cloudevents/sdk-go/v2 v2.10.1
+	github.com/cloudevents/sdk-go/v2 v2.15.2
 	github.com/containerd/containerd v1.6.26
 	github.com/golang/protobuf v1.5.3
 	github.com/sirupsen/logrus v1.9.3
