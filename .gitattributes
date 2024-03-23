@@ -1,2 +1,3 @@
 benchmarks/gg/examples/excamera/drop.avi filter=lfs diff=lfs merge=lfs -text
 benchmarks/gg/examples/llvm/llvm.tar.gz filter=lfs diff=lfs merge=lfs -text
+benchmarks/gg/benchmarks/llvm/llvm.tar.gz filter=lfs diff=lfs merge=lfs -text
