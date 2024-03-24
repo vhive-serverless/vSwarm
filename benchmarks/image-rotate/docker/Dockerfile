@@ -42,4 +42,30 @@ WORKDIR /app
 ENTRYPOINT [ "python3", "/app/server.py" ]
 
 
+#---------- GoLang -----------#
+# First stage (Builder):
+FROM vhiveease/golang-builder:latest AS imageRotateGoBuilder
+WORKDIR /app/app/
+RUN apt-get install git ca-certificates
+
+COPY ./utils/tracing/go ../../utils/tracing/go
+COPY ./benchmarks/image-rotate/go/go.mod ./
+COPY ./benchmarks/image-rotate/go/go.sum ./
+COPY ./benchmarks/image-rotate/go/server.go ./
+
+RUN go mod tidy
+RUN CGO_ENABLED=0 GOOS=linux go build -v -o ./server server.go
+
+# Second stage (Runner):
+FROM scratch as imageRotateGo
+WORKDIR /app/
+COPY --from=imageRotateGoBuilder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
+COPY --from=imageRotateGoBuilder /app/app/server .
+COPY ./benchmarks/image-rotate/images/ ./images
+
+ENTRYPOINT [ "/app/server" ]
+
+
+
+
 

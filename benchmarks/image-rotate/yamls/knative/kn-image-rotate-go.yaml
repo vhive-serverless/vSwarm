@@ -23,7 +23,7 @@
 apiVersion: serving.knative.dev/v1
 kind: Service
 metadata:
-  name: image-rotate-python
+  name: image-rotate-go
   namespace: default
 spec:
   template:
@@ -37,10 +37,9 @@ spec:
             - --addr=0.0.0.0:50000
             - --function-endpoint-url=0.0.0.0
             - --function-endpoint-port=50051
-            - --function-name=image-rotate-python
+            - --function-name=image-rotate-go
             - --value=default.jpg
-        - image: docker.io/vhiveease/image-rotate-python:latest
+        - image: docker.io/vhiveease/image-rotate-go:latest
           args:
-            - --addr=0.0.0.0
-            - --port=50051
+            - --addr=0.0.0.0:50051
 

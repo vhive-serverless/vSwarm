@@ -29,11 +29,20 @@ image-rotate-python: docker/Dockerfile python/server.py python/requirements.txt 
 	-f docker/Dockerfile \
 	$(ROOT) --load
 
+image-rotate-go: docker/Dockerfile go/server.go go/go.mod go/go.sum images/default.jpg
+	DOCKER_BUILDKIT=1 docker build \
+	--tag vhiveease/image-rotate-go:latest \
+        --target imageRotateGo \
+        -f docker/Dockerfile \
+        $(ROOT) --load
+
 ## Push images
 push:
 	docker push docker.io/vhiveease/image-rotate-python:latest 
+	docker push docker.io/vhiveease/image-rotate-go:latest 
 
 ## Pull images from docker hub
 pull:
 	docker pull docker.io/vhiveease/image-rotate-python:latest
+	docker pull docker.io/vhiveease/image-rotate-go:latest
 
