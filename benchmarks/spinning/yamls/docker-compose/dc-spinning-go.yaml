@@ -38,7 +38,7 @@ services:
       - --addr=0.0.0.0:50000
       - --function-endpoint-url=spinning-go
       - --function-endpoint-port=50051
-      - --function-name=spinning-go
+      - --function-name=aes-go
     ports:
         - published: 50000
           target: 50000
