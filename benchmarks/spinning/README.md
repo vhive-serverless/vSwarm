@@ -2,7 +2,7 @@
 
 The spinning benchmark simulates a simple CPU bounded bounded task by allowing multiplication for 30000000 iterations.
 
-This benchmark can be used to investigate the effects of cpu scaling on the latency of CPU-bound workloads.
+This benchmark can be used to investigate the effects of CPU scaling on the latency of CPU-bound workloads.
 
 The functionality is implemented in golang.
 

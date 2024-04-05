@@ -99,6 +99,7 @@ jobs:
       - name: start docker-compose benchmark
         run: |
           docker-compose -f ${{ matrix.YAML_DIR }}/dc-${{ matrix.service }}.yaml pull
+          docker-compose -f ${{ matrix.YAML_DIR }}/dc-${{ matrix.service }}.yaml up &> log_file &
           sleep 60s
           cat log_file
       - name: invoke the function directly
@@ -158,12 +159,12 @@ jobs:
           kubectl patch configmap -n knative-serving config-domain -p "{\"data\": {\"$KNATIVE_DOMAIN\": \"\"}}"
       - name: Deploy knative
         run: |
-          kubectl apply -f ${{ env.YAML_DIR }}/${{ matrix.file }}
+          kubectl apply -f ${{ matrix.YAML_DIR }}/${{ matrix.file }}
       - name: Check if service is ready
         run: |
-          kubectl wait --for=condition=Ready -f ${{ env.YAML_DIR }}/${{ matrix.file }} --timeout 900s
+          kubectl wait --for=condition=Ready -f ${{ matrix.YAML_DIR }}/${{ matrix.file }} --timeout 900s
           kubectl get service
-          kubectl get -f ${{ env.YAML_DIR }}/${{ matrix.file }}
+          kubectl get -f ${{ matrix.YAML_DIR }}/${{ matrix.file }}
       - name: Test invoking once
         working-directory: tools/test-client
         run: |
@@ -184,4 +185,4 @@ jobs:
       - name: Down
         if: ${{ always() }}
         run: |
-          kubectl delete -f ${{ env.YAML_DIR }}/${{ matrix.file }} --namespace default --wait
+          kubectl delete -f ${{ matrix.YAML_DIR }}/${{ matrix.file }} --namespace default --wait
