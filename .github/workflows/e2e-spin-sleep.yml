@@ -8,6 +8,7 @@ on:
     branches: [main]
     paths:
       - "benchmarks/sleeping/**"
+      - "benchmarks/spinning/**"
       - "utils/**"
       - "tools/**"
       - "runner/**"
@@ -16,6 +17,7 @@ on:
     branches: [main]
     paths:
       - "benchmarks/sleeping/**"
+      - "benchmarks/spinning/**"
       - "utils/**"
       - "tools/**"
       - "runner/**"
@@ -33,10 +35,11 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        service:
-          [
-            sleeping-go
-          ]
+        include:
+          - service: sleeping-go
+            DOCKER_DIR: benchmarks/sleeping/docker/Dockerfile
+          - service: spinning-go
+            DOCKER_DIR: benchmarks/spinning/docker/Dockerfile
     steps:
       - name: Check out code into the Go module directory
         uses: actions/checkout@v4
@@ -66,9 +69,8 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           push: true
-          file: benchmarks/sleeping/docker/Dockerfile
+          file: ${{ matrix.DOCKER_DIR }}
           platforms: ${{ env.PLATFORMS }}
-          target: ${{ matrix.target }}
           tags: vhiveease/${{ matrix.service }}:latest
           build-args: SERVICE=${{ matrix.service }}
           context: .
@@ -78,16 +80,15 @@ jobs:
   test-compose:
     name: Test Docker Compose
     needs: build-and-push
-    env:
-      YAML_DIR: benchmarks/sleeping/yamls/docker-compose/
     runs-on: ubuntu-20.04
     strategy:
       fail-fast: false
       matrix:
-        service:
-          [
-            sleeping-go,
-          ]
+        include:
+          - service: sleeping-go
+            YAML_DIR: benchmarks/sleeping/yamls/docker-compose/
+          - service: spinning-go
+            YAML_DIR: benchmarks/spinning/yamls/docker-compose/
 
     steps:
       - name: Check out code into the Go module directory
@@ -97,8 +98,7 @@ jobs:
 
       - name: start docker-compose benchmark
         run: |
-          docker-compose -f ${{ env.YAML_DIR }}/dc-${{ matrix.service }}.yaml pull
-          docker-compose -f ${{ env.YAML_DIR }}/dc-${{ matrix.service }}.yaml up &> log_file &
+          docker-compose -f ${{ matrix.YAML_DIR }}/dc-${{ matrix.service }}.yaml pull
           sleep 60s
           cat log_file
       - name: invoke the function directly
@@ -118,7 +118,6 @@ jobs:
     env:
       KIND_VERSION: v0.14.0
       K8S_VERSION: v1.23
-      YAML_DIR: benchmarks/sleeping/yamls/knative/
 
     runs-on: ubuntu-20.04
     strategy:
@@ -127,6 +126,10 @@ jobs:
         include:
           - service: sleeping-go
             file: kn-sleeping-go.yaml
+            YAML_DIR: benchmarks/sleeping/yamls/knative/
+          - service: spinning-go
+            file: kn-spinning-go.yaml
+            YAML_DIR: benchmarks/spinning/yamls/knative/
     steps:
       - uses: actions/checkout@v4
         with:

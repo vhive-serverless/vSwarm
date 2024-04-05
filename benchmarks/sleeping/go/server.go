@@ -40,7 +40,7 @@ import (
 var (
 	zipkin                    = flag.String("zipkin", "http://localhost:9411/api/v2/spans", "zipkin url")
 	address                   = flag.String("addr", "0.0.0.0:50051", "Address:Port the grpc server is listening to")
-	delay = flag.Int("sleep-delay", 50, "Delay the function sleeps before sending the response (in milliseconds)")
+	delay                     = flag.Int("sleep-delay", 50, "Delay the function sleeps before sending the response (in milliseconds)")
 )
 
 // server is used to implement aes.AesServer.
