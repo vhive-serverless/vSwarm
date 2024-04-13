@@ -42,6 +42,7 @@ spec:
             - --generator=random
             - --lowerBound=200000
             - --upperBound=220000
+            - --profile-function=true
         - image: docker.io/vhiveease/fibonacci-nodejs-mod:latest
           args:
             - --addr=0.0.0.0
