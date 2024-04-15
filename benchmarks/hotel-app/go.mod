@@ -32,7 +32,7 @@ require (
 	github.com/sirupsen/logrus v1.9.3
 	github.com/vhive-serverless/vSwarm-proto v0.5.0
 	github.com/vhive-serverless/vSwarm/utils/tracing/go v0.0.0-20230802102142-dbfda39fc27c
-	go.mongodb.org/mongo-driver v1.14.0
+	go.mongodb.org/mongo-driver v1.15.0
 	golang.org/x/net v0.21.0
 	google.golang.org/grpc v1.61.0
 	gopkg.in/mgo.v2 v2.0.0-20190816093944-a6b53ec6cb22
