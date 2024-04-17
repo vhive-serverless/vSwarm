@@ -39,6 +39,7 @@ spec:
             - --function-endpoint-port=50051
             - --function-name=image-rotate-go
             - --value=default.jpg
+            - --profile-function=true
         - image: docker.io/vhiveease/image-rotate-go:latest
           args:
             - --addr=0.0.0.0:50051
