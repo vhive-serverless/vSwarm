@@ -34,6 +34,8 @@ jobs:
       fail-fast: false
       matrix:
         include:
+          - service: image-rotate-init-database
+            target: databaseInit
           - service: image-rotate-go
             target: imageRotateGo
           - service: image-rotate-python
@@ -155,6 +157,11 @@ jobs:
 
 
       ## Test the service
+      - name: Deploy database
+        working-directory: benchmarks/image-rotate/yamls/knative/
+        run: |
+          kubectl apply -f image-rotate-database.yaml
+
       - name: Deploy knative
         run: |
           kubectl apply -f ${{ env.YAML_DIR }}/kn-${{ matrix.service }}.yaml
@@ -185,6 +192,12 @@ jobs:
           do
             kubectl logs -n default -c $container_name -l serving.knative.dev/service=${{ matrix.service }}
           done
+
+      - name: Print logs from database
+        if: ${{ always() }}
+        run: |
+          set -x
+          kubectl logs deployment/image-rotate-database
 
       - name: Down
         if: ${{ always() }}
