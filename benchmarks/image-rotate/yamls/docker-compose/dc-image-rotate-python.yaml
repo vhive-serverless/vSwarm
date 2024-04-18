@@ -30,8 +30,26 @@ services:
       - /app/server.py
       - --addr=0.0.0.0
       - --port=50051
+      - --db_addr=mongodb://image-rotate-database:27017
     ports:
       - target: 50051
+    depends_on:
+      - image-rotate-database
+      - init-image-database
+
+  image-rotate-database:
+    image: vhiveease/mongodb
+    container_name: image-rotate-database
+
+  init-image-database:
+    image: vhiveease/image-rotate-init-database:latest
+    container_name: init-image-database
+    entrypoint: 
+      - /app/init-database
+      - --db_addr=mongodb://image-rotate-database:27017
+    restart: "no"
+    depends_on:
+      - image-rotate-database
 
   relay:
     image: vhiveease/relay-latency:latest
@@ -45,3 +63,5 @@ services:
     ports:
         - published: 50000
           target: 50000
+    depends_on:
+      - image-rotate-python
