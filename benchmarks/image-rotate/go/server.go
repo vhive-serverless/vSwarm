@@ -27,6 +27,7 @@ import (
 	"flag"
 	"fmt"
 	"os"
+	"io"
 	"net"
 	"strings"
 
@@ -37,13 +38,25 @@ import (
 
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
+
+	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
+	"go.mongodb.org/mongo-driver/mongo/gridfs"
 )
 
 var (
 	zipkin        = flag.String("zipkin", "http://localhost:9411/api/v2/spans", "zipkin url")
 	address       = flag.String("addr", "0.0.0.0:50051", "Address:Port the grpc server is listening to")
 	default_image = flag.String("default-image", "default.jpg", "Default image to be rotated if empty")
+	database_address = flag.String("db_addr", "mongodb://image-rotate-database:27017", "Address of the data-base server")
 )
+
+var (
+	client *mongo.Client
+	bucket *gridfs.Bucket
+)
+
+const dbName = "image_db"
 
 func imageRotate(imgPath string, imgOutPath string) string {
 	src, err := imaging.Open(imgPath)
@@ -68,14 +81,35 @@ type server struct {
 }
 
 func (s *server) RotateImage(ctx context.Context, in *pb.SendImage) (*pb.GetRotatedImage, error) {
+	
 	var imgPath string
 	var imgOutPath string
 	if in.GetName() == "" {
-		imgPath = "images/" + *default_image
+		imgPath = *default_image
 	} else {
-		imgPath = "images/" + in.GetName()
+		imgPath = in.GetName()
 	}
-	imgOutPath = "images/out.jpg"
+
+	if _, err := os.Stat(imgPath); err == nil {
+	} else {
+		inputImageFile, err := os.Create(imgPath)
+		if err != nil {
+			log.Warnf("Error retrieving input image: %v", err)
+		}
+		defer inputImageFile.Close()
+		downloadStream, err := bucket.OpenDownloadStreamByName(imgPath)
+		if err != nil {
+			log.Warnf("Error retrieving input image from download stream: %v", err)
+		}
+		defer downloadStream.Close()
+		// _, err = downloadStream.Copy(inputImageFile)
+		_, err = io.Copy(inputImageFile, downloadStream)
+		if err != nil {
+			log.Warnf("Error downloading input image: %v", err)
+		}
+	}
+
+	imgOutPath = "rotated_" + imgPath
 	message := imageRotate(imgPath, imgOutPath)
 	resp := fmt.Sprintf("fn: ImageRotate | image: %s | return msg: %s | runtime: Go", imgPath, message)
 	return &pb.GetRotatedImage{Message: resp}, nil
@@ -86,6 +120,7 @@ func main() {
 	LAMBDA := (ok && (strings.ToLower(val) == "true" || strings.ToLower(val) == "yes" || strings.ToLower(val) == "1"))
 	if LAMBDA {
 	} else {
+		
 		flag.Parse()
 		if tracing.IsTracingEnabled() {
 			log.Printf("Start tracing on : %s\n", *zipkin)
@@ -99,6 +134,20 @@ func main() {
 		if err != nil {
 				log.Fatalf("failed to listen: %v", err)
 		}
+		
+		// var err error
+		client, err = mongo.Connect(context.Background(), options.Client().ApplyURI(*database_address))
+		if err != nil {
+			log.Fatalf("Error connecting to MongoDB: %v", err)
+		}
+		defer client.Disconnect(context.Background())
+		bucket, err = gridfs.NewBucket(
+			client.Database(dbName),
+		)
+		if err != nil {
+			log.Fatalf("Error using GridFS: %v", err)
+		}
+
 		log.Printf("Start ImageRotate-go server. Addr: %s\n", *address)
 		var grpcServer *grpc.Server
 		if tracing.IsTracingEnabled() {

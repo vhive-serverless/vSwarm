@@ -20,37 +20,55 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-ROOT = ../../
 
-image-rotate-python: docker/Dockerfile python/server.py python/requirements.txt images/default.jpg
-	DOCKER_BUILDKIT=1 docker build \
-	--tag vhiveease/image-rotate-python:latest \
-	--target imageRotatePython \
-	-f docker/Dockerfile \
-	$(ROOT) --load
+## Database ----------
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: image-rotate-database
+  namespace: default
+spec:
+  selector:
+    matchLabels:
+      app: image-rotate-database
+  template:
+    metadata:
+      labels:
+        app: image-rotate-database
+    spec:
+      containers:
+      - name: database
+        image: docker.io/vhiveease/mongodb
+        ports:
+        - containerPort: 27017
 
-image-rotate-go: docker/Dockerfile go/server.go go/go.mod go/go.sum images/default.jpg
-	DOCKER_BUILDKIT=1 docker build \
-	--tag vhiveease/image-rotate-go:latest \
-        --target imageRotateGo \
-        -f docker/Dockerfile \
-        $(ROOT) --load
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: image-rotate-database
+  namespace: default
+spec:
+  type: ClusterIP
+  selector:
+    app: image-rotate-database
+  ports:
+  - name: database
+    port: 27017
+    targetPort: 27017
 
-init-database: docker/Dockerfile init/init-database.go images/default.jpg
-	DOCKER_BUILDKIT=1 docker build \
-	--tag vhiveease/image-rotate-init-database:latest \
-	--target databaseInit \
-	-f docker/Dockerfile \
-	$(ROOT) --load
-
-## Push images
-push:
-	docker push docker.io/vhiveease/image-rotate-init-database:latest
-	docker push docker.io/vhiveease/image-rotate-python:latest 
-	docker push docker.io/vhiveease/image-rotate-go:latest 
-
-## Pull images from docker hub
-pull:
-	docker pull docker.io/vhiveease/image-rotate-python:latest
-	docker pull docker.io/vhiveease/image-rotate-go:latest
-
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: init-image-database
+spec:
+  template:
+    spec:
+      containers:
+      - name: init-image-database
+        image: docker.io/vhiveease/image-rotate-init-database:latest
+        args:
+          - --db_addr=mongodb://image-rotate-database:27017
+      restartPolicy: Never

@@ -4,6 +4,9 @@ import sys
 import tracing
 from PIL import Image, ImageOps, ImageFilter
 
+from pymongo import MongoClient
+import gridfs
+
 LAMBDA = os.environ.get('IS_LAMBDA', 'no').lower() in ['true', 'yes', '1']
 
 # if LAMBDA is set, then ignore
@@ -22,8 +25,13 @@ if not LAMBDA:
     parser.add_argument("-p", "--port", dest="port", default="50051", help="serve port")
     parser.add_argument("-zipkin", "--zipkin", dest="url", default="http://0.0.0.0:9411/api/v2/spans", help="Zipkin endpoint url")
     parser.add_argument("--default_image", default="default.jpg", help="Default image to be rotated if empty")
+    parser.add_argument("--db_addr", default="mongodb://image-rotate-database:27017", help="Address of the data-base server")
 
     args = parser.parse_args()
+
+db_name = "image_db"
+client = MongoClient(args.db_addr)
+db = client[db_name]
 
 if tracing.IsTracingEnabled():
     tracing.initTracer("image-rotate-python", url=args.url)
@@ -46,10 +54,29 @@ def ImageRotateFunction(image_path):
 if not LAMBDA:
     class ImageRotate(image_rotate_pb2_grpc.ImageRotateServicer):
         def RotateImage(self, request, context):
+
             if request.name == "":
-                imagename = f"images/{args.default_image}"
+                imagename = f"{args.default_image}"
             else:
-                imagename = f"images/{request.name}"
+                imagename = f"{request.name}"
+
+            try:
+                with open(imagename):
+                    pass
+            except FileNotFoundError:
+                try:
+                    fs = gridfs.GridFS(db)
+                    image_file_data = fs.find_one({"filename": imagename})
+                    if image_file_data:
+                        with open(imagename, "wb") as file:
+                            file.write(image_file_data.read())
+                    else:
+                        msg = f"fn: ImageRotate | image: {imagename} | Error: ImageNotFound in GridFS | runtime: Python"
+                        return image_rotate_pb2.GetRotatedImage(message=msg)
+                except Exception as e:
+                    msg = f"fn: ImageRotate | image: {imagename} | Error: {e} | runtime: Python"
+                    return image_rotate_pb2.GetRotatedImage(message=msg)
+
             with tracing.Span("Image Rotate"):
                 return_msg = ImageRotateFunction(imagename)
             msg = f"fn: ImageRotate | image: {imagename} | return msg: {return_msg} | runtime: Python"

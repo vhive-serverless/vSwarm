@@ -43,4 +43,5 @@ spec:
         - image: docker.io/vhiveease/image-rotate-go:latest
           args:
             - --addr=0.0.0.0:50051
+            - --db_addr=mongodb://image-rotate-database:27017
 
