@@ -53,4 +53,5 @@ push:
 pull:
 	docker pull docker.io/vhiveease/image-rotate-python:latest
 	docker pull docker.io/vhiveease/image-rotate-go:latest
+	docker pull docker.io/vhiveease/image-rotate-init-database:latest
 

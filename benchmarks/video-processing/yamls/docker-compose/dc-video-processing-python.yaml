@@ -30,9 +30,24 @@ services:
       - /app/server.py
       - --addr=0.0.0.0
       - --port=50051
+      - --db_addr=mongodb://video-processing-database:27017
     ports:
       - target: 50051
-
+    depends_on:
+      - video-processing-database
+      - init-video-database
+  video-processing-database:
+    image: vhiveease/mongodb
+    container_name: video-processing-database
+  init-video-database:
+    image: vhiveease/video-processing-init-database:latest
+    container_name: init-video-database
+    entrypoint: 
+      - /app/init-database
+      - --db_addr=mongodb://video-processing-database:27017
+    restart: "no"
+    depends_on:
+      - video-processing-database
   relay:
     image: vhiveease/relay-latency:latest
     entrypoint:

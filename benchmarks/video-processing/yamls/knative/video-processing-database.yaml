@@ -20,29 +20,55 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-ROOT = ../../
 
-video-processing-python: docker/Dockerfile python/server.py python/requirements.txt videos/default.mp4
-	DOCKER_BUILDKIT=1 docker build \
-	--tag vhiveease/video-processing-python:latest \
-	--target videoProcessingPython \
-	-f docker/Dockerfile \
-	$(ROOT) --load
+## Database ----------
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: video-processing-database
+  namespace: default
+spec:
+  selector:
+    matchLabels:
+      app: video-processing-database
+  template:
+    metadata:
+      labels:
+        app: video-processing-database
+    spec:
+      containers:
+      - name: database
+        image: docker.io/vhiveease/mongodb
+        ports:
+        - containerPort: 27017
 
-init-database: docker/Dockerfile init/init-database.go videos/default.mp4
-	DOCKER_BUILDKIT=1 docker build \
-	--tag vhiveease/video-processing-init-database:latest \
-	--target databaseInit \
-	-f docker/Dockerfile \
-	$(ROOT) --load
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: video-processing-database
+  namespace: default
+spec:
+  type: ClusterIP
+  selector:
+    app: video-processing-database
+  ports:
+  - name: database
+    port: 27017
+    targetPort: 27017
 
-## Push images
-push:
-	docker push docker.io/vhiveease/video-processing-python:latest 
-	docker push docker.io/vhiveease/video-processing-init-database:latest
-
-## Pull images from docker hub
-pull:
-	docker pull docker.io/vhiveease/video-processing-python:latest
-	docker pull docker.io/vhiveease/video-processing-init-database:latest
-
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: init-video-database
+spec:
+  template:
+    spec:
+      containers:
+      - name: init-video-database
+        image: docker.io/vhiveease/video-processing-init-database:latest
+        args:
+          - --db_addr=mongodb://video-processing-database:27017
+      restartPolicy: Never

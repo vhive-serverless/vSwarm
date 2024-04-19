@@ -34,6 +34,8 @@ jobs:
       fail-fast: false
       matrix:
         include:
+          - service: video-processing-init-database
+            target: databaseInit
           - service: video-processing-python
             target: videoProcessingPython
 
@@ -149,6 +151,11 @@ jobs:
           KNATIVE_DOMAIN=$INGRESS_HOST.sslip.io
           kubectl patch configmap -n knative-serving config-domain -p "{\"data\": {\"$KNATIVE_DOMAIN\": \"\"}}"
 
+      ## Test the service
+      - name: Deploy database
+        working-directory: benchmarks/video-processing/yamls/knative/
+        run: |
+          kubectl apply -f video-processing-database.yaml
 
       ## Test the service
       - name: Deploy knative
@@ -181,6 +188,12 @@ jobs:
           do
             kubectl logs -n default -c $container_name -l serving.knative.dev/service=${{ matrix.service }}
           done
+
+      - name: Print logs from database
+        if: ${{ always() }}
+        run: |
+          set -x
+          kubectl logs deployment/video-processing-database
 
       - name: Down
         if: ${{ always() }}

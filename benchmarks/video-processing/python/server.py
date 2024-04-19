@@ -4,6 +4,9 @@ import sys
 import tracing
 import cv2
 
+from pymongo import MongoClient
+import gridfs
+
 LAMBDA = os.environ.get('IS_LAMBDA', 'no').lower() in ['true', 'yes', '1']
 
 # if LAMBDA is set, then ignore
@@ -22,8 +25,13 @@ if not LAMBDA:
     parser.add_argument("-p", "--port", dest="port", default="50051", help="serve port")
     parser.add_argument("-zipkin", "--zipkin", dest="url", default="http://0.0.0.0:9411/api/v2/spans", help="Zipkin endpoint url")
     parser.add_argument("--default_video", default="default.mp4", help="Default video to be converted to grayscale if empty")
+    parser.add_argument("--db_addr", default="mongodb://video-processing-database:27017", help="Address of the data-base server")
 
     args = parser.parse_args()
+
+db_name = "video_db"
+client = MongoClient(args.db_addr)
+db = client[db_name]
 
 if tracing.IsTracingEnabled():
     tracing.initTracer("video-processing-python", url=args.url)
@@ -57,12 +65,31 @@ def ConvertToGrayscaleFunction(video_path, output_video_path):
 if not LAMBDA:
     class VideoProcessing(video_processing_pb2_grpc.VideoProcessingServicer):
         def ConvertToGrayscale(self, request, context):
+            
             if request.name == "":
                 video_name = f"videos/{args.default_video}"
                 output_video_name = f"videos/output-{args.default_video}"
             else:
                 video_name = f"videos/{request.name}"
                 output_video_name = f"videos/output-{request.name}"
+            
+            try:
+                with open(video_name):
+                    pass
+            except FileNotFoundError:
+                try:
+                    fs = gridfs.GridFS(db)
+                    video_file_data = fs.find_one({"filename": video_name})
+                    if video_file_data:
+                        with open(video_name, "wb") as file:
+                            file.write(video_file_data.read())
+                    else:
+                        msg = f"fn: VideoProcessing | video: {video_name} | Error: VideoNotFound in GridFS | runtime: Python"
+                        return video_processing_pb2.GetGrayscaleVideo(message=msg)
+                except Exception as e:
+                    msg = f"fn: VideoProcessing | video: {video_name} | Error: {e} | runtime: Python"
+                    return video_processing_pb2.GetGrayscaleVideo(message=msg)
+
             with tracing.Span("Video Processing"):
                 return_msg = ConvertToGrayscaleFunction(video_name, output_video_name)
             msg = f"fn: VideoProcessing | video: {video_name} | return msg: {return_msg} | runtime: Python"

@@ -20,6 +20,29 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+#---------- Init-Database -----------#
+# First stage (Builder):
+    FROM vhiveease/golang-builder:latest AS databaseInitBuilder
+    WORKDIR /app/app/
+    RUN apt-get install git ca-certificates
+    
+    COPY ./benchmarks/video-processing/init/go.mod ./
+    COPY ./benchmarks/video-processing/init/go.sum ./
+    COPY ./benchmarks/video-processing/init/init-database.go ./
+    
+    RUN go mod tidy
+    RUN CGO_ENABLED=0 GOOS=linux go build -v -o ./init-database init-database.go
+    
+    # Second stage (Runner):
+    FROM scratch as databaseInit
+    WORKDIR /app/
+    COPY --from=databaseInitBuilder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
+    COPY --from=databaseInitBuilder /app/app/init-database .
+    COPY ./benchmarks/video-processing/videos/ ./videos
+    
+    ENTRYPOINT [ "/app/init-database" ]
+    
+
 #---------- PYTHON -----------#
 # First stage (Builder):
 # Install gRPC and all other dependencies

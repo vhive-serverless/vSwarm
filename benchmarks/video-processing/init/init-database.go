@@ -30,7 +30,6 @@ import (
 	"path/filepath"
 	log "github.com/sirupsen/logrus"
 
-	// "encoding/base64"
 	"io/ioutil"
 
 	"go.mongodb.org/mongo-driver/mongo"
@@ -39,14 +38,8 @@ import (
 )
 
 var (
-	database_address = flag.String("db_addr", "mongodb://image-rotate-database:27017", "Address of the data-base server")
+	database_address = flag.String("db_addr", "mongodb://video-processing-database:27017", "Address of the data-base server")
 )
-
-// Image struct to represent image data
-// type Image struct {
-//     Name string `bson:"name"`
-//     Data []byte `bson:"data"`
-// }
 
 func main() {
 	flag.Parse()
@@ -58,8 +51,7 @@ func main() {
     }
     defer client.Disconnect(context.Background())
 
-	dbName := "image_db"
-	// collection := client.Database(dbName).Collection("images")
+	dbName := "video_db"
 
 	bucket, err := gridfs.NewBucket(
 		client.Database(dbName),
@@ -68,7 +60,7 @@ func main() {
 		log.Fatalf("Error using GridFS: %v", err)
 	}
 
-	dirPath := "./images"
+	dirPath := "./videos"
 	files, err := ioutil.ReadDir(dirPath)
 	if err != nil {
 		log.Fatalf("Error finding files: %v", err)
@@ -76,10 +68,10 @@ func main() {
 
 	for _, file := range files {
 
-		if isImageFile(file.Name()) {
+		if isVideoFile(file.Name()) {
 			
-			imagePath := filepath.Join(dirPath, file.Name())
-			imageFile, err := ioutil.ReadFile(imagePath)
+			videoPath := filepath.Join(dirPath, file.Name())
+			videoFile, err := ioutil.ReadFile(videoPath)
 			if err != nil {
 				log.Warn("Error reading file: %v", err)
 				continue
@@ -88,36 +80,24 @@ func main() {
 			uploadStream, err := bucket.OpenUploadStream(file.Name())
 			defer uploadStream.Close()
 			if err != nil {
-				log.Warn("Error creating GridFS upload stream for file %q: %v", imagePath, err)
+				log.Warn("Error creating GridFS upload stream for file %q: %v", videoPath, err)
 				continue
 			}
 
-			_, err = uploadStream.Write(imageFile)
+			_, err = uploadStream.Write(videoFile)
 			if err != nil {
-				log.Warn("Error uploading file %q to GridFS: %v", imagePath, err)
+				log.Warn("Error uploading file %q to GridFS: %v", videoPath, err)
 				continue
 			}
-
-			// base64EncodedImage := base64.StdEncoding.EncodeToString(imageData)
-			// image := Image {
-			// 	Name: file.Name(),
-			// 	Data: base64EncodedImage
-			// }
-			// _, err = collection.InsertOne(context.Background(), image)
-			// if err != nil {
-			// 	log.Warn("Error inserting image into database:", err)
-			// 	continue
-			// }
-
-			log.Print("Inserted image:", file.Name())
+			log.Print("Inserted video:", file.Name())
 		}
 	}	
 
 }
 
-func isImageFile(fileName string) bool {
-	imageExtensions := []string{".jpg", ".jpeg", ".png"}
-	for _, ext := range imageExtensions {
+func isVideoFile(fileName string) bool {
+	videoExtensions := []string{".mp4"}
+	for _, ext := range videoExtensions {
 		if strings.HasSuffix(strings.ToLower(fileName), ext) {
 			return true
 		}
