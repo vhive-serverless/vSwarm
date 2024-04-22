@@ -30,6 +30,7 @@ import (
 	"fmt"
 	"os"
 	"strconv"
+	"strings"
 	"sync"
 	"sync/atomic"
 	"time"
@@ -51,11 +52,13 @@ import (
 const TimeseriesDBAddr = "10.96.0.84:90"
 
 var (
-	completed   int64
-	latSlice    LatencySlice
-	portFlag    *int
-	grpcTimeout time.Duration
-	withTracing *bool
+	completed     int64
+	latSlice      LatencySlice
+	profileSlice  LatencySlice
+	funcDurEnableFlag *bool
+	portFlag      *int
+	grpcTimeout   time.Duration
+	withTracing   *bool
 	workflowIDs map[*endpoint.Endpoint]string
 )
 
@@ -64,6 +67,8 @@ func main() {
 	rps := flag.Float64("rps", 1.0, "Target requests per second")
 	runDuration := flag.Int("time", 5, "Run the experiment for X seconds")
 	latencyOutputFile := flag.String("latf", "lat.csv", "CSV file for the latency measurements in microseconds")
+	funcDurationOutputFile := flag.String("durf", "dur.csv", "CSV file for the function duration measurements in microseconds")
+	funcDurEnableFlag = flag.Bool("profile", false, "Enable function duration measurement")
 	portFlag = flag.Int("port", 80, "The port that functions listen to")
 	withTracing = flag.Bool("trace", false, "Enable tracing in the client")
 	zipkin := flag.String("zipkin", "http://localhost:9411/api/v2/spans", "zipkin url")
@@ -107,6 +112,7 @@ func main() {
 	realRPS := runExperiment(endpoints, *runDuration, *rps)
 
 	writeLatencies(realRPS, *latencyOutputFile)
+	writeFunctionDurations(*funcDurationOutputFile)
 }
 
 func readEndpoints(path string) (endpoints []*endpoint.Endpoint, _ error) {
@@ -176,7 +182,7 @@ func SayHello(address, workflowID string) {
 	ctx, cancel := context.WithTimeout(context.Background(), grpcTimeout)
 	defer cancel()
 
-	_, err = c.SayHello(ctx, &pb.HelloRequest{
+	response, err := c.SayHello(ctx, &pb.HelloRequest{
 		Name: "Invoke relay",
 		VHiveMetadata: vhivemetadata.MakeVHiveMetadata(
 			workflowID,
@@ -184,9 +190,21 @@ func SayHello(address, workflowID string) {
 			time.Now().UTC(),
 		),
 	})
+
 	if err != nil {
 		log.Warnf("Failed to invoke %v, err=%v", address, err)
 	} else {
+		if *funcDurEnableFlag {
+			words := strings.Fields(response.Message)
+			lastWord := words[len(words)-1]
+			duration, err := strconv.ParseInt(lastWord, 10, 64)
+			if err == nil {
+				log.Debugf("Invoked %v. Response: %v\n", address, response.Message)
+				profileSlice.Lock()
+				profileSlice.slice = append(profileSlice.slice, duration)
+				profileSlice.Unlock()
+			} 
+		}
 		atomic.AddInt64(&completed, 1)
 	}
 }
@@ -256,3 +274,35 @@ func writeLatencies(rps float64, latencyOutputFile string) {
 	datawriter.Flush()
 	file.Close()
 }
+
+func writeFunctionDurations(funcDurationOutputFile string) {
+	
+	if *funcDurEnableFlag {
+
+		profileSlice.Lock()
+		defer profileSlice.Unlock()
+
+		fileName := fmt.Sprintf("%s", funcDurationOutputFile)
+		log.Info("The measured function durations are saved in ", fileName)
+
+		file, err := os.OpenFile(fileName, os.O_CREATE|os.O_WRONLY|os.O_TRUNC, 0644)
+
+		if err != nil {
+			log.Fatal("Failed creating file: ", err)
+		}
+
+		datawriter := bufio.NewWriter(file)
+
+		for _, dur := range profileSlice.slice {
+			_, err := datawriter.WriteString(strconv.FormatInt(dur, 10) + "\n")
+			if err != nil {
+				log.Fatal("Failed to write the URLs to a file ", err)
+			}
+		}
+
+		datawriter.Flush()
+		file.Close()
+
+	}
+}
+

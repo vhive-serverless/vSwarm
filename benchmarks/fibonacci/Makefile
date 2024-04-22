@@ -34,7 +34,7 @@ all-image: $(ALL_IMAGES)
 
 fibonacci-python-image:  Dockerfile python/server.py
 	DOCKER_BUILDKIT=1 docker build \
-	--tag $(DOCKER_HUB_ACCOUNT)/fibonacci-python:latest \
+	--tag $(DOCKER_HUB_ACCOUNT)/fibonacci-python-mod:latest \
 	--target fibonacciPython \
 	-f ./Dockerfile \
 	$(ROOT)
@@ -42,26 +42,26 @@ fibonacci-python-image:  Dockerfile python/server.py
 
 fibonacci-nodejs-image: Dockerfile nodejs/server.js
 	DOCKER_BUILDKIT=1 docker build \
-	--tag $(DOCKER_HUB_ACCOUNT)/fibonacci-nodejs:latest \
+	--tag $(DOCKER_HUB_ACCOUNT)/fibonacci-nodejs-mod:latest \
 	--target fibonacciNodeJS \
 	-f ./Dockerfile \
 	$(ROOT)
 
 fibonacci-go-image: Dockerfile go/server.go
 	DOCKER_BUILDKIT=1 docker build \
-	--tag $(DOCKER_HUB_ACCOUNT)/fibonacci-go:latest \
+	--tag $(DOCKER_HUB_ACCOUNT)/fibonacci-go-mod:latest \
 	--target fibonacciGo \
 	-f ./Dockerfile \
 	$(ROOT)
 
 
 push-%: %-image
-	docker push docker.io/$(DOCKER_HUB_ACCOUNT)/$(subst push-,,$@):latest
+	docker push docker.io/$(DOCKER_HUB_ACCOUNT)/$(subst push-,,$@)-mod:latest
 
 push: $(addprefix push-, $(FUNCTIONS))
 
 
 pull-%:
-	docker pull docker.io/$(DOCKER_HUB_ACCOUNT)/$(subst pull-,,$@):latest
+	docker pull docker.io/$(DOCKER_HUB_ACCOUNT)/$(subst pull-,,$@)-mod:latest
 
 pull: $(addprefix pull-, $(FUNCTIONS))

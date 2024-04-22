@@ -23,7 +23,7 @@
 version: "3.9"
 services:
   fibonacci-nodejs:
-    image: vhiveease/fibonacci-nodejs:latest
+    image: vhiveease/fibonacci-nodejs-mod:latest
     container_name: fibonacci-nodejs
     entrypoint:
       - node
@@ -39,7 +39,7 @@ services:
       - zipkin
 
   relay:
-    image: vhiveease/relay:latest
+    image: vhiveease/relay-latency:latest
     entrypoint:
       - /app/server
       - --addr=0.0.0.0:50000

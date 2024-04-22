@@ -23,7 +23,7 @@
 version: "3.9"
 services:
   fibonacci-python:
-    image: vhiveease/fibonacci-python:latest
+    image: vhiveease/fibonacci-python-mod:latest
     container_name: fibonacci-python
     entrypoint:
       - python
@@ -34,7 +34,7 @@ services:
       - target: 50051
 
   relay:
-    image: vhiveease/relay:latest
+    image: vhiveease/relay-latency:latest
     entrypoint:
       - /app/server
       - --addr=0.0.0.0:50000
