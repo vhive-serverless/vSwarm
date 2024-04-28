@@ -45,4 +45,6 @@ spec:
             - --addr=0.0.0.0
             - --port=50051
             - --db_addr=mongodb://video-processing-database:27017
+            - --default_video=default.mp4
+            - --num_frames=10
 

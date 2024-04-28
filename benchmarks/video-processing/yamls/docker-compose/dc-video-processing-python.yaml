@@ -31,17 +31,19 @@ services:
       - --addr=0.0.0.0
       - --port=50051
       - --db_addr=mongodb://video-processing-database:27017
+      - --default_video=default.mp4
+      - --num_frames=10
     ports:
       - target: 50051
     depends_on:
       - video-processing-database
-      - init-video-database
+      - init-video-processing-database
   video-processing-database:
     image: vhiveease/mongodb
     container_name: video-processing-database
-  init-video-database:
+  init-video-processing-database:
     image: vhiveease/video-processing-init-database:latest
-    container_name: init-video-database
+    container_name: init-video-processing-database
     entrypoint: 
       - /app/init-database
       - --db_addr=mongodb://video-processing-database:27017

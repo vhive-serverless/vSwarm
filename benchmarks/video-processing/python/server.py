@@ -25,9 +25,11 @@ if not LAMBDA:
     parser.add_argument("-p", "--port", dest="port", default="50051", help="serve port")
     parser.add_argument("-zipkin", "--zipkin", dest="url", default="http://0.0.0.0:9411/api/v2/spans", help="Zipkin endpoint url")
     parser.add_argument("--default_video", default="default.mp4", help="Default video to be converted to grayscale if empty")
+    parser.add_argument("--num_frames", default=5, help="Number of frames to be considered")
     parser.add_argument("--db_addr", default="mongodb://video-processing-database:27017", help="Address of the data-base server")
 
     args = parser.parse_args()
+    args.num_frames = int(args.num_frames)
 
 db_name = "video_db"
 client = MongoClient(args.db_addr)
@@ -48,13 +50,11 @@ def ConvertToGrayscaleFunction(video_path, output_video_path):
         fourcc = cv2.VideoWriter_fourcc(*'XVID')
         result_video = cv2.VideoWriter(output_video_path, fourcc, 20.0, (width, height))
 
-        while video.isOpened():
-            ret, frame = video.read()
-            if ret:
-                gray_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-                result_video.write(gray_frame)
-            else:
-                break
+        for _ in range(args.num_frames):
+            success, frame = video.read()
+            if not success: break
+            gray_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+            result_video.write(gray_frame)
 
         video.release()
         result_video.release()

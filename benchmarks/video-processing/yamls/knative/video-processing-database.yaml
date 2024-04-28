@@ -62,12 +62,12 @@ spec:
 apiVersion: batch/v1
 kind: Job
 metadata:
-  name: init-video-database
+  name: init-video-processing-database
 spec:
   template:
     spec:
       containers:
-      - name: init-video-database
+      - name: init-video-processing-database
         image: docker.io/vhiveease/video-processing-init-database:latest
         args:
           - --db_addr=mongodb://video-processing-database:27017
