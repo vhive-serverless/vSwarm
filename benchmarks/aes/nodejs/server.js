@@ -162,7 +162,7 @@ function showEncryption(call, callback) {
     plaintext = default_plaintext
   }
   const ciphertext = AESModeCTR(plaintext)
-  var msg = `fn: AES | plaintext: ${plaintext} ciphertext: ${ciphertext} | runtime: NodeJS`;
+  var msg = `fn: AES | runtime: NodeJS`;
 
   if (tracing.IsTracingEnabled()) {
     span.addEvent(msg);
