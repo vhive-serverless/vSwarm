@@ -32,7 +32,7 @@ services:
       - --port=50051
       - --db_addr=mongodb://video-analytics-standalone-database:27017
       - --default_video=default.mp4
-      - --num_frames=70
+      - --num_frames=10
     ports:
       - target: 50051
     depends_on:
