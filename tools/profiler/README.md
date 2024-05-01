@@ -18,7 +18,7 @@ The profiler utilizes the single node stock-only cluster setup as per [vHive qui
 
 ### Python packages
 ```bash
-pip3 install numpy jq typing matplotlib argparse PyYAML
+pip3 install -r requirements.txt
 ```
 
 ## Profiling
@@ -120,7 +120,7 @@ An example output profile file can look like this
 }
 ```
 
-The tool runs the `invoker` at a steady RPS (0.2 requests-per-second by default) and simultaneously monitors the CPU and memory utilization of the pod of the function being profiled. Users can utilize `-rps` or `--rps` to change the invocation rate, but it is highly recommended that the RPS < 0.5 to avoid creating multiple pod instances (as it might interfere with the profiling). The duration of the experiment can be changed using `-dur` or `--run_duration` flags. Users can also change the number of CPU and memory sampling points using `-iter` or `--sample_iter` flags. 
+The tool runs the `invoker` at a steady RPS (0.2 requests-per-second by default) and simultaneously monitors the CPU and memory utilization of the pod of the function being profiled. Ensure that the `invoker` binary exists. Users can utilize `-rps` or `--rps` to change the invocation rate, but it is highly recommended that the RPS < 0.5 to avoid creating multiple pod instances (as it might interfere with the profiling). The duration of the experiment can be changed using `-dur` or `--run_duration` flags. Users can also change the number of CPU and memory sampling points using `-iter` or `--sample_iter` flags. 
 
 The profiling tool utilizes the `kubectl top command` to measure the CPU and memory utilization of the functions. This command requires `metrics-server` to be deployed. The YAML file for metrics-server is located at `./metrics-server/components.yaml` (User can utilize `-metset` or `--metrics_server` to change this path). The metrics-server is configured to monitor the utilization every 15 seconds. Hence, it is recommended that the number of sampling points be given such that the time between samples(duration/sample_iter) is greater than 15s to avoid oversampling. 
 

@@ -22,7 +22,7 @@ def run_and_collect_stats(args):
     else: setLogLevel("INFO") 
 
     metrics_server_loc = args.metrics_server
-    yamls_folder = args.yaml_files
+    invoker_binary_path = args.invoker
     build_folder = args.build
     config_file = args.config_file
     output_file = args.output_json
@@ -53,11 +53,6 @@ def run_and_collect_stats(args):
             f"Metrics Server YAML file not found. CPU and Memory metrics are not obtained"
         )
 
-    # If config file is available, then obtain the YAML filename, corresponding
-    # predeployment and postdeployment commands from the config file.
-    # If config file is not available, or read improperly, then deploy all the YAML
-    # files in the yamls_folder with default commands.
-    utilize_config_file = False
     functions = []
 
     # Check whether the config file exists or not
@@ -88,22 +83,11 @@ def run_and_collect_stats(args):
                 functions.append(function)
             utilize_config_file = True
         except Exception as e:
-            log.warning(f"Config file {config_file} cannot be read")
+            log.critical(f"Config file {config_file} cannot be read")
+            return
     else:
-        log.warning(f"Config file {config_file} cannot be read")
-
-    if not utilize_config_file:
-        log.warning(
-            f"Config file {config_file} error. All the YAML files in {yamls_folder} are profiled"
-        )
-        search_pattern = os.path.join(yamls_folder, "*.yaml")
-        yaml_files = glob.glob(search_pattern)
-        for yf in yaml_files:
-            function = {}
-            function["yaml-location"] = yf
-            function["predeployment-commands"] = []
-            function["postdeployment-commands"] = []
-            functions.append(function)
+        log.critical(f"Config file {config_file} cannot be read")
+        return
 
     stats = {}
 
@@ -142,7 +126,7 @@ def run_and_collect_stats(args):
         run_invoker_in_background = threading.Thread(
             target=run_invoker,
             args=(
-                "invoker",
+                invoker_binary_path,
                 f"{build_folder}/{yaml_name}",
                 f"{build_folder}/{yaml_name}",
                 f"{build_folder}/{yaml_name}",
@@ -176,12 +160,13 @@ def run_and_collect_stats(args):
         stats[f"{function_name}"]["memory"] = data["memory"]
         stats[f"{function_name}"]["duration"] = data["duration"]
 
+        # Delete all services
+        delete_all_services()
+
         if pod_name != None:
             _ = delete_pod(pod_name=pod_name)
             _ = wait_until_pod_is_deleted(pod_name=pod_name)
 
-        # Delete all services
-        delete_all_services()
 
     with open(output_file, "w") as json_file:
         json.dump(stats, json_file, indent=4)
@@ -258,12 +243,12 @@ def main():
         help="Path to Metrics Server YAML deployment file",
     )
     collect_parser.add_argument(
-        "-yaml",
-        "--yaml_files",
+        "-invoker",
+        "--invoker",
         metavar="path",
         required=False,
-        default="yamls",
-        help="Path to Function YAML files",
+        default="invoker/invoker",
+        help="Path to invoker binary",
     )
     collect_parser.add_argument(
         "-build",

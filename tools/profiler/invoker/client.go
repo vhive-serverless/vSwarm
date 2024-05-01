@@ -52,11 +52,13 @@ import (
 const TimeseriesDBAddr = "10.96.0.84:90"
 
 var (
-	completed   int64
-	latSlice    LatencySlice
-	portFlag    *int
-	grpcTimeout time.Duration
-	withTracing *bool
+	completed     int64
+	latSlice      LatencySlice
+	profileSlice  LatencySlice
+	funcDurEnableFlag *bool
+	portFlag      *int
+	grpcTimeout   time.Duration
+	withTracing   *bool
 	workflowIDs map[*endpoint.Endpoint]string
 )
 
@@ -65,6 +67,8 @@ func main() {
 	rps := flag.Float64("rps", 1.0, "Target requests per second")
 	runDuration := flag.Int("time", 5, "Run the experiment for X seconds")
 	latencyOutputFile := flag.String("latf", "lat.csv", "CSV file for the latency measurements in microseconds")
+	funcDurationOutputFile := flag.String("durf", "dur.csv", "CSV file for the function duration measurements in microseconds")
+	funcDurEnableFlag = flag.Bool("profile", false, "Enable function duration measurement")
 	portFlag = flag.Int("port", 80, "The port that functions listen to")
 	withTracing = flag.Bool("trace", false, "Enable tracing in the client")
 	zipkin := flag.String("zipkin", "http://localhost:9411/api/v2/spans", "zipkin url")
@@ -108,6 +112,7 @@ func main() {
 	realRPS := runExperiment(endpoints, *runDuration, *rps)
 
 	writeLatencies(realRPS, *latencyOutputFile)
+	writeFunctionDurations(*funcDurationOutputFile)
 }
 
 func readEndpoints(path string) (endpoints []*endpoint.Endpoint, _ error) {
@@ -153,6 +158,7 @@ loop:
 
 	duration := time.Since(start).Seconds()
 	realRPS = float64(completed) / duration
+	addDurations(End())
 	log.Infof("Issued / completed requests: %d, %d", issued, completed)
 	log.Infof("Real / target RPS: %.2f / %v", realRPS, targetRPS)
 	log.Println("Experiment finished!")
@@ -188,15 +194,17 @@ func SayHello(address, workflowID string) {
 	if err != nil {
 		log.Warnf("Failed to invoke %v, err=%v", address, err)
 	} else {
-		words := strings.Fields(response.Message)
-		lastWord := words[len(words)-1]
-		duration, err := strconv.ParseInt(lastWord, 10, 64)
-		if err == nil {
-			log.Debugf("Invoked %v. Response: %v\n", address, response.Message)
-			latSlice.Lock()
-			latSlice.slice = append(latSlice.slice, duration)
-			latSlice.Unlock()
-		} 
+		if *funcDurEnableFlag {
+			words := strings.Fields(response.Message)
+			lastWord := words[len(words)-1]
+			duration, err := strconv.ParseInt(lastWord, 10, 64)
+			if err == nil {
+				log.Debugf("Invoked %v. Response: %v\n", address, response.Message)
+				profileSlice.Lock()
+				profileSlice.slice = append(profileSlice.slice, duration)
+				profileSlice.Unlock()
+			} 
+		}
 		atomic.AddInt64(&completed, 1)
 	}
 }
@@ -209,6 +217,8 @@ func invokeEventingFunction(endpoint *endpoint.Endpoint) {
 }
 
 func invokeServingFunction(endpoint *endpoint.Endpoint) {
+	defer getDuration(startMeasurement(endpoint.Hostname)) // measure entire invocation time
+
 	address := fmt.Sprintf("%s:%d", endpoint.Hostname, *portFlag)
 	log.Debug("Invoking: ", address)
 
@@ -221,12 +231,29 @@ type LatencySlice struct {
 	slice []int64
 }
 
+func startMeasurement(msg string) (string, time.Time) {
+	return msg, time.Now()
+}
+
+func getDuration(msg string, start time.Time) {
+	latency := time.Since(start)
+	log.Debugf("Invoked %v in %v usec\n", msg, latency.Microseconds())
+	addDurations([]time.Duration{latency})
+}
+
+func addDurations(ds []time.Duration) {
+	latSlice.Lock()
+	for _, d := range ds {
+		latSlice.slice = append(latSlice.slice, d.Microseconds())
+	}
+	latSlice.Unlock()
+}
 
 func writeLatencies(rps float64, latencyOutputFile string) {
 	latSlice.Lock()
 	defer latSlice.Unlock()
 
-	fileName := fmt.Sprintf("%s", latencyOutputFile)
+	fileName := fmt.Sprintf("rps%.2f_%s", rps, latencyOutputFile)
 	log.Info("The measured latencies are saved in ", fileName)
 
 	file, err := os.OpenFile(fileName, os.O_CREATE|os.O_WRONLY|os.O_TRUNC, 0644)
@@ -247,3 +274,35 @@ func writeLatencies(rps float64, latencyOutputFile string) {
 	datawriter.Flush()
 	file.Close()
 }
+
+func writeFunctionDurations(funcDurationOutputFile string) {
+	
+	if *funcDurEnableFlag {
+
+		profileSlice.Lock()
+		defer profileSlice.Unlock()
+
+		fileName := fmt.Sprintf("%s", funcDurationOutputFile)
+		log.Info("The measured function durations are saved in ", fileName)
+
+		file, err := os.OpenFile(fileName, os.O_CREATE|os.O_WRONLY|os.O_TRUNC, 0644)
+
+		if err != nil {
+			log.Fatal("Failed creating file: ", err)
+		}
+
+		datawriter := bufio.NewWriter(file)
+
+		for _, dur := range profileSlice.slice {
+			_, err := datawriter.WriteString(strconv.FormatInt(dur, 10) + "\n")
+			if err != nil {
+				log.Fatal("Failed to write the URLs to a file ", err)
+			}
+		}
+
+		datawriter.Flush()
+		file.Close()
+
+	}
+}
+

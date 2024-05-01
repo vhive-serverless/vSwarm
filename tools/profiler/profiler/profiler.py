@@ -10,7 +10,7 @@ from typing import Tuple
 
 
 def run_invoker(
-    invoker_location: str,
+    invoker_path: str,
     endpoints_location: str,
     duration_txt_location: str,
     invoker_output_location: str,
@@ -21,7 +21,7 @@ def run_invoker(
     Runs the invoker. Functions are invoked
 
     Parameters:
-    - `invoker_location` (str): invoker binary executable location
+    - `invoker_path` (str): invoker binary executable location
     - `endpoints_location` (str): endpoints.json file location
     - `duration_txt_location` (str): location at which latencies must be stored
     - `invoker_output_location` (str): invoker output stored in this location
@@ -34,7 +34,7 @@ def run_invoker(
 
     try:
         log.debug(f"Function invocation started")
-        run_invoker_command = f"sudo {invoker_location}/invoker -port=80 -time={int(run_duration)} -rps={rps} -dbg=true -endpointsFile='{endpoints_location}/endpoints.json' -latf='{duration_txt_location}/duration.txt' > {invoker_output_location}/invoker.log"
+        run_invoker_command = f"sudo {invoker_path} -profile=true -port=80 -time={int(run_duration)} -rps={rps} -dbg=true -endpointsFile='{endpoints_location}/endpoints.json' -durf='{duration_txt_location}/duration.txt' > {invoker_output_location}/invoker.log"
         result = subprocess.run(
             run_invoker_command,
             shell=True,

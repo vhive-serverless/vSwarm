@@ -8,7 +8,7 @@ The profiler utilizes the stock-only cluster setup as per [vHive quickstart guid
 
 ### Python packages
 ```bash
-pip3 install numpy jq typing matplotlib argparse PyYAML scipy
+pip3 install -r requirements.txt
 ```
 
 ## Generating load
