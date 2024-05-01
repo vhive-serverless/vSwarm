@@ -89,7 +89,7 @@ func (s *server) ShowEncryption(ctx context.Context, in *pb.PlainTextMessage) (*
 	}
 	// Do the encryption
 	ciphertext = AESModeCTR(plaintext)
-	resp := fmt.Sprintf("fn: AES | plaintext: %s | ciphertext: %x | runtime: golang", plaintext[:10], ciphertext[:10])
+	resp := fmt.Sprintf("fn: AES | plaintext: %s | ciphertext: %x | runtime: golang", plaintext, ciphertext)
 	return &pb.ReturnEncryptionInfo{EncryptionInfo: resp}, nil
 }
 

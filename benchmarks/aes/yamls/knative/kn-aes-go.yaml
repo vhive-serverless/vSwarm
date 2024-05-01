@@ -43,6 +43,6 @@ spec:
             - --lowerBound=1
             - --upperBound=10
             - --profile-function=true
-        - image: docker.io/vhiveease/aes-go-mod:latest
+        - image: docker.io/vhiveease/aes-go:latest
           args:
             - --addr=0.0.0.0:50051

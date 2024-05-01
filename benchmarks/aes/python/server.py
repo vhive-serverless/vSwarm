@@ -73,7 +73,7 @@ if not LAMBDA:
                 plaintext = request.plaintext_message
             with tracing.Span("AES Encryption"):
                 ciphertext = AESModeCTR(plaintext)
-            msg = f"fn: AES | runtime: Python"
+            msg = f"fn: AES | plaintext: {plaintext} | ciphertext: {ciphertext}| runtime: Python"
             return aes_pb2.ReturnEncryptionInfo(encryption_info=msg)
 
 if LAMBDA:

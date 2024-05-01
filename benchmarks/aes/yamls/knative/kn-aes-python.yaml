@@ -43,7 +43,7 @@ spec:
             - --lowerBound=1
             - --upperBound=10
             - --profile-function=true
-        - image: docker.io/vhiveease/aes-python-mod:latest
+        - image: docker.io/vhiveease/aes-python:latest
           args:
             - --addr=0.0.0.0
             - --port=50051
