@@ -1,0 +1,27 @@
+
+apiVersion: serving.knative.dev/v1
+kind: Service
+metadata:
+  name: fibonacci-go-10-10
+  namespace: default
+spec:
+  template:
+    spec:
+      containers:
+        - image: docker.io/vhiveease/relay-latency:latest
+          ports:
+            - name: h2c
+              containerPort: 50000
+          args:
+            - --addr=0.0.0.0:50000
+            - --function-endpoint-url=0.0.0.0
+            - --function-endpoint-port=50051
+            - --function-name=fibonacci-go
+            - --value=10
+            - --generator=random
+            - --lowerBound=10
+            - --upperBound=10
+            - --profile-function=true
+        - image: docker.io/vhiveease/fibonacci-go-mod:latest
+          args:
+            - --addr=0.0.0.0:50051

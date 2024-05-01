@@ -1,0 +1,28 @@
+
+apiVersion: serving.knative.dev/v1
+kind: Service
+metadata:
+  name: video-processing-python-2000
+  namespace: default
+spec:
+  template:
+    spec:
+      containers:
+        - image: docker.io/vhiveease/relay-latency:latest
+          ports:
+            - name: h2c
+              containerPort: 50000
+          args:
+            - --addr=0.0.0.0:50000
+            - --function-endpoint-url=0.0.0.0
+            - --function-endpoint-port=50051
+            - --function-name=video-processing-python
+            - --value=video2.mp4
+            - --profile-function=true
+        - image: docker.io/vhiveease/video-processing-python:latest
+          args:
+            - --addr=0.0.0.0
+            - --port=50051
+            - --db_addr=mongodb://video-processing-database:27017
+            - --default_video=default.mp4
+            - --num_frames=2000

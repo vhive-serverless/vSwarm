@@ -1,0 +1,27 @@
+
+apiVersion: serving.knative.dev/v1
+kind: Service
+metadata:
+  name: image-rotate-go-3
+  namespace: default
+spec:
+  template:
+    spec:
+      containers:
+        - image: docker.io/vhiveease/relay-latency:latest
+          ports:
+            - name: h2c
+              containerPort: 50000
+          args:
+            - --addr=0.0.0.0:50000
+            - --function-endpoint-url=0.0.0.0
+            - --function-endpoint-port=50051
+            - --function-name=image-rotate-go
+            - --value=img3.jpg
+            - --profile-function=true
+        - image: docker.io/vhiveease/image-rotate-go:latest
+          args:
+            - --addr=0.0.0.0:50051
+            - --db_addr=mongodb://image-rotate-database:27017
+
+

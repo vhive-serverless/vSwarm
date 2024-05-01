@@ -1,0 +1,27 @@
+
+apiVersion: serving.knative.dev/v1
+kind: Service
+metadata:
+  name: aes-go-20000-20200
+  namespace: default
+spec:
+  template:
+    spec:
+      containers:
+        - image: docker.io/vhiveease/relay-latency:latest
+          ports:
+            - name: h2c
+              containerPort: 50000
+          args:
+            - --addr=0.0.0.0:50000
+            - --function-endpoint-url=0.0.0.0
+            - --function-endpoint-port=50051
+            - --function-name=aes-go
+            - --value=10
+            - --generator=random
+            - --lowerBound=20000
+            - --upperBound=20200
+            - --profile-function=true
+        - image: docker.io/vhiveease/aes-go:latest
+          args:
+            - --addr=0.0.0.0:50051
