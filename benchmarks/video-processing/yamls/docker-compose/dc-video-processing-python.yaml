@@ -58,7 +58,7 @@ services:
       - --function-endpoint-url=video-processing-python
       - --function-endpoint-port=50051
       - --function-name=video-processing-python
-      - --value=default.mp4
+      - --value=video3.mp4
     ports:
         - published: 50000
           target: 50000

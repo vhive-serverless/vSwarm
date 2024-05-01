@@ -62,12 +62,12 @@ spec:
 apiVersion: batch/v1
 kind: Job
 metadata:
-  name: init-image-database
+  name: init-image-rotate-database-1
 spec:
   template:
     spec:
       containers:
-      - name: init-image-database
+      - name: init-image-rotate-database-1
         image: docker.io/vhiveease/image-rotate-init-database:latest
         args:
           - --db_addr=mongodb://image-rotate-database:27017

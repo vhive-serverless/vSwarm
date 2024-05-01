@@ -38,7 +38,7 @@ spec:
             - --function-endpoint-url=0.0.0.0
             - --function-endpoint-port=50051
             - --function-name=video-analytics-standalone-python
-            - --value=default.mp4
+            - --value=video1.mp4
             - --profile-function=true
         - image: docker.io/vhiveease/video-analytics-standalone-python:latest
           args:

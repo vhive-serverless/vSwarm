@@ -38,7 +38,7 @@ spec:
             - --function-endpoint-url=0.0.0.0
             - --function-endpoint-port=50051
             - --function-name=image-rotate-python
-            - --value=default.jpg
+            - --value=img4.jpg
             - --profile-function=true
         - image: docker.io/vhiveease/image-rotate-python:latest
           args:

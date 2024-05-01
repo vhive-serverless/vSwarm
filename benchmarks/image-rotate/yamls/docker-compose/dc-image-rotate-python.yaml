@@ -35,15 +35,15 @@ services:
       - target: 50051
     depends_on:
       - image-rotate-database
-      - init-image-database
+      - init-image-rotate-database
 
   image-rotate-database:
     image: vhiveease/mongodb
     container_name: image-rotate-database
 
-  init-image-database:
+  init-image-rotate-database:
     image: vhiveease/image-rotate-init-database:latest
-    container_name: init-image-database
+    container_name: init-image-rotate-database
     entrypoint: 
       - /app/init-database
       - --db_addr=mongodb://image-rotate-database:27017
