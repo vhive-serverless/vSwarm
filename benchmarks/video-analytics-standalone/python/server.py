@@ -105,9 +105,9 @@ if not LAMBDA:
         def ObjectDetection(self, request, context):
             
             if request.name == "":
-                video_name = f"videos/{args.default_video}"
+                video_name = f"{args.default_video}"
             else:
-                video_name = f"videos/{request.name}"
+                video_name = f"{request.name}"
             
             try:
                 with open(video_name):

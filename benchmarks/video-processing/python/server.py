@@ -67,11 +67,11 @@ if not LAMBDA:
         def ConvertToGrayscale(self, request, context):
             
             if request.name == "":
-                video_name = f"videos/{args.default_video}"
-                output_video_name = f"videos/output-{args.default_video}"
+                video_name = f"{args.default_video}"
+                output_video_name = f"output-{args.default_video}"
             else:
-                video_name = f"videos/{request.name}"
-                output_video_name = f"videos/output-{request.name}"
+                video_name = f"{request.name}"
+                output_video_name = f"output-{request.name}"
             
             try:
                 with open(video_name):

@@ -60,7 +60,6 @@ ADD https://raw.githubusercontent.com/vhive-serverless/vSwarm-proto/newfuncs_v0.
 FROM vhiveease/python-slim:latest as videoAnalyticsStandalonePython
 COPY --from=videoAnalyticsStandalonePythonBuilder /root/.local /root/.local
 COPY --from=videoAnalyticsStandalonePythonBuilder /py /app
-COPY ./benchmarks/video-analytics-standalone/videos/ /app/videos
 WORKDIR /app
 # ENV PATH=/root/.local/bin:$PATH
 ENTRYPOINT [ "python3", "/app/server.py" ]
