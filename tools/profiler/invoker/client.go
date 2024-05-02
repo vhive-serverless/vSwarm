@@ -127,15 +127,43 @@ func readEndpoints(path string) (endpoints []*endpoint.Endpoint, _ error) {
 }
 
 func runExperiment(endpoints []*endpoint.Endpoint, runDuration int, targetRPS float64) (realRPS float64) {
-	var issued int
 
 	Start(TimeseriesDBAddr, endpoints, workflowIDs)
 
-	timeout := time.After(time.Duration(runDuration) * time.Second)
-	d := time.Duration(1000000/targetRPS) * time.Microsecond
-	if d <= 0 {
+	// Calculation to find the right RPS
+	for _, ep := range endpoints {
+		if ep.Eventing {
+			invokeEventingFunction(ep)
+		} else {
+			invokeServingFunction(ep)
+		}
+	}
+	latSlice.Lock()
+	var maxLatency int64
+	maxLatency = 0
+	for _, value := range latSlice.slice {
+		if value > maxLatency {
+			maxLatency = value
+		}
+	}
+	latSlice.slice = []int64{}
+	latSlice.Unlock()
+
+	// ACTUAL EXPERIMENT
+
+	var issued int
+
+	var dur float64
+	if ((1000000/targetRPS) > (float64(maxLatency)*1.2)) {
+		dur = 1000000/targetRPS
+	} else {
+		dur = float64(maxLatency) * 1.2
+	}
+	d := time.Duration(dur) * time.Microsecond
+	if d <= 1 {
 		log.Fatalln("Target RPS is too high")
 	}
+	timeout := time.After(time.Duration(runDuration) * time.Second)
 	tick := time.Tick(d)
 	start := time.Now()
 loop:
