@@ -148,6 +148,9 @@ func runExperiment(endpoints []*endpoint.Endpoint, runDuration int, targetRPS fl
 	}
 	latSlice.slice = []int64{}
 	latSlice.Unlock()
+	profileSlice.Lock()
+	profileSlice.slice = []int64{}
+	profileSlice.Unlock()
 
 	// ACTUAL EXPERIMENT
 
