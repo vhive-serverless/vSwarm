@@ -36,8 +36,10 @@ def get_error(trace_function, proxy_function) -> float:
     try:
         if trace_memory == 0: trace_memory += 0.01
         if trace_duration == 0: trace_duration += 0.01
-        diff_memory = (trace_memory - proxy_memory) / trace_memory
-        diff_duration = (trace_duration - proxy_duration) / trace_duration
+        # diff_memory = (trace_memory - proxy_memory) / trace_memory
+        # diff_duration = (trace_duration - proxy_duration) / trace_duration
+        diff_memory = (math.log(trace_memory) - math.log(proxy_memory)) 
+        diff_duration = (math.log(trace_duration) - math.log(proxy_duration)) 
         error = math.sqrt((diff_memory) ** 2 + (diff_duration) ** 2)
         return error
     except ValueError as e:

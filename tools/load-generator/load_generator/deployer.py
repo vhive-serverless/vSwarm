@@ -170,7 +170,7 @@ def deploy_services(
 
         # Creating a service, yaml file whose service name is unique
         characters = string.ascii_lowercase + string.digits
-        random_string = "".join(secrets.choice(characters) for _ in range(32))
+        random_string = "".join(secrets.choice(characters) for _ in range(20))
         yaml_function_name = yaml_function_name + "-" + random_string
         yaml_data["metadata"]["name"] = yaml_function_name
         trace_function["proxy-function-name"] = yaml_function_name
@@ -243,6 +243,10 @@ def deploy_services(
             log.debug(
                 f"{shell_filename} executed successfully with return code: {result.returncode}"
             )
+            log.debug(
+                f"Proxy service for {trace_function['name']}: {trace_function['proxy-function-name']} service deployed"
+            )
+            return trace_function, 0
         except subprocess.CalledProcessError as e:
             log.error(
                 f"{shell_filename} execution failed. Return code: {e.returncode}. Error: {e.stderr.decode('utf-8')}"
@@ -251,63 +255,6 @@ def deploy_services(
         except Exception as e:
             log.error(f"{shell_filename} execution failed. Error: {e}")
             return trace_function, -1
-
-        # Given the function name, get the service status
-        def get_service_status(function_name: str) -> bool:
-            try:
-                get_service_command = f"kn service list --no-headers"
-                result = subprocess.run(
-                    get_service_command,
-                    shell=True,
-                    check=True,
-                    stdout=subprocess.PIPE,
-                    stderr=subprocess.PIPE,
-                )
-                services = result.stdout.decode("utf-8").strip().split("\n")
-                for s in services:
-                    try:
-                        service_name = s.split()[0]
-                        service_status = s.split()[8]
-                    except IndexError:
-                        continue
-                    if function_name in service_name:
-                        if service_status == "True":
-                            return True
-                        else:
-                            return False
-                return False
-            except subprocess.CalledProcessError as e:
-                log.warning(
-                    f"Service can't be monitored. Return code: {e.returncode}. Error: {e.stderr.decode('utf-8')}"
-                )
-                return False
-            except Exception as e:
-                log.warning(f"Service can't be monitored. Error: {e}")
-                return False
-
-        # Monitor the service, until it is ready
-        # Monitoring happens every 5 seconds for 15 minutes. If it shows failure even after that then it returns failure
-        monitor_time = 15 * 60
-        sleep_time = 5
-        status = False
-        for _ in range(int(monitor_time / sleep_time)):
-            status = get_service_status(trace_function["proxy-function-name"])
-            if status:
-                break
-            else:
-                time.sleep(sleep_time)
-
-        if status:
-            log.debug(
-                f"Proxy service for {trace_function['name']}: {trace_function['proxy-function-name']} service deployed"
-            )
-            return trace_function, 0
-        else:
-            log.error(
-                f"Proxy service for {trace_function['name']} service not deployed"
-            )
-            return trace_function, -1
-
 
     # Check whether folder where shell scripts are to be located exists or not
     if not os.path.exists(build_shell_scripts_location):
@@ -381,6 +328,8 @@ def deploy_services(
         if "postdeployment-commands" not in proxy_functions[function_name]:
             proxy_functions[function_name]["postdeployment-commands"] = []
 
+    deployed_services_names = []
+
     for trace_function_name in trace_functions:
         tf = trace_functions[trace_function_name]
         proxy_function_name = tf["proxy-function"]
@@ -389,10 +338,76 @@ def deploy_services(
         except KeyError:
             log.error(f"{trace_function_name} excluded since proxy function not found")
             continue
-        trace_functions[trace_function_name], _ = deploy_service(
+        trace_functions[trace_function_name], e = deploy_service(
             trace_function=tf,
             proxy_function=pf,
             build_shell_scripts_location=build_shell_scripts_location,
+        )
+        if e == 0: deployed_services_names.append(tf["proxy-function-name"])
+
+
+    def get_service_status(function_names: list) -> bool:
+
+        try:
+            service_status = {}
+            for function_name in function_names:
+                service_status[function_name] = False
+
+            get_service_command = f"kn service list --no-headers"
+            result = subprocess.run(
+                get_service_command,
+                shell=True,
+                check=True,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+            )
+            services = result.stdout.decode("utf-8").strip().split("\n")
+
+            for s in services:
+                try:
+                    name = s.split()[0]
+                    status = s.split()[8]
+                except IndexError:
+                    continue
+                for function_name in function_names:
+                    if function_name in name:
+                        if status == "True":
+                            service_status[function_name] = True
+                        else:
+                            service_status[function_name] = False
+
+            for function_name in function_names:
+                if service_status[function_name] == False: return False
+            return True
+
+        except subprocess.CalledProcessError as e:
+            log.warning(
+                f"Service can't be monitored. Return code: {e.returncode}. Error: {e.stderr.decode('utf-8')}"
+            )
+            return False
+        except Exception as e:
+            log.warning(f"Service can't be monitored. Error: {e}")
+            return False
+
+    # Monitor the service, until it is ready
+    # Monitoring happens every 15 seconds. If it shows failure even after that then it returns failure
+    monitor_time =30 * len(deployed_services_names)
+    sleep_time = 15
+    status = False
+    for _ in range(int(monitor_time / sleep_time)):
+        status = get_service_status(deployed_services_names)
+        if status:
+            break
+        else:
+            time.sleep(sleep_time)
+
+    if status:
+        log.info(
+            f"All Proxy services are deployed successfully"
+        )
+    else:
+        log.error(
+            f"Some Proxy services are NOT deployed successfully"
         )
 
     return trace_functions, proxy_functions, 0

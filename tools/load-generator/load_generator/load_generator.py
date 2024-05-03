@@ -164,9 +164,9 @@ def generate_load_timestamp(trace_functions: dict, duration: int) -> list:
             for iat in trace_functions[function_name]["invocation-timestamps"][minute]:
                 # If proxy-function-endpoint is not available
                 if "proxy-function-endpoint" not in trace_functions[function_name]:
-                    log.warning(
-                        f"Proxy endpoint for the function {function_name} not found"
-                    )
+                    # log.warning(
+                    #     f"Proxy endpoint for the function {function_name} not found"
+                    # )
                     continue
                 invocations_dict[iat] = trace_functions[function_name][
                     "proxy-function-endpoint"
