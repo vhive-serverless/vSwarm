@@ -1553,6 +1553,80 @@
             "100-percentile": 3252.8857533333335
         }
     },
+    "fibonacci-nodejs-700000-707000": {
+        "name": "fibonacci-nodejs-700000-707000",
+        "yaml": "./yamls/fibonacci-nodejs/kn-fibonacci-nodejs-700000-707000.yaml",
+        "cpu": {
+            "0-percentile": 13.0,
+            "1-percentile": 366.925,
+            "5-percentile": 611.5816666666667,
+            "25-percentile": 715.7753846153846,
+            "50-percentile": 743.0127450980392,
+            "75-percentile": 776.3822368421053,
+            "95-percentile": 797.4966666666667,
+            "99-percentile": 800.9662999999999,
+            "100-percentile": 802.63
+        },
+        "memory": {
+            "0-percentile": 40.0,
+            "1-percentile": 57.82,
+            "5-percentile": 72.75166666666667,
+            "25-percentile": 80.50384615384615,
+            "50-percentile": 83.06901960784313,
+            "75-percentile": 84.28894736842105,
+            "95-percentile": 85.05416666666667,
+            "99-percentile": 85.1721,
+            "100-percentile": 85.21
+        },
+        "duration": {
+            "0-percentile": 7541.514,
+            "1-percentile": 7588.606535,
+            "5-percentile": 7640.576118888889,
+            "25-percentile": 7720.093845383276,
+            "50-percentile": 7766.292904863356,
+            "75-percentile": 7801.911557680959,
+            "95-percentile": 7833.329947880478,
+            "99-percentile": 7841.015864352417,
+            "100-percentile": 7843.16176829268
+        }
+    },
+    "fibonacci-nodejs-1000000-1010000": {
+        "name": "fibonacci-nodejs-1000000-1010000",
+        "yaml": "./yamls/fibonacci-nodejs/kn-fibonacci-nodejs-1000000-1010000.yaml",
+        "cpu": {
+            "0-percentile": 289.0,
+            "1-percentile": 515.71,
+            "5-percentile": 675.3683333333333,
+            "25-percentile": 744.2838461538462,
+            "50-percentile": 758.9384313725491,
+            "75-percentile": 774.7838157894737,
+            "95-percentile": 808.0799999999999,
+            "99-percentile": 815.8371000000001,
+            "100-percentile": 817.71
+        },
+        "memory": {
+            "0-percentile": 73.0,
+            "1-percentile": 74.485,
+            "5-percentile": 76.81166666666667,
+            "25-percentile": 80.78576923076923,
+            "50-percentile": 82.54431372549018,
+            "75-percentile": 83.52815789473684,
+            "95-percentile": 84.043125,
+            "99-percentile": 84.1417,
+            "100-percentile": 84.17
+        },
+        "duration": {
+            "0-percentile": 15496.58,
+            "1-percentile": 15529.56158,
+            "5-percentile": 15604.066428333332,
+            "25-percentile": 15727.192595779223,
+            "50-percentile": 15806.878089140533,
+            "75-percentile": 15865.509557641457,
+            "95-percentile": 15912.51273106893,
+            "99-percentile": 15923.019137682924,
+            "100-percentile": 15926.415987804876
+        }
+    },
     "video-processing-python-10": {
         "name": "video-processing-python-10",
         "yaml": "./yamls/video-processing/kn-video-processing-python-10.yaml",
@@ -2034,6 +2108,154 @@
             "100-percentile": 4441.271693749999
         }
     },
+    "video-processing-python-4000": {
+        "name": "video-processing-python-4000",
+        "yaml": "./yamls/video-processing/kn-video-processing-python-4000.yaml",
+        "cpu": {
+            "0-percentile": 5948.0,
+            "1-percentile": 5958.395,
+            "5-percentile": 5978.75,
+            "25-percentile": 6192.481538461539,
+            "50-percentile": 6535.410588235294,
+            "75-percentile": 7164.5442105263155,
+            "95-percentile": 7578.5796875,
+            "99-percentile": 7658.8424,
+            "100-percentile": 7681.24
+        },
+        "memory": {
+            "0-percentile": 133.0,
+            "1-percentile": 135.475,
+            "5-percentile": 142.95,
+            "25-percentile": 150.27076923076925,
+            "50-percentile": 152.0988235294118,
+            "75-percentile": 154.29868421052632,
+            "95-percentile": 156.51020833333334,
+            "99-percentile": 156.8898,
+            "100-percentile": 156.98
+        },
+        "duration": {
+            "0-percentile": 5051.612,
+            "1-percentile": 5101.622850000001,
+            "5-percentile": 5213.567842857143,
+            "25-percentile": 5384.15461221591,
+            "50-percentile": 5555.782746033654,
+            "75-percentile": 5713.438938305415,
+            "95-percentile": 5859.391042514567,
+            "99-percentile": 5899.910248087741,
+            "100-percentile": 5912.732984375001
+        }
+    },
+    "video-processing-python-5000": {
+        "name": "video-processing-python-5000",
+        "yaml": "./yamls/video-processing/kn-video-processing-python-5000.yaml",
+        "cpu": {
+            "0-percentile": 2277.0,
+            "1-percentile": 3846.15,
+            "5-percentile": 7110.775,
+            "25-percentile": 8905.113461538462,
+            "50-percentile": 9778.784509803922,
+            "75-percentile": 10346.457763157894,
+            "95-percentile": 10769.689583333333,
+            "99-percentile": 10858.213,
+            "100-percentile": 10883.3
+        },
+        "memory": {
+            "0-percentile": 150.0,
+            "1-percentile": 152.475,
+            "5-percentile": 156.95,
+            "25-percentile": 163.6980769230769,
+            "50-percentile": 166.31588235294117,
+            "75-percentile": 170.20565789473685,
+            "95-percentile": 172.27822916666668,
+            "99-percentile": 172.62709999999998,
+            "100-percentile": 172.71
+        },
+        "duration": {
+            "0-percentile": 6748.515,
+            "1-percentile": 6852.799745,
+            "5-percentile": 6982.127736607142,
+            "25-percentile": 7300.136408380682,
+            "50-percentile": 7496.230959254812,
+            "75-percentile": 7666.942052512891,
+            "95-percentile": 7805.725153258369,
+            "99-percentile": 7839.384376394829,
+            "100-percentile": 7850.898523437503
+        }
+    },
+    "video-processing-python-6000": {
+        "name": "video-processing-python-6000",
+        "yaml": "./yamls/video-processing/kn-video-processing-python-6000.yaml",
+        "cpu": {
+            "0-percentile": 47.0,
+            "1-percentile": 5313.8,
+            "5-percentile": 8973.488333333333,
+            "25-percentile": 11033.576923076922,
+            "50-percentile": 12150.568823529411,
+            "75-percentile": 12722.703815789473,
+            "95-percentile": 13033.740520833333,
+            "99-percentile": 13097.7602,
+            "100-percentile": 13117.02
+        },
+        "memory": {
+            "0-percentile": 58.0,
+            "1-percentile": 107.005,
+            "5-percentile": 142.8,
+            "25-percentile": 160.435,
+            "50-percentile": 165.06823529411764,
+            "75-percentile": 169.47473684210524,
+            "95-percentile": 171.73114583333333,
+            "99-percentile": 172.1019,
+            "100-percentile": 172.19
+        },
+        "duration": {
+            "0-percentile": 8380.041,
+            "1-percentile": 8442.976535,
+            "5-percentile": 8522.554879464287,
+            "25-percentile": 8799.736436079547,
+            "50-percentile": 9014.84633629808,
+            "75-percentile": 9191.06335518686,
+            "95-percentile": 9325.360950856935,
+            "99-percentile": 9357.924836124863,
+            "100-percentile": 9367.302945312504
+        }
+    },
+    "video-processing-python-7000": {
+        "name": "video-processing-python-7000",
+        "yaml": "./yamls/video-processing/kn-video-processing-python-7000.yaml",
+        "cpu": {
+            "0-percentile": 8370.0,
+            "1-percentile": 10657.32,
+            "5-percentile": 12684.89,
+            "25-percentile": 14000.056923076922,
+            "50-percentile": 14651.36,
+            "75-percentile": 15056.066216216215,
+            "95-percentile": 15320.658062709967,
+            "99-percentile": 15382.403838383838,
+            "100-percentile": 15402.191919191919
+        },
+        "memory": {
+            "0-percentile": 162.0,
+            "1-percentile": 163.96,
+            "5-percentile": 166.3,
+            "25-percentile": 170.68384615384616,
+            "50-percentile": 174.86,
+            "75-percentile": 176.9662162162162,
+            "95-percentile": 178.0158902575588,
+            "99-percentile": 178.2156565656566,
+            "100-percentile": 178.2828282828283
+        },
+        "duration": {
+            "0-percentile": 9795.57,
+            "1-percentile": 9853.510535,
+            "5-percentile": 9985.186083928573,
+            "25-percentile": 10275.532163352274,
+            "50-percentile": 10504.166602764424,
+            "75-percentile": 10701.072441768687,
+            "95-percentile": 10869.860545214064,
+            "99-percentile": 10911.67923731721,
+            "100-percentile": 10923.87190625
+        }
+    },
     "fibonacci-go-10-10": {
         "name": "fibonacci-go-10-10",
         "yaml": "./yamls/fibonacci-go/kn-fibonacci-go-10-10.yaml",
@@ -2439,6 +2661,80 @@
             "95-percentile": 3952.516164470286,
             "99-percentile": 3958.406194381711,
             "100-percentile": 3960.31087777778
+        }
+    },
+    "fibonacci-go-1000000-1010000": {
+        "name": "fibonacci-go-1000000-1010000",
+        "yaml": "./yamls/fibonacci-go/kn-fibonacci-go-1000000-1010000.yaml",
+        "cpu": {
+            "0-percentile": 532.0,
+            "1-percentile": 681.49,
+            "5-percentile": 790.6083333333333,
+            "25-percentile": 839.6057692307692,
+            "50-percentile": 854.7292156862745,
+            "75-percentile": 879.625394736842,
+            "95-percentile": 896.7850000000001,
+            "99-percentile": 899.7352000000001,
+            "100-percentile": 900.52
+        },
+        "memory": {
+            "0-percentile": 20.0,
+            "1-percentile": 22.475,
+            "5-percentile": 25.148333333333333,
+            "25-percentile": 29.24192307692308,
+            "50-percentile": 30.900784313725488,
+            "75-percentile": 31.80723684210526,
+            "95-percentile": 32.285624999999996,
+            "99-percentile": 32.3942,
+            "100-percentile": 32.42
+        },
+        "duration": {
+            "0-percentile": 7877.582,
+            "1-percentile": 7906.886913333333,
+            "5-percentile": 7961.2047111111115,
+            "25-percentile": 8058.082976190477,
+            "50-percentile": 8109.541469879518,
+            "75-percentile": 8150.056733870969,
+            "95-percentile": 8182.334578793074,
+            "99-percentile": 8189.907225180308,
+            "100-percentile": 8192.461606060606
+        }
+    },
+    "fibonacci-go-1500000-1515000": {
+        "name": "fibonacci-go-1500000-1515000",
+        "yaml": "./yamls/fibonacci-go/kn-fibonacci-go-1500000-1515000.yaml",
+        "cpu": {
+            "0-percentile": 25.0,
+            "1-percentile": 428.425,
+            "5-percentile": 712.5600000000001,
+            "25-percentile": 829.2892307692308,
+            "50-percentile": 852.6105882352941,
+            "75-percentile": 880.0952631578947,
+            "95-percentile": 916.4373958333333,
+            "99-percentile": 922.5909,
+            "100-percentile": 924.09
+        },
+        "memory": {
+            "0-percentile": 16.0,
+            "1-percentile": 21.445,
+            "5-percentile": 26.465,
+            "25-percentile": 31.008846153846157,
+            "50-percentile": 32.80176470588235,
+            "75-percentile": 33.83381578947369,
+            "95-percentile": 34.3803125,
+            "99-percentile": 34.5155,
+            "100-percentile": 34.55
+        },
+        "duration": {
+            "0-percentile": 18460.109,
+            "1-percentile": 18530.290279999997,
+            "5-percentile": 18633.11474,
+            "25-percentile": 18731.970999999994,
+            "50-percentile": 18802.189837837836,
+            "75-percentile": 18862.305418181815,
+            "95-percentile": 18919.30307453416,
+            "99-percentile": 18932.416174520546,
+            "100-percentile": 18937.22212328767
         }
     },
     "hotel-app-geo": {
@@ -3218,6 +3514,191 @@
             "100-percentile": 7494.32274375
         }
     },
+    "rnn-serving-python-7000-7070": {
+        "name": "rnn-serving-python-7000-7070",
+        "yaml": "./yamls/rnn-serving/kn-rnn-serving-python-7000-7070.yaml",
+        "cpu": {
+            "0-percentile": 457.0,
+            "1-percentile": 466.405,
+            "5-percentile": 502.5183333333334,
+            "25-percentile": 615.6611538461539,
+            "50-percentile": 738.1007843137254,
+            "75-percentile": 808.5693421052631,
+            "95-percentile": 851.3745833333334,
+            "99-percentile": 859.1196,
+            "100-percentile": 860.96
+        },
+        "memory": {
+            "0-percentile": 216.0,
+            "1-percentile": 216.495,
+            "5-percentile": 218.64333333333332,
+            "25-percentile": 223.65923076923076,
+            "50-percentile": 225.6235294117647,
+            "75-percentile": 226.66105263157894,
+            "95-percentile": 227.1483333333333,
+            "99-percentile": 227.2427,
+            "100-percentile": 227.27
+        },
+        "duration": {
+            "0-percentile": 6156.421,
+            "1-percentile": 6192.804156666667,
+            "5-percentile": 6370.203097619048,
+            "25-percentile": 7525.752924731183,
+            "50-percentile": 9328.103950136614,
+            "75-percentile": 10257.827193315017,
+            "95-percentile": 10928.217154565216,
+            "99-percentile": 11185.21848448298,
+            "100-percentile": 11264.397058333332
+        }
+    },
+    "rnn-serving-python-8500-8585": {
+        "name": "rnn-serving-python-8500-8585",
+        "yaml": "./yamls/rnn-serving/kn-rnn-serving-python-8500-8585.yaml",
+        "cpu": {
+            "0-percentile": 317.0,
+            "1-percentile": 332.345,
+            "5-percentile": 369.26166666666666,
+            "25-percentile": 518.7311538461538,
+            "50-percentile": 612.5094117647059,
+            "75-percentile": 679.5355263157894,
+            "95-percentile": 730.4872916666666,
+            "99-percentile": 741.8077000000001,
+            "100-percentile": 744.77
+        },
+        "memory": {
+            "0-percentile": 216.0,
+            "1-percentile": 216.495,
+            "5-percentile": 218.475,
+            "25-percentile": 224.00884615384615,
+            "50-percentile": 226.06901960784313,
+            "75-percentile": 227.12947368421052,
+            "95-percentile": 227.7275,
+            "99-percentile": 227.8286,
+            "100-percentile": 227.86
+        },
+        "duration": {
+            "0-percentile": 7746.582,
+            "1-percentile": 7756.29744,
+            "5-percentile": 7821.44316,
+            "25-percentile": 9276.1945,
+            "50-percentile": 11245.021697674418,
+            "75-percentile": 12357.305968749997,
+            "95-percentile": 13147.612913672836,
+            "99-percentile": 13322.763158705879,
+            "100-percentile": 13368.72092941176
+        }
+    },
+    "rnn-serving-python-10000-10100": {
+        "name": "rnn-serving-python-10000-10100",
+        "yaml": "./yamls/rnn-serving/kn-rnn-serving-python-10000-10100.yaml",
+        "cpu": {
+            "0-percentile": 365.0,
+            "1-percentile": 382.325,
+            "5-percentile": 428.7966666666666,
+            "25-percentile": 625.168076923077,
+            "50-percentile": 729.6449019607843,
+            "75-percentile": 801.8942105263158,
+            "95-percentile": 848.6076041666666,
+            "99-percentile": 856.4634,
+            "100-percentile": 858.34
+        },
+        "memory": {
+            "0-percentile": 217.0,
+            "1-percentile": 217.495,
+            "5-percentile": 219.98,
+            "25-percentile": 224.6980769230769,
+            "50-percentile": 226.6729411764706,
+            "75-percentile": 227.76736842105262,
+            "95-percentile": 228.32770833333333,
+            "99-percentile": 228.43460000000002,
+            "100-percentile": 228.46
+        },
+        "duration": {
+            "0-percentile": 9285.528,
+            "1-percentile": 9313.196000000002,
+            "5-percentile": 9741.4824,
+            "25-percentile": 11937.343761904762,
+            "50-percentile": 13940.292731707317,
+            "75-percentile": 15123.419147540983,
+            "95-percentile": 15844.532831168834,
+            "99-percentile": 16011.61981555556,
+            "100-percentile": 16055.796777777781
+        }
+    },
+    "rnn-serving-python-12000-12120": {
+        "name": "rnn-serving-python-12000-12120",
+        "yaml": "./yamls/rnn-serving/kn-rnn-serving-python-12000-12120.yaml",
+        "cpu": {
+            "0-percentile": 85.0,
+            "1-percentile": 97.87,
+            "5-percentile": 139.50333333333333,
+            "25-percentile": 440.69576923076926,
+            "50-percentile": 589.0770588235293,
+            "75-percentile": 697.5943421052631,
+            "95-percentile": 769.1221875,
+            "99-percentile": 780.138,
+            "100-percentile": 782.8
+        },
+        "memory": {
+            "0-percentile": 216.0,
+            "1-percentile": 216.495,
+            "5-percentile": 219.13833333333332,
+            "25-percentile": 223.6980769230769,
+            "50-percentile": 225.85117647058823,
+            "75-percentile": 227.08960526315792,
+            "95-percentile": 227.6959375,
+            "99-percentile": 227.8185,
+            "100-percentile": 227.85
+        },
+        "duration": {
+            "0-percentile": 11324.869,
+            "1-percentile": 11471.61321,
+            "5-percentile": 11882.654924999999,
+            "25-percentile": 15060.709403124998,
+            "50-percentile": 17373.87914623656,
+            "75-percentile": 18684.625965942032,
+            "95-percentile": 19580.235508620695,
+            "99-percentile": 19816.74797533334,
+            "100-percentile": 19886.001866666673
+        }
+    },
+    "rnn-serving-python-14000-14140": {
+        "name": "rnn-serving-python-14000-14140",
+        "yaml": "./yamls/rnn-serving/kn-rnn-serving-python-14000-14140.yaml",
+        "cpu": {
+            "0-percentile": 48.0,
+            "1-percentile": 115.815,
+            "5-percentile": 236.115,
+            "25-percentile": 488.4026923076923,
+            "50-percentile": 634.451568627451,
+            "75-percentile": 741.7243421052632,
+            "95-percentile": 804.4827083333333,
+            "99-percentile": 814.0635,
+            "100-percentile": 816.35
+        },
+        "memory": {
+            "0-percentile": 217.0,
+            "1-percentile": 217.99,
+            "5-percentile": 220.31666666666666,
+            "25-percentile": 224.8923076923077,
+            "50-percentile": 226.6829411764706,
+            "75-percentile": 227.7042105263158,
+            "95-percentile": 228.39083333333332,
+            "99-percentile": 228.49530000000001,
+            "100-percentile": 228.53
+        },
+        "duration": {
+            "0-percentile": 12654.034,
+            "1-percentile": 12687.669655,
+            "5-percentile": 12838.063808333332,
+            "25-percentile": 16433.848458333327,
+            "50-percentile": 19750.389880952378,
+            "75-percentile": 21506.280146341465,
+            "95-percentile": 22612.06872658371,
+            "99-percentile": 22838.69442944444,
+            "100-percentile": 22901.12972222222
+        }
+    },
     "adservice": {
         "name": "adservice",
         "yaml": "./yamls/online-shop/kn-adservice.yaml",
@@ -3847,6 +4328,80 @@
             "100-percentile": 3219.848319999999
         }
     },
+    "fibonacci-python-700000-707000": {
+        "name": "fibonacci-python-700000-707000",
+        "yaml": "./yamls/fibonacci-python/kn-fibonacci-python-700000-707000.yaml",
+        "cpu": {
+            "0-percentile": 254.0,
+            "1-percentile": 518.33,
+            "5-percentile": 700.7433333333333,
+            "25-percentile": 775.5746153846153,
+            "50-percentile": 795.7882352941176,
+            "75-percentile": 817.3067105263158,
+            "95-percentile": 835.7886458333334,
+            "99-percentile": 839.0485,
+            "100-percentile": 839.85
+        },
+        "memory": {
+            "0-percentile": 42.0,
+            "1-percentile": 43.485,
+            "5-percentile": 45.98,
+            "25-percentile": 49.51384615384615,
+            "50-percentile": 51.079019607843136,
+            "75-percentile": 52.006578947368425,
+            "95-percentile": 52.421875,
+            "99-percentile": 52.4851,
+            "100-percentile": 52.51
+        },
+        "duration": {
+            "0-percentile": 7498.501,
+            "1-percentile": 7513.761630000001,
+            "5-percentile": 7541.8804338888895,
+            "25-percentile": 7601.511568049684,
+            "50-percentile": 7632.0239703830375,
+            "75-percentile": 7660.26353860113,
+            "95-percentile": 7687.497120422126,
+            "99-percentile": 7694.245322186173,
+            "100-percentile": 7696.24995294117
+        }
+    },
+    "fibonacci-python-1000000-1010000": {
+        "name": "fibonacci-python-1000000-1010000",
+        "yaml": "./yamls/fibonacci-python/kn-fibonacci-python-1000000-1010000.yaml",
+        "cpu": {
+            "0-percentile": 568.0,
+            "1-percentile": 675.415,
+            "5-percentile": 748.9666666666667,
+            "25-percentile": 783.4226923076924,
+            "50-percentile": 793.0676470588235,
+            "75-percentile": 805.1767105263158,
+            "95-percentile": 834.505625,
+            "99-percentile": 841.8054999999999,
+            "100-percentile": 843.55
+        },
+        "memory": {
+            "0-percentile": 42.0,
+            "1-percentile": 43.485,
+            "5-percentile": 45.81166666666667,
+            "25-percentile": 49.25192307692308,
+            "50-percentile": 50.950196078431375,
+            "75-percentile": 51.953421052631576,
+            "95-percentile": 52.443437499999995,
+            "99-percentile": 52.545700000000004,
+            "100-percentile": 52.57
+        },
+        "duration": {
+            "0-percentile": 15339.863,
+            "1-percentile": 15341.514285000001,
+            "5-percentile": 15345.932115000001,
+            "25-percentile": 15427.637803030302,
+            "50-percentile": 15488.59761683278,
+            "75-percentile": 15535.154765811012,
+            "95-percentile": 15578.100923623413,
+            "99-percentile": 15591.172438928566,
+            "100-percentile": 15595.381464285709
+        }
+    },
     "video-analytics-standalone-python-1": {
         "name": "video-analytics-standalone-python-1",
         "yaml": "./yamls/video-analytics-standalone/kn-video-analytics-standalone-python-1.yaml",
@@ -4289,6 +4844,931 @@
             "95-percentile": 3563.4042116495884,
             "99-percentile": 3569.439864677552,
             "100-percentile": 3571.3912187499977
+        }
+    },
+    "video-analytics-standalone-python-200": {
+        "name": "video-analytics-standalone-python-200",
+        "yaml": "./yamls/video-analytics-standalone/kn-video-analytics-standalone-python-200.yaml",
+        "cpu": {
+            "0-percentile": 1595.0,
+            "1-percentile": 2638.955,
+            "5-percentile": 7227.121666666667,
+            "25-percentile": 9194.00653846154,
+            "50-percentile": 9817.37274509804,
+            "75-percentile": 10466.80302631579,
+            "95-percentile": 10858.837500000001,
+            "99-percentile": 10928.4155,
+            "100-percentile": 10945.55
+        },
+        "memory": {
+            "0-percentile": 376.0,
+            "1-percentile": 377.485,
+            "5-percentile": 379.6433333333334,
+            "25-percentile": 383.70807692307693,
+            "50-percentile": 386.741568627451,
+            "75-percentile": 393.0526315789474,
+            "95-percentile": 396.7658333333333,
+            "99-percentile": 397.4056,
+            "100-percentile": 397.56
+        },
+        "duration": {
+            "0-percentile": 6606.056,
+            "1-percentile": 6657.102393333334,
+            "5-percentile": 6738.5068083333335,
+            "25-percentile": 6830.33218844086,
+            "50-percentile": 6885.942214207651,
+            "75-percentile": 6930.473777930403,
+            "95-percentile": 6969.9726134058,
+            "99-percentile": 6979.1051775573305,
+            "100-percentile": 6981.623300000004
+        }
+    },
+    "video-analytics-standalone-python-300": {
+        "name": "video-analytics-standalone-python-300",
+        "yaml": "./yamls/video-analytics-standalone/kn-video-analytics-standalone-python-300.yaml",
+        "cpu": {
+            "0-percentile": 56.0,
+            "1-percentile": 7683.455,
+            "5-percentile": 13022.371666666668,
+            "25-percentile": 15411.540384615384,
+            "50-percentile": 16426.68725490196,
+            "75-percentile": 17100.049342105263,
+            "95-percentile": 17441.5096875,
+            "99-percentile": 17508.7526,
+            "100-percentile": 17532.26
+        },
+        "memory": {
+            "0-percentile": 284.0,
+            "1-percentile": 337.46,
+            "5-percentile": 376.12666666666667,
+            "25-percentile": 394.3573076923077,
+            "50-percentile": 398.3856862745098,
+            "75-percentile": 400.1327631578947,
+            "95-percentile": 400.97052083333335,
+            "99-percentile": 401.13169999999997,
+            "100-percentile": 401.17
+        },
+        "duration": {
+            "0-percentile": 8992.139,
+            "1-percentile": 9026.87035,
+            "5-percentile": 9070.559155555555,
+            "25-percentile": 9165.68748273273,
+            "50-percentile": 9242.251277777776,
+            "75-percentile": 9293.46542497404,
+            "95-percentile": 9330.490433965138,
+            "99-percentile": 9339.3870667246,
+            "100-percentile": 9342.048314685311
+        }
+    },
+    "video-analytics-standalone-python-400": {
+        "name": "video-analytics-standalone-python-400",
+        "yaml": "./yamls/video-analytics-standalone/kn-video-analytics-standalone-python-400.yaml",
+        "cpu": {
+            "0-percentile": 11599.0,
+            "1-percentile": 14331.895,
+            "5-percentile": 16347.451666666668,
+            "25-percentile": 17249.130384615386,
+            "50-percentile": 17537.682156862746,
+            "75-percentile": 17711.116184210525,
+            "95-percentile": 17843.852395833335,
+            "99-percentile": 17876.753800000002,
+            "100-percentile": 17907.38
+        },
+        "memory": {
+            "0-percentile": 381.0,
+            "1-percentile": 388.425,
+            "5-percentile": 394.455,
+            "25-percentile": 401.06653846153847,
+            "50-percentile": 403.6135294117647,
+            "75-percentile": 404.75736842105266,
+            "95-percentile": 405.43291666666664,
+            "99-percentile": 405.5559,
+            "100-percentile": 405.59
+        },
+        "duration": {
+            "0-percentile": 11900.508,
+            "1-percentile": 11918.41038,
+            "5-percentile": 12002.144242857144,
+            "25-percentile": 12126.531035714286,
+            "50-percentile": 12254.03625454545,
+            "75-percentile": 12325.85490243902,
+            "95-percentile": 12377.36087888349,
+            "99-percentile": 12388.226689162339,
+            "100-percentile": 12392.030880733942
+        }
+    },
+    "video-analytics-standalone-python-500": {
+        "name": "video-analytics-standalone-python-500",
+        "yaml": "./yamls/video-analytics-standalone/kn-video-analytics-standalone-python-500.yaml",
+        "cpu": {
+            "0-percentile": 697.0,
+            "1-percentile": 7846.285,
+            "5-percentile": 13009.941666666668,
+            "25-percentile": 15429.783846153845,
+            "50-percentile": 15950.837647058823,
+            "75-percentile": 16372.619736842105,
+            "95-percentile": 17092.059895833336,
+            "99-percentile": 17265.475599999998,
+            "100-percentile": 17310.56
+        },
+        "memory": {
+            "0-percentile": 285.0,
+            "1-percentile": 339.45,
+            "5-percentile": 378.12666666666667,
+            "25-percentile": 396.61923076923074,
+            "50-percentile": 401.4152941176471,
+            "75-percentile": 403.4682894736842,
+            "95-percentile": 404.41239583333333,
+            "99-percentile": 404.5863,
+            "100-percentile": 404.63
+        },
+        "duration": {
+            "0-percentile": 14683.772,
+            "1-percentile": 14704.241460000001,
+            "5-percentile": 14814.480510000001,
+            "25-percentile": 15147.031247835497,
+            "50-percentile": 15312.703294296782,
+            "75-percentile": 15399.60760807291,
+            "95-percentile": 15460.223216147142,
+            "99-percentile": 15475.546588333325,
+            "100-percentile": 15479.55416666666
+        }
+    },
+    "video-analytics-standalone-python-600": {
+        "name": "video-analytics-standalone-python-600",
+        "yaml": "./yamls/video-analytics-standalone/kn-video-analytics-standalone-python-600.yaml",
+        "cpu": {
+            "0-percentile": 9721.0,
+            "1-percentile": 12365.29,
+            "5-percentile": 14258.436666666666,
+            "25-percentile": 15223.739230769232,
+            "50-percentile": 15608.470588235294,
+            "75-percentile": 16385.80065789474,
+            "95-percentile": 17308.185104166667,
+            "99-percentile": 17482.556999999997,
+            "100-percentile": 17526.7
+        },
+        "memory": {
+            "0-percentile": 377.0,
+            "1-percentile": 383.435,
+            "5-percentile": 391.27666666666664,
+            "25-percentile": 397.80461538461543,
+            "50-percentile": 400.128431372549,
+            "75-percentile": 401.39526315789476,
+            "95-percentile": 401.9379166666667,
+            "99-percentile": 402.0508,
+            "100-percentile": 402.08
+        },
+        "duration": {
+            "0-percentile": 17938.164,
+            "1-percentile": 17945.84545,
+            "5-percentile": 18008.504175000002,
+            "25-percentile": 18168.517885964917,
+            "50-percentile": 18277.960250000004,
+            "75-percentile": 18364.190413172604,
+            "95-percentile": 18427.33593195786,
+            "99-percentile": 18443.029780140845,
+            "100-percentile": 18447.047633802817
+        }
+    },
+    "video-analytics-standalone-python-700": {
+        "name": "video-analytics-standalone-python-700",
+        "yaml": "./yamls/video-analytics-standalone/kn-video-analytics-standalone-python-700.yaml",
+        "cpu": {
+            "0-percentile": 13940.0,
+            "1-percentile": 13951.385,
+            "5-percentile": 14033.231666666667,
+            "25-percentile": 14365.380384615384,
+            "50-percentile": 14812.142352941177,
+            "75-percentile": 16286.218421052632,
+            "95-percentile": 17338.015,
+            "99-percentile": 17515.423899999998,
+            "100-percentile": 17558.39
+        },
+        "memory": {
+            "0-percentile": 377.0,
+            "1-percentile": 384.92,
+            "5-percentile": 392.28666666666663,
+            "25-percentile": 399.41615384615386,
+            "50-percentile": 402.118431372549,
+            "75-percentile": 403.5447368421053,
+            "95-percentile": 404.2645833333333,
+            "99-percentile": 404.3842,
+            "100-percentile": 404.42
+        },
+        "duration": {
+            "0-percentile": 21169.779,
+            "1-percentile": 21170.097599999997,
+            "5-percentile": 21196.47517083333,
+            "25-percentile": 21344.505443749997,
+            "50-percentile": 21467.394499462363,
+            "75-percentile": 21557.775689130427,
+            "95-percentile": 21625.61118563218,
+            "99-percentile": 21644.161245166662,
+            "100-percentile": 21648.916183333327
+        }
+    },
+    "video-analytics-standalone-python-800": {
+        "name": "video-analytics-standalone-python-800",
+        "yaml": "./yamls/video-analytics-standalone/kn-video-analytics-standalone-python-800.yaml",
+        "cpu": {
+            "0-percentile": 1873.0,
+            "1-percentile": 7076.935,
+            "5-percentile": 10746.13,
+            "25-percentile": 12655.776923076923,
+            "50-percentile": 13926.363137254903,
+            "75-percentile": 16291.493157894736,
+            "95-percentile": 17356.994791666664,
+            "99-percentile": 17528.5929,
+            "100-percentile": 17570.29
+        },
+        "memory": {
+            "0-percentile": 378.0,
+            "1-percentile": 379.485,
+            "5-percentile": 392.24666666666667,
+            "25-percentile": 401.6880769230769,
+            "50-percentile": 404.276862745098,
+            "75-percentile": 405.5181578947368,
+            "95-percentile": 406.24354166666666,
+            "99-percentile": 406.3842,
+            "100-percentile": 406.42
+        },
+        "duration": {
+            "0-percentile": 23819.323,
+            "1-percentile": 23835.61824,
+            "5-percentile": 23908.70341666667,
+            "25-percentile": 24187.305285714287,
+            "50-percentile": 24382.515444444445,
+            "75-percentile": 24497.507925000005,
+            "95-percentile": 24586.913225647066,
+            "99-percentile": 24607.530005660385,
+            "100-percentile": 24612.66488679246
+        }
+    },
+    "video-analytics-standalone-python-900": {
+        "name": "video-analytics-standalone-python-900",
+        "yaml": "./yamls/video-analytics-standalone/kn-video-analytics-standalone-python-900.yaml",
+        "cpu": {
+            "0-percentile": 11379.0,
+            "1-percentile": 11432.955,
+            "5-percentile": 11757.676666666668,
+            "25-percentile": 12237.708846153846,
+            "50-percentile": 13861.04294117647,
+            "75-percentile": 16077.548157894737,
+            "95-percentile": 17198.333958333333,
+            "99-percentile": 17378.5239,
+            "100-percentile": 17422.39
+        },
+        "memory": {
+            "0-percentile": 380.0,
+            "1-percentile": 380.0,
+            "5-percentile": 391.92,
+            "25-percentile": 400.76576923076925,
+            "50-percentile": 403.5739215686275,
+            "75-percentile": 404.98328947368424,
+            "95-percentile": 405.7490625,
+            "99-percentile": 405.87919999999997,
+            "100-percentile": 405.92
+        },
+        "duration": {
+            "0-percentile": 27041.488,
+            "1-percentile": 27043.985800000002,
+            "5-percentile": 27093.29831666667,
+            "25-percentile": 27265.615269230766,
+            "50-percentile": 27378.314499999997,
+            "75-percentile": 27459.274496825394,
+            "95-percentile": 27543.025584191913,
+            "99-percentile": 27572.959762978717,
+            "100-percentile": 27582.064042553186
+        }
+    },
+    "image-rotate-go-1": {
+        "name": "image-rotate-go-1",
+        "yaml": "./yamls/image-rotate-go/kn-image-rotate-go-1.yaml",
+        "cpu": {
+            "0-percentile": 1150.0,
+            "1-percentile": 1197.52,
+            "5-percentile": 1268.985,
+            "25-percentile": 1342.5776923076924,
+            "50-percentile": 1397.0280392156862,
+            "75-percentile": 1536.371447368421,
+            "95-percentile": 1680.2798958333333,
+            "99-percentile": 1714.314,
+            "100-percentile": 1726.4
+        },
+        "memory": {
+            "0-percentile": 617.0,
+            "1-percentile": 911.03,
+            "5-percentile": 1164.73,
+            "25-percentile": 1268.5046153846154,
+            "50-percentile": 1286.3347058823529,
+            "75-percentile": 1293.3715789473683,
+            "95-percentile": 1296.6275,
+            "99-percentile": 1297.1426999999999,
+            "100-percentile": 1297.27
+        },
+        "duration": {
+            "0-percentile": 8418.514,
+            "1-percentile": 8438.422634999999,
+            "5-percentile": 8476.861802083335,
+            "25-percentile": 8545.587717342341,
+            "50-percentile": 8595.185238679607,
+            "75-percentile": 8638.342142392969,
+            "95-percentile": 8674.995407087268,
+            "99-percentile": 8691.295818600904,
+            "100-percentile": 8699.905256944443
+        }
+    },
+    "image-rotate-go-2": {
+        "name": "image-rotate-go-2",
+        "yaml": "./yamls/image-rotate-go/kn-image-rotate-go-2.yaml",
+        "cpu": {
+            "0-percentile": 721.0,
+            "1-percentile": 730.9,
+            "5-percentile": 742.7516666666667,
+            "25-percentile": 757.7246153846154,
+            "50-percentile": 767.1866666666667,
+            "75-percentile": 773.8631578947368,
+            "95-percentile": 779.0623958333333,
+            "99-percentile": 781.5266,
+            "100-percentile": 784.66
+        },
+        "memory": {
+            "0-percentile": 310.0,
+            "1-percentile": 310.0,
+            "5-percentile": 311.14833333333337,
+            "25-percentile": 319.57038461538457,
+            "50-percentile": 324.3360784313725,
+            "75-percentile": 326.1992105263158,
+            "95-percentile": 327.1809375,
+            "99-percentile": 327.33369999999996,
+            "100-percentile": 327.37
+        },
+        "duration": {
+            "0-percentile": 1698.687,
+            "1-percentile": 1706.2251005,
+            "5-percentile": 1725.7032045955884,
+            "25-percentile": 1754.660002314815,
+            "50-percentile": 1778.6830080939442,
+            "75-percentile": 1798.1567191908716,
+            "95-percentile": 1814.6530131147538,
+            "99-percentile": 1819.8342999718482,
+            "100-percentile": 1821.42813125
+        }
+    },
+    "image-rotate-go-3": {
+        "name": "image-rotate-go-3",
+        "yaml": "./yamls/image-rotate-go/kn-image-rotate-go-3.yaml",
+        "cpu": {
+            "0-percentile": 23.0,
+            "1-percentile": 559.085,
+            "5-percentile": 931.03,
+            "25-percentile": 1099.1846153846154,
+            "50-percentile": 1136.2029411764706,
+            "75-percentile": 1154.7726315789473,
+            "95-percentile": 1168.7023958333332,
+            "99-percentile": 1172.5171,
+            "100-percentile": 1174.71
+        },
+        "memory": {
+            "0-percentile": 17.0,
+            "1-percentile": 215.0,
+            "5-percentile": 351.15166666666664,
+            "25-percentile": 410.275,
+            "50-percentile": 423.42431372549015,
+            "75-percentile": 428.23552631578946,
+            "95-percentile": 433.87885416666666,
+            "99-percentile": 435.1243,
+            "100-percentile": 435.43
+        },
+        "duration": {
+            "0-percentile": 2827.107,
+            "1-percentile": 2831.7295675,
+            "5-percentile": 2847.9077713235292,
+            "25-percentile": 2883.0474523148155,
+            "50-percentile": 2905.4187383346284,
+            "75-percentile": 2925.9399550700227,
+            "95-percentile": 2946.7435855430354,
+            "99-percentile": 2953.261677069942,
+            "100-percentile": 2955.355878125002
+        }
+    },
+    "image-rotate-go-4": {
+        "name": "image-rotate-go-4",
+        "yaml": "./yamls/image-rotate-go/kn-image-rotate-go-4.yaml",
+        "cpu": {
+            "0-percentile": 191.0,
+            "1-percentile": 263.765,
+            "5-percentile": 443.7033333333334,
+            "25-percentile": 526.2438461538461,
+            "50-percentile": 541.9980392156863,
+            "75-percentile": 550.2019736842105,
+            "95-percentile": 555.1608333333334,
+            "99-percentile": 557.3641,
+            "100-percentile": 559.41
+        },
+        "memory": {
+            "0-percentile": 219.0,
+            "1-percentile": 220.485,
+            "5-percentile": 222.1483333333333,
+            "25-percentile": 230.6680769230769,
+            "50-percentile": 234.75196078431372,
+            "75-percentile": 236.76065789473685,
+            "95-percentile": 237.7390625,
+            "99-percentile": 237.9096,
+            "100-percentile": 237.96
+        },
+        "duration": {
+            "0-percentile": 1232.002,
+            "1-percentile": 1255.648457,
+            "5-percentile": 1268.281655147059,
+            "25-percentile": 1295.8595912037035,
+            "50-percentile": 1312.9166707104034,
+            "75-percentile": 1327.5420733661817,
+            "95-percentile": 1340.4136177151631,
+            "99-percentile": 1344.3607592088601,
+            "100-percentile": 1345.9478718749992
+        }
+    },
+    "image-rotate-go-5": {
+        "name": "image-rotate-go-5",
+        "yaml": "./yamls/image-rotate-go/kn-image-rotate-go-5.yaml",
+        "cpu": {
+            "0-percentile": 73.0,
+            "1-percentile": 73.495,
+            "5-percentile": 74.485,
+            "25-percentile": 77.27076923076923,
+            "50-percentile": 81.1578431372549,
+            "75-percentile": 83.63434210526316,
+            "95-percentile": 85.32083333333333,
+            "99-percentile": 85.74080000000001,
+            "100-percentile": 86.08
+        },
+        "memory": {
+            "0-percentile": 49.0,
+            "1-percentile": 49.0,
+            "5-percentile": 50.96,
+            "25-percentile": 62.24076923076923,
+            "50-percentile": 66.0886274509804,
+            "75-percentile": 67.76065789473685,
+            "95-percentile": 68.64385416666667,
+            "99-percentile": 68.78829999999999,
+            "100-percentile": 68.83
+        },
+        "duration": {
+            "0-percentile": 158.206,
+            "1-percentile": 160.481971,
+            "5-percentile": 166.97923878676468,
+            "25-percentile": 172.89229571759262,
+            "50-percentile": 176.22947513586965,
+            "75-percentile": 179.17255833765574,
+            "95-percentile": 182.3114901639345,
+            "99-percentile": 183.24428994429593,
+            "100-percentile": 183.65300625000012
+        }
+    },
+    "image-rotate-go-6": {
+        "name": "image-rotate-go-6",
+        "yaml": "./yamls/image-rotate-go/kn-image-rotate-go-6.yaml",
+        "cpu": {
+            "0-percentile": 23.0,
+            "1-percentile": 102.695,
+            "5-percentile": 190.7866666666667,
+            "25-percentile": 245.7223076923077,
+            "50-percentile": 257.09764705882355,
+            "75-percentile": 262.7138157894737,
+            "95-percentile": 266.25447916666667,
+            "99-percentile": 268.67690000000005,
+            "100-percentile": 269.69
+        },
+        "memory": {
+            "0-percentile": 18.0,
+            "1-percentile": 69.48,
+            "5-percentile": 105.81,
+            "25-percentile": 126.89,
+            "50-percentile": 133.0092156862745,
+            "75-percentile": 135.66421052631577,
+            "95-percentile": 139.5059375,
+            "99-percentile": 140.39610000000002,
+            "100-percentile": 140.61
+        },
+        "duration": {
+            "0-percentile": 602.096,
+            "1-percentile": 604.4784569999999,
+            "5-percentile": 609.4229952205883,
+            "25-percentile": 619.4033653935182,
+            "50-percentile": 626.4770869565216,
+            "75-percentile": 633.1554389782157,
+            "95-percentile": 640.159476157787,
+            "99-percentile": 642.2039308181928,
+            "100-percentile": 642.9449750000001
+        }
+    },
+    "image-rotate-go-7": {
+        "name": "image-rotate-go-7",
+        "yaml": "./yamls/image-rotate-go/kn-image-rotate-go-7.yaml",
+        "cpu": {
+            "0-percentile": 2.0,
+            "1-percentile": 7.445,
+            "5-percentile": 13.96,
+            "25-percentile": 17.067692307692308,
+            "50-percentile": 17.91078431372549,
+            "75-percentile": 18.298947368421054,
+            "95-percentile": 18.653333333333332,
+            "99-percentile": 18.7073,
+            "100-percentile": 18.73
+        },
+        "memory": {
+            "0-percentile": 18.0,
+            "1-percentile": 22.95,
+            "5-percentile": 27.475,
+            "25-percentile": 33.144230769230774,
+            "50-percentile": 36.21745098039216,
+            "75-percentile": 37.66434210526316,
+            "95-percentile": 38.359791666666666,
+            "99-percentile": 38.5054,
+            "100-percentile": 38.54
+        },
+        "duration": {
+            "0-percentile": 36.204,
+            "1-percentile": 38.77216000000001,
+            "5-percentile": 41.95441378676472,
+            "25-percentile": 47.30081030092593,
+            "50-percentile": 49.15579107142857,
+            "75-percentile": 50.444360931016604,
+            "95-percentile": 51.467368094262305,
+            "99-percentile": 51.7811871072755,
+            "100-percentile": 51.89225312500001
+        }
+    },
+    "image-rotate-go-8": {
+        "name": "image-rotate-go-8",
+        "yaml": "./yamls/image-rotate-go/kn-image-rotate-go-8.yaml",
+        "cpu": {
+            "0-percentile": 283.0,
+            "1-percentile": 392.395,
+            "5-percentile": 638.9466666666667,
+            "25-percentile": 756.54,
+            "50-percentile": 783.8778431372549,
+            "75-percentile": 798.0951315789474,
+            "95-percentile": 807.1828125,
+            "99-percentile": 809.4343,
+            "100-percentile": 810.43
+        },
+        "memory": {
+            "0-percentile": 219.0,
+            "1-percentile": 294.735,
+            "5-percentile": 348.5516666666667,
+            "25-percentile": 375.5403846153846,
+            "50-percentile": 381.67254901960786,
+            "75-percentile": 384.3519736842105,
+            "95-percentile": 385.79270833333334,
+            "99-percentile": 386.041,
+            "100-percentile": 386.1
+        },
+        "duration": {
+            "0-percentile": 1768.923,
+            "1-percentile": 1771.029861,
+            "5-percentile": 1780.5644750000004,
+            "25-percentile": 1804.0608694444447,
+            "50-percentile": 1821.2590584239128,
+            "75-percentile": 1835.8970692946052,
+            "95-percentile": 1849.191700358606,
+            "99-percentile": 1852.7881554734852,
+            "100-percentile": 1854.2821374999996
+        }
+    },
+    "image-rotate-go-9": {
+        "name": "image-rotate-go-9",
+        "yaml": "./yamls/image-rotate-go/kn-image-rotate-go-9.yaml",
+        "cpu": {
+            "0-percentile": 447.0,
+            "1-percentile": 520.755,
+            "5-percentile": 577.3433333333332,
+            "25-percentile": 611.043076923077,
+            "50-percentile": 622.7409803921569,
+            "75-percentile": 629.5442105263157,
+            "95-percentile": 635.6571875,
+            "99-percentile": 639.3863,
+            "100-percentile": 640.63
+        },
+        "memory": {
+            "0-percentile": 243.0,
+            "1-percentile": 243.495,
+            "5-percentile": 245.475,
+            "25-percentile": 253.62923076923076,
+            "50-percentile": 257.8311764705882,
+            "75-percentile": 259.61447368421057,
+            "95-percentile": 260.5917708333333,
+            "99-percentile": 260.7681,
+            "100-percentile": 260.81
+        },
+        "duration": {
+            "0-percentile": 1667.538,
+            "1-percentile": 1676.289841,
+            "5-percentile": 1690.3043055147057,
+            "25-percentile": 1723.5880687499998,
+            "50-percentile": 1744.5500177795032,
+            "75-percentile": 1762.2631064315356,
+            "95-percentile": 1777.6547454508193,
+            "99-percentile": 1782.002007544224,
+            "100-percentile": 1783.8660125
+        }
+    },
+    "image-rotate-go-10": {
+        "name": "image-rotate-go-10",
+        "yaml": "./yamls/image-rotate-go/kn-image-rotate-go-10.yaml",
+        "cpu": {
+            "0-percentile": 799.0,
+            "1-percentile": 803.95,
+            "5-percentile": 819.86,
+            "25-percentile": 841.091923076923,
+            "50-percentile": 852.4833333333333,
+            "75-percentile": 862.052105263158,
+            "95-percentile": 870.8913541666666,
+            "99-percentile": 874.9486,
+            "100-percentile": 876.86
+        },
+        "memory": {
+            "0-percentile": 398.0,
+            "1-percentile": 398.495,
+            "5-percentile": 399.65333333333336,
+            "25-percentile": 405.91115384615387,
+            "50-percentile": 409.10843137254903,
+            "75-percentile": 410.9998684210526,
+            "95-percentile": 411.896875,
+            "99-percentile": 412.061,
+            "100-percentile": 412.1
+        },
+        "duration": {
+            "0-percentile": 1815.251,
+            "1-percentile": 1829.1611164999997,
+            "5-percentile": 1850.9426033088234,
+            "25-percentile": 1879.6184280092589,
+            "50-percentile": 1900.822797709628,
+            "75-percentile": 1919.3269756094405,
+            "95-percentile": 1936.6138426127056,
+            "99-percentile": 1942.0631474283246,
+            "100-percentile": 1944.2240781250014
+        }
+    },
+    "image-rotate-go-11": {
+        "name": "image-rotate-go-11",
+        "yaml": "./yamls/image-rotate-go/kn-image-rotate-go-11.yaml",
+        "cpu": {
+            "0-percentile": 99.0,
+            "1-percentile": 168.09,
+            "5-percentile": 220.91,
+            "25-percentile": 247.93692307692308,
+            "50-percentile": 254.48,
+            "75-percentile": 258.4357657657657,
+            "95-percentile": 261.26978723404255,
+            "99-percentile": 262.21353535353535,
+            "100-percentile": 263.67676767676767
+        },
+        "memory": {
+            "0-percentile": 135.0,
+            "1-percentile": 135.49,
+            "5-percentile": 137.28,
+            "25-percentile": 146.9176923076923,
+            "50-percentile": 152.44,
+            "75-percentile": 154.8990990990991,
+            "95-percentile": 155.96170212765958,
+            "99-percentile": 156.12343434343435,
+            "100-percentile": 156.17171717171718
+        },
+        "duration": {
+            "0-percentile": 483.218,
+            "1-percentile": 487.613565,
+            "5-percentile": 492.888453492647,
+            "25-percentile": 501.78469502314806,
+            "50-percentile": 509.1704389945652,
+            "75-percentile": 516.3362347640041,
+            "95-percentile": 523.7853920491802,
+            "99-percentile": 525.9350280114202,
+            "100-percentile": 526.8320999999999
+        }
+    },
+    "image-rotate-go-12": {
+        "name": "image-rotate-go-12",
+        "yaml": "./yamls/image-rotate-go/kn-image-rotate-go-12.yaml",
+        "cpu": {
+            "0-percentile": 131.0,
+            "1-percentile": 201.785,
+            "5-percentile": 289.66833333333335,
+            "25-percentile": 339.83769230769235,
+            "50-percentile": 354.70098039215685,
+            "75-percentile": 362.97605263157897,
+            "95-percentile": 368.67260416666664,
+            "99-percentile": 371.10229999999996,
+            "100-percentile": 372.23
+        },
+        "memory": {
+            "0-percentile": 170.0,
+            "1-percentile": 170.495,
+            "5-percentile": 171.31666666666666,
+            "25-percentile": 178.83346153846153,
+            "50-percentile": 182.50450980392156,
+            "75-percentile": 184.2390789473684,
+            "95-percentile": 185.22302083333332,
+            "99-percentile": 185.3741,
+            "100-percentile": 185.41
+        },
+        "duration": {
+            "0-percentile": 860.881,
+            "1-percentile": 863.5082799999999,
+            "5-percentile": 868.8307582720586,
+            "25-percentile": 881.6922939814813,
+            "50-percentile": 892.7733581327641,
+            "75-percentile": 902.8351814574687,
+            "95-percentile": 912.417731639344,
+            "99-percentile": 915.1405135440043,
+            "100-percentile": 916.2058625
+        }
+    },
+    "image-rotate-go-13": {
+        "name": "image-rotate-go-13",
+        "yaml": "./yamls/image-rotate-go/kn-image-rotate-go-13.yaml",
+        "cpu": {
+            "0-percentile": 9.0,
+            "1-percentile": 15.86,
+            "5-percentile": 20.62,
+            "25-percentile": 23.50923076923077,
+            "50-percentile": 24.24,
+            "75-percentile": 24.738198198198198,
+            "95-percentile": 25.215699888017916,
+            "99-percentile": 25.32747474747475,
+            "100-percentile": 25.373737373737374
+        },
+        "memory": {
+            "0-percentile": 29.0,
+            "1-percentile": 29.49,
+            "5-percentile": 31.09,
+            "25-percentile": 36.80230769230769,
+            "50-percentile": 39.8,
+            "75-percentile": 41.402522522522524,
+            "95-percentile": 42.259260918253084,
+            "99-percentile": 42.40888888888889,
+            "100-percentile": 42.44444444444444
+        },
+        "duration": {
+            "0-percentile": 52.111,
+            "1-percentile": 53.826472,
+            "5-percentile": 59.19067150735294,
+            "25-percentile": 65.8754903935185,
+            "50-percentile": 68.14854957298132,
+            "75-percentile": 69.62560514782155,
+            "95-percentile": 70.83586906762292,
+            "99-percentile": 71.18093366709259,
+            "100-percentile": 71.32075937499998
+        }
+    },
+    "image-rotate-go-14": {
+        "name": "image-rotate-go-14",
+        "yaml": "./yamls/image-rotate-go/kn-image-rotate-go-14.yaml",
+        "cpu": {
+            "0-percentile": 9.0,
+            "1-percentile": 9.495,
+            "5-percentile": 10.158333333333333,
+            "25-percentile": 10.805769230769231,
+            "50-percentile": 11.207843137254901,
+            "75-percentile": 11.468421052631578,
+            "95-percentile": 11.7590625,
+            "99-percentile": 11.848899999999999,
+            "100-percentile": 11.89
+        },
+        "memory": {
+            "0-percentile": 24.0,
+            "1-percentile": 24.495,
+            "5-percentile": 25.98,
+            "25-percentile": 30.620384615384616,
+            "50-percentile": 33.31647058823529,
+            "75-percentile": 34.85368421052632,
+            "95-percentile": 35.854791666666664,
+            "99-percentile": 36.0206,
+            "100-percentile": 36.06
+        },
+        "duration": {
+            "0-percentile": 16.455,
+            "1-percentile": 18.706046,
+            "5-percentile": 20.93288841911765,
+            "25-percentile": 23.86604988425925,
+            "50-percentile": 25.337271874999995,
+            "75-percentile": 26.294266856846452,
+            "95-percentile": 27.112368893442603,
+            "99-percentile": 27.339739129397422,
+            "100-percentile": 27.53339999999999
+        }
+    },
+    "image-rotate-go-15": {
+        "name": "image-rotate-go-15",
+        "yaml": "./yamls/image-rotate-go/kn-image-rotate-go-15.yaml",
+        "cpu": {
+            "0-percentile": 4.0,
+            "1-percentile": 4.495,
+            "5-percentile": 4.831666666666666,
+            "25-percentile": 5.572692307692307,
+            "50-percentile": 5.782156862745098,
+            "75-percentile": 5.853815789473685,
+            "95-percentile": 6.053125,
+            "99-percentile": 6.112900000000001,
+            "100-percentile": 6.29
+        },
+        "memory": {
+            "0-percentile": 20.0,
+            "1-percentile": 20.99,
+            "5-percentile": 23.306666666666665,
+            "25-percentile": 29.076538461538462,
+            "50-percentile": 31.72235294117647,
+            "75-percentile": 33.23907894736842,
+            "95-percentile": 34.0546875,
+            "99-percentile": 34.2125,
+            "100-percentile": 34.25
+        },
+        "duration": {
+            "0-percentile": 3.692,
+            "1-percentile": 4.126966,
+            "5-percentile": 5.305917095588235,
+            "25-percentile": 5.851897916666665,
+            "50-percentile": 6.0073304541925445,
+            "75-percentile": 6.236956275933611,
+            "95-percentile": 6.547536198770493,
+            "99-percentile": 6.640206129357508,
+            "100-percentile": 6.683634375000002
+        }
+    },
+    "image-rotate-go-16": {
+        "name": "image-rotate-go-16",
+        "yaml": "./yamls/image-rotate-go/kn-image-rotate-go-16.yaml",
+        "cpu": {
+            "0-percentile": 260.0,
+            "1-percentile": 372.86,
+            "5-percentile": 597.8100000000001,
+            "25-percentile": 699.2515384615385,
+            "50-percentile": 720.9080392156864,
+            "75-percentile": 731.8794736842106,
+            "95-percentile": 739.7361458333334,
+            "99-percentile": 743.2452999999999,
+            "100-percentile": 744.53
+        },
+        "memory": {
+            "0-percentile": 283.0,
+            "1-percentile": 283.0,
+            "5-percentile": 284.31666666666666,
+            "25-percentile": 290.5615384615385,
+            "50-percentile": 294.1578431372549,
+            "75-percentile": 296.3519736842105,
+            "95-percentile": 297.57125,
+            "99-percentile": 297.8088,
+            "100-percentile": 297.88
+        },
+        "duration": {
+            "0-percentile": 1763.657,
+            "1-percentile": 1770.500382,
+            "5-percentile": 1784.1332233455885,
+            "25-percentile": 1809.528014583333,
+            "50-percentile": 1830.7170829580746,
+            "75-percentile": 1851.778883324688,
+            "95-percentile": 1872.6083809221304,
+            "99-percentile": 1878.6730011532163,
+            "100-percentile": 1880.7070624999997
+        }
+    },
+    "image-rotate-go-17": {
+        "name": "image-rotate-go-17",
+        "yaml": "./yamls/image-rotate-go/kn-image-rotate-go-17.yaml",
+        "cpu": {
+            "0-percentile": 2.0,
+            "1-percentile": 14.375,
+            "5-percentile": 30.583333333333336,
+            "25-percentile": 37.77576923076923,
+            "50-percentile": 39.46509803921569,
+            "75-percentile": 40.50157894736842,
+            "95-percentile": 41.27614583333334,
+            "99-percentile": 41.4965,
+            "100-percentile": 41.65
+        },
+        "memory": {
+            "0-percentile": 17.0,
+            "1-percentile": 24.92,
+            "5-percentile": 32.77166666666667,
+            "25-percentile": 42.20192307692307,
+            "50-percentile": 45.91039215686274,
+            "75-percentile": 47.5878947368421,
+            "95-percentile": 48.560208333333335,
+            "99-percentile": 48.748,
+            "100-percentile": 48.8
+        },
+        "duration": {
+            "0-percentile": 103.084,
+            "1-percentile": 106.863777,
+            "5-percentile": 111.55366084558821,
+            "25-percentile": 115.99572326388892,
+            "50-percentile": 118.74473208462734,
+            "75-percentile": 120.8502148599585,
+            "95-percentile": 122.82942967213107,
+            "99-percentile": 123.35520374705497,
+            "100-percentile": 123.53565937499994
         }
     },
     "aes-nodejs-10-10": {

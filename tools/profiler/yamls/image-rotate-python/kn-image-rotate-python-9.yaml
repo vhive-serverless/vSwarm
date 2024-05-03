@@ -2,7 +2,7 @@
 apiVersion: serving.knative.dev/v1
 kind: Service
 metadata:
-  name: video-analytics-standalone-python-300
+  name: image-rotate-python-9
   namespace: default
 spec:
   template:
@@ -16,14 +16,11 @@ spec:
             - --addr=0.0.0.0:50000
             - --function-endpoint-url=0.0.0.0
             - --function-endpoint-port=50051
-            - --function-name=video-analytics-standalone-python
-            - --value=video2.mp4
+            - --function-name=image-rotate-python
+            - --value=img9.jpg
             - --profile-function=true
-        - image: docker.io/vhiveease/video-analytics-standalone-python:latest
+        - image: docker.io/vhiveease/image-rotate-python:latest
           args:
             - --addr=0.0.0.0
             - --port=50051
-            - --db_addr=mongodb://video-analytics-standalone-database:27017
-            - --default_video=default.mp4
-            - --num_frames=300
-
+            - --db_addr=mongodb://image-rotate-database:27017

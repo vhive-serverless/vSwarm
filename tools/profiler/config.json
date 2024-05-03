@@ -130,6 +130,16 @@
         "postdeployment-commands": []
     },
     {
+        "yaml-location": "./yamls/fibonacci-nodejs/kn-fibonacci-nodejs-700000-707000.yaml",
+        "predeployment-commands": [],
+        "postdeployment-commands": []
+    },
+    {
+        "yaml-location": "./yamls/fibonacci-nodejs/kn-fibonacci-nodejs-1000000-1010000.yaml",
+        "predeployment-commands": [],
+        "postdeployment-commands": []
+    },
+    {
         "yaml-location": "./yamls/video-analytics-standalone/kn-video-analytics-standalone-python-1.yaml",
         "predeployment-commands": [
             "kubectl apply -f ./yamls/video-analytics-standalone/video-analytics-standalone-database.yaml"
@@ -208,6 +218,62 @@
     },
     {
         "yaml-location": "./yamls/video-analytics-standalone/kn-video-analytics-standalone-python-100.yaml",
+        "predeployment-commands": [
+            "kubectl apply -f ./yamls/video-analytics-standalone/video-analytics-standalone-database.yaml"
+        ],
+        "postdeployment-commands": []
+    },
+    {
+        "yaml-location": "./yamls/video-analytics-standalone/kn-video-analytics-standalone-python-200.yaml",
+        "predeployment-commands": [
+            "kubectl apply -f ./yamls/video-analytics-standalone/video-analytics-standalone-database.yaml"
+        ],
+        "postdeployment-commands": []
+    },
+    {
+        "yaml-location": "./yamls/video-analytics-standalone/kn-video-analytics-standalone-python-300.yaml",
+        "predeployment-commands": [
+            "kubectl apply -f ./yamls/video-analytics-standalone/video-analytics-standalone-database.yaml"
+        ],
+        "postdeployment-commands": []
+    },
+    {
+        "yaml-location": "./yamls/video-analytics-standalone/kn-video-analytics-standalone-python-400.yaml",
+        "predeployment-commands": [
+            "kubectl apply -f ./yamls/video-analytics-standalone/video-analytics-standalone-database.yaml"
+        ],
+        "postdeployment-commands": []
+    },
+    {
+        "yaml-location": "./yamls/video-analytics-standalone/kn-video-analytics-standalone-python-500.yaml",
+        "predeployment-commands": [
+            "kubectl apply -f ./yamls/video-analytics-standalone/video-analytics-standalone-database.yaml"
+        ],
+        "postdeployment-commands": []
+    },
+    {
+        "yaml-location": "./yamls/video-analytics-standalone/kn-video-analytics-standalone-python-600.yaml",
+        "predeployment-commands": [
+            "kubectl apply -f ./yamls/video-analytics-standalone/video-analytics-standalone-database.yaml"
+        ],
+        "postdeployment-commands": []
+    },
+    {
+        "yaml-location": "./yamls/video-analytics-standalone/kn-video-analytics-standalone-python-700.yaml",
+        "predeployment-commands": [
+            "kubectl apply -f ./yamls/video-analytics-standalone/video-analytics-standalone-database.yaml"
+        ],
+        "postdeployment-commands": []
+    },
+    {
+        "yaml-location": "./yamls/video-analytics-standalone/kn-video-analytics-standalone-python-800.yaml",
+        "predeployment-commands": [
+            "kubectl apply -f ./yamls/video-analytics-standalone/video-analytics-standalone-database.yaml"
+        ],
+        "postdeployment-commands": []
+    },
+    {
+        "yaml-location": "./yamls/video-analytics-standalone/kn-video-analytics-standalone-python-900.yaml",
         "predeployment-commands": [
             "kubectl apply -f ./yamls/video-analytics-standalone/video-analytics-standalone-database.yaml"
         ],
@@ -434,8 +500,137 @@
         "postdeployment-commands": []
     },
     {
+        "yaml-location": "./yamls/fibonacci-python/kn-fibonacci-python-700000-707000.yaml",
+        "predeployment-commands": [],
+        "postdeployment-commands": []
+    },
+    {
+        "yaml-location": "./yamls/fibonacci-python/kn-fibonacci-python-1000000-1010000.yaml",
+        "predeployment-commands": [],
+        "postdeployment-commands": []
+    },
+    {
         "yaml-location": "./yamls/gptj/kn-gptj-python.yaml",
         "predeployment-commands": [],
+        "postdeployment-commands": []
+    },
+    {
+        "yaml-location": "./yamls/image-rotate-go/kn-image-rotate-go-1.yaml",
+        "predeployment-commands": [
+            "kubectl apply -f ./yamls/image-rotate/image-rotate-database.yaml"
+        ],
+        "postdeployment-commands": []
+    },
+    {
+        "yaml-location": "./yamls/image-rotate-go/kn-image-rotate-go-2.yaml",
+        "predeployment-commands": [
+            "kubectl apply -f ./yamls/image-rotate/image-rotate-database.yaml"
+        ],
+        "postdeployment-commands": []
+    },
+    {
+        "yaml-location": "./yamls/image-rotate-go/kn-image-rotate-go-3.yaml",
+        "predeployment-commands": [
+            "kubectl apply -f ./yamls/image-rotate/image-rotate-database.yaml"
+        ],
+        "postdeployment-commands": []
+    },
+    {
+        "yaml-location": "./yamls/image-rotate-go/kn-image-rotate-go-4.yaml",
+        "predeployment-commands": [
+            "kubectl apply -f ./yamls/image-rotate/image-rotate-database.yaml"
+        ],
+        "postdeployment-commands": []
+    },
+    {
+        "yaml-location": "./yamls/image-rotate-go/kn-image-rotate-go-5.yaml",
+        "predeployment-commands": [
+            "kubectl apply -f ./yamls/image-rotate/image-rotate-database.yaml"
+        ],
+        "postdeployment-commands": []
+    },
+    {
+        "yaml-location": "./yamls/image-rotate-go/kn-image-rotate-go-6.yaml",
+        "predeployment-commands": [
+            "kubectl apply -f ./yamls/image-rotate/image-rotate-database.yaml"
+        ],
+        "postdeployment-commands": []
+    },
+    {
+        "yaml-location": "./yamls/image-rotate-go/kn-image-rotate-go-7.yaml",
+        "predeployment-commands": [
+            "kubectl apply -f ./yamls/image-rotate/image-rotate-database.yaml"
+        ],
+        "postdeployment-commands": []
+    },
+    {
+        "yaml-location": "./yamls/image-rotate-go/kn-image-rotate-go-8.yaml",
+        "predeployment-commands": [
+            "kubectl apply -f ./yamls/image-rotate/image-rotate-database.yaml"
+        ],
+        "postdeployment-commands": []
+    },
+    {
+        "yaml-location": "./yamls/image-rotate-go/kn-image-rotate-go-9.yaml",
+        "predeployment-commands": [
+            "kubectl apply -f ./yamls/image-rotate/image-rotate-database.yaml"
+        ],
+        "postdeployment-commands": []
+    },
+    {
+        "yaml-location": "./yamls/image-rotate-go/kn-image-rotate-go-10.yaml",
+        "predeployment-commands": [
+            "kubectl apply -f ./yamls/image-rotate/image-rotate-database.yaml"
+        ],
+        "postdeployment-commands": []
+    },
+    {
+        "yaml-location": "./yamls/image-rotate-go/kn-image-rotate-go-11.yaml",
+        "predeployment-commands": [
+            "kubectl apply -f ./yamls/image-rotate/image-rotate-database.yaml"
+        ],
+        "postdeployment-commands": []
+    },
+    {
+        "yaml-location": "./yamls/image-rotate-go/kn-image-rotate-go-12.yaml",
+        "predeployment-commands": [
+            "kubectl apply -f ./yamls/image-rotate/image-rotate-database.yaml"
+        ],
+        "postdeployment-commands": []
+    },
+    {
+        "yaml-location": "./yamls/image-rotate-go/kn-image-rotate-go-13.yaml",
+        "predeployment-commands": [
+            "kubectl apply -f ./yamls/image-rotate/image-rotate-database.yaml"
+        ],
+        "postdeployment-commands": []
+    },
+    {
+        "yaml-location": "./yamls/image-rotate-go/kn-image-rotate-go-14.yaml",
+        "predeployment-commands": [
+            "kubectl apply -f ./yamls/image-rotate/image-rotate-database.yaml"
+        ],
+        "postdeployment-commands": []
+    },
+    {
+        "yaml-location": "./yamls/image-rotate-go/kn-image-rotate-go-15.yaml",
+        "predeployment-commands": [
+            "kubectl apply -f ./yamls/image-rotate/image-rotate-database.yaml"
+        ],
+        "postdeployment-commands": []
+    },
+    {
+        "yaml-location": "./yamls/image-rotate-go/kn-image-rotate-go-16.yaml",
+        "predeployment-commands": [
+            "kubectl apply -f ./yamls/image-rotate/image-rotate-database.yaml"
+        ],
+        "postdeployment-commands": []
+    },
+    {
+        "yaml-location": "./yamls/image-rotate-go/kn-image-rotate-go-17.yaml",
+        "predeployment-commands": [
+            "kubectl apply -f ./yamls/image-rotate/image-rotate-database.yaml"
+        ],
         "postdeployment-commands": []
     },
     {
@@ -570,6 +765,34 @@
         "postdeployment-commands": []
     },
     {
+        "yaml-location": "./yamls/video-processing/kn-video-processing-python-4000.yaml",
+        "predeployment-commands": [
+            "kubectl apply -f ./yamls/video-processing/video-processing-database.yaml"
+        ],
+        "postdeployment-commands": []
+    },
+    {
+        "yaml-location": "./yamls/video-processing/kn-video-processing-python-5000.yaml",
+        "predeployment-commands": [
+            "kubectl apply -f ./yamls/video-processing/video-processing-database.yaml"
+        ],
+        "postdeployment-commands": []
+    },
+    {
+        "yaml-location": "./yamls/video-processing/kn-video-processing-python-6000.yaml",
+        "predeployment-commands": [
+            "kubectl apply -f ./yamls/video-processing/video-processing-database.yaml"
+        ],
+        "postdeployment-commands": []
+    },
+    {
+        "yaml-location": "./yamls/video-processing/kn-video-processing-python-7000.yaml",
+        "predeployment-commands": [
+            "kubectl apply -f ./yamls/video-processing/video-processing-database.yaml"
+        ],
+        "postdeployment-commands": []
+    },
+    {
         "yaml-location": "./yamls/fibonacci-go/kn-fibonacci-go-10-10.yaml",
         "predeployment-commands": [],
         "postdeployment-commands": []
@@ -621,6 +844,16 @@
     },
     {
         "yaml-location": "./yamls/fibonacci-go/kn-fibonacci-go-700000-707000.yaml",
+        "predeployment-commands": [],
+        "postdeployment-commands": []
+    },
+    {
+        "yaml-location": "./yamls/fibonacci-go/kn-fibonacci-go-1000000-1010000.yaml",
+        "predeployment-commands": [],
+        "postdeployment-commands": []
+    },
+    {
+        "yaml-location": "./yamls/fibonacci-go/kn-fibonacci-go-1500000-1515000.yaml",
         "predeployment-commands": [],
         "postdeployment-commands": []
     },
@@ -701,6 +934,31 @@
     },
     {
         "yaml-location": "./yamls/rnn-serving/kn-rnn-serving-python-4500-4545.yaml",
+        "predeployment-commands": [],
+        "postdeployment-commands": []
+    },
+    {
+        "yaml-location": "./yamls/rnn-serving/kn-rnn-serving-python-7000-7070.yaml",
+        "predeployment-commands": [],
+        "postdeployment-commands": []
+    },
+    {
+        "yaml-location": "./yamls/rnn-serving/kn-rnn-serving-python-8500-8585.yaml",
+        "predeployment-commands": [],
+        "postdeployment-commands": []
+    },
+    {
+        "yaml-location": "./yamls/rnn-serving/kn-rnn-serving-python-10000-10100.yaml",
+        "predeployment-commands": [],
+        "postdeployment-commands": []
+    },
+    {
+        "yaml-location": "./yamls/rnn-serving/kn-rnn-serving-python-12000-12120.yaml",
+        "predeployment-commands": [],
+        "postdeployment-commands": []
+    },
+    {
+        "yaml-location": "./yamls/rnn-serving/kn-rnn-serving-python-14000-14140.yaml",
         "predeployment-commands": [],
         "postdeployment-commands": []
     },
