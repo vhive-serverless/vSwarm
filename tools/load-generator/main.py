@@ -156,8 +156,8 @@ def generate_load(args):
     profile_filepath = args.profile
     config_proxy_filepath = args.config_proxy
     build_directorypath = args.build
-    minute_granularity = (args.minute == "True") or (args.minute == True)  
-    unique_assignment = (args.unique == "True") or (args.unique == True)
+    minute_granularity = (args.minute == "True") or (args.minute == True) or (args.minute == "true") 
+    unique_assignment = (args.unique == "True") or (args.unique == True) or (args.unique == "true")
     iat_distribution = args.iat_distribution
     expt_duration = int(args.duration)
     warmup_duration = int(args.warmup_duration)

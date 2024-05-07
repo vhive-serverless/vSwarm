@@ -34,7 +34,7 @@ optional arguments:
   -u bool, --unique bool
                         Proxy-Trace functions mapping. Should it be unique?. Default: False
   -i string, --iat_distribution string
-                        IAT Distribution: equidistant, unique or exponential. Default: uniform
+                        IAT Distribution: equidistant, uniform or exponential. Default: uniform
   -d int, --duration int
                         Experiment Duration. Default: 20
   -dbg bool, --dbg bool
