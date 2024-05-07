@@ -391,7 +391,7 @@ def deploy_services(
 
     # Monitor the service, until it is ready
     # Monitoring happens every 15 seconds. If it shows failure even after that then it returns failure
-    monitor_time =30 * len(deployed_services_names)
+    monitor_time = 60 * len(deployed_services_names)
     sleep_time = 15
     status = False
     for _ in range(int(monitor_time / sleep_time)):
