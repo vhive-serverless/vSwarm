@@ -78,8 +78,8 @@ func main() {
 	zipkin := flag.String("zipkin", "http://localhost:9411/api/v2/spans", "zipkin url")
 	debug := flag.Bool("dbg", false, "Enable debug logging")
 	grpcTimeout = time.Duration(*flag.Int("grpcTimeout", 30, "Timeout in seconds for gRPC requests")) * time.Second
-	warmupDuration = flag.Int("warmup", 2, "Warm up duration")
-	exptDuration = flag.Int("duration", 8, "Experiment duration")
+	warmupDuration = flag.Int("warmup", 2, "Warm up duration - minutes (or) seconds")
+	exptDuration = flag.Int("duration", 8, "Experiment duration - minutes (or) seconds")
 	minuteGranularity = flag.Bool("min", true, "Is it minute granularity")
 	
 	statCollection = false
