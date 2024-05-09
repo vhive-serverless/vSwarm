@@ -1,0 +1,66 @@
+name: Update Golang Dependencies
+
+on:
+  schedule:
+    - cron: "0 0 * * 0" # Runs every week at midnight UTC
+  workflow_dispatch:
+
+permissions: read-all
+
+jobs:
+  update_golang_deps:
+    name: Update Golang Dependencies
+    runs-on: ubuntu-latest
+    steps:
+      - name: Set up Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: 1.21
+
+      - name: Check out code
+        uses: actions/checkout@v3
+        with:
+          ref: main
+
+      - name: Find all go.mod files
+        run: |
+          PATHS=$(find . -type f -name go.mod -printf '%h ')
+
+
+      - name: Upgrade the Golang Dependencies for all mod files
+        id: detect-and-update
+        run: |
+
+          for p in $PATHS;
+          do
+
+            echo "Update dependencies in $p"
+            go get -u ./...
+
+            output=$(git status -s)
+            if [ -z "${output}" ]; then
+              exit 0
+            fi
+
+            go mod tidy
+          done
+
+      - name: Create Pull Request
+        uses: peter-evans/create-pull-request@v4
+        with:
+          branch: "upgrade-go-deps-on-main"
+          commit-message: "Upgrade go deps"
+          signoff: true
+          delete-branch: true
+          title: "Upgrade Golang Dependencies"
+          body: |
+            This Pull Request updates all the Golang dependencies 
+            in all folders containing a mod file to their latest version
+          base: main
+          labels: |
+            go
+            dependencies
+          add-paths: |
+            *.mod
+            *.sum
+
