@@ -40,15 +40,19 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        service:
-          [
-            auth-go,
-            auth-python,
-            auth-nodejs,
-            auth-python-lambda,
-            auth-nodejs-lambda,
-            auth-go-lambda
-          ]
+        include:
+          - service: auth-go
+            target: authGo
+          - service: auth-python
+            target: authPython
+          - service: auth-nodejs
+            target: authNodeJS
+          - service: auth-go-lambda
+            target: authGoLambda
+          - service: auth-nodejs-lambda
+            target: authNodeJSLambda
+          - service: auth-python-lambda
+            target: authPythonLambda
 
     steps:
       - name: Check out code into the Go module directory
@@ -100,6 +104,18 @@ jobs:
           go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@v1.1
 
       - name: Build and push
+        if: ${{ ! contains(matrix.service, 'lambda') }}
+        uses: docker/build-push-action@v5
+        with:
+          push: true
+          file: benchmarks/auth/docker/Dockerfile
+          platforms: ${{ env.PLATFORMS }}
+          target: ${{ matrix.target }}
+          tags: vhiveease/${{ matrix.service }}:latest
+          context: .
+
+      - name: Build and push
+        if: ${{ contains(matrix.service, 'lambda') }}
         working-directory: benchmarks/auth
         run: make push-${{ matrix.service }}
 
