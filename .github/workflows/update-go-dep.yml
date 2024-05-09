@@ -11,43 +11,30 @@ jobs:
   update_golang_deps:
     name: Update Golang Dependencies
     runs-on: ubuntu-latest
+    env:
+      GOPRIVATE_KEY: ${{ secrets.XDT_REPO_ACCESS_KEY }}
+      GOPRIVATE: "github.com/ease-lab/vhive-xdt"
     steps:
+
+      - name: Checkout code into go module directory
+        uses: actions/checkout@v4
+
       - name: Set up Go
         uses: actions/setup-go@v5
         with:
-          go-version: 1.21
+          go-version: '1.21'
 
-      - name: Check out code
-        uses: actions/checkout@v4
-        with:
-          ref: main
+      - run: git config --global url."https://ease-lab:$(echo $GOPRIVATE_KEY)@github.com/ease-lab/vhive-xdt".insteadOf "https://github.com/ease-lab/vhive-xdt"
 
       - name: Find all go.mod files
+        shell: bash
         run: |
-          PATHS=$(find . -type f -name go.mod -printf '%h ')
-
-
-      - name: Upgrade the Golang Dependencies for all mod files
-        id: detect-and-update
-        run: |
-
-          for p in $PATHS;
-          do
-
-            echo "Update dependencies in $p"
-            go get -u ./...
-
-            output=$(git status -s)
-            if [ -z "${output}" ]; then
-              exit 0
-            fi
-
-            go mod tidy
-          done
+          ./utils/update_go_dependencies.sh
 
       - name: Create Pull Request
         uses: peter-evans/create-pull-request@v6
         with:
+          token: ${{ secrets.ENABLE_AUTOMERGE_TOKEN }}
           branch: "upgrade-go-deps-on-main"
           commit-message: "Upgrade go deps"
           signoff: true
