@@ -23,23 +23,18 @@
 
 set -e
 
-VERSION=1.21.4
-ARCH=amd64
+PATHS=$(find . -type f -name go.mod -printf '%h ')
 
-if [ $(uname -i) == "aarch64" ]; then ARCH=arm64 ; fi
+for p in $PATHS;
+do
 
-GO_BUILD="go${VERSION}.linux-${ARCH}"
+    pushd $p
 
-wget --continue https://golang.org/dl/${GO_BUILD}.tar.gz
+    echo "Update dependencies in $p"
+    go get -u ./...   || true
 
-sudo rm -rf /usr/local/go
-sudo tar -C /usr/local -xzf ${GO_BUILD}.tar.gz
+    go mod tidy  || true
 
-export PATH=$PATH:/usr/local/go/bin
+    popd
 
-sudo sh -c  "echo 'export PATH=\$PATH:/usr/local/go/bin' >> /etc/profile"
-sh -c  "echo 'export PATH=\$PATH:/usr/local/go/bin' >> $HOME/.bashrc"
-
-rm ${GO_BUILD}.tar.gz
-
-echo "Installed: $(go version)"
+done
