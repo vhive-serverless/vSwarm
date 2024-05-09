@@ -143,6 +143,7 @@ RUN GPG_KEYS=13C82A63B603576156E30A4EA0EA981B66B0D967 \
 
 COPY nginx.conf /etc/nginx/nginx.conf
 COPY default.conf /etc/nginx/conf.d/default.conf
+COPY nginx_setup.sh ./setup/nginx_setup.sh
 
 # COPY sprightparking.crt /etc/ssl/cert/sprightparking.crt
 # COPY sprightparking.key /etc/ssl/private/sprightparking.key

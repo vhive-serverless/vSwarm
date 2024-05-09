@@ -13,11 +13,11 @@ COPY ./benchmarks/spright-parking/python/server.py ./
 COPY ./benchmarks/spright-parking/python/hack.py ./
 
 # add proto file from github
-# ADD https://raw.githubusercontent.com/vhive-serverless/vSwarm-proto/v0.3.0/proto/parking/parking_pb2_grpc.py ./
-# ADD https://raw.githubusercontent.com/vhive-serverless/vSwarm-proto/v0.3.0/proto/parking/parking_pb2.py ./proto/parking_pb2_grpc/
-COPY ./benchmarks/spright-parking/python/parking_pb2_grpc.py ./
+ADD https://raw.githubusercontent.com/vhive-serverless/vSwarm-proto/v0.5.2/proto/parking/parking_pb2_grpc.py ./
+ADD https://raw.githubusercontent.com/vhive-serverless/vSwarm-proto/v0.5.2/proto/parking/parking_pb2.py ./proto/parking/
+COPY ./benchmarks/spright-parking/python/image.jpeg ./
 # COPY ./benchmarks/spright-parking/python/parking_pb2.py ./proto/parking_pb2_grpc/ # prob not working
-COPY ./benchmarks/spright-parking/python/parking_pb2.py ./
+# COPY ./benchmarks/spright-parking/python/parking_pb2.py ./
 
 
 

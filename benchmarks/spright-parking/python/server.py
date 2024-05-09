@@ -4,108 +4,97 @@ import os
 import threading
 import requests, time, random
 # protobuf
-import parking_pb2
+import proto.parking.parking_pb2 as parking_pb2
 import parking_pb2_grpc
 import grpc
+import logging
 from concurrent import futures
+import sys
 
-global stat_file 
+logging.basicConfig(stream=sys.stdout, level=logging.INFO)
+logger = logging.getLogger(__name__)
 
-def get_args():
-    parser = argparse.ArgumentParser()
-    parser.add_argument('-i', '--nginxip', action='store', type=str, default='127.0.0.1')
-    parser.add_argument('-p', '--nginxport', action='store', type=str, default='80')
-    parser.add_argument('-I', '--istioip', action='store', type=str, default='127.0.0.1')
-    parser.add_argument('-P', '--istioport', action='store', type=str, default='80')
-    args = parser.parse_args()
 
-    return args
 
 def post(http_url, send_time):
-    print("http_url: ", http_url)
-    print("Send a request at {}".format(send_time)) # DEBUG
+    logger.info("http_url: ", http_url)
+    logger.info("Send a request at {}".format(send_time)) # DEBUG
 
     files = {'file': open('image.jpeg', 'rb')}
     tmp_url = ''
+    function_chain = ''
     if random.random() < 0.9:
         tmp_url = http_url + '2/'
+        function_chain = f"[detection, search, charging]"
+        
     else:
         tmp_url = http_url + '1/'
+        function_chain = f"[detection, search, index, persist, charging]"
     r = requests.post(url = tmp_url, files=files)
-    # DEBUG
-    body_len = len(r.request.body if r.request.body else [])
-    print(body_len)
-    print(str(time.time()) + ";" + str(r.elapsed.total_seconds()))
+    result = ''
+    if r.status_code != 200:
+        result = f"Invoke function chain: {function_chain} fail!"
+    else:
+        
+        result = f"Invoke function chain {function_chain} success!"
+    return result
 
-    lock.acquire()
-    stat_file.write(str(time.time()) + ";" + str(r.elapsed.total_seconds()) + "\n")
-    lock.release()
 
-def warm_up(fname):
-    h = fname + '.default.example.com'
-    print("Wake up " + h)
-    r = requests.get(url = INGRESS_URL, headers = {"Host": h})
-    print("Cold start + Processing delay = " + str(r.elapsed.total_seconds()))
-
-def do_parking_call():
-    stat_file = open('kn.parking_output.csv', 'w')
+def do_parking_call(nginx_ip, nginx_port):
     
-    args = get_args()
-    URL = "http://" + args.nginxip + ":" + args.nginxport + "/"
+    url = f"http://{nginx_ip}:{nginx_port}/"
 
-    lock=threading.Lock()
-
-    functions = ['detection-1', 'search-2', 'index-3', 'charging-4', 'persist-5']
-    threads = []
-
-    # for x in threads:
-    #     x.join()
-
-    max_run_time_sec = 600
     total_sec = 0
-    st_1 = 220
-    st_2 = 20
     try:
-        while(1):
-            print("Send snapshots at {}".format(total_sec))
-            # Send request to function chain
-            for i in range(0, 164):
-                th = threading.Thread(target=post, args=(URL, total_sec))
-                th.daemon = True
-                th.start()
-            time.sleep(st_1)
-            print("Sleep for {}".format(st))
-            total_sec = total_sec + st_1
-            if total_sec >= max_run_time_sec:
-                break
+        logger.info("Send snapshots at {}".format(total_sec))
+        # Send request to function chain
+        response = post(url, total_sec)
+        return response
+
     except KeyboardInterrupt:
-        stat_file.close()
         exit(1)
-    stat_file.close()
 
-class Parking(parking_pb2_grpc.GreeterServicer):
-    def SayHello(self, request, context):
-        if request.plaintext_message in ["", "world"]:
-            plaintext = args.default_plaintext
-            print(plaintext)
-            do_parking_call()
-        else:
-            plaintext = request.plaintext_message
-            print("else: ", plaintext)
+class Parking(parking_pb2_grpc.ParkingServicer):
+    def __init__(self,
+                 nginx_ip,
+                 nginx_port) -> None:
+        super().__init__()
+        self.nginx_ip = nginx_ip
+        self.nginx_port = nginx_port
+        
+    def DoParking(self, request, context):
+        logger.info(f"Receive request from relay, call do_parking")
+        result = do_parking_call(nginx_ip, nginx_port)
 
-        return parking_pb2.parkingReply(result="reply")
+        return parking_pb2.ParkingReply(result=result)
 
-def serve():
+def serve(addr, port, nginx_ip, nginx_port):
     server = grpc.server(futures.ThreadPoolExecutor(max_workers=1))
-    parking_pb2_grpc.add_GreeterServicer_to_server(Parking(), server)
+    parking_pb2_grpc.add_ParkingServicer_to_server(Parking(nginx_ip, nginx_port), server)
     
-    # address = (args.addr + ":" + args.port) # TODO
-    address = ("0.0.0.0:50051")
+    address = f"{addr}:{port}"
     server.add_insecure_port(address)
-    print("Start Parking-python server. Addr: " + address)
+    logger.info("Start Parking-python server. Addr: " + address)
     server.start()
-    print("Parking-python server started and listening on " + address)
+    logger.info("Parking-python server started and listening on " + address)
     server.wait_for_termination()
 
-if __name__ == '__main__':
-    serve()
+if __name__ == "__main__":
+    # Initialize the parser
+    parser = argparse.ArgumentParser(description='python server that invokes spright-parking')
+
+    # Add arguments
+    parser.add_argument('--addr', type=str, help='Address to listen on', default='0.0.0.0')
+    parser.add_argument('--port', type=int, help='Port to listen on', default=50051)
+    parser.add_argument('--nginxip', type=str, help='Nginx IP address', default='parking-proxy')
+    parser.add_argument('--ngixport', type=int, help='Nginx port', default=80)
+
+    # Parse the arguments
+    args = parser.parse_args()
+
+    # Access the parsed arguments
+    addr = args.addr
+    port = args.port
+    nginx_ip = args.nginxip
+    nginx_port = args.ngixport
+    serve(addr, port, nginx_ip, nginx_port)

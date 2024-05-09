@@ -2,10 +2,10 @@
 """Client and server classes corresponding to protobuf-defined services."""
 import grpc
 
-import parking_pb2 as parking__pb2
+from proto.parking import parking_pb2 as proto_dot_parking_dot_parking__pb2
 
 
-class GreeterStub(object):
+class ParkingStub(object):
     """Missing associated documentation comment in .proto file."""
 
     def __init__(self, channel):
@@ -14,42 +14,42 @@ class GreeterStub(object):
         Args:
             channel: A grpc.Channel.
         """
-        self.SayHello = channel.unary_unary(
-                '/parking.Greeter/SayHello',
-                request_serializer=parking__pb2.ParkingRequest.SerializeToString,
-                response_deserializer=parking__pb2.ParkingReply.FromString,
+        self.DoParking = channel.unary_unary(
+                '/parking.Parking/DoParking',
+                request_serializer=proto_dot_parking_dot_parking__pb2.ParkingRequest.SerializeToString,
+                response_deserializer=proto_dot_parking_dot_parking__pb2.ParkingReply.FromString,
                 )
 
 
-class GreeterServicer(object):
+class ParkingServicer(object):
     """Missing associated documentation comment in .proto file."""
 
-    def SayHello(self, request, context):
+    def DoParking(self, request, context):
         """Missing associated documentation comment in .proto file."""
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
 
-def add_GreeterServicer_to_server(servicer, server):
+def add_ParkingServicer_to_server(servicer, server):
     rpc_method_handlers = {
-            'SayHello': grpc.unary_unary_rpc_method_handler(
-                    servicer.SayHello,
-                    request_deserializer=parking__pb2.ParkingRequest.FromString,
-                    response_serializer=parking__pb2.ParkingReply.SerializeToString,
+            'DoParking': grpc.unary_unary_rpc_method_handler(
+                    servicer.DoParking,
+                    request_deserializer=proto_dot_parking_dot_parking__pb2.ParkingRequest.FromString,
+                    response_serializer=proto_dot_parking_dot_parking__pb2.ParkingReply.SerializeToString,
             ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
-            'parking.Greeter', rpc_method_handlers)
+            'parking.Parking', rpc_method_handlers)
     server.add_generic_rpc_handlers((generic_handler,))
 
 
  # This class is part of an EXPERIMENTAL API.
-class Greeter(object):
+class Parking(object):
     """Missing associated documentation comment in .proto file."""
 
     @staticmethod
-    def SayHello(request,
+    def DoParking(request,
             target,
             options=(),
             channel_credentials=None,
@@ -59,8 +59,8 @@ class Greeter(object):
             wait_for_ready=None,
             timeout=None,
             metadata=None):
-        return grpc.experimental.unary_unary(request, target, '/parking.Greeter/SayHello',
-            parking__pb2.ParkingRequest.SerializeToString,
-            parking__pb2.ParkingReply.FromString,
+        return grpc.experimental.unary_unary(request, target, '/parking.Parking/DoParking',
+            proto_dot_parking_dot_parking__pb2.ParkingRequest.SerializeToString,
+            proto_dot_parking_dot_parking__pb2.ParkingReply.FromString,
             options, channel_credentials,
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)

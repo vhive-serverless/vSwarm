@@ -7,11 +7,11 @@ all: all-image
 
 all-image: $(ALL_IMAGES)
 
-parking-python-image: docker/Dockerfile python/server.py
+parking-python-image:
 	DOCKER_BUILDKIT=1 docker buildx build \
 	--tag vhiveease/parking-python:latest \
 	--target parkingPython \
-	-f docker/Dockerfile \
+	-f docker/parking-python/Dockerfile \
 	$(ROOT) --load
 
 push-%: %-image
