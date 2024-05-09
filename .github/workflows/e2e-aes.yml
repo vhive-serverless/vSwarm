@@ -40,15 +40,19 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        service:
-          [
-            aes-go,
-            aes-python,
-            aes-nodejs,
-            aes-python-lambda,
-            aes-nodejs-lambda,
-            aes-go-lambda
-          ]
+        include:
+          - service: aes-go
+            target: aesGo
+          - service: aes-python
+            target: aesPython
+          - service: aes-nodejs
+            target: aesNodeJS
+          - service: aes-go-lambda
+            target: aesGoLambda
+          - service: aes-nodejs-lambda
+            target: aesNodeJSLambda
+          - service: aes-python-lambda
+            target: aesPythonLambda
 
     steps:
       - name: Check out code into the Go module directory
@@ -99,7 +103,19 @@ jobs:
           go install google.golang.org/protobuf/cmd/protoc-gen-go@v1.26
           go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@v1.1
 
-      - name: Build and Push
+      - name: Build and push
+        if: ${{ ! contains(matrix.service, 'lambda') }}
+        uses: docker/build-push-action@v5
+        with:
+          push: true
+          file: benchmarks/aes/docker/Dockerfile
+          platforms: ${{ env.PLATFORMS }}
+          target: ${{ matrix.target }}
+          tags: vhiveease/${{ matrix.service }}:latest
+          context: .
+
+      - name: Build and push
+        if: ${{ contains(matrix.service, 'lambda') }}
         working-directory: benchmarks/aes
         run: make push-${{ matrix.service }}
 
