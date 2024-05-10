@@ -1,17 +1,17 @@
 
-# Spright Benchmark
+# `Spright` Benchmark
 
-The spright benchmark is a set of parking slot functions(object detetction, searching, etc) adapted from: [spright](https://github.com/ucr-serverless/spright)
+The `Spright` benchmark is a set of parking slot functions(object detection, searching, etc) adapted from: [`Spright`](https://github.com/ucr-serverless/spright)
 We implement a grpc-proxy so it can be invoked by vSwarm.
 
 
 ## Running this benchmark locally (using docker)
 
-The detailed and general description how to run benchmarks local you can find [here](../../docs/running_locally.md). The following steps show it on the spright-python function.
+The detailed and general description how to run benchmarks local you can find [here](../../docs/running_locally.md). The following steps show it on the `spright-python` function.
 1. Build or pull the function images using `make all-images` or `make pull`.
 ### Invoke once
 2. Start the function with docker-compose
-   ```bash
+   ```bash 
    docker-compose -f ./yamls/docker-compose/dc-parking.yaml up
    ```
 3. In a new terminal, invoke the interface function with grpcurl.
@@ -37,7 +37,7 @@ The detailed and general description how to run benchmarks local you can find [h
 ### TODO: Need to test it on knative
 Below contents haven't been tested on knative
 
-The detailed and general description on how to run benchmarks on knative clusters you can find [here](../../docs/running_benchmarks.md). The following steps show it on the spright-python function.
+The detailed and general description on how to run benchmarks on knative clusters you can find [here](../../docs/running_benchmarks.md). The following steps show it on the `spright-python` function.
 1. Build or pull the function images using `make all-images` or `make pull`.
 2. Start the function with knative
    ```bash
