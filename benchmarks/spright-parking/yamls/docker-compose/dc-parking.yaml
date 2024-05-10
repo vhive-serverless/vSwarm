@@ -1,0 +1,78 @@
+version: '3'
+services:
+  parking-python-server:
+    image: vhiveease/parking-python:latest
+    container_name: parking-python
+    entrypoint:
+      - python
+      - /app/server.py
+      - --addr=0.0.0.0
+      - --port=50051
+      - --nginxip=parking-proxy
+      - --ngixport=80
+    ports:
+      - target: 50051
+
+  detection-1:
+    image: docker.io/shixiongqi/kn-dummy
+    ports:
+      - "8081:8080"
+    container_name: detection-1
+    environment:
+      - SLEEP_TIME=453000
+      
+
+  search-2: 
+    image: docker.io/shixiongqi/kn-dummy
+    container_name: search-2
+    ports:
+      - "8082:8080"
+    environment:
+      - SLEEP_TIME=20000
+
+  index-3:
+    image: docker.io/shixiongqi/kn-dummy
+    container_name: index-3
+    ports:
+      - "8083:8080"
+    environment:
+      - SLEEP_TIME=1000
+
+  charging-4:
+    image: docker.io/shixiongqi/kn-dummy
+    container_name: charging-4
+    ports:
+      - "8084:8080"
+    environment:
+      - SLEEP_TIME=50000
+
+  persist-5:
+    image: docker.io/shixiongqi/kn-dummy
+    container_name:  persist-5
+    ports:
+      - "8085:8080"
+    environment:
+      - SLEEP_TIME=10000
+  
+  parking-proxy:
+    container_name: webserver
+    build:
+      context: ../../docker/nginxlocal/
+      dockerfile: Dockerfile
+    ports:
+      - "80:80"
+      - "443:443"
+    entrypoint: ["/bin/sh", "-c", "./setup/nginx_setup.sh"]
+
+  relay:
+    image: vhiveease/relay:latest
+    platform: linux/amd64
+    entrypoint:
+      - /app/server
+      - --addr=0.0.0.0:50000
+      - --function-endpoint-url=parking-python-server
+      - --function-endpoint-port=50051
+      - --function-name=spright-parking-python
+    ports:
+      - published: 50000
+        target: 50000
