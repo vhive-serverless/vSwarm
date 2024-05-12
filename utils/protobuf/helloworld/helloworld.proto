@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-option go_package = "github.com/vhive-serverless/vSwarm/tools/invoker/proto";
+option go_package = "github.com/vhive-serverless/vSwarm/utils/protobuf/helloworld";
 
 package helloworld;
 
