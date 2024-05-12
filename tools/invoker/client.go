@@ -45,7 +45,7 @@ import (
 	"github.com/vhive-serverless/vSwarm/tools/endpoint"
 	tracing "github.com/vhive-serverless/vSwarm/utils/tracing/go"
 
-	pb "github.com/vhive-serverless/vSwarm/tools/invoker/proto"
+	pb "github.com/vhive-serverless/vSwarm/utils/protobuf/helloworld"
 )
 
 const TimeseriesDBAddr = "10.96.0.84:90"

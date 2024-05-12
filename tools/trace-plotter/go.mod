@@ -3,10 +3,10 @@ module github.com/vhive-serverless/vSwarm/tools/trace-plotter
 go 1.21
 
 require (
-	github.com/elastic/go-elasticsearch/v7 v7.17.1
-	github.com/go-echarts/go-echarts/v2 v2.2.5-0.20220124141434-59126fe22eac
+	github.com/elastic/go-elasticsearch/v7 v7.17.10
+	github.com/go-echarts/go-echarts/v2 v2.3.3
 	github.com/gonum/stat v0.0.0-20181125101827-41a0da705a5b
-	github.com/sirupsen/logrus v1.9.0
+	github.com/sirupsen/logrus v1.9.3
 )
 
 require (
@@ -16,5 +16,5 @@ require (
 	github.com/gonum/internal v0.0.0-20181124074243-f884aa714029 // indirect
 	github.com/gonum/lapack v0.0.0-20181123203213-e4cdc5a0bff9 // indirect
 	github.com/gonum/matrix v0.0.0-20181209220409-c518dec07be9 // indirect
-	golang.org/x/sys v0.0.0-20220722155257-8c9f86f7a55f // indirect
+	golang.org/x/sys v0.20.0 // indirect
 )
