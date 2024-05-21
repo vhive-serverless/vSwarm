@@ -256,6 +256,51 @@ def deploy_services(
             log.error(f"{shell_filename} execution failed. Error: {e}")
             return trace_function, -1
 
+
+    def get_service_status(function_names: list) -> bool:
+
+        try:
+            service_status = {}
+            for function_name in function_names:
+                service_status[function_name] = False
+
+            get_service_command = f"kn service list --no-headers"
+            result = subprocess.run(
+                get_service_command,
+                shell=True,
+                check=True,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+            )
+            services = result.stdout.decode("utf-8").strip().split("\n")
+
+            for s in services:
+                try:
+                    name = s.split()[0]
+                    status = s.split()[8]
+                except IndexError:
+                    continue
+                for function_name in function_names:
+                    if function_name in name:
+                        if status == "True":
+                            service_status[function_name] = True
+                        else:
+                            service_status[function_name] = False
+
+            for function_name in function_names:
+                if service_status[function_name] == False: return False
+            return True
+
+        except subprocess.CalledProcessError as e:
+            log.warning(
+                f"Service can't be monitored. Return code: {e.returncode}. Error: {e.stderr.decode('utf-8')}"
+            )
+            return False
+        except Exception as e:
+            log.warning(f"Service can't be monitored. Error: {e}")
+            return False
+
+
     # Check whether folder where shell scripts are to be located exists or not
     if not os.path.exists(build_shell_scripts_location):
         log.info(f"{build_shell_scripts_location} directory does not exist.")
@@ -345,53 +390,23 @@ def deploy_services(
         )
         if e == 0: deployed_services_names.append(tf["proxy-function-name"])
 
+        if(len(deployed_services_names) % 50 == 49):
 
-    def get_service_status(function_names: list) -> bool:
-
-        try:
-            service_status = {}
-            for function_name in function_names:
-                service_status[function_name] = False
-
-            get_service_command = f"kn service list --no-headers"
-            result = subprocess.run(
-                get_service_command,
-                shell=True,
-                check=True,
-                stdout=subprocess.PIPE,
-                stderr=subprocess.PIPE,
-            )
-            services = result.stdout.decode("utf-8").strip().split("\n")
-
-            for s in services:
-                try:
-                    name = s.split()[0]
-                    status = s.split()[8]
-                except IndexError:
-                    continue
-                for function_name in function_names:
-                    if function_name in name:
-                        if status == "True":
-                            service_status[function_name] = True
-                        else:
-                            service_status[function_name] = False
-
-            for function_name in function_names:
-                if service_status[function_name] == False: return False
-            return True
-
-        except subprocess.CalledProcessError as e:
-            log.warning(
-                f"Service can't be monitored. Return code: {e.returncode}. Error: {e.stderr.decode('utf-8')}"
-            )
-            return False
-        except Exception as e:
-            log.warning(f"Service can't be monitored. Error: {e}")
-            return False
+            # Monitor the service, until it is ready
+            # Monitoring happens every 15 seconds. If it shows failure even after that then it returns failure
+            monitor_time = 30 * len(deployed_services_names)
+            sleep_time = 15
+            status = False
+            for _ in range(int(monitor_time / sleep_time)):
+                status = get_service_status(deployed_services_names)
+                if status:
+                    break
+                else:
+                    time.sleep(sleep_time)
 
     # Monitor the service, until it is ready
     # Monitoring happens every 15 seconds. If it shows failure even after that then it returns failure
-    monitor_time = 60 * len(deployed_services_names)
+    monitor_time = 15 * len(deployed_services_names)
     sleep_time = 15
     status = False
     for _ in range(int(monitor_time / sleep_time)):
