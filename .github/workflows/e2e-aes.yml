@@ -105,7 +105,7 @@ jobs:
 
       - name: Build and push
         if: ${{ ! contains(matrix.service, 'lambda') }}
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@v6
         with:
           push: true
           file: benchmarks/aes/docker/Dockerfile
