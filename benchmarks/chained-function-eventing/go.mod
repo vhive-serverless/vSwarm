@@ -8,7 +8,7 @@ require (
 	github.com/cloudevents/sdk-go/v2 v2.15.2
 	github.com/kelseyhightower/envconfig v1.4.0
 	github.com/vhive-serverless/vSwarm/tools/benchmarking_eventing v0.0.0-20240422181019-5b1711d87c5d
-	google.golang.org/grpc v1.63.2
+	google.golang.org/grpc v1.65.0
 	google.golang.org/protobuf v1.34.1
 )
 
@@ -25,5 +25,5 @@ require (
 	golang.org/x/net v0.25.0 // indirect
 	golang.org/x/sys v0.20.0 // indirect
 	golang.org/x/text v0.15.0 // indirect
-	google.golang.org/genproto/googleapis/rpc v0.0.0-20240509183442-62759503f434 // indirect
+	google.golang.org/genproto/googleapis/rpc v0.0.0-20240528184218-531527333157 // indirect
 )
