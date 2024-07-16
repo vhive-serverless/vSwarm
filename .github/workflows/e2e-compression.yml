@@ -104,7 +104,7 @@ jobs:
 
       - name: invoke the chain
         run: |
-          ./tools/bin/grpcurl -plaintext -d '{"regenerate": "false"}' localhost:50051 compression.TODO
+          ./tools/bin/grpcurl -plaintext localhost:50000 helloworld.Greeter.SayHello
 
       - name: invoke the relay
         working-directory: tools/test-client
