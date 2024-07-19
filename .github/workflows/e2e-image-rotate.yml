@@ -168,7 +168,7 @@ jobs:
 
       - name: Check if service is ready
         run: |
-          kubectl wait --for=condition=Ready -f ${{ env.YAML_DIR }}/kn-${{ matrix.service }}.yaml --timeout 120s
+          kubectl wait --for=condition=Ready -f ${{ env.YAML_DIR }}/kn-${{ matrix.service }}.yaml --timeout 180s
           kubectl get service
           kubectl get -f ${{ env.YAML_DIR }}/kn-${{ matrix.service }}.yaml
 
@@ -187,10 +187,11 @@ jobs:
         if: ${{ always() }}
         run: |
           set -x
-          container_list=$(kubectl get pods -n default -o jsonpath="{.items[*].spec.containers[*].name}")
-          for container_name in $container_list
+
+          pod_list=$(kubectl get pods -n default -o jsonpath="{.items[*].name}")
+          for pod in $pod_list
           do
-            kubectl logs -n default -c $container_name -l serving.knative.dev/service=${{ matrix.service }}
+            kubectl logs $pod
           done
 
       - name: Print logs from database
