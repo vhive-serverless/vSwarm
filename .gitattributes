@@ -17,3 +17,9 @@ benchmarks/image-rotate/images/img10.jpg filter=lfs diff=lfs merge=lfs -text
 benchmarks/image-rotate/images/img16.jpg filter=lfs diff=lfs merge=lfs -text
 benchmarks/image-rotate/images/img17.jpg filter=lfs diff=lfs merge=lfs -text
 benchmarks/image-rotate/images/img3.jpg filter=lfs diff=lfs merge=lfs -text
+benchmarks/video-processing/*.mp4 filter=lfs diff=lfs merge=lfs -text
+benchmarks/video-processing/videos/default.mp4 filter=lfs diff=lfs merge=lfs -text
+benchmarks/video-processing/videos/video1.mp4 filter=lfs diff=lfs merge=lfs -text
+benchmarks/video-processing/videos/video2.mp4 filter=lfs diff=lfs merge=lfs -text
+benchmarks/video-processing/videos/video3.mp4 filter=lfs diff=lfs merge=lfs -text
+benchmarks/video-processing/videos/video4.mp4 filter=lfs diff=lfs merge=lfs -text
