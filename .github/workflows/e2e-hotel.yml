@@ -63,7 +63,7 @@ jobs:
       - name: Build and push
         env:
             GOPRIVATE_KEY: ${{ secrets.XDT_REPO_ACCESS_KEY }}
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@v6
         with:
           push: true
           file: benchmarks/hotel-app/Dockerfile
