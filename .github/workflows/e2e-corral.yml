@@ -67,7 +67,7 @@ jobs:
 
       - uses: docker/setup-buildx-action@v3
 
-      - uses: docker/build-push-action@v5
+      - uses: docker/build-push-action@v6
         with:
             file: benchmarks/corral/Dockerfile
             push: true
