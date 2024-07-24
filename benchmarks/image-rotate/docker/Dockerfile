@@ -52,8 +52,8 @@ COPY ./benchmarks/image-rotate/python/requirements.txt ./requirements.txt
 RUN pip3 install --user -r requirements.txt
 COPY ./utils/tracing/python/tracing.py ./
 COPY ./benchmarks/image-rotate/python/server.py ./
-ADD https://raw.githubusercontent.com/vhive-serverless/vSwarm-proto/newfuncs_v0.1.1/proto/image_rotate/image_rotate_pb2_grpc.py ./
-ADD https://raw.githubusercontent.com/vhive-serverless/vSwarm-proto/newfuncs_v0.1.1/proto/image_rotate/image_rotate_pb2.py ./proto/image_rotate/
+ADD https://raw.githubusercontent.com/vhive-serverless/vSwarm-proto/main/proto/image_rotate/image_rotate_pb2_grpc.py ./
+ADD https://raw.githubusercontent.com/vhive-serverless/vSwarm-proto/main/proto/image_rotate/image_rotate_pb2.py ./proto/image_rotate/
 
 # Second stage (Runner):
 FROM vhiveease/python-slim:latest as imageRotatePython
