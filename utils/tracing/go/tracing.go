@@ -143,7 +143,7 @@ func GetGRPCServerWithUnaryInterceptor() *grpc.Server {
 // with an opentelemetry client interceptor enabling the tracing to client grpc messages.
 func DialGRPCWithUnaryInterceptor(addr string, opts ...grpc.DialOption) (*grpc.ClientConn, error) {
 	opts = append(opts, grpc.WithStatsHandler(otelgrpc.NewClientHandler()))
-	return grpc.Dial(addr, opts...)
+	return grpc.NewClient(addr, opts...)
 }
 
 // GetServerInterceptor returns a ServerOption that will instrumented a grpc server with an

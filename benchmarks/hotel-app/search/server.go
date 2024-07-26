@@ -121,7 +121,7 @@ func dial(address string) (*grpc.ClientConn, error) {
 	}
 
 	log.Printf("Connect to %s", address)
-	return grpc.Dial(address, dialopts...)
+	return grpc.NewClient(address, dialopts...)
 }
 
 func (s *Server) initGeoClient() error {

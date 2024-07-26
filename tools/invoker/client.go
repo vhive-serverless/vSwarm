@@ -161,11 +161,11 @@ loop:
 
 func SayHello(address, workflowID string) {
 	dialOptions := make([]grpc.DialOption, 0)
-	dialOptions = append(dialOptions, grpc.WithTransportCredentials(insecure.NewCredentials()), grpc.WithBlock())
+	dialOptions = append(dialOptions, grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if *withTracing {
 		dialOptions = append(dialOptions, grpc.WithStatsHandler(otelgrpc.NewClientHandler()))
 	}
-	conn, err := grpc.Dial(address, dialOptions...)
+	conn, err := grpc.NewClient(address, dialOptions...)
 	if err != nil {
 		log.Fatalf("did not connect: %v", err)
 	}

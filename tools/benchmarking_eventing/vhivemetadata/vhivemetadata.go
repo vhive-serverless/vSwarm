@@ -26,7 +26,7 @@ import (
 	"encoding/json"
 	"time"
 
-	ctrdlog "github.com/containerd/containerd/log"
+	ctrdlog "github.com/containerd/log"
 	"github.com/sirupsen/logrus"
 )
 
