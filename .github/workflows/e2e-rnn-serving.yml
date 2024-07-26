@@ -175,10 +175,11 @@ jobs:
         if: ${{ always() }}
         run: |
           set -x
-          container_list=$(kubectl get pods -n default -o jsonpath="{.items[*].spec.containers[*].name}")
-          for container_name in $container_list
+
+          pod_list=$(kubectl get pods -n default -o jsonpath="{.items[*].name}")
+          for pod in $pod_list
           do
-            kubectl logs -n default -c $container_name -l serving.knative.dev/service=${{ matrix.service }}
+            kubectl logs $pod
           done
 
       - name: Down
