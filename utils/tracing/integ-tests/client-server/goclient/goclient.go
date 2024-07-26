@@ -61,7 +61,7 @@ func main() {
 	defer shutdown()
 
 	server := fmt.Sprintf("%v:%v", *address, *clientPort)
-	conn, err := grpc.Dial(server, grpc.WithBlock(), grpc.WithTransportCredentials(insecure.NewCredentials()),
+	conn, err := grpc.NewClient(server, grpc.WithTransportCredentials(insecure.NewCredentials()),
 		grpc.WithStatsHandler(otelgrpc.NewClientHandler()))
 	if err != nil {
 		log.Fatalf("fail to dial: %s", err)

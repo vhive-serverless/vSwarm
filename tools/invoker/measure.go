@@ -54,12 +54,12 @@ func Start(tdbAddr string, endpoints []*endpoint.Endpoint, workflowIDs map[*endp
 	}
 
 	dialOptions := make([]grpc.DialOption, 0)
-	dialOptions = append(dialOptions, grpc.WithTransportCredentials(insecure.NewCredentials()), grpc.WithBlock())
+	dialOptions = append(dialOptions, grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if *withTracing {
 		dialOptions = append(dialOptions, grpc.WithStatsHandler(otelgrpc.NewClientHandler()))
 	}
 	var err error
-	tsdbConn, err = grpc.Dial(tdbAddr, dialOptions...)
+	tsdbConn, err = grpc.NewClient(tdbAddr, dialOptions...)
 	if err != nil {
 		log.Fatalf("did not connect: %v", err)
 	}
