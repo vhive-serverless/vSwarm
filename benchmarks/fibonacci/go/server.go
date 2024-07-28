@@ -29,6 +29,7 @@ import (
 	"fmt"
 	"net"
 	"strconv"
+	"math/big"
 
 	pb "github.com/vhive-serverless/vSwarm-proto/proto/fibonacci"
 	tracing "github.com/vhive-serverless/vSwarm/utils/tracing/go"
@@ -42,14 +43,19 @@ var (
 	address = flag.String("addr", "0.0.0.0:50051", "Address:Port the grpc server is listening to")
 )
 
-func fibonacci(num int) float64 {
-	var num1 float64 = 0
-	var num2 float64 = 1
-	var sum float64
+func fibonacci(num int) *big.Int {
+	if num <= 0 {
+		return big.NewInt(0)
+	}
+
+	num1 := big.NewInt(0)
+	num2 := big.NewInt(1)
+	sum := big.NewInt(0)
+
 	for i := 0; i < num; i++ {
-		sum = num1 + num2
-		num1 = num2
-		num2 = sum
+		sum.Add(num1, num2)
+		num1.Set(num2)
+		num2.Set(sum)
 	}
 	return num1
 }
@@ -64,7 +70,7 @@ func (s *server) SayHello(ctx context.Context, in *pb.HelloRequest) (*pb.HelloRe
 	// log.Printf("Received: %v", in.GetName())
 	x, _ := strconv.ParseInt(in.GetName(), 10, 64)
 	var y = fibonacci(int(x))
-	resp := fmt.Sprintf("fn: Fib: y = fib(x) | x: %d y: %.1f | runtime: GoLang", x, y)
+	resp := fmt.Sprintf("fn: Fib: y = fib(x) | x: %d y: %s | runtime: GoLang", x, y.String())
 	return &pb.HelloReply{Message: resp}, nil
 }
 

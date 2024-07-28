@@ -58,6 +58,8 @@ if tracing.IsTracingEnabled():
     tracing.grpcInstrumentClient()
     tracing.grpcInstrumentServer()
 
+sys.set_int_max_str_digits(500000)
+
 def fibonacci(num):
     num1=0
     num2=1
@@ -79,7 +81,7 @@ class Greeter(fibonacci_pb2_grpc.GreeterServicer):
             y = fibonacci(x)
 
         gid = syscall(104)
-        msg = "fn: Fib: y = fib(x) | x: %i y: %.1f | runtime: python" % (x,y)
+        msg = "fn: Fib: y = fib(x) | x: %i y: %i | runtime: python" % (x,y)
         return fibonacci_pb2.HelloReply(message=msg)
 
 
