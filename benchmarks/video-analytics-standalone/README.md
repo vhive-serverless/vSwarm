@@ -1,6 +1,6 @@
 # Video Analytics Standalone Benchmark
 
-The video analyics standalone benchmark preprocesses an input video and runs an object detection model (squeezenet) on the video. An input video can be specified, but if nothing is given, a default video is used. This benchmark also utilises and depends on a database to store the videos that can be used, which in turn uses MongoDB. 
+The video analytics standalone benchmark preprocesses an input video and runs an object detection model (squeezenet) on the video. An input video can be specified, but if nothing is given, a default video is used. This benchmark also utilises and depends on a database to store the videos that can be used, which in turn uses MongoDB. 
 
 The `init-database.go` script runs when starting the function and populates the database with the videos from the `videos` folder.
 
