@@ -221,6 +221,7 @@ goroutine
 gradle
 gradlew
 Gratz
+grayscale
 grot
 Grot
 gRPC
@@ -443,6 +444,7 @@ Prefetch
 Prefetched
 Prefetching
 preprocessor
+preprocesses
 priyank
 Priyank
 proc
@@ -483,6 +485,8 @@ recommender
 recommendationservice
 repo
 Repos
+rnn
+RNN
 roadmap
 RPC
 rpc
@@ -535,6 +539,7 @@ Sotiria
 SPECU
 specversion
 Sprintf
+squeezenet
 src
 SSD
 sslip
@@ -647,6 +652,7 @@ zA
 Zhu
 zipkin
 Zipkin
+zlib
 
 EsjWHBuJ
 HZPSfs
