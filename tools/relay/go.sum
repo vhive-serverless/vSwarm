@@ -20,8 +20,8 @@ github.com/stretchr/objx v0.1.0/go.mod h1:HFkY916IF+rwdDfMAkV7OtwuqBVzrE8GR6GFx+
 github.com/stretchr/testify v1.7.0/go.mod h1:6Fq8oRcR53rry900zMqJjRRixrwX3KX962/h/Wwjteg=
 github.com/stretchr/testify v1.9.0 h1:HtqpIVDClZ4nwg75+f6Lvsy/wHu+3BoSGCbBAcpTsTg=
 github.com/stretchr/testify v1.9.0/go.mod h1:r2ic/lqez/lEtzL7wO/rwa5dbSLXVDPFyf8C91i36aY=
-github.com/vhive-serverless/vSwarm-proto v0.5.7 h1:M+o4JXD2dx0hRLxK+AmsZab9qKE7NvSKhcWUwBjAoVo=
-github.com/vhive-serverless/vSwarm-proto v0.5.7/go.mod h1:qf7Y2F2QjoxqQ3X/0QvGo5UDUsqeQK3p6su43WaEbHc=
+github.com/vhive-serverless/vSwarm-proto v0.5.8-0.20240805154129-a41977d1e21f h1:kw5rGLw0/hAppQ/UE+br+91Im7vmGepuQt/gB8xwVws=
+github.com/vhive-serverless/vSwarm-proto v0.5.8-0.20240805154129-a41977d1e21f/go.mod h1:qf7Y2F2QjoxqQ3X/0QvGo5UDUsqeQK3p6su43WaEbHc=
 go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc v0.53.0 h1:9G6E0TXzGFVfTnawRzrPl83iHOAV7L8NJiR8RSGYV1g=
 go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc v0.53.0/go.mod h1:azvtTADFQJA8mX80jIH/akaE7h+dbm/sVuaHqN13w74=
 go.opentelemetry.io/otel v1.28.0 h1:/SqNcYk+idO0CxKEUOtKQClMK/MimZihKYMruSMViUo=

@@ -169,7 +169,7 @@ func (s *server) SayHello(ctx context.Context, in *pb.HelloRequest) (*pb.HelloRe
 	if *profileFunction {
 		log.Debugf("Invoked in %d usec\n. Recv from func: %s\n", elapsedTime, reply)
 		elapsedTimeStr := strconv.FormatInt(elapsedTime, 10)
-		finalReply = reply + "|" + elapsedTimeStr
+		finalReply = reply + " | " + elapsedTimeStr
 	} else {
 		log.Debugf("Recv from func: %s\n", reply)
 		finalReply = reply
