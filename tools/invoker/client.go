@@ -133,6 +133,30 @@ func runExperiment(endpoints []*endpoint.Endpoint, runDuration int, targetRPS fl
 
 	Start(TimeseriesDBAddr, endpoints, workflowIDs)
 
+	// Calculation to find the right RPS
+	for _, ep := range endpoints {
+		if ep.Eventing {
+			invokeEventingFunction(ep)
+		} else {
+			invokeServingFunction(ep)
+		}
+	}
+	latSlice.Lock()
+	var maxLatency int64
+	maxLatency = 0
+	for _, value := range latSlice.slice {
+		if value > maxLatency {
+			maxLatency = value
+		}
+	}
+	latSlice.slice = []int64{}
+	latSlice.Unlock()
+	profSlice.Lock()
+	profSlice.slice = []int64{}
+	profSlice.Unlock()
+
+	// ACTUAL EXPERIMENT
+
 	timeout := time.After(time.Duration(runDuration) * time.Second)
 	d := time.Duration(1000000/targetRPS) * time.Microsecond
 	if d <= 0 {
@@ -196,11 +220,14 @@ func SayHello(address, workflowID string) {
 		log.Warnf("Failed to invoke %v, err=%v", address, err)
 	} else {
 		if *funcDurEnableFlag {
-			log.Debugf("Inside if\n")
 			words := strings.Fields(response.Message)
 			lastWord := words[len(words)-1]
 			duration, err := strconv.ParseInt(lastWord, 10, 64)
+			if err != nil {
+				log.Warnf("Failed to parse the duration from the response: %v", err)
+			}
 			if err == nil {
+				log.Debugf("Invoked %v. Response: %v\n", address, response.Message)
 				profSlice.Lock()
 				profSlice.slice = append(profSlice.slice, duration)
 				profSlice.Unlock()
@@ -290,7 +317,6 @@ func writeFunctionDurations(funcDurationOutputFile string) {
 	}
 
 	datawriter := bufio.NewWriter(file)
-
 	for _, dur := range profSlice.slice {
 		_, err := datawriter.WriteString(strconv.FormatInt(dur, 10) + "\n")
 		if err != nil {
