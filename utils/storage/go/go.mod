@@ -3,7 +3,7 @@ module github.com/vhive-serverless/vSwarm/utils/storage/go
 go 1.21
 
 require (
-	github.com/aws/aws-sdk-go v1.55.3
+	github.com/aws/aws-sdk-go v1.55.5
 	github.com/go-redis/redis/v8 v8.11.5
 	github.com/sirupsen/logrus v1.9.3
 )
