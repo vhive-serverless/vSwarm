@@ -29,7 +29,7 @@ spec:
   template:
     spec:
       containers:
-        - image: docker.io/vhiveease/relay-latency:latest
+        - image: docker.io/vhiveease/relay:latest
           ports:
             - name: h2c
               containerPort: 50000
@@ -43,3 +43,4 @@ spec:
           args:
             - --addr=0.0.0.0
             - --port=50051
+            - --db_addr=mongodb://compression-database:27017
