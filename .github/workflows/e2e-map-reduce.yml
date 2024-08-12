@@ -104,7 +104,7 @@ jobs:
     - name: start docker-compose benchmark
       working-directory: benchmarks/map-reduce
       run: |
-        docker-compose -f docker-compose-s3.yml up &> log_file &
+        docker compose -f docker-compose-s3.yml up &> log_file &
         sleep 120s
         cat log_file
 

@@ -93,7 +93,7 @@ jobs:
       env:
         BUCKET_NAME: vhive-tuning
       run: |
-        docker-compose -f docker-compose-s3.yml up &> log_file &
+        docker compose -f docker-compose-s3.yml up &> log_file &
         sleep 60s
 
     - name: invoke the chain

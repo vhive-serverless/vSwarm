@@ -1,5 +1,33 @@
 [
     {
+        "yaml-location": "./yamls/compression/kn-compression-python-txt.yaml",
+        "predeployment-commands": [
+            "kubectl apply -f ./yamls/compression/compression-database.yaml"
+        ],
+        "postdeployment-commands": []
+    },
+    {
+        "yaml-location": "./yamls/compression/kn-compression-python-img-1.yaml",
+        "predeployment-commands": [
+            "kubectl apply -f ./yamls/compression/compression-database.yaml"
+        ],
+        "postdeployment-commands": []
+    },
+    {
+        "yaml-location": "./yamls/compression/kn-compression-python-img-2.yaml",
+        "predeployment-commands": [
+            "kubectl apply -f ./yamls/compression/compression-database.yaml"
+        ],
+        "postdeployment-commands": []
+    },
+    {
+        "yaml-location": "./yamls/compression/kn-compression-python-vid.yaml",
+        "predeployment-commands": [
+            "kubectl apply -f ./yamls/compression/compression-database.yaml"
+        ],
+        "postdeployment-commands": []
+    },
+    {
         "yaml-location": "./yamls/aes-nodejs/kn-aes-nodejs-10-10.yaml",
         "predeployment-commands": [],
         "postdeployment-commands": []

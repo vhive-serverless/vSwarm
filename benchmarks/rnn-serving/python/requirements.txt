@@ -1,6 +1,6 @@
+-f https://download.pytorch.org/whl/torch_stable.html
 numpy
-torch
-grpcio==1.53.2
+torch==2.0.0+cpu 
 grpcio-tools==1.45.0
 opentelemetry-api==1.3.0
 opentelemetry-exporter-zipkin==1.3.0

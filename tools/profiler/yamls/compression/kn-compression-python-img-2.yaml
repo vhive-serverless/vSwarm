@@ -38,7 +38,8 @@ spec:
             - --function-endpoint-url=0.0.0.0
             - --function-endpoint-port=50051
             - --function-name=compression-python
-            - --value=metamorphosis.txt
+            - --value=img2.jpg
+            - --profile-function=true
         - image: docker.io/vhiveease/compression-python:latest
           args:
             - --addr=0.0.0.0
