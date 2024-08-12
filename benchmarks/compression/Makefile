@@ -21,22 +21,31 @@
 # SOFTWARE.
 
 ROOT = ../../
-FUNCTIONS = compression-python
+FUNCTIONS = compression-python init-database
 ALL_IMAGES = $(FUNCTIONS)
 
 all-image: $(ALL_IMAGES)
 
-compression-python: docker/Dockerfile python/server.py python/requirements.txt files/metamorphosis.txt
+compression-python: Dockerfile python/server.py python/requirements.txt files/metamorphosis.txt
 	DOCKER_BUILDKIT=1 docker build \
 	--tag vhiveease/compression-python:latest \
 	--target compressionPython \
-	-f docker/Dockerfile \
+	-f ./Dockerfile \
+	$(ROOT) --load
+
+init-database: Dockerfile init/init-database.go files/metamorphosis.txt
+	DOCKER_BUILDKIT=1 docker build \
+	--tag vhiveease/compression-init-database:latest \
+	--target databaseInit \
+	-f ./Dockerfile \
 	$(ROOT) --load
 
 ## Push images
 push:
 	docker push docker.io/vhiveease/compression-python:latest 
+	docker push docker.io/vhiveease/compression-init-database:latest
 
 ## Pull images from docker hub
 pull:
 	docker pull docker.io/vhiveease/compression-python:latest
+	docker pull docker.io/vhiveease/compression-init-database:latest

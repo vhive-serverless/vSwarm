@@ -20,42 +20,55 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-version: "3.3"
-services:
-  compression-python:
-    image: vhiveease/compression-python:latest
-    container_name: compression-python
-    entrypoint:
-      - python
-      - /app/server.py
-      - --addr=0.0.0.0
-      - --port=50051
-    ports:
-      - target: 50051
-    
-  compression-database:
-    image: vhiveease/mongodb
-    container_name: compression-database
 
-  init-compression-database:
-    image: vhiveease/compression-init-database:latest
-    container_name: init-compression-database
-    entrypoint: 
-      - /app/init-database
-      - --db_addr=mongodb://compression-database:27017
-    restart: "no"
-    depends_on:
-      - compression-database
+## Database ----------
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: compression-database
+  namespace: default
+spec:
+  selector:
+    matchLabels:
+      app: compression-database
+  template:
+    metadata:
+      labels:
+        app: compression-database
+    spec:
+      containers:
+      - name: database
+        image: docker.io/vhiveease/mongodb
+        ports:
+        - containerPort: 27017
 
-  relay:
-    image: vhiveease/relay:latest
-    entrypoint:
-      - /app/server
-      - --addr=0.0.0.0:50000
-      - --function-endpoint-url=compression-python
-      - --function-endpoint-port=50051
-      - --function-name=compression-python
-      - --value=metamorphosis.txt
-    ports:
-        - published: 50000
-          target: 50000
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: compression-database
+  namespace: default
+spec:
+  type: ClusterIP
+  selector:
+    app: compression-database
+  ports:
+  - name: database
+    port: 27017
+    targetPort: 27017
+
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: init-compression-database
+spec:
+  template:
+    spec:
+      containers:
+      - name: init-compression-database
+        image: docker.io/vhiveease/compression-init-database:latest
+        args:
+          - --db_addr=mongodb://compression-database:27017
+      restartPolicy: Never
