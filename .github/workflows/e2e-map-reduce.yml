@@ -101,10 +101,10 @@ jobs:
       with:
         lfs: 'true'
 
-    - name: start docker-compose benchmark
+    - name: start docker compose benchmark
       working-directory: benchmarks/map-reduce
       run: |
-        docker-compose -f docker-compose-s3.yml up &> log_file &
+        docker compose -f docker-compose-s3.yml up &> log_file &
         sleep 120s
         cat log_file
 
@@ -112,7 +112,7 @@ jobs:
       run: |
         ./tools/bin/grpcurl -plaintext localhost:50051 helloworld.Greeter.SayHello
 
-    - name: show docker-compose log
+    - name: show docker compose log
       run: cat benchmarks/map-reduce/log_file
 
   test-knative:

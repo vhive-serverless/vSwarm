@@ -29,7 +29,7 @@ COPY ./benchmarks/aes/python/server.py ${LAMBDA_TASK_ROOT}
 
 # Install the function's dependencies using file requirements.txt
 # from your project folder.
-COPY ./benchmarks/aes/python/requirements/aws_lambda.txt ./requirements.txt
+COPY ./benchmarks/aes/python/requirements/aws_lambda_requirements.txt ./requirements.txt
 RUN  pip3 install -r requirements.txt --target "${LAMBDA_TASK_ROOT}"
 
 # Set the CMD to handler

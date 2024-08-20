@@ -95,10 +95,10 @@ jobs:
         with:
           lfs: "true"
 
-      - name: start docker-compose benchmark
+      - name: start docker compose benchmark
         run: |
-          docker-compose -f ${{ env.YAML_DIR }}/dc-${{ matrix.service }}.yaml pull
-          docker-compose -f ${{ env.YAML_DIR }}/dc-${{ matrix.service }}.yaml up &> log_file &
+          docker compose -f ${{ env.YAML_DIR }}/dc-${{ matrix.service }}.yaml pull
+          docker compose -f ${{ env.YAML_DIR }}/dc-${{ matrix.service }}.yaml up &> log_file &
           sleep 60s
           cat log_file
 
@@ -112,7 +112,7 @@ jobs:
           go build ./test-client.go
           ./test-client --addr localhost:50000 --name "Example text for CI"
 
-      - name: show docker-compose log
+      - name: show docker compose log
         run: cat log_file
 
   test-knative:

@@ -88,19 +88,19 @@ jobs:
       with:
         lfs: 'true'
 
-    - name: start docker-compose benchmark
+    - name: start docker compose benchmark
       working-directory: benchmarks/tuning-halving
       env:
         BUCKET_NAME: vhive-tuning
       run: |
-        docker-compose -f docker-compose-s3.yml up &> log_file &
+        docker compose -f docker-compose-s3.yml up &> log_file &
         sleep 60s
 
     - name: invoke the chain
       run: |
         ./tools/bin/grpcurl -plaintext localhost:50051 helloworld.Greeter.SayHello
 
-    - name: show docker-compose log
+    - name: show docker compose log
       run: cat benchmarks/tuning-halving/log_file
 
   test-knative:

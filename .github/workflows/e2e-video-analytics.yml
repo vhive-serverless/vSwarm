@@ -82,21 +82,21 @@ jobs:
       with:
         lfs: 'true'
 
-    - name: start docker-compose benchmark
+    - name: start docker compose benchmark
       env:
           AWS_ACCESS_KEY: ${{ secrets.AWS_ACCESS_KEY }}
           AWS_SECRET_KEY: ${{ secrets.AWS_SECRET_KEY }}
           BUCKET_NAME: "vhive-video-bench"
       working-directory: benchmarks/video-analytics/yamls/docker-compose
       run: |
-        docker-compose -f docker-compose-s3.yml up &> log_file &
+        docker compose -f docker-compose-s3.yml up &> log_file &
         sleep 60s
 
     - name: invoke the chain
       run: |
         ./tools/bin/grpcurl -plaintext localhost:50051 helloworld.Greeter.SayHello
 
-    - name: show docker-compose log
+    - name: show docker compose log
       run: cat benchmarks/video-analytics/yamls/docker-compose/log_file
 
   test-knative:

@@ -26,7 +26,7 @@
 ## Install gRPC and all other dependencies
 FROM vhiveease/python-slim:latest as authPythonBuilder
 WORKDIR /py
-COPY ./benchmarks/auth/python/requirements/common.txt ./requirements.txt
+COPY ./benchmarks/auth/python/requirements/common_requirements.txt ./requirements.txt
 RUN pip3 install --user -r requirements.txt
 COPY ./utils/tracing/python/tracing.py ./
 COPY ./benchmarks/auth/python/server.py ./
