@@ -30,7 +30,7 @@ LABEL maintainer="https://github.com/vhive-serverless"
 
 
 #---------- python-builder -----------#
-FROM  python:3.8-slim AS python-slim
+FROM  python:3.12-slim AS python-slim
 LABEL maintainer="https://github.com/vhive-serverless"
 
 

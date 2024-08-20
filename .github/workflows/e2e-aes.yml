@@ -92,7 +92,7 @@ jobs:
           python3 -m pip install --upgrade pip
           python3 -m pip install wheel ez_setup setuptools
           GRPC_PYTHON_BUILD_SYSTEM_ZLIB=true
-          python3 -m pip install -r benchmarks/aes/python/requirements/common.txt
+          python3 -m pip install -r benchmarks/aes/python/requirements/common_requirements.txt
           python3 -m pip install -r runner/aws_lambda_scripts/requirements.txt
 
       - name: Setup go dependencies
@@ -144,10 +144,10 @@ jobs:
         with:
           lfs: "true"
 
-      - name: start docker-compose benchmark
+      - name: start docker compose benchmark
         run: |
-          docker-compose -f ${{ env.YAML_DIR }}/dc-${{ matrix.service }}.yaml pull
-          docker-compose -f ${{ env.YAML_DIR }}/dc-${{ matrix.service }}.yaml up &> log_file &
+          docker compose -f ${{ env.YAML_DIR }}/dc-${{ matrix.service }}.yaml pull
+          docker compose -f ${{ env.YAML_DIR }}/dc-${{ matrix.service }}.yaml up &> log_file &
           sleep 60s
           cat log_file
 
@@ -155,7 +155,7 @@ jobs:
         run: |
           ./tools/bin/grpcurl -plaintext localhost:50000 helloworld.Greeter.SayHello
 
-      - name: show docker-compose log
+      - name: show docker compose log
         run: cat log_file
 
   test-knative:

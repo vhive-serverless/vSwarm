@@ -118,10 +118,10 @@ jobs:
         with:
           lfs: "true"
 
-      # - name: start docker-compose benchmark
+      # - name: start docker compose benchmark
       #   run: |
-      #     docker-compose -f ${{ env.YAML_DIR }}/dc-${{ matrix.service }}.yaml pull
-      #     docker-compose -f ${{ env.YAML_DIR }}/dc-${{ matrix.service }}.yaml up &> log_file &
+      #     docker compose -f ${{ env.YAML_DIR }}/dc-${{ matrix.service }}.yaml pull
+      #     docker compose -f ${{ env.YAML_DIR }}/dc-${{ matrix.service }}.yaml up &> log_file &
       #     sleep 60s
       #     cat log_file
 
@@ -130,5 +130,5 @@ jobs:
       #     ./tools/bin/grpcurl -plaintext localhost:50000 helloworld.Greeter.SayHello
       # Currently cannot run on CI due to no enough space on device
 
-      # - name: show docker-compose log
+      # - name: show docker compose log
       #   run: cat log_file
