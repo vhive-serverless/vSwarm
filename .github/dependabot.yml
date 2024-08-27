@@ -95,8 +95,18 @@ updates:
   - package-ecosystem: pip
     directory: "/utils/tracing/python"
     schedule:
-      interval: daily
-      time: "13:00"
+      interval: weekly
+      day: sunday
+    groups:
+      python-packages:
+        patterns:
+          - "*"
+
+  - package-ecosystem: pip
+    directory: "/benchmarks"
+    schedule:
+      interval: weekly
+      day: sunday
     groups:
       python-packages:
         patterns:
