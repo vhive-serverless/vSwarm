@@ -108,6 +108,10 @@ updates:
       interval: weekly
       day: sunday
     groups:
-      python-packages:
+      grpcio:
         patterns:
-          - "*"
+          - "grpcio*"
+
+      tracing:
+        patterns:
+          - "opentelemetry*"
