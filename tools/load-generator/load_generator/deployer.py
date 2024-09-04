@@ -232,6 +232,7 @@ def deploy_services(
 
         # Execute the shell script and deploy the function
         execute_shell = f"{shell_path} {shell_filename}"
+        log.info(f"Executing {shell_filename}")
         try:
             result = subprocess.run(
                 execute_shell,
@@ -285,6 +286,7 @@ def deploy_services(
                         if status == "True":
                             service_status[function_name] = True
                         else:
+                            log.info(f"Service {function_name} is not ready")
                             service_status[function_name] = False
 
             for function_name in function_names:
@@ -391,6 +393,7 @@ def deploy_services(
         if e == 0: deployed_services_names.append(tf["proxy-function-name"])
 
         if(len(deployed_services_names) % 50 == 49):
+            log.info("Waiting for 15 seconds, monitoring the service status")
 
             # Monitor the service, until it is ready
             # Monitoring happens every 15 seconds. If it shows failure even after that then it returns failure

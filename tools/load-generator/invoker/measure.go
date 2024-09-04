@@ -1,15 +1,35 @@
-invoker: client.go measure.go helloworld.pb.go helloworld_grpc.pb.go
-	go mod tidy
-	go build github.com/vhive-serverless/vSwarm/tools/invoker
+package main
 
-helloworld.pb.go: proto/helloworld.proto
-	protoc \
-		--go_out=. \
-		--go_opt="paths=source_relative" \
-		proto/helloworld.proto
+import (
+	// "context"
+	"sync"
+	"time"
 
-helloworld_grpc.pb.go: proto/helloworld.proto
-	protoc \
-		--go-grpc_out=. \
-		--go-grpc_opt="paths=source_relative" \
-		proto/helloworld.proto
+	// "github.com/golang/protobuf/ptypes/empty"
+	// log "github.com/sirupsen/logrus"
+	// "go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc"
+	"google.golang.org/grpc"
+	// "google.golang.org/grpc/credentials/insecure"
+
+	"github.com/vhive-serverless/vSwarm/tools/benchmarking_eventing/proto"
+
+	// "github.com/vhive-serverless/vSwarm/tools/endpoint"
+)
+
+var (
+	tsdbConn   *grpc.ClientConn
+	tsdbClient proto.TimeseriesClient
+	lock       sync.Mutex
+)
+
+func Start() {
+	lock.Lock()
+	defer lock.Unlock()
+	return
+}
+
+func End() (durations []time.Duration) {
+	lock.Lock()
+	defer lock.Unlock()
+	return
+}
