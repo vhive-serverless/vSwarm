@@ -42,6 +42,7 @@ authorizer
 autodetect
 autoscaling
 autostart
+AverageAllocatedMb
 avi
 AVI
 aws
@@ -158,6 +159,8 @@ dockerizing
 doi
 Dragojevic
 Drumond
+dur
+durations
 DVFS
 eba
 ECR
@@ -234,6 +237,9 @@ gVisor
 Gptj
 gpt
 Harald
+HashApp
+HashFunction
+HashOwner
 HDDs
 HelloRequest
 helloworld
@@ -262,6 +268,7 @@ init
 InitBasicTracer
 InitCustomTracer
 Initializr
+injective
 inproceedings
 insteadOf
 integ
@@ -275,6 +282,7 @@ ISCA
 ISPASS
 Istio
 istioctl
+iter
 iteratively
 jekyll
 Jesalpura
@@ -340,6 +348,7 @@ microarchitecture
 Marios
 matchers
 maxVMNum
+metset
 md
 MECS
 memcached
@@ -347,6 +356,7 @@ metadata
 Metatrainer
 metatrainer
 memcached
+MiB
 Michal
 Micheli
 microarchitecting
@@ -359,6 +369,7 @@ microservices
 Microservice
 Microservices
 microVMs
+millicpu
 minio
 MinIO
 Mirzadeh
@@ -424,6 +435,7 @@ Petrov
 Ph
 Picorel
 Pilani
+Pipelined
 plaintext
 Plamen
 plamenpp
@@ -431,6 +443,7 @@ pmu
 pmutool
 pn
 Pnevmatikatos
+png
 postfix
 PPoPP
 PPOPP
@@ -462,6 +475,7 @@ PTEMagnet
 pv
 PV
 pvc
+py
 qO
 QoS
 QOS
@@ -499,6 +513,7 @@ runtimes
 Rustem
 s
 SABRes
+SampleCount
 SayHello
 Sazeides
 Scalability

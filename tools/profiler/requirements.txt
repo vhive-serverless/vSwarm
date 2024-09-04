@@ -1,0 +1,6 @@
+numpy 
+jq 
+typing 
+matplotlib 
+argparse 
+PyYAML
