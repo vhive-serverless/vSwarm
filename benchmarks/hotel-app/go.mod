@@ -34,7 +34,7 @@ require (
 	github.com/vhive-serverless/vSwarm/utils/tracing/go v0.0.0-20240422181019-5b1711d87c5d
 	go.mongodb.org/mongo-driver v1.16.0
 	golang.org/x/net v0.27.0
-	google.golang.org/grpc v1.65.0
+	google.golang.org/grpc v1.66.2
 	gopkg.in/mgo.v2 v2.0.0-20190816093944-a6b53ec6cb22
 )
 
