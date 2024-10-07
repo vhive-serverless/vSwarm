@@ -32,7 +32,7 @@ require (
 	github.com/sirupsen/logrus v1.9.3
 	github.com/vhive-serverless/vSwarm-proto v0.5.0
 	github.com/vhive-serverless/vSwarm/utils/tracing/go v0.0.0-20240422181019-5b1711d87c5d
-	go.mongodb.org/mongo-driver v1.16.0
+	go.mongodb.org/mongo-driver v1.17.1
 	golang.org/x/net v0.27.0
 	google.golang.org/grpc v1.65.0
 	gopkg.in/mgo.v2 v2.0.0-20190816093944-a6b53ec6cb22
@@ -49,17 +49,17 @@ require (
 	github.com/xdg-go/pbkdf2 v1.0.0 // indirect
 	github.com/xdg-go/scram v1.1.2 // indirect
 	github.com/xdg-go/stringprep v1.0.4 // indirect
-	github.com/youmark/pkcs8 v0.0.0-20201027041543-1326539a0a0a // indirect
+	github.com/youmark/pkcs8 v0.0.0-20240726163527-a2c0da244d78 // indirect
 	go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc v0.53.0 // indirect
 	go.opentelemetry.io/otel v1.28.0 // indirect
 	go.opentelemetry.io/otel/exporters/zipkin v1.28.0 // indirect
 	go.opentelemetry.io/otel/metric v1.28.0 // indirect
 	go.opentelemetry.io/otel/sdk v1.28.0 // indirect
 	go.opentelemetry.io/otel/trace v1.28.0 // indirect
-	golang.org/x/crypto v0.25.0 // indirect
-	golang.org/x/sync v0.7.0 // indirect
-	golang.org/x/sys v0.22.0 // indirect
-	golang.org/x/text v0.16.0 // indirect
+	golang.org/x/crypto v0.26.0 // indirect
+	golang.org/x/sync v0.8.0 // indirect
+	golang.org/x/sys v0.23.0 // indirect
+	golang.org/x/text v0.17.0 // indirect
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20240725223205-93522f1f2a9f // indirect
 	google.golang.org/protobuf v1.34.2 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
