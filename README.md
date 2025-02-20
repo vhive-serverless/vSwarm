@@ -33,6 +33,7 @@ The standalone functions can therefore be used as microbenchmarks to first pin-p
 - 2 microbenchmarks for benchmarking chained functions performance, data transfer performance in
 various patterns (pipeline, scatter, gather), and using different communication medium (AWS S3
 and inline transfers)
+- 2 microbenchmarks for simulating I/O bound tasks and CPU bounded tasks (Sleeping and Spinning benchmarks)
 - 8 real-world benchmarks
    - MapReduce: [Corral](/benchmarks/corral) (golang), and an [aws-reference](/benchmarks/map-reduce)
     python implementation of Aggregation Query from the representative
@@ -44,10 +45,17 @@ and inline transfers)
    - ExCamera video decoding (gg): decoding of a video in parallel
    - distributed compilation (gg): compiles LLVM in parallel
    - fibonacci (gg): classic recursive implementation to find `n`th number in the sequence by calculating `n-1` and `n-2` in parallel
- - 25 standalone functions
+ - 33 standalone functions
    - [AES](https://github.com/vhive-serverless/vSwarm/tree/main/benchmarks/aes), [Auth](https://github.com/vhive-serverless/vSwarm/tree/main/benchmarks/auth), [Fibonacci](https://github.com/vhive-serverless/vSwarm/tree/main/benchmarks/fibonacci): Same functionality implemented in the three different runtimes: Python, NodeJS, Golang.
    - [Online shop](https://github.com/vhive-serverless/vSwarm/tree/main/benchmarks/online-shop): 9 functions implemented in various runtimes, ported from Googles [Online Boutique](https://github.com/GoogleCloudPlatform/microservices-demo)
    - [Hotel reservation](https://github.com/vhive-serverless/vSwarm/tree/main/benchmarks/hotel-app): 7 microservices from DeathStarBenchs [Hotel Reservation Application](https://github.com/delimitrou/DeathStarBench/tree/master/hotelReservation) ported as standalone serverless microbenchmarks.
+   - [Video Processing](https://github.com/vhive-serverless/vSwarm/tree/main/benchmarks/video-processing): Converts an input video into grayscale. Utilises and depends on a database to store videos.
+   - [RNN Serving](https://github.com/vhive-serverless/vSwarm/tree/main/benchmarks/rnn-serving): Generates a string using an RNN model given a specific language.
+   - [Image Rotate](https://github.com/vhive-serverless/vSwarm/tree/main/benchmarks/image-rotate): Rotates input image by 90 degrees. Implemented in Python, Golang. Stores images in a database.
+   - [BERT](https://github.com/vhive-serverless/vSwarm/tree/main/benchmarks/bert), [GPTJ](https://github.com/vhive-serverless/vSwarm/tree/main/benchmarks/gptj): Large language models for inference tasks.
+   - [Video Analytics Standalone](https://github.com/vhive-serverless/vSwarm/tree/main/benchmarks/video-analytics-standalone): Preprocesses a video and runs an object detection model on it.
+   - [Compression](https://github.com/vhive-serverless/vSwarm/tree/main/benchmarks/compression): File compression using zlib.
+
 
 Refer to [this document](/benchmarks/README.md) for more detail on the differences and supported features of each benchmark.
 

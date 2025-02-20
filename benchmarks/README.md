@@ -38,6 +38,15 @@ multiple producers, e.g., as in the reduce phase in MapReduce.
 | AES       | Serving       |    ✓    | docker, knative | Python, Golang, Nodejs |      ✓       | x86, arm64 |
 | Auth      | Serving       |    ✓    | docker, knative | Python, Golang, Nodejs |      ✓       | x86, arm64 |
 | Fibonacci | Serving       |    ✓    | docker, knative | Python, Golang, Nodejs |      ✓       | x86, arm64 |
+| Video Processing | Serving |    ✓    | docker, knative | Python         |      ✕       | x86, arm64 |
+| RNN Serving | Serving      |    ✓    | docker, knative | Python         |      ✕       | x86, arm64 |
+| Image Rotate | Serving     |    ✓    | docker, knative | Python, Golang |      ✕       | x86, arm64 |
+| BERT      | Serving       |    ✓    | docker, knative | Python         |      ✕       | x86, arm64 |
+| GPTJ      | Serving       |    ✓    | docker, knative | Python         |      ✕       | x86, arm64 |
+| Video Analytics Standalone | Serving |    ✓    | docker, knative | Python |      ✕       | x86, arm64 |
+| Compression | Serving      |    ✓    | docker, knative | Python         |      ✕       | x86, arm64 |
+| Sleep     | Serving       |    ✓    | docker, knative | Golang         |      ✕       | x86, arm64 |
+| Spin      | Serving       |    ✓    | docker, knative | Golang         |      ✕       | x86, arm64 |
 
 **Online shop**
 | Benchmark               | Knative infra | Tracing | Runtimes        | Languages Implemented | gem5 support | Architecture |
