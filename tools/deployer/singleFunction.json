@@ -1,0 +1,9 @@
+{
+    "functions": [
+        {
+            "name": "helloworld",
+            "file": "helloworld.yaml",
+            "count": 1
+        }
+    ]
+}
