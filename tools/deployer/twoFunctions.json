@@ -1,0 +1,14 @@
+{
+    "functions": [
+        {
+            "name": "helloworld",
+            "file": "helloworld.yaml",
+            "count": 3
+        },
+        {
+            "name": "pyaes",
+            "file": "pyaes.yaml",
+            "count": 1
+        }
+    ]
+}
