@@ -31,7 +31,7 @@ import (
 
 	"google.golang.org/grpc/credentials/insecure"
 
-	ctrdlog "github.com/containerd/containerd/log"
+	ctrdlog "github.com/containerd/log"
 	log "github.com/sirupsen/logrus"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
@@ -124,9 +124,9 @@ func (s *server) SayHello(ctx context.Context, req *pb_helloworld.HelloRequest) 
 	} else if s.transferType == S3 || s.transferType == INLINE {
 		var conn *grpc.ClientConn
 		if tracing.IsTracingEnabled() {
-			conn, err = tracing.DialGRPCWithUnaryInterceptor(addr, grpc.WithBlock(), grpc.WithTransportCredentials(insecure.NewCredentials()))
+			conn, err = tracing.DialGRPCWithUnaryInterceptor(addr, grpc.WithTransportCredentials(insecure.NewCredentials()))
 		} else {
-			conn, err = grpc.Dial(addr, grpc.WithBlock(), grpc.WithTransportCredentials(insecure.NewCredentials()))
+			conn, err = grpc.NewClient(addr, grpc.WithTransportCredentials(insecure.NewCredentials()))
 		}
 		if err != nil {
 			log.Fatalf("[Video Streaming] Failed to dial decoder: %s", err)

@@ -106,7 +106,7 @@ One can enable tracing by following these steps (example is for Golang):
    ```
 3. If the function is a client, use the instrumented grpc dial method to connect to the server:
    ```go
-   conn, err := tracing.DialGRPCWithUnaryInterceptor(addr, grpc.WithBlock(), grpc.WithInsecure())
+   conn, err := tracing.DialGRPCWithUnaryInterceptor(addr, grpc.WithInsecure())
    ```
 4. To enable tracing instrumentation, set `ENABLE_TRACING` environment variable to
    `true` (missing values are by default `false`) during deployment.
@@ -151,7 +151,7 @@ a Knative cluster.
 When including logging within functions, please use `logrus` with the following format:
 ```go
 import (
-	ctrdlog "github.com/containerd/containerd/log"
+	ctrdlog "github.com/containerd/log"
 )
 
 log.SetFormatter(&log.TextFormatter{

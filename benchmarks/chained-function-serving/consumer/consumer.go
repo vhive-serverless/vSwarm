@@ -33,7 +33,7 @@ import (
 	"os"
 	"strconv"
 
-	ctrdlog "github.com/containerd/containerd/log"
+	ctrdlog "github.com/containerd/log"
 	log "github.com/sirupsen/logrus"
 	"google.golang.org/grpc"
 
