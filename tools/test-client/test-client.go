@@ -38,7 +38,7 @@ func main() {
 	// Set up a connection to the server.
 	greeterClientCtx, greeterClientCancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer greeterClientCancel()
-	conn, err := grpc.DialContext(greeterClientCtx, *flagAddress, grpc.WithTransportCredentials(insecure.NewCredentials()), grpc.WithBlock())
+	conn, err := grpc.NewClient(*flagAddress, grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
 		log.Fatalf("did not connect: %v", err)
 	}
@@ -46,7 +46,7 @@ func main() {
 	c := pb.NewGreeterClient(conn)
 	// Contact the server and print out its response.
 	name := *flagName
-	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Minute)
+	ctx, cancel := context.WithTimeout(greeterClientCtx, 2*time.Minute)
 	defer cancel()
 	r, err := c.SayHello(ctx, &pb.HelloRequest{Name: name})
 	if err != nil {

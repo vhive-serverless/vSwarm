@@ -37,7 +37,7 @@ import (
 	"github.com/ease-lab/vhive-xdt/utils"
 	"google.golang.org/grpc/credentials/insecure"
 
-	ctrdlog "github.com/containerd/containerd/log"
+	ctrdlog "github.com/containerd/log"
 	log "github.com/sirupsen/logrus"
 	"google.golang.org/grpc/reflection"
 
@@ -93,9 +93,9 @@ func getGRPCclient(addr string) (pb_client.ProducerConsumerClient, *grpc.ClientC
 	var conn *grpc.ClientConn
 	var err error
 	if tracing.IsTracingEnabled() {
-		conn, err = tracing.DialGRPCWithUnaryInterceptor(addr, grpc.WithBlock(), grpc.WithTransportCredentials(insecure.NewCredentials()))
+		conn, err = tracing.DialGRPCWithUnaryInterceptor(addr, grpc.WithTransportCredentials(insecure.NewCredentials()))
 	} else {
-		conn, err = grpc.Dial(addr, grpc.WithBlock(), grpc.WithTransportCredentials(insecure.NewCredentials()))
+		conn, err = grpc.NewClient(addr,grpc.WithTransportCredentials(insecure.NewCredentials()))
 	}
 	if err != nil {
 		log.Fatalf("[producer] fail to dial: %s", err)

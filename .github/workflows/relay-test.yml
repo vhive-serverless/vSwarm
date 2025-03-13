@@ -37,7 +37,7 @@ env:
 jobs:
   build-image:
     name: Relay build
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
  
@@ -85,7 +85,7 @@ jobs:
   integration-tests:
     name: Relay Integration Tests
     needs: build-image
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
 

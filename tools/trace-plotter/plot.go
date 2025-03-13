@@ -164,35 +164,35 @@ func PlotGraph(traces []*Trace, durations []float64, zipkinURL string, latencyTy
 			Type: "value",
 		}),
 		charts.WithTooltipOpts(opts.Tooltip{
-			Show:        true,
+			Show:        opts.Bool(true),
 			Trigger:     "axis",
 			TriggerOn:   "click",
 			Formatter:   opts.FuncOpts(ToolTipFormatter),
 			AxisPointer: &opts.AxisPointer{},
 		}),
 		charts.WithToolboxOpts(opts.Toolbox{
-			Show:   true,
+			Show:   opts.Bool(true),
 			Orient: "horizontal",
 			Left:   "80%",
 			Feature: &opts.ToolBoxFeature{
 				SaveAsImage: &opts.ToolBoxFeatureSaveAsImage{
-					Show:  true,
+					Show:  opts.Bool(true),
 					Type:  "svg",
 					Title: "Save",
 				},
 				DataZoom: &opts.ToolBoxFeatureDataZoom{
-					Show:  true,
+					Show:  opts.Bool(true),
 					Title: map[string]string{"zoom": "Data Zoom", "back": "Restore"},
 				},
 				DataView: &opts.ToolBoxFeatureDataView{
-					Show:  true,
+					Show:  opts.Bool(true),
 					Title: "View Data",
 					Lang:  []string{"Data View", "Exit", "refresh"},
 				},
 				Restore: nil,
 			},
 		}),
-		charts.WithLegendOpts(opts.Legend{Show: true}),
+		charts.WithLegendOpts(opts.Legend{Show: opts.Bool(true)}),
 	)
 	percentiles := getPercentiles(durations)
 
@@ -222,7 +222,7 @@ func PlotGraph(traces []*Trace, durations []float64, zipkinURL string, latencyTy
 				Symbol:     []string{"none", "none"},
 				SymbolSize: 0,
 				Label: &opts.Label{
-					Show:      true,
+					Show:      opts.Bool(true),
 					Color:     "grey",
 					Formatter: "{b}",
 				},

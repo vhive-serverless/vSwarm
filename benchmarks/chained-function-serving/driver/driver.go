@@ -16,7 +16,7 @@ import (
 
 	pb_client "tests/chained-functions-serving/proto"
 
-	ctrdlog "github.com/containerd/containerd/log"
+	ctrdlog "github.com/containerd/log"
 	log "github.com/sirupsen/logrus"
 	"google.golang.org/grpc"
 
@@ -152,11 +152,11 @@ func main() {
 }
 
 func SayHello(ctx context.Context, address string) {
-	dialOptions := []grpc.DialOption{grpc.WithBlock(), grpc.WithTransportCredentials(insecure.NewCredentials())}
+	dialOptions := []grpc.DialOption{grpc.WithTransportCredentials(insecure.NewCredentials())}
 	if *withTracing {
 		dialOptions = append(dialOptions, grpc.WithStatsHandler(otelgrpc.NewClientHandler()))
 	}
-	conn, err := grpc.Dial(address, dialOptions...)
+	conn, err := grpc.NewClient(address, dialOptions...)
 	if err != nil {
 		log.Fatalf("did not connect: %v", err)
 	}
@@ -175,7 +175,7 @@ func SayHello(ctx context.Context, address string) {
 
 func benchFanIn(ctx context.Context, prodAddr, consAddr string, fanInAmount int) {
 	log.Infof("using fanIn ubench")
-	dialOptions := []grpc.DialOption{grpc.WithBlock(), grpc.WithTransportCredentials(insecure.NewCredentials())}
+	dialOptions := []grpc.DialOption{grpc.WithTransportCredentials(insecure.NewCredentials())}
 	if *withTracing {
 		dialOptions = append(dialOptions, grpc.WithStatsHandler(otelgrpc.NewClientHandler()))
 	}
@@ -186,7 +186,7 @@ func benchFanIn(ctx context.Context, prodAddr, consAddr string, fanInAmount int)
 	errorChannel := make(chan error, fanInAmount)
 	for i := 0; i < fanInAmount; i++ {
 		go func() {
-			conn, err := grpc.Dial(prodAddr, dialOptions...)
+			conn, err := grpc.NewClient(prodAddr, dialOptions...)
 			if err != nil {
 				log.Fatalf("did not connect: %v", err)
 			}
@@ -219,11 +219,11 @@ func benchFanIn(ctx context.Context, prodAddr, consAddr string, fanInAmount int)
 
 func reduce(ctx context.Context, consEndpoint string, capabilities []string) {
 	log.Infof("Attempting reduction using addr:%s", consEndpoint)
-	dialOptions := []grpc.DialOption{grpc.WithBlock(), grpc.WithTransportCredentials(insecure.NewCredentials())}
+	dialOptions := []grpc.DialOption{grpc.WithTransportCredentials(insecure.NewCredentials())}
 	if *withTracing {
 		dialOptions = append(dialOptions, grpc.WithStatsHandler(otelgrpc.NewClientHandler()))
 	}
-	conn, err := grpc.Dial(consEndpoint, dialOptions...)
+	conn, err := grpc.NewClient(consEndpoint, dialOptions...)
 	if err != nil {
 		log.Fatalf("did not connect: %v", err)
 	}
@@ -241,11 +241,11 @@ func reduce(ctx context.Context, consEndpoint string, capabilities []string) {
 
 func benchFanOut(ctx context.Context, prodAddr string, fanOutAmount int) {
 	log.Infof("using fanOut ubench")
-	dialOptions := []grpc.DialOption{grpc.WithBlock(), grpc.WithTransportCredentials(insecure.NewCredentials())}
+	dialOptions := []grpc.DialOption{grpc.WithTransportCredentials(insecure.NewCredentials())}
 	if *withTracing {
 		dialOptions = append(dialOptions, grpc.WithStatsHandler(otelgrpc.NewClientHandler()))
 	}
-	conn, err := grpc.Dial(prodAddr, dialOptions...)
+	conn, err := grpc.NewClient(prodAddr, dialOptions...)
 	if err != nil {
 		log.Fatalf("did not connect: %v", err)
 	}
@@ -264,11 +264,11 @@ func benchFanOut(ctx context.Context, prodAddr string, fanOutAmount int) {
 
 func benchBroadcast(ctx context.Context, prodAddr string, broadcast int) {
 	log.Infof("using broadcast ubench")
-	dialOptions := []grpc.DialOption{grpc.WithBlock(), grpc.WithTransportCredentials(insecure.NewCredentials())}
+	dialOptions := []grpc.DialOption{grpc.WithTransportCredentials(insecure.NewCredentials())}
 	if *withTracing {
 		dialOptions = append(dialOptions, grpc.WithStatsHandler(otelgrpc.NewClientHandler()))
 	}
-	conn, err := grpc.Dial(prodAddr, dialOptions...)
+	conn, err := grpc.NewClient(prodAddr, dialOptions...)
 	if err != nil {
 		log.Fatalf("did not connect: %v", err)
 	}
