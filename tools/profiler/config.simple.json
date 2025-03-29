@@ -1,0 +1,7 @@
+[
+    {
+        "yaml-location": "./yamls/fibonacci-go/kn-fibonacci-go-10-10.yaml",
+        "predeployment-commands": [],
+        "postdeployment-commands": []
+    }
+]
