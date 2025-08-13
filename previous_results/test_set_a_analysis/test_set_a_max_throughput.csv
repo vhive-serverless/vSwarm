@@ -1,0 +1,15 @@
+runtime,config,achieved_rps,config_description,config_focus,concurrency,scale_max,effectiveness,efficiency
+go,a1,131.28,"Baseline (1 pod, concurrency 1)",Single pod performance ceiling,1,1,131.28,131.28
+go,a4,159.98,"Scale to 5 (1-5 pods, concurrency 1)",Horizontal scaling with low concurrency,1,5,31.996,31.996
+go,a5,277.78,Concurrency 10 (1-5 pods),Medium concurrency scaling,10,5,5.555599999999999,5.555599999999999
+go,a6,277.25,Concurrency 20 (1-5 pods),High concurrency with moderate scaling,20,5,2.7725,2.7725
+go,a7,281.69,Concurrency 20 High Scale (1-10 pods),High concurrency with maximum scaling,20,10,1.40845,1.40845
+nodejs,a1,122.06,"Baseline (1 pod, concurrency 1)",Single pod performance ceiling,1,1,122.06,122.06
+nodejs,a4,159.48,"Scale to 5 (1-5 pods, concurrency 1)",Horizontal scaling with low concurrency,1,5,31.895999999999997,31.895999999999997
+nodejs,a5,279.28,Concurrency 10 (1-5 pods),Medium concurrency scaling,10,5,5.5855999999999995,5.5855999999999995
+nodejs,a6,274.71,Concurrency 20 (1-5 pods),High concurrency with moderate scaling,20,5,2.7470999999999997,2.7470999999999997
+nodejs,a7,273.39,Concurrency 20 High Scale (1-10 pods),High concurrency with maximum scaling,20,10,1.3669499999999999,1.3669499999999999
+python,a4,160.81,"Scale to 5 (1-5 pods, concurrency 1)",Horizontal scaling with low concurrency,1,5,32.162,32.162
+python,a5,260.63,Concurrency 10 (1-5 pods),Medium concurrency scaling,10,5,5.2126,5.2126
+python,a6,273.15,Concurrency 20 (1-5 pods),High concurrency with moderate scaling,20,5,2.7314999999999996,2.7314999999999996
+python,a7,274.16,Concurrency 20 High Scale (1-10 pods),High concurrency with maximum scaling,20,10,1.3708,1.3708

@@ -1,0 +1,238 @@
+Latency and Throughput Analysis Tool
+============================================================
+Using test duration: 120.0 seconds
+
+============================================================
+Analyzing: rps10.00_lat.csv
+============================================================
+Data points: 1,200
+Test duration: 120.0 seconds
+
+Minimum latency:     5.86ms
+Maximum latency:     63.71ms
+Average latency:     10.49ms
+Median latency:      9.32ms
+95th percentile:     18.62ms
+99th percentile:     28.80ms
+Throughput:          10.00 RPS
+
+============================================================
+Analyzing: rps1.00_lat.csv
+============================================================
+Data points: 120
+
+Minimum latency:     7.11ms
+Maximum latency:     175.58ms
+Average latency:     14.41ms
+Median latency:      12.16ms
+95th percentile:     20.55ms
+99th percentile:     52.28ms
+Throughput:          1.00 RPS
+
+============================================================
+Analyzing: rps108.87_lat.csv
+============================================================
+Data points: 13,064
+
+Minimum latency:     4.58ms
+Maximum latency:     146.75ms
+Average latency:     11.65ms
+Median latency:      9.16ms
+95th percentile:     25.52ms
+99th percentile:     40.61ms
+Throughput:          108.87 RPS
+
+============================================================
+Analyzing: rps121.64_lat.csv
+============================================================
+Data points: 14,597
+
+Minimum latency:     4.60ms
+Maximum latency:     112.04ms
+Average latency:     12.10ms
+Median latency:      9.62ms
+95th percentile:     27.66ms
+99th percentile:     44.98ms
+Throughput:          121.64 RPS
+
+============================================================
+Analyzing: rps15.16_lat.csv
+============================================================
+Data points: 1,819
+
+Minimum latency:     6.08ms
+Maximum latency:     57.59ms
+Average latency:     10.37ms
+Median latency:      9.33ms
+95th percentile:     17.39ms
+99th percentile:     26.95ms
+Throughput:          15.16 RPS
+
+============================================================
+Analyzing: rps20.00_lat.csv
+============================================================
+Data points: 2,400
+
+Minimum latency:     6.06ms
+Maximum latency:     104.56ms
+Average latency:     10.18ms
+Median latency:      9.10ms
+95th percentile:     16.56ms
+99th percentile:     26.94ms
+Throughput:          20.00 RPS
+
+============================================================
+Analyzing: rps24.99_lat.csv
+============================================================
+Data points: 2,999
+
+Minimum latency:     5.42ms
+Maximum latency:     37.90ms
+Average latency:     9.52ms
+Median latency:      8.63ms
+95th percentile:     16.52ms
+99th percentile:     25.59ms
+Throughput:          24.99 RPS
+
+============================================================
+Analyzing: rps30.31_lat.csv
+============================================================
+Data points: 3,637
+
+Minimum latency:     5.10ms
+Maximum latency:     54.14ms
+Average latency:     8.62ms
+Median latency:      7.78ms
+95th percentile:     13.79ms
+99th percentile:     23.68ms
+Throughput:          30.31 RPS
+
+============================================================
+Analyzing: rps35.72_lat.csv
+============================================================
+Data points: 4,286
+
+Minimum latency:     4.75ms
+Maximum latency:     72.20ms
+Average latency:     9.74ms
+Median latency:      8.78ms
+95th percentile:     16.90ms
+99th percentile:     27.76ms
+Throughput:          35.72 RPS
+
+============================================================
+Analyzing: rps39.97_lat.csv
+============================================================
+Data points: 4,797
+
+Minimum latency:     5.84ms
+Maximum latency:     78.38ms
+Average latency:     10.07ms
+Median latency:      8.96ms
+95th percentile:     17.08ms
+99th percentile:     29.14ms
+Throughput:          39.97 RPS
+
+============================================================
+Analyzing: rps45.44_lat.csv
+============================================================
+Data points: 5,453
+
+Minimum latency:     5.34ms
+Maximum latency:     61.38ms
+Average latency:     9.83ms
+Median latency:      8.75ms
+95th percentile:     17.22ms
+99th percentile:     27.94ms
+Throughput:          45.44 RPS
+
+============================================================
+Analyzing: rps49.99_lat.csv
+============================================================
+Data points: 5,999
+
+Minimum latency:     5.58ms
+Maximum latency:     74.11ms
+Average latency:     10.36ms
+Median latency:      8.92ms
+95th percentile:     19.19ms
+99th percentile:     31.57ms
+Throughput:          49.99 RPS
+
+============================================================
+Analyzing: rps5.00_lat.csv
+============================================================
+Data points: 600
+
+Minimum latency:     5.82ms
+Maximum latency:     52.59ms
+Average latency:     10.47ms
+Median latency:      9.55ms
+95th percentile:     17.88ms
+99th percentile:     25.61ms
+Throughput:          5.00 RPS
+
+============================================================
+Analyzing: rps62.37_lat.csv
+============================================================
+Data points: 7,484
+
+Minimum latency:     5.18ms
+Maximum latency:     86.41ms
+Average latency:     10.17ms
+Median latency:      8.71ms
+95th percentile:     19.10ms
+99th percentile:     30.79ms
+Throughput:          62.37 RPS
+
+============================================================
+Analyzing: rps71.09_lat.csv
+============================================================
+Data points: 8,531
+
+Minimum latency:     4.85ms
+Maximum latency:     82.67ms
+Average latency:     10.32ms
+Median latency:      8.68ms
+95th percentile:     20.65ms
+99th percentile:     31.87ms
+Throughput:          71.09 RPS
+
+============================================================
+Analyzing: rps82.77_lat.csv
+============================================================
+Data points: 9,933
+
+Minimum latency:     5.16ms
+Maximum latency:     92.56ms
+Average latency:     10.38ms
+Median latency:      8.51ms
+95th percentile:     21.33ms
+99th percentile:     33.72ms
+Throughput:          82.77 RPS
+
+============================================================
+Analyzing: rps90.11_lat.csv
+============================================================
+Data points: 10,813
+
+Minimum latency:     4.78ms
+Maximum latency:     114.83ms
+Average latency:     10.90ms
+Median latency:      8.73ms
+95th percentile:     23.86ms
+99th percentile:     37.47ms
+Throughput:          90.11 RPS
+
+============================================================
+Analyzing: rps98.45_lat.csv
+============================================================
+Data points: 11,814
+
+Minimum latency:     4.87ms
+Maximum latency:     101.30ms
+Average latency:     11.15ms
+Median latency:      8.81ms
+95th percentile:     24.54ms
+99th percentile:     38.97ms
+Throughput:          98.45 RPS

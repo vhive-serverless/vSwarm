@@ -1,0 +1,11 @@
+rps,duration,test_title,total_requests,min_latency_ms,max_latency_ms,avg_latency_ms,median_latency_ms,p95_latency_ms,p99_latency_ms,throughput_rps
+5.0,60,fibonacci_nodejs_c2,300,1.99,184.97,7.81,7.33,16.72,26.56,2.47
+10.0,60,fibonacci_nodejs_c2,600,6.24,27.65,9.97,8.92,17.22,24.29,10.0
+15.0,60,fibonacci_nodejs_c2,910,6.53,52.46,10.46,9.14,19.33,28.92,15.15
+20.0,60,fibonacci_nodejs_c2,1200,5.64,48.62,10.06,8.71,18.92,27.65,20.0
+25.0,60,fibonacci_nodejs_c2,1500,5.26,72.8,10.2,8.69,18.98,27.99,25.0
+30.0,60,fibonacci_nodejs_c2,1818,5.21,70.0,9.35,8.11,17.15,25.14,30.3
+35.0,60,fibonacci_nodejs_c2,2143,4.89,94.85,9.44,7.83,18.08,30.76,35.72
+40.0,60,fibonacci_nodejs_c2,2400,4.68,102.98,10.01,8.25,19.77,35.89,40.0
+45.0,60,fibonacci_nodejs_c2,2726,4.29,110.12,9.06,7.79,16.81,25.68,45.43
+50.0,60,fibonacci_nodejs_c2,3000,4.27,49.22,9.32,7.74,18.47,30.65,50.0

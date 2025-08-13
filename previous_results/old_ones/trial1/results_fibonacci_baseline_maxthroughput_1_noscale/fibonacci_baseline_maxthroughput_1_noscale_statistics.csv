@@ -1,0 +1,16 @@
+rps,duration,test_title,total_requests,min_latency_ms,max_latency_ms,avg_latency_ms,median_latency_ms,p95_latency_ms,p99_latency_ms,throughput_rps
+5.0,60,fibonacci_baseline_maxthroughput_1_noscale,300,7.06,73.74,11.32,9.6,21.06,27.33,5.0
+25.0,60,fibonacci_baseline_maxthroughput_1_noscale,1500,5.63,59.4,10.13,8.82,17.83,28.06,25.0
+50.0,60,fibonacci_baseline_maxthroughput_1_noscale,2996,4.39,69.61,9.7,8.21,18.72,29.78,49.93
+75.0,60,fibonacci_baseline_maxthroughput_1_noscale,4589,4.04,591.9,21.8,8.84,81.56,276.92,76.48
+100.0,60,fibonacci_baseline_maxthroughput_1_noscale,5921,3.88,499.0,33.52,10.73,163.44,270.16,98.68
+105.0,60,fibonacci_baseline_maxthroughput_1_noscale,6466,3.85,1056.12,127.88,52.19,464.13,584.47,107.75
+110.0,60,fibonacci_baseline_maxthroughput_1_noscale,6508,3.94,674.61,95.98,50.73,333.93,376.37,108.47
+115.0,60,fibonacci_baseline_maxthroughput_1_noscale,6804,4.23,7056.32,1481.14,1167.57,3139.13,4185.44,113.4
+120.0,60,fibonacci_baseline_maxthroughput_1_noscale,6721,4.54,8501.75,2717.96,2998.86,4456.2,4560.84,112.02
+125.0,60,fibonacci_baseline_maxthroughput_1_noscale,7142,4.01,2958.45,538.49,177.77,1468.49,1542.38,119.03
+130.0,60,fibonacci_baseline_maxthroughput_1_noscale,7153,4.15,19482.25,4150.25,4297.94,7857.63,8182.01,119.22
+135.0,60,fibonacci_baseline_maxthroughput_1_noscale,6941,5.4,17596.41,4575.77,4013.23,9199.12,9620.85,115.68
+140.0,60,fibonacci_baseline_maxthroughput_1_noscale,6932,5.28,17160.74,4857.13,4950.81,8844.67,9497.83,115.53
+145.0,60,fibonacci_baseline_maxthroughput_1_noscale,6886,4.02,28919.67,8602.31,8268.19,16371.99,16856.6,114.77
+150.0,60,fibonacci_baseline_maxthroughput_1_noscale,6962,5.12,26794.34,7907.29,7647.07,15233.78,15960.52,116.03

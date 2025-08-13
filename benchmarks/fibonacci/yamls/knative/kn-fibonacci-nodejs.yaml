@@ -1,17 +1,17 @@
 # MIT License
-
+# 
 # Copyright (c) 2022 EASE lab
-
+# 
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
 # in the Software without restriction, including without limitation the rights
 # to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
 # copies of the Software, and to permit persons to whom the Software is
 # furnished to do so, subject to the following conditions:
-
+# 
 # The above copyright notice and this permission notice shall be included in all
 # copies or substantial portions of the Software.
-
+# 
 # THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 # IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 # FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -27,9 +27,18 @@ metadata:
   namespace: default
 spec:
   template:
+    metadata:
+      annotations:
+        autoscaling.knative.dev/minScale: "2"
+        autoscaling.knative.dev/maxScale: "2"
+        autoscaling.knative.dev/target: "50"
+        serving.knative.dev/containerConcurrency: "50"
     spec:
+      containerConcurrency: 50
+      timeoutSeconds: 60
       containers:
-        - image: docker.io/vhiveease/relay:latest
+        - name: relay
+          image: docker.io/vhiveease/relay:latest
           ports:
             - name: h2c
               containerPort: 50000
@@ -42,7 +51,22 @@ spec:
             - --generator=linear
             - --lowerBound=1
             - --upperBound=10
-        - image: docker.io/vhiveease/fibonacci-nodejs:latest
+          resources:
+            requests:
+              cpu: "125m"
+              memory: "256Mi"
+            limits:
+              cpu: "125m"
+              memory: "256Mi"
+        - name: fibonacci-nodejs
+          image: docker.io/vhiveease/fibonacci-nodejs:latest
           args:
             - --addr=0.0.0.0
             - --port=50051
+          resources:
+            requests:
+              cpu: "500m"
+              memory: "500Mi"
+            limits:
+              cpu: "500m"
+              memory: "500Mi"

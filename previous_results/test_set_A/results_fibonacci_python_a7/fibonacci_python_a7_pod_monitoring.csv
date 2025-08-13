@@ -1,0 +1,2 @@
+timestamp,rps_test_running,pod_count,pod_names,cpu_usage_millicores,memory_usage_mib,cpu_limit_millicores,memory_limit_mib,cpu_request_millicores,memory_request_mib,pods_ready,pods_pending,pods_failed,scaling_events,avg_latency_ms
+2025-08-01T13:58:36.936490,,3,fibonacci-python-00001-deployment-6956479887-bqbs5;fibonacci-python-00001-deployment-6956479887-z2cxl;fibonacci-python-00001-deployment-8664f8f9b5-c9thf,22,120,0,0,0,0,3,0,0,,

@@ -1,0 +1,11 @@
+rps,duration,test_title,total_requests,min_latency_ms,max_latency_ms,avg_latency_ms,median_latency_ms,p95_latency_ms,p99_latency_ms,throughput_rps
+5.0,60,fibonacci_python_c2,300,1.98,47.1,7.41,7.41,16.53,28.97,2.5
+10.0,60,fibonacci_python_c2,599,1.77,26.06,6.24,6.8,12.18,18.67,4.98
+15.0,60,fibonacci_python_c2,909,1.95,68.09,7.36,7.6,15.34,23.79,7.57
+20.0,60,fibonacci_python_c2,1200,1.85,40.49,7.42,7.4,16.91,27.06,10.0
+25.0,60,fibonacci_python_c2,1500,1.73,77.25,6.74,6.75,13.53,23.91,12.5
+30.0,60,fibonacci_python_c2,1819,1.42,130.3,7.37,6.92,17.59,26.97,15.15
+35.0,60,fibonacci_python_c2,2143,1.32,46.22,6.34,6.61,13.56,20.78,17.85
+40.0,60,fibonacci_python_c2,2400,1.24,99.61,6.49,6.47,14.27,23.66,20.0
+45.0,60,fibonacci_python_c2,2727,1.27,41.76,6.43,6.56,13.94,21.46,22.72
+50.0,60,fibonacci_python_c2,2997,1.17,100.81,6.28,6.37,14.23,21.35,24.97

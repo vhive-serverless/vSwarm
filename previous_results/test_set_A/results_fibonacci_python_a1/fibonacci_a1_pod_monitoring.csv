@@ -1,0 +1,2 @@
+timestamp,rps_test_running,pod_count,pod_names,cpu_usage_millicores,memory_usage_mib,cpu_limit_millicores,memory_limit_mib,cpu_request_millicores,memory_request_mib,pods_ready,pods_pending,pods_failed,scaling_events,avg_latency_ms
+2025-07-28T12:01:29.192995,,0,,0,0,0,0,0,0,0,0,0,,

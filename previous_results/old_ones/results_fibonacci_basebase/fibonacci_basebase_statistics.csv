@@ -1,0 +1,4 @@
+rps,duration,test_title,total_requests,min_latency_ms,max_latency_ms,avg_latency_ms,median_latency_ms,p95_latency_ms,p99_latency_ms,throughput_rps
+1,120,fibonacci_basebase,120,7.27,220.3,16.43,13.94,22.87,32.99,1.0
+5,120,fibonacci_basebase,600,6.38,41.09,11.35,10.04,21.2,27.5,5.0
+10,120,fibonacci_basebase,1200,6.21,80.81,11.01,9.67,21.28,31.8,10.0

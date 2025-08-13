@@ -106,7 +106,7 @@ func main() {
 
 	realRPS := runExperiment(endpoints, *runDuration, *rps)
 
-	writeLatencies(realRPS, *latencyOutputFile)
+	writeLatencies(*rps, realRPS, *latencyOutputFile)
 }
 
 func readEndpoints(path string) (endpoints []*endpoint.Endpoint, _ error) {
@@ -227,11 +227,12 @@ func addDurations(ds []time.Duration) {
 	latSlice.Unlock()
 }
 
-func writeLatencies(rps float64, latencyOutputFile string) {
+func writeLatencies(targetRPS float64, actualRPS float64, latencyOutputFile string) {
 	latSlice.Lock()
 	defer latSlice.Unlock()
 
-	fileName := fmt.Sprintf("rps%.2f_%s", rps, latencyOutputFile)
+	// Use original filename format with actual RPS
+	fileName := fmt.Sprintf("rps%.2f_%s", actualRPS, latencyOutputFile)
 	log.Info("The measured latencies are saved in ", fileName)
 
 	file, err := os.OpenFile(fileName, os.O_CREATE|os.O_WRONLY|os.O_TRUNC, 0644)

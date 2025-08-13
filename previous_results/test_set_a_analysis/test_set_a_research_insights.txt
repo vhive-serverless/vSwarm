@@ -1,0 +1,89 @@
+================================================================================
+TEST SET A: RUNTIME PERFORMANCE PATTERNS ANALYSIS
+Research Insights for Serverless Runtime Optimization
+================================================================================
+
+1. MAXIMUM THROUGHPUT ANALYSIS
+----------------------------------------
+Runtime Performance Ranking (Max RPS across all configs):
+  1. GO: 281.7 RPS
+  2. NODEJS: 279.3 RPS
+  3. PYTHON: 274.2 RPS
+
+Best Configuration per Runtime:
+  GO: A7 (281.7 RPS) - High concurrency with maximum scaling
+  NODEJS: A5 (279.3 RPS) - Medium concurrency scaling
+  PYTHON: A7 (274.2 RPS) - High concurrency with maximum scaling
+
+2. SCALING EFFECTIVENESS ANALYSIS
+----------------------------------------
+Single Pod (A1) vs Maximum Scaling (A7):
+  GO: 131.3 → 281.7 RPS (114.6% improvement)
+  NODEJS: 122.1 → 273.4 RPS (124.0% improvement)
+
+3. CONCURRENCY IMPACT ANALYSIS
+----------------------------------------
+Concurrency Scaling (1→10→20, same scaling 1-5 pods):
+  GO:
+    Concurrency 1: 160.0 RPS
+    Concurrency 10: 277.8 RPS
+    Concurrency 20: 277.2 RPS
+  NODEJS:
+    Concurrency 1: 159.5 RPS
+    Concurrency 10: 279.3 RPS
+    Concurrency 20: 274.7 RPS
+  PYTHON:
+    Concurrency 1: 160.8 RPS
+    Concurrency 10: 260.6 RPS
+    Concurrency 20: 273.1 RPS
+
+4. HORIZONTAL VS CONCURRENCY SCALING ANALYSIS
+----------------------------------------
+Horizontal vs Concurrency Scaling Comparison:
+  GO:
+    A1→A4 (Horizontal): 131.3 → 160.0 RPS (21.9% improvement)
+    A4→A5 (Concurrency): 160.0 → 277.8 RPS (73.6% improvement)
+  NODEJS:
+    A1→A4 (Horizontal): 122.1 → 159.5 RPS (30.7% improvement)
+    A4→A5 (Concurrency): 159.5 → 279.3 RPS (75.1% improvement)
+
+5. KEY RESEARCH INSIGHTS
+----------------------------------------
+Runtime Architecture Patterns:
+
+Scaling Responsiveness (% improvement between configurations):
+  GO (Multi-threaded):
+    a1→a4: 21.9%
+    a4→a5: 73.6%
+    a5→a6: -0.2%
+    a6→a7: 1.6%
+  PYTHON (GIL-limited):
+    a4→a5: 62.1%
+    a5→a6: 4.8%
+    a6→a7: 0.4%
+  NODE.JS (Event-loop):
+    a1→a4: 30.7%
+    a4→a5: 75.1%
+    a5→a6: -1.6%
+    a6→a7: -0.5%
+
+6. RESEARCH CONTRIBUTIONS
+----------------------------------------
+A. Runtime-Configuration Matching:
+   - Go benefits most from horizontal scaling (multi-threading advantage)
+   - Python shows limited scaling due to GIL constraints
+   - Node.js benefits from concurrency but limited by single-threaded nature
+
+B. Optimal Configuration Recommendations:
+   - GO: A7 - High concurrency with maximum scaling
+   - NODEJS: A5 - Medium concurrency scaling
+   - PYTHON: A7 - High concurrency with maximum scaling
+
+C. Platform Design Implications:
+   - Single-threaded runtimes waste resources in high-CPU configurations
+   - Concurrency limits vary significantly by runtime architecture
+   - Cold start impacts differ based on runtime initialization overhead
+
+D. Cost-Performance Trade-offs:
+   - Most efficient configuration: GO A1
+     (131.28 RPS per pod×concurrency unit)

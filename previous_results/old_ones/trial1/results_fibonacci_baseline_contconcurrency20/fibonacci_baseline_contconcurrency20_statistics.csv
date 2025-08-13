@@ -1,0 +1,15 @@
+rps,duration,test_title,total_requests,min_latency_ms,max_latency_ms,avg_latency_ms,median_latency_ms,p95_latency_ms,p99_latency_ms,throughput_rps
+10.0,60,fibonacci_baseline_contconcurrency20,600,5.82,207.52,9.82,8.13,17.1,24.41,10.0
+20.0,60,fibonacci_baseline_contconcurrency20,1200,5.58,58.15,9.15,7.9,17.22,24.43,20.0
+30.0,60,fibonacci_baseline_contconcurrency20,1818,4.92,48.52,9.21,8.06,16.33,25.24,30.3
+40.0,60,fibonacci_baseline_contconcurrency20,2400,4.45,131.32,8.92,7.5,16.71,26.47,40.0
+50.0,60,fibonacci_baseline_contconcurrency20,2996,4.23,136.45,9.57,7.63,19.13,36.58,49.93
+60.0,60,fibonacci_baseline_contconcurrency20,3747,3.85,90.04,8.63,7.09,17.55,27.57,62.44
+70.0,60,fibonacci_baseline_contconcurrency20,4278,3.96,203.81,8.81,6.92,17.58,32.11,71.3
+80.0,60,fibonacci_baseline_contconcurrency20,4981,3.81,167.72,10.01,7.16,23.64,52.87,83.02
+90.0,60,fibonacci_baseline_contconcurrency20,5427,3.58,84.24,8.93,7.03,19.01,35.64,90.45
+100.0,60,fibonacci_baseline_contconcurrency20,5959,3.54,302.08,10.68,7.01,25.73,62.74,99.32
+110.0,60,fibonacci_baseline_contconcurrency20,6570,3.36,210.17,12.06,7.57,35.1,75.31,109.5
+120.0,60,fibonacci_baseline_contconcurrency20,7355,3.48,336.4,17.34,8.77,54.12,157.67,122.58
+140.0,60,fibonacci_baseline_contconcurrency20,8304,3.52,378.89,21.61,11.38,64.36,106.29,138.4
+160.0,60,fibonacci_baseline_contconcurrency20,9597,3.36,306.8,35.24,21.82,106.33,199.95,159.95

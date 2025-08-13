@@ -1,0 +1,12 @@
+rps,duration,test_title,total_requests,min_latency_ms,max_latency_ms,avg_latency_ms,median_latency_ms,p95_latency_ms,p99_latency_ms,throughput_rps
+1,120,fibonacci_basebase50,120,7.76,49.16,14.51,13.05,22.9,46.12,1.0
+5,120,fibonacci_basebase50,600,6.54,95.31,10.96,9.78,17.67,27.9,5.0
+10,120,fibonacci_basebase50,1200,6.18,45.87,10.84,9.71,19.11,29.23,10.0
+15,120,fibonacci_basebase50,1819,5.87,94.57,10.3,8.99,18.35,28.11,15.16
+20,120,fibonacci_basebase50,2400,5.93,183.29,10.26,8.81,17.85,30.28,20.0
+25,120,fibonacci_basebase50,3000,5.21,105.67,9.64,8.31,18.07,28.78,25.0
+30,120,fibonacci_basebase50,3637,4.96,110.37,9.39,8.21,17.33,27.3,30.31
+35,120,fibonacci_basebase50,4286,5.72,147.07,10.23,8.68,19.53,35.05,35.71
+40,120,fibonacci_basebase50,4800,5.5,116.67,10.56,8.77,21.07,36.49,40.0
+45,120,fibonacci_basebase50,5454,5.67,249.71,11.01,8.79,20.97,43.07,45.45
+50,120,fibonacci_basebase50,5996,5.77,137.52,10.79,8.75,22.41,41.78,49.97

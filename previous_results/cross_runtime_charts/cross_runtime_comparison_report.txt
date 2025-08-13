@@ -1,0 +1,60 @@
+================================================================================
+CROSS-RUNTIME PERFORMANCE COMPARISON REPORT
+Python, Go, and Node.js Analysis Across B1-B5 Configurations
+================================================================================
+
+RUNTIME SUMMARY
+----------------------------------------
+PYTHON: 75 test results
+GO: 75 test results
+NODEJS: 60 test results
+
+MAXIMUM PERFORMANCE ANALYSIS
+----------------------------------------
+GO: 143.1 RPS max, 12.0ms avg latency at high load
+NODEJS: 97.2 RPS max, 10.2ms avg latency at high load
+PYTHON: 141.9 RPS max, 13.4ms avg latency at high load
+
+
+PERFORMANCE RANKING
+----------------------------------------
+1. GO: 143.1 RPS
+2. PYTHON: 141.9 RPS
+3. NODEJS: 97.2 RPS
+
+
+EFFICIENCY ANALYSIS
+----------------------------------------
+GO: 141.73 RPS per 1000m CPU
+NODEJS: 96.07 RPS per 1000m CPU
+PYTHON: 140.77 RPS per 1000m CPU
+
+
+HORIZONTAL SCALING ANALYSIS
+----------------------------------------
+PYTHON: 1→10 pods, 141.9→138.4 RPS, Scaling: 0.98x (vs 10.0x pods)
+GO: 1→10 pods, 141.6→139.3 RPS, Scaling: 0.98x (vs 10.0x pods)
+NODEJS: 2→10 pods, 96.8→95.3 RPS, Scaling: 0.98x (vs 5.0x pods)
+
+
+STRESS TEST ANALYSIS
+----------------------------------------
+GO: 124.7±17.7 RPS, 12.0ms avg latency
+NODEJS: 83.6±12.1 RPS, 10.2ms avg latency
+PYTHON: 123.9±17.0 RPS, 13.4ms avg latency
+
+
+KEY INSIGHTS
+----------------------------------------
+• Best Maximum Throughput: GO (143.1 RPS)
+• Most Efficient: GO (141.73 RPS/1000m CPU)
+• Performance Gap: 32.1% between best and worst runtime
+• Most Consistent: NODEJS (lowest performance variance)
+
+
+RECOMMENDATIONS
+----------------------------------------
+• For Maximum Throughput: Use GO
+• For Resource Efficiency: Use GO
+• For Consistency: Use NODEJS
+• For Stress Testing: All runtimes show similar bottleneck behavior under high concurrency

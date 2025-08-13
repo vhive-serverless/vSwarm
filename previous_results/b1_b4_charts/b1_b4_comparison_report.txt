@@ -1,0 +1,78 @@
+================================================================================
+B1-B4 CONFIGURATION COMPARISON REPORT
+Python vs Go vs Node.js Performance Analysis
+================================================================================
+
+CONFIGURATION SUMMARY
+----------------------------------------
+B1: Moderate (2 pods, 500m)
+  Pods: 2, CPU per pod: 500m, Total CPU: 1000m, Concurrency: 5
+
+B2: Balanced (4 pods, 250m)
+  Pods: 4, CPU per pod: 250m, Total CPU: 1000m, Concurrency: 10
+
+B3: Horizontal (8 pods, 125m)
+  Pods: 8, CPU per pod: 125m, Total CPU: 1000m, Concurrency: 20
+
+B4: High Horizontal (10 pods, 100m)
+  Pods: 10, CPU per pod: 100m, Total CPU: 1000m, Concurrency: 20
+
+MAXIMUM THROUGHPUT ANALYSIS
+----------------------------------------
+
+GO Runtime:
+  b1: 283.0 RPS (Efficiency: 282.97 RPS/1000m CPU)
+  b2: 279.4 RPS (Efficiency: 279.43 RPS/1000m CPU)
+  b3: 269.3 RPS (Efficiency: 269.33 RPS/1000m CPU)
+  b4: 268.6 RPS (Efficiency: 268.59 RPS/1000m CPU)
+
+PYTHON Runtime:
+  b1: 277.1 RPS (Efficiency: 277.08 RPS/1000m CPU)
+  b2: 273.6 RPS (Efficiency: 273.61 RPS/1000m CPU)
+  b3: 265.1 RPS (Efficiency: 265.08 RPS/1000m CPU)
+  b4: 259.8 RPS (Efficiency: 259.79 RPS/1000m CPU)
+
+NODEJS Runtime:
+  b1: 278.3 RPS (Efficiency: 278.32 RPS/1000m CPU)
+  b2: 266.1 RPS (Efficiency: 266.10 RPS/1000m CPU)
+  b3: 267.1 RPS (Efficiency: 267.06 RPS/1000m CPU)
+
+
+BEST PERFORMERS BY CATEGORY
+----------------------------------------
+Highest Throughput: go b1 (283.0 RPS)
+Most Efficient: go b1 (282.97 RPS/1000m CPU)
+
+
+LATENCY ANALYSIS (at 200+ RPS)
+----------------------------------------
+
+GO Runtime (High Load):
+  b1: Avg 22.0ms, P95 59.2ms
+  b2: Avg 17.5ms, P95 46.7ms
+  b3: Avg 18.6ms, P95 48.4ms
+  b4: Avg 19.2ms, P95 49.2ms
+
+PYTHON Runtime (High Load):
+  b1: Avg 26.4ms, P95 69.6ms
+  b2: Avg 19.9ms, P95 50.3ms
+  b3: Avg 22.1ms, P95 53.1ms
+  b4: Avg 24.7ms, P95 58.8ms
+
+NODEJS Runtime (High Load):
+  b1: Avg 25.1ms, P95 64.5ms
+  b2: Avg 20.5ms, P95 51.4ms
+  b3: Avg 22.1ms, P95 53.4ms
+
+
+KEY INSIGHTS
+----------------------------------------
+Runtime Performance Ranking (by max throughput):
+  1. go: 283.0 RPS
+  2. nodejs: 278.3 RPS
+  3. python: 277.1 RPS
+
+Best Configuration per Runtime:
+  go: b1 (283.0 RPS)
+  nodejs: b1 (278.3 RPS)
+  python: b1 (277.1 RPS)
