@@ -30,8 +30,8 @@ COPY ./benchmarks/graph-bfs/python/requirements.txt ./
 RUN pip3 install --user -r requirements.txt
 COPY ./utils/tracing/python/tracing.py ./
 COPY ./benchmarks/graph-bfs/python/server.py ./
-ADD https://raw.githubusercontent.com/vhive-serverless/vSwarm-proto/v0.3.0/proto/graph-bfs/graph_bfs_pb2_grpc.py ./
-ADD https://raw.githubusercontent.com/vhive-serverless/vSwarm-proto/v0.3.0/proto/graph-bfs/graph_bfs_pb2.py ./proto/graph-bfs/
+ADD https://raw.githubusercontent.com/vhive-serverless/vSwarm-proto/refs/heads/graph-benchmark/proto/graph_bfs/graph_bfs_pb2_grpc.py ./
+ADD https://raw.githubusercontent.com/vhive-serverless/vSwarm-proto/refs/heads/graph-benchmark/proto/graph_bfs/graph_bfs_pb2.py ./proto/graph_bfs/
 
 # Second stage (Runner):
 FROM vhiveease/python-slim:latest as graphBfsPython

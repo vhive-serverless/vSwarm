@@ -41,7 +41,7 @@ services:
       - --function-endpoint-url=graph-bfs-python
       - --function-endpoint-port=50051
       - --function-name=graph-bfs-python
-      - --value=100000
+      - --value=10000
     ports:
         - published: 50000
           target: 50000

@@ -20,11 +20,8 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-DOCKER_HUB_ACCOUNT=vhiveease
 FUNCTIONS = graph-bfs-python
-ALL_IMAGES = $(addsuffix -image, $(FUNCTIONS))
-
-clean: clean-proto
+ALL_IMAGES = $(FUNCTIONS)
 
 ROOT = ../../
 
@@ -32,20 +29,18 @@ all: all-image
 
 all-image: $(ALL_IMAGES)
 
-fibonacci-python-image:  Dockerfile python/server.py
+graph-bfs-python-image:  Dockerfile python/server.py
 	DOCKER_BUILDKIT=1 docker build \
-	--tag $(DOCKER_HUB_ACCOUNT)/graph-bfs-python:latest \
+	--no-cache \
+	--tag vhiveease/graph-bfs-python:latest \
 	--target graphBfsPython \
 	-f ./Dockerfile \
 	$(ROOT)
 
-push-%: %-image
-	docker push docker.io/$(DOCKER_HUB_ACCOUNT)/$(subst push-,,$@):latest
+## Push images
+push:
+	docker push docker.io/vhiveease/graph-bfs-python:latest 
 
-push: $(addprefix push-, $(FUNCTIONS))
-
-
-pull-%:
-	docker pull docker.io/$(DOCKER_HUB_ACCOUNT)/$(subst pull-,,$@):latest
-
-pull: $(addprefix pull-, $(FUNCTIONS))
+## Pull images from docker hub
+pull:
+	docker pull docker.io/vhiveease/graph-bfs-python:latest

@@ -88,10 +88,9 @@ def graph_bfs(dur):
 
 class GraphBFSBenchmark(graph_bfs_pb2_grpc.GraphBFSBenchmarkServicer):
 
-
-    def SayHello(self, request, context):
+    def GetBfs(self, request, context):
         with tracing.Span("Run graph_bfs"):
-            dur = int(request.dur)         # Duration the function must run for in milliseconds
+            dur = int(request.name)         # Duration the function must run for in milliseconds
             bfs_count = graph_bfs(dur)
 
         gid = syscall(104)
