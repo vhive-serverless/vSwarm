@@ -53,7 +53,7 @@ optional arguments:
 python3 main.py profile
 ```
 
-The functions to be profiled are stored in an input JSON file named `config.json` by default(the user can utilize `-config` or `--config_file` to change this argument). The standard structure of this file is a list of json objects: a list of `predeployment-commands`, `postdeployment-commands` and `yaml-location`. 
+The functions to be profiled are stored in an input JSON file named `config.json` by default(the user can utilize `-config` or `--config_file` to change this argument). The standard structure of this file is a list of json objects: a list of `predeployment-commands`, `postdeployment-commands` and `yaml-location`.  A compressed config file consisting of all the functions that can currently be profiled in the vSwarm suite has been provided.
 
 An example input file can look like this:
 ```json
@@ -124,7 +124,7 @@ The tool runs the `invoker` at a steady RPS (0.2 requests-per-second by default)
 
 The profiling tool utilizes the `kubectl top command` to measure the CPU and memory utilization of the functions. This command requires `metrics-server` to be deployed. The YAML file for metrics-server is located at `./metrics-server/components.yaml` (User can utilize `-metset` or `--metrics_server` to change this path). The metrics-server is configured to monitor the utilization every 15 seconds. Hence, it is recommended that the number of sampling points be given such that the time between samples(duration/sample_iter) is greater than 15s to avoid oversampling. 
 
-A profile has also been provided for the functions in the vSwarm suite. The profiling was done on the `c220g5` node in the Cloudlab Wisconsin cluster.
+A compressed profile file has also been provided for the functions in the vSwarm suite. The profiling was done on the `c220g5` node in the Cloudlab Wisconsin cluster.
 
 ## Plotting
 
