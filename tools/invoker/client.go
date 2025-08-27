@@ -142,13 +142,6 @@ func runExperiment(endpoints []*endpoint.Endpoint, runDuration int, targetRPS fl
 		}
 	}
 	latSlice.Lock()
-	var maxLatency int64
-	maxLatency = 0
-	for _, value := range latSlice.slice {
-		if value > maxLatency {
-			maxLatency = value
-		}
-	}
 	latSlice.slice = []int64{}
 	latSlice.Unlock()
 	profSlice.Lock()

@@ -53,7 +53,7 @@ optional arguments:
 python3 main.py profile
 ```
 
-The functions to be profiled are stored in an input JSON file named `config.json` by default(the user can utilize `-config` or `--config_file` to change this argument). The standard structure of this file is a list of json objects: a list of `predeployment-commands`, `postdeployment-commands` and `yaml-location`.  A compressed config file consisting of all the functions that can currently be profiled in the vSwarm suite has been provided.
+The functions to be profiled are stored in an input JSON file named `config.json` by default (the user can utilize `-config` or `--config_file` to change this argument). The standard structure of this file is a list of JSON objects: a list of `predeployment-commands`, `postdeployment-commands`, and `yaml-location`.  A compressed config file consisting of all the functions that can currently be profiled in the vSwarm suite has been provided.
 
 An example input file can look like this:
 ```json

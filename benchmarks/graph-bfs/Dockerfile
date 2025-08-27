@@ -1,6 +1,6 @@
 # MIT License
 #
-# Copyright (c) 2022 David Schall and EASE lab
+# Copyright (c) 2025 EASE lab
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -30,8 +30,8 @@ COPY ./benchmarks/graph-bfs/python/requirements.txt ./
 RUN pip3 install --user -r requirements.txt
 COPY ./utils/tracing/python/tracing.py ./
 COPY ./benchmarks/graph-bfs/python/server.py ./
-ADD https://raw.githubusercontent.com/vhive-serverless/vSwarm-proto/refs/heads/graph-benchmark/proto/graph_bfs/graph_bfs_pb2_grpc.py ./
-ADD https://raw.githubusercontent.com/vhive-serverless/vSwarm-proto/refs/heads/graph-benchmark/proto/graph_bfs/graph_bfs_pb2.py ./proto/graph_bfs/
+ADD https://raw.githubusercontent.com/vhive-serverless/vSwarm-proto/refs/heads/main/proto/graph_bfs/graph_bfs_pb2_grpc.py ./
+ADD https://raw.githubusercontent.com/vhive-serverless/vSwarm-proto/refs/heads/main/proto/graph_bfs/graph_bfs_pb2.py ./proto/graph_bfs/
 
 # Second stage (Runner):
 FROM vhiveease/python-slim:latest as graphBfsPython

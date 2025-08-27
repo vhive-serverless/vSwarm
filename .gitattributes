@@ -32,3 +32,4 @@ benchmarks/compression/files/img4.jpg filter=lfs diff=lfs merge=lfs -text
 benchmarks/compression/files/img1.jpg filter=lfs diff=lfs merge=lfs -text
 benchmarks/compression/files/img2.jpg filter=lfs diff=lfs merge=lfs -text
 benchmarks/compression/files/img3.jpg filter=lfs diff=lfs merge=lfs -text
+*.json.gz filter=lfs diff=lfs merge=lfs -text
