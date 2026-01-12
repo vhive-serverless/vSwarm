@@ -1,11 +1,11 @@
 module chained_function_eventing
 
-go 1.21
+go 1.23.0
 
 replace github.com/vhive-serverless/vSwarm/tools/benchmarking_eventing => ../../tools/benchmarking_eventing
 
 require (
-	github.com/cloudevents/sdk-go/v2 v2.15.2
+	github.com/cloudevents/sdk-go/v2 v2.16.2
 	github.com/kelseyhightower/envconfig v1.4.0
 	github.com/vhive-serverless/vSwarm/tools/benchmarking_eventing v0.0.0-20240422181019-5b1711d87c5d
 	google.golang.org/grpc v1.65.0
@@ -13,7 +13,6 @@ require (
 )
 
 require (
-	github.com/containerd/containerd v1.7.20 // indirect
 	github.com/containerd/log v0.1.0 // indirect
 	github.com/google/uuid v1.6.0 // indirect
 	github.com/json-iterator/go v1.1.12 // indirect
