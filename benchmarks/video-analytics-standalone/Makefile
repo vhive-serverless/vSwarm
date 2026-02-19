@@ -21,29 +21,36 @@
 # SOFTWARE.
 
 ROOT = ../../
+ARCH := $(shell uname -m)
+DOCKER_HUB_ACCOUNT=caldiuoa
+ifeq ($(ARCH),riscv64)
+    DOCKERFILE := docker/riscv.Dockerfile
+else
+    DOCKERFILE := docker/Dockerfile
+endif
 
 all-image: init-database video-analytics-standalone-python
 
-video-analytics-standalone-python: docker/Dockerfile python/server.py python/imagenet_labels.txt python/requirements.txt videos/default.mp4
+video-analytics-standalone-python: $(DOCKERFILE) python/server.py python/imagenet_labels.txt python/requirements.txt videos/default.mp4
 	DOCKER_BUILDKIT=1 docker build \
-	--tag vhiveease/video-analytics-standalone-python:latest \
+	--tag $(DOCKER_HUB_ACCOUNT)/video-analytics-standalone-python:latest \
 	--target videoAnalyticsStandalonePython \
-	-f docker/Dockerfile \
+	-f $(DOCKERFILE) \
 	$(ROOT) --load
 
-init-database: docker/Dockerfile init/init-database.go videos/default.mp4
+init-database: $(DOCKERFILE) init/init-database.go videos/default.mp4
 	DOCKER_BUILDKIT=1 docker build \
-	--tag vhiveease/video-analytics-standalone-init-database:latest \
+	--tag $(DOCKER_HUB_ACCOUNT)/video-analytics-standalone-init-database:latest \
 	--target databaseInit \
-	-f docker/Dockerfile \
+	-f $(DOCKERFILE) \
 	$(ROOT) --load
 
 ## Push images
 push:
-	docker push docker.io/vhiveease/video-analytics-standalone-python:latest 
-	docker push docker.io/vhiveease/video-analytics-standalone-init-database:latest
+	docker push docker.io/$(DOCKER_HUB_ACCOUNT)/video-analytics-standalone-python:latest 
+	docker push docker.io/$(DOCKER_HUB_ACCOUNT)/video-analytics-standalone-init-database:latest
 
 ## Pull images from docker hub
 pull:
-	docker pull docker.io/vhiveease/video-analytics-standalone-python:latest
-	docker pull docker.io/vhiveease/video-analytics-standalone-init-database:latest
+	docker pull docker.io/$(DOCKER_HUB_ACCOUNT)/video-analytics-standalone-python:latest
+	docker pull docker.io/$(DOCKER_HUB_ACCOUNT)/video-analytics-standalone-init-database:latest

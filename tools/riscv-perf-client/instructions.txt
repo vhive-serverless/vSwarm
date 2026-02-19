@@ -1,0 +1,14 @@
+git clone https://github.com/vhive-serverless/vSwarm-proto.git
+cd vSwarm-proto/
+
+git checkout 314e036259893b4e1c99def48f167b8e1b5b4f63
+cd ../
+
+cp vSwarm-proto-patch/grpcclient/getclient.go grpcclient/getclient.go
+cp vSwarm-proto-patch/grpcclient/hipstershop_clients.go grpcclient/hipstershop_clients.go
+cp vSwarm-proto-patch/grpcclient/bert_client.go grpcclient/bert_client.go
+cp -r vSwarm-proto-patch/proto/bert proto/bert/
+
+CGO_ENABLED=0 GOARCH=riscv64 GOOS=linux go build -ldflags='-extldflags "-static"' -o clientPerf main.go
+
+chmod +x ./clientPerf

@@ -1,5 +1,4 @@
-
-DOCKER_HUB_ACCOUNT=vhiveease
+DOCKER_HUB_ACCOUNT=caldiuoa
 FUNCTIONS = auth-python auth-nodejs auth-go
 ALL_IMAGES = $(addsuffix -image, $(FUNCTIONS))
 ALL_LAMBDA_IMAGES = $(addsuffix -lambda-image, $(FUNCTIONS))
@@ -13,33 +12,39 @@ clean: clean-proto
 
 ROOT = ../../
 
+ARCH := $(shell uname -m)
+ifeq ($(ARCH),riscv64)
+    DOCKERFILE := docker/riscv.Dockerfile
+else
+    DOCKERFILE := docker/Dockerfile
+endif
 all: all-image all-lambda-image
 
 all-image: $(ALL_IMAGES)
 
 all-lambda-image: $(ALL_LAMBDA_IMAGES)
 
-auth-python-image: docker/Dockerfile python/server.py
+auth-python-image: $(DOCKERFILE)  python/server.py
 	DOCKER_BUILDKIT=1 docker buildx build \
 	--tag $(DOCKER_HUB_ACCOUNT)/auth-python:latest \
 	--target authPython \
-	-f docker/Dockerfile \
+	-f $(DOCKERFILE)  \
 	$(ROOT) --load
 
 
-auth-nodejs-image: docker/Dockerfile nodejs/server.js
+auth-nodejs-image: $(DOCKERFILE)  nodejs/server.js
 	DOCKER_BUILDKIT=1 docker buildx build \
 	--tag $(DOCKER_HUB_ACCOUNT)/auth-nodejs:latest \
 	--target authNodeJS \
-	-f docker/Dockerfile \
+	-f $(DOCKERFILE)  \
 	$(ROOT) --load
 
 
-auth-go-image: docker/Dockerfile go/server.go
+auth-go-image: $(DOCKERFILE)  go/server.go
 	DOCKER_BUILDKIT=1 docker buildx build \
 	--tag $(DOCKER_HUB_ACCOUNT)/auth-go:latest \
 	--target authGo \
-	-f docker/Dockerfile \
+	-f $(DOCKERFILE)  \
 	$(ROOT) --load
 
 

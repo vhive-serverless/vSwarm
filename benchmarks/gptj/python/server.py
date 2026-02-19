@@ -71,7 +71,7 @@ def extract_text_between_strings(text, str1, str2):
         raise Exception('Failed to read the file')
     
 def read_summary_file():
-    summary_file = "./python/build/logs/mlperf_log_summary.txt"
+    summary_file = "./build/logs/mlperf_log_summary.txt"
     invalid = {
         "Min latency (ns)": -1,
         "Max latency (ns)": -1,

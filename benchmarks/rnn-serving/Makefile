@@ -21,20 +21,27 @@
 # SOFTWARE.
 
 ROOT = ../../
+ARCH := $(shell uname -m)
+DOCKER_HUB_ACCOUNT=caldiuoa
 
+ifeq ($(ARCH),riscv64)
+    DOCKERFILE := docker/riscv.Dockerfile
+else
+    DOCKERFILE := docker/Dockerfile
+endif
 all-image: rnn-serving-python
 
-rnn-serving-python: docker/Dockerfile python/server.py python/rnn.py python/requirements.txt model/rnn_model.pth
+rnn-serving-python: $(DOCKERFILE) python/riscv-server.py python/rnn.py python/riscv-requirements.txt model/rnn_model.pth
 	DOCKER_BUILDKIT=1 docker build \
-	--tag vhiveease/rnn-serving-python:latest \
+	--tag $(DOCKER_HUB_ACCOUNT)/rnn-serving-python:latest \
 	--target rnnServingPython \
-	-f docker/Dockerfile \
+	-f $(DOCKERFILE) \
 	$(ROOT) --load
 
 ## Push images
 push:
-	docker push docker.io/vhiveease/rnn-serving-python:latest 
+	docker push docker.io/$(DOCKER_HUB_ACCOUNT)/rnn-serving-python:latest 
 
 ## Pull images from docker hub
 pull:
-	docker pull docker.io/vhiveease/rnn-serving-python:latest
+	docker pull docker.io/$(DOCKER_HUB_ACCOUNT)/rnn-serving-python:latest

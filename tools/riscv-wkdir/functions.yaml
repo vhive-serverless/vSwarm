@@ -1,0 +1,793 @@
+# MIT License
+
+# Copyright (c) 2022 EASE lab
+
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# fibonacciORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
+
+# version: "3.9"
+services:
+
+  ## Fibonacci ---------------------------------
+  fibonacci-go:
+    image: caldiuoa/fibonacci-go:latest
+    container_name: fibonacci-go
+    networks:
+      - cassandra
+    entrypoint:
+      - /app/server
+      - -addr=0.0.0.0:50051
+    ports:
+      - target: 50051
+        published: 50000
+
+  fibonacci-nodejs:
+    image: caldiuoa/fibonacci-nodejs:latest
+    container_name: fibonacci-nodejs
+    networks:
+      - cassandra
+    entrypoint:
+      - node
+      - server.js
+      - --addr=0.0.0.0
+      - --port=50051
+    ports:
+      - target: 50051
+        published: 50000
+
+  fibonacci-python:
+    image: caldiuoa/fibonacci-python:latest 
+    container_name: fibonacci-python
+    networks:
+      - cassandra
+    entrypoint:
+      - python
+      - /app/server.py
+      - --addr=0.0.0.0
+      - --port=50051
+    ports:
+      - target: 50051
+        published: 50000
+
+
+  ## AES ---------------------------------
+  aes-go:
+    image: caldiuoa/aes-go:latest
+    container_name: aes-go
+    networks:
+      - cassandra
+    entrypoint:
+      - /app/server
+      - -addr=0.0.0.0:50051
+    ports:
+      - target: 50051
+        published: 50000
+
+  aes-nodejs:
+    image: caldiuoa/aes-nodejs:latest
+    container_name: aes-nodejs
+    networks:
+      - cassandra
+    entrypoint:
+      - node
+      - server.js
+      - --addr=0.0.0.0
+      - --port=50051
+    ports:
+      - target: 50051
+        published: 50000
+
+  aes-python:
+    image: caldiuoa/aes-python:latest
+    container_name: aes-python
+    networks:
+      - cassandra
+    entrypoint:
+      - python
+      - /app/server.py
+      - --addr=0.0.0.0
+      - --port=50051
+    ports:
+      - target: 50051
+        published: 50000
+
+
+  ## Authentication -----------------------
+  auth-go:
+    image: caldiuoa/auth-go:latest
+    container_name: auth-go
+    networks:
+      - cassandra
+    entrypoint:
+      - /app/server
+      - -addr=0.0.0.0:50051
+    ports:
+      - target: 50051
+        published: 50000
+
+  auth-nodejs:
+    image: caldiuoa/auth-nodejs:latest
+    container_name: auth-nodejs
+    networks:
+      - cassandra
+    entrypoint:
+      - node
+      - server.js
+      - --addr=0.0.0.0
+      - --port=50051
+    ports:
+      - target: 50051
+        published: 50000
+
+  auth-python:
+    image: caldiuoa/auth-python:latest
+    container_name: auth-python
+    networks:
+      - cassandra
+    entrypoint:
+      - python
+      - /app/server.py
+      - --addr=0.0.0.0
+      - --port=50051
+    ports:
+      - target: 50051
+        published: 50000
+
+
+
+
+  ## Online Shop -------------------------
+  adservice:
+    image: caldiuoa/onlineshop-adservice:latest
+    container_name: adservice
+    networks:
+      - cassandra
+    environment:
+      - PORT=9555
+      - DISABLE_PROFILER=true
+      - DISABLE_DEBUGGER=true
+      - DISABLE_TRACING=true
+    ports:
+    - published: 50000
+      target: 9555
+
+  cartservice:
+    image: caldiuoa/onlineshop-cartservice:latest
+    container_name: cartservice
+    networks:
+      - cassandra
+    environment:
+      - DISABLE_PROFILER=true
+      - DISABLE_DEBUGGER=true
+      - DISABLE_TRACING=true
+      - REDIS_ADDR=redis:6379
+    ports:
+    - target: 7070
+      published: 50000
+
+  redis:
+    image: caldiuoa/redis:latest
+    container_name: redis
+    networks:
+      - cassandra    
+    ports:
+    - target: 6379
+
+  currencyservice:
+    image: caldiuoa/onlineshop-currencyservice:latest
+    container_name: currencyservice
+    networks:
+      - cassandra
+    environment:
+      - PORT=7000
+      - DISABLE_PROFILER=true
+      - DISABLE_DEBUGGER=true
+      - DISABLE_TRACING=true
+    entrypoint: [ "node", "server.js" ]
+    ports:
+      - target: 7000
+        published: 50000
+
+
+  emailservice:
+    image: caldiuoa/onlineshop-emailservice:latest
+    container_name: emailservice
+    networks:
+      - cassandra
+    environment:
+      - PORT=8080
+      - DISABLE_PROFILER=true
+      - DISABLE_DEBUGGER=true
+      - DISABLE_TRACING=true
+    ports:
+      - target: 8080
+        published: 50000
+
+  paymentservice:
+    image: caldiuoa/onlineshop-paymentservice:latest
+    container_name: paymentservice
+    networks:
+      - cassandra
+    environment:
+      - PORT=50051
+      - DISABLE_PROFILER=true
+      - DISABLE_DEBUGGER=true
+      - DISABLE_TRACING=true
+    ports:
+      - target: 50051
+        published: 50000
+
+  productcatalogservice:
+    image: caldiuoa/onlineshop-productcatalogservice:latest
+    container_name: productcatalogservice
+    networks:
+      - cassandra
+    environment:
+      - PORT=3550
+      - DISABLE_PROFILER=true
+      - DISABLE_DEBUGGER=true
+      - DISABLE_TRACING=true
+    ports:
+      - target: 3550
+        published: 50000
+
+
+  recommendationservice:
+    image: caldiuoa/onlineshop-recommendationservice:latest
+    container_name: recommendationservice
+    networks:
+      - cassandra
+    environment:
+      - PORT=8080
+      - PRODUCT_CATALOG_SERVICE_ADDR=prod-cat-dependent:3550
+      - DISABLE_PROFILER=true
+      - DISABLE_DEBUGGER=true
+      - DISABLE_TRACING=true
+    ports:
+      - target: 8080
+        published: 50000
+
+  prod-cat-dependent:
+    image: caldiuoa/onlineshop-productcatalogservice:latest
+    container_name: prod-cat-dependent
+    networks:
+      - cassandra
+    environment:
+      - PORT=3550
+      - DISABLE_PROFILER=true
+      - DISABLE_DEBUGGER=true
+      - DISABLE_TRACING=true
+
+
+  shippingservice:
+    image: caldiuoa/onlineshop-shippingservice:latest
+    container_name: shippingservice
+    networks:
+      - cassandra
+    environment:
+      - PORT=50051
+      - DISABLE_PROFILER=true
+      - DISABLE_DEBUGGER=true
+      - DISABLE_TRACING=true
+    ports:
+      - target: 50051
+        published: 50000
+  
+
+  # ## Hotel App ---------------------------
+  # # Functions #
+  geo:
+    image: caldiuoa/hotel-app-geo:latest
+    container_name: geo
+    networks:
+      - cassandra
+    entrypoint:
+      - /app/server
+      - --url=0.0.0.0
+      - --port=8083
+      - --db_addr=database:9042
+    ports:
+      - target: 8083
+        published: 50000
+
+
+  profile:
+    image: caldiuoa/hotel-app-profile:latest
+    container_name: profile
+    networks:
+      - cassandra
+    entrypoint:
+      - /app/server
+      - --url=0.0.0.0
+      - --port=8083
+      - --db_addr=database:9042
+      - --memcached_addr=memcached:11211
+    ports:
+      - target: 8083
+        published: 50000
+
+    
+  rate:
+    image: caldiuoa/hotel-app-rate:latest
+    container_name: rate
+    networks:
+      - cassandra
+    entrypoint:
+      - /app/server
+      - --url=0.0.0.0
+      - --port=8083
+      - --db_addr=database:9042
+      - --memcached_addr=memcached:11211
+    ports:
+      - target: 8083
+        published: 50000
+
+
+  recommendation:
+    image: caldiuoa/hotel-app-recommendation:latest
+    container_name: recommendation
+    networks:
+      - cassandra
+    entrypoint:
+      - /app/server
+      - --url=0.0.0.0
+      - --port=8083
+      - --db_addr=database:9042
+    ports:
+      - target: 8083
+        published: 50000
+
+
+  reservation:
+    image: caldiuoa/hotel-app-reservation:latest
+    container_name: reservation
+    networks:
+      - cassandra
+    entrypoint:
+      - /app/server
+      - --url=0.0.0.0
+      - --port=8083
+      - --db_addr=database:9042
+      - --memcached_addr=memcached:11211
+    ports:
+      - target: 8083
+        published: 50000
+
+
+  user:
+    image: caldiuoa/hotel-app-user:latest
+    container_name: user
+    networks:
+      - cassandra
+    entrypoint:
+      - /app/server
+      - --url=0.0.0.0
+      - --port=8083
+      - --db_addr=database:9042
+    ports:
+      - target: 8083
+        published: 50000
+
+
+
+  ## Database ##
+  database:
+    image:  caldiuoa/cassandra:latest
+    container_name: db
+    networks:
+      - cassandra
+    hostname: cassandra
+    ports: 
+      - 9042:9042    
+    healthcheck:
+        test: ["CMD", "cqlsh", "-e", "describe keyspaces"]
+        interval: 120s
+        timeout: 120s
+        retries: 5
+  ## Memcached ##
+  memcached:
+    image: caldiuoa/memcached:latest
+    container_name: mmc
+    networks:
+      - cassandra    
+
+    environment:
+      - MEMCACHED_CACHE_SIZE=128
+      - MEMCACHED_THREADS=2
+    logging:
+      options:
+        max-size: 50m
+
+  search:
+    image: caldiuoa/hotel-app-search:latest
+    container_name: search
+    entrypoint:
+      - /app/server
+      - --url=0.0.0.0
+      - --port=8083
+      - --geoaddr=geo-search:8084
+      - --rateaddr=rate-search:8085
+    ports:
+    - target: 8083
+      published: 50000
+
+    networks:
+      - cassandra   
+
+
+  ## Dependent geo function ###
+  geo-search:
+    image: caldiuoa/hotel-app-geo:latest
+    container_name: geo-search
+    entrypoint:
+      - /app/server
+      - --url=0.0.0.0
+      - --port=8084
+      - --db_addr=database_geo:9042
+    networks:
+      - cassandra
+    restart: on-failure
+    ports:
+    - published: 8084
+      target: 8084   
+
+
+  ## Database Geo ##
+ 
+  database_geo:
+    image:  caldiuoa/cassandra:latest
+    container_name: geo-db
+    hostname: geo-cassandra
+    ports: 
+      - 9042:9042
+    networks:
+      - cassandra      
+    healthcheck:
+        test: ["CMD", "cqlsh", "-e", "describe keyspaces"]
+        interval: 120s
+        timeout: 120s
+        retries: 5
+
+  ## Dependent rate function ###
+  rate-search:
+    image: caldiuoa/hotel-app-rate:latest
+    container_name: rate-search
+    entrypoint:
+      - /app/server
+      - --url=0.0.0.0
+      - --port=8085
+      - --db_addr=database_rate:9042
+      - --memcached_addr=memcached:11211
+
+    networks:
+        - cassandra
+    restart: on-failure
+    ports:
+    - published: 8085
+      target: 8085      
+
+
+  ## Database ##
+  database_rate:
+    image:  caldiuoa/cassandra:latest
+    container_name: rate-db
+    hostname: rate-cassandra
+    ports: 
+      - 9043:9042
+    networks:
+      - cassandra      
+    healthcheck:
+        test: ["CMD", "cqlsh", "-e", "describe keyspaces"]
+        interval: 120s
+        timeout: 120s
+        retries: 5
+
+  image-rotate:
+    image: caldiuoa/image-rotate-python:latest
+    container_name: image-rotate
+    networks:
+      - cassandra      
+    entrypoint:
+      - python3
+      - /app/server.py
+      - --addr=0.0.0.0
+      - --port=50051
+      - --db_addr=database
+    ports:
+      - target: 50051
+        published: 50000
+
+  init-image-rotate-database:
+    image: caldiuoa/image-rotate-init-database:latest
+    container_name: init-image-rotate-database
+    networks:
+      - cassandra  
+    entrypoint: 
+      - /app/init-database
+      - --db_addr=database:9042
+    restart: "no"
+
+  video-analytics-standalone:
+    image: caldiuoa/video-analytics-standalone-python:latest
+    container_name: video-analytics-standalone
+    networks:
+      - cassandra    
+    entrypoint:
+      - python3
+      - /app/server.py
+      - --addr=0.0.0.0
+      - --port=50051
+      - --db_addr=database
+      - --default_video=default.mp4
+      - --num_frames=10
+    ports:
+      - target: 50051
+        published: 50000
+
+  init-video-analytics-standalone-database:
+    image: caldiuoa/video-analytics-standalone-init-database:latest
+    container_name: init-video-analytics-standalone-database
+    networks:
+      - cassandra    
+    entrypoint: 
+      - /app/init-database
+      - --db_addr=database:9042
+    restart: "no"
+
+  compression:
+    image: caldiuoa/compression-python:latest
+    container_name: compression
+    networks:
+      - cassandra    
+    entrypoint:
+      - python3
+      - /app/server.py
+      - --addr=0.0.0.0
+      - --db_addr=database
+      - --port=50051
+    ports:
+      - target: 50051
+        published: 50000
+
+  init-compression-database:
+    image: caldiuoa/compression-init-database:latest
+    container_name: init-compression-database
+    networks:
+      - cassandra    
+    entrypoint: 
+      - /app/init-database
+      - --db_addr=database:9042
+    restart: "no"
+
+  video-processing:
+    image: caldiuoa/video-processing-python:latest
+    container_name: video-processing
+    networks:
+      - cassandra    
+    entrypoint:
+      - python3
+      - /app/server.py
+      - --addr=0.0.0.0
+      - --port=50051
+      - --db_addr=database
+      - --default_video=default.mp4
+      - --num_frames=10
+    ports:
+      - target: 50051
+        published: 50000
+
+  init-video-processing-database:
+    image: caldiuoa/video-processing-init-database:latest
+    container_name: init-video-processing-database
+    networks:
+      - cassandra    
+    entrypoint: 
+      - /app/init-database
+      - --db_addr=database:9042
+
+  rnn-serving-python:
+    image: caldiuoa/rnn-serving-python:latest
+    container_name: rnn-serving-python
+    networks:
+      - cassandra     
+    entrypoint:
+      - python3
+      - /app/server.py
+      - --addr=0.0.0.0
+      - --port=50051
+      - --default_language=French
+      - --num_strings=15
+    ports:
+      - target: 50051
+        published: 50000
+
+  #invoke with aes-go
+  sleeping-go:
+    image: caldiuoa/sleeping-go:latest
+    container_name: sleeping-go
+    networks:
+      - cassandra     
+    entrypoint:
+      - /app/server
+      - --addr=0.0.0.0:50051
+    ports:
+      - target: 50051
+        published: 50000
+
+  #invoke with aes-go
+  spinning-go:
+    image: caldiuoa/spinning-go:latest
+    container_name: spinning-go
+    networks:
+      - cassandra     
+    entrypoint:
+      - /app/server
+      - --addr=0.0.0.0:50051
+    ports:
+      - target: 50051
+        published: 50000
+
+  bert-python:
+    image: caldiuoa/bert-python:latest
+    container_name: bert-python
+    networks:
+      - cassandra     
+    entrypoint:
+      - python3
+      - server.py
+      - --addr=0.0.0.0
+      - --port=50051
+      - --mlperf_conf=./user.conf
+      - --user_conf=./user.conf
+    ports:
+      - target: 50051
+        published: 50000        
+
+  gptj-python:
+    image: caldiuoa/gptj-python:latest
+    container_name: gptj-python
+    networks:
+      - cassandra 
+    entrypoint:
+      - python3
+      - server.py
+      - --addr=0.0.0.0
+      - --port=50051
+      - --dataset-path=./data/cnn_eval.json
+      - --mlperf_conf=./config/mlperf.conf
+      - --user_conf=./config/user.conf
+    ports:
+      - target: 50051
+        published: 50000   
+
+  checkoutservice:
+    image: caldiuoa/onlineshop-checkoutservice:latest
+    container_name: checkoutservice
+    networks:
+      - cassandra     
+    build:
+      context: ./../../checkoutservice/
+      dockerfile: ./Dockerfile
+    environment:
+      - PORT=5050
+      - SHIPPING_SERVICE_ADDR=shippingservice-checkout:50051
+      - PRODUCT_CATALOG_SERVICE_ADDR=productcatalogservice-checkout:3550
+      - CART_SERVICE_ADDR=cartservice-checkout:7070
+      - CURRENCY_SERVICE_ADDR=currencyservice-checkout:7000
+      - EMAIL_SERVICE_ADDR=emailservice-checkout:8080
+      - PAYMENT_SERVICE_ADDR=paymentservice-checkout:50051
+      - DISABLE_PROFILER=true
+      - DISABLE_DEBUGGER=true
+      - DISABLE_TRACING=true
+    ports:
+    - target: 5050
+      published: 50000
+
+
+  shippingservice-checkout:
+    image: caldiuoa/onlineshop-shippingservice:latest
+    container_name: shippingservice-checkout
+    networks:
+      - cassandra     
+
+    environment:
+      - PORT=50051
+      - DISABLE_PROFILER=true
+      - DISABLE_DEBUGGER=true
+      - DISABLE_TRACING=true
+    ports:
+    - target: 50051
+
+  productcatalogservice-checkout:
+    image: caldiuoa/onlineshop-productcatalogservice:latest
+    container_name: productcatalogservice-checkout
+    networks:
+      - cassandra     
+
+    environment:
+      - PORT=3550
+      - DISABLE_PROFILER=true
+      - DISABLE_DEBUGGER=true
+      - DISABLE_TRACING=true
+    ports:
+    - target: 3550
+
+  cartservice-checkout:
+    image: caldiuoa/onlineshop-cartservice:latest
+    container_name: cartservice-checkout
+    networks:
+      - cassandra     
+
+    environment:
+      - REDIS_ADDR=redis:6379
+      - DISABLE_PROFILER=true
+      - DISABLE_DEBUGGER=true
+      - DISABLE_TRACING=true
+    ports:
+    - target: 7070
+
+
+  currencyservice-checkout:
+    image: caldiuoa/onlineshop-currencyservice:latest
+    container_name: currencyservice-checkout
+    networks:
+      - cassandra     
+
+    environment:
+      - PORT=7000
+      - DISABLE_PROFILER=true
+      - DISABLE_DEBUGGER=true
+      - DISABLE_TRACING=true
+    ports:
+    - target: 7000
+
+  emailservice-checkout:
+    image: caldiuoa/onlineshop-emailservice:latest
+    container_name: emailservice-checkout
+    networks:
+      - cassandra     
+
+    environment:
+      - DISABLE_PROFILER=true
+      - DISABLE_DEBUGGER=true
+      - DISABLE_TRACING=true
+    ports:
+    - target: 8080
+
+  paymentservice-checkout:
+    image: caldiuoa/onlineshop-paymentservice:latest
+    container_name: paymentservice-checkout
+    networks:
+      - cassandra     
+
+    environment:
+      - PORT=50051
+      - DISABLE_PROFILER=true
+      - DISABLE_DEBUGGER=true
+      - DISABLE_TRACING=true
+    ports:
+    - target: 50051
+  
+networks:
+    cassandra:
+      external: true
+      driver: bridge
+
+#  ./client --function-name=image-rotate  --port=50051 --input=img1.jpg -url=localhost
+
+  #  --addr=0.0.0.0 --port=50051 --db_addr=database --default_video=video2.mp4 --num_frames=10

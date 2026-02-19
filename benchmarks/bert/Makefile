@@ -1,6 +1,11 @@
-DOCKER_HUB_ACCOUNT=vhiveease
+DOCKER_HUB_ACCOUNT=caldiuoa
 SHELL := /bin/bash
 
+# ifeq ($(ARCH),riscv64)
+#     DOCKERFILE := docker/riscv.Dockerfile
+# else
+#     DOCKERFILE := docker/Dockerfile
+# endif
 MAKEFILE_NAME := $(lastword $(MAKEFILE_LIST))
 UNAME := $(shell whoami)
 UID := $(shell id -u `whoami`)
@@ -86,6 +91,17 @@ download_model:
 
 # .PHONY: build_docker
 # build_docker:
+# ARCH := $(shell uname -m)
+
+# ifeq ($(ARCH),riscv64)
+#     DOCKERFILE := docker/riscv.Dockerfile
+
+bert-python-riscv-image: docker/riscv.Dockerfile python/server.py
+	DOCKER_BUILDKIT=1 docker buildx build \
+	--tag $(DOCKER_HUB_ACCOUNT)/bert-python:latest \
+	-f docker/riscv.Dockerfile \
+	$(ROOT) --load		
+# else
 bert-python-image: docker/Dockerfile python/server.py
 	@docker pull nvcr.io/nvidia/tensorrtserver:19.08-py3
 	DOCKER_BUILDKIT=1 docker buildx build \
@@ -97,8 +113,10 @@ bert-python-image: docker/Dockerfile python/server.py
 		--tag $(DOCKER_HUB_ACCOUNT)/bert-python:latest \
 		-f docker/Dockerfile \
 		$(ROOT) --load
+# endif
 		
 		
+
 		
 
 .PHONY: launch_docker
@@ -109,8 +127,15 @@ launch_docker:
 clean:
 	@rm -rf ${BUILD_DIR}
 
-push-%: %-image
-	docker push docker.io/$(DOCKER_HUB_ACCOUNT)/$(subst push-,,$@):latest
+# push
+push-bert-python-riscv: bert-python-riscv-image
+	docker push docker.io/$(DOCKER_HUB_ACCOUNT)/bert-python:latest
+
+push-bert-python-image: bert-python-image
+	docker push docker.io/$(DOCKER_HUB_ACCOUNT)/bert-python:latest
+
+# push-%: %-image
+# 	docker push docker.io/$(DOCKER_HUB_ACCOUNT)/$(subst push-,,$@):latest
 
 pull-%:
 	docker pull docker.io/$(DOCKER_HUB_ACCOUNT)/$(subst pull-,,$@):latest

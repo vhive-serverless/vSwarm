@@ -22,28 +22,36 @@
 
 ROOT = ../../
 
+
+ARCH := $(shell uname -m)
+DOCKER_HUB_ACCOUNT=caldiuoa
+ifeq ($(ARCH),riscv64)
+    DOCKERFILE := docker/riscv.Dockerfile
+else
+    DOCKERFILE := docker/Dockerfile
+endif
 all-image: video-processing-python init-database
 
-video-processing-python: docker/Dockerfile python/server.py python/requirements.txt videos/default.mp4
+video-processing-python: $(DOCKERFILE)  python/server.py python/requirements.txt videos/default.mp4
 	DOCKER_BUILDKIT=1 docker build \
-	--tag vhiveease/video-processing-python:latest \
+	--tag $(DOCKER_HUB_ACCOUNT)/video-processing-python:latest \
 	--target videoProcessingPython \
-	-f docker/Dockerfile \
+	-f $(DOCKERFILE)  \
 	$(ROOT) --load
 
-init-database: docker/Dockerfile init/init-database.go videos/default.mp4
+init-database: $(DOCKERFILE)  init/init-database.go videos/default.mp4
 	DOCKER_BUILDKIT=1 docker build \
-	--tag vhiveease/video-processing-init-database:latest \
+	--tag $(DOCKER_HUB_ACCOUNT)/video-processing-init-database:latest \
 	--target databaseInit \
-	-f docker/Dockerfile \
+	-f $(DOCKERFILE)  \
 	$(ROOT) --load
 
 ## Push images
 push:
-	docker push docker.io/vhiveease/video-processing-python:latest 
-	docker push docker.io/vhiveease/video-processing-init-database:latest
+	docker push docker.io/$(DOCKER_HUB_ACCOUNT)/video-processing-python:latest 
+	docker push docker.io/$(DOCKER_HUB_ACCOUNT)/video-processing-init-database:latest
 
 ## Pull images from docker hub
 pull:
-	docker pull docker.io/vhiveease/video-processing-python:latest
-	docker pull docker.io/vhiveease/video-processing-init-database:latest
+	docker pull docker.io/$(DOCKER_HUB_ACCOUNT)/video-processing-python:latest
+	docker pull docker.io/$(DOCKER_HUB_ACCOUNT)/video-processing-init-database:latest

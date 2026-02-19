@@ -25,27 +25,35 @@ clean: clean-proto
 
 
 ROOT = ../../
+DOCKER_HUB_ACCOUNT=caldiuoa
 
+ARCH := $(shell uname -m)
+
+ifeq ($(ARCH),riscv64)
+    DOCKERFILE := riscv.Dockerfile
+else
+    DOCKERFILE := Dockerfile
+endif
 FUNCTIONS = spinning-go
 ALL_IMAGES = $(addsuffix -image, $(FUNCTIONS))
 
 all: $(ALL_IMAGES)
 
-spinning-go-image: docker/Dockerfile go/server.go
+spinning-go-image: docker/$(DOCKERFILE) go/server.go
 	DOCKER_BUILDKIT=1 docker buildx build \
-	--tag vhiveease/spinning-go:latest \
+	--tag $(DOCKER_HUB_ACCOUNT)/spinning-go:latest \
 	--target spinningGo \
-	-f docker/Dockerfile \
+	-f docker/$(DOCKERFILE) \
 	$(ROOT) --load
 
 ## Push images
 push-%: %-image
-	docker push docker.io/vhiveease/$(subst push-,,$@):latest
+	docker push docker.io/$(DOCKER_HUB_ACCOUNT)/$(subst push-,,$@):latest
 
 push: $(addprefix push-, $(FUNCTIONS))
 
 ## Pull images from docker hub
 pull-%:
-	docker pull docker.io/vhiveease/$(subst pull-,,$@):latest
+	docker pull docker.io/$(DOCKER_HUB_ACCOUNT)/$(subst pull-,,$@):latest
 
 pull: $(addprefix pull-, $(FUNCTIONS))

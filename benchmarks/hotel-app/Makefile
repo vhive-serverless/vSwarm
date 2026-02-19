@@ -26,9 +26,20 @@ clean: clean-proto
 
 ROOT = ../../
 
+DOCKER_HUB_ACCOUNT=caldiuoa
+
+ARCH := $(shell uname -m)
+
+ifeq ($(ARCH),riscv64)
+    DOCKERFILE := riscv.Dockerfile
+else
+    DOCKERFILE := Dockerfile
+endif
+
 .PHONY: geo profile rate recommendation reservation user search
 
 FUNCTIONS = geo profile rate recommendation reservation user search
+
 ALL_IMAGES = $(addsuffix -image, $(FUNCTIONS))
 
 all: all-image
@@ -37,26 +48,26 @@ all-image: $(ALL_IMAGES)
 
 
 
-%-image: Dockerfile go.mod %/*
+%-image: $(DOCKERFILE) go.mod %/*
 	$(eval func := $(subst -image,,$@))
 	DOCKER_BUILDKIT=1 \
 	docker build \
-	--tag vhiveease/hotel-app-$(func):latest \
+	--tag $(DOCKER_HUB_ACCOUNT)/hotel-app-$(func):latest \
 	--build-arg SERVICE=$(func) \
-	-f Dockerfile \
+	-f $(DOCKERFILE) \
 	$(ROOT)
 
 
 
 ## Push images
 push-%: %-image
-	docker push docker.io/vhiveease/hotel-app-$(subst push-,,$@):latest
+	docker push docker.io/$(DOCKER_HUB_ACCOUNT)/hotel-app-$(subst push-,,$@):latest
 
 push: $(addprefix push-, $(FUNCTIONS))
 
 ## Pull images from docker hub
 pull-%:
-	docker pull docker.io/vhiveease/hotel-app-$(subst push-,,$@):latest
+	docker pull docker.io/$(DOCKER_HUB_ACCOUNT)/hotel-app-$(subst push-,,$@):latest
 
 pull: $(addprefix pull-, $(FUNCTIONS))
 

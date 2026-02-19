@@ -20,7 +20,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-DOCKER_HUB_ACCOUNT=vhiveease
+DOCKER_HUB_ACCOUNT=caldiuoa
 FUNCTIONS = fibonacci-python fibonacci-nodejs fibonacci-go
 ALL_IMAGES = $(addsuffix -image, $(FUNCTIONS))
 
@@ -32,26 +32,34 @@ all: all-image
 
 all-image: $(ALL_IMAGES)
 
-fibonacci-python-image:  Dockerfile python/server.py
+ARCH := $(shell uname -m)
+
+ifeq ($(ARCH),riscv64)
+    DOCKERFILE := ./riscv.Dockerfile
+else
+    DOCKERFILE := ./Dockerfile
+endif
+
+fibonacci-python-image: $(DOCKERFILE) python/server.py
 	DOCKER_BUILDKIT=1 docker build \
 	--tag $(DOCKER_HUB_ACCOUNT)/fibonacci-python:latest \
 	--target fibonacciPython \
-	-f ./Dockerfile \
+	-f $(DOCKERFILE)  \
 	$(ROOT)
 
 
-fibonacci-nodejs-image: Dockerfile nodejs/server.js
+fibonacci-nodejs-image:$(DOCKERFILE) nodejs/server.js
 	DOCKER_BUILDKIT=1 docker build \
 	--tag $(DOCKER_HUB_ACCOUNT)/fibonacci-nodejs:latest \
 	--target fibonacciNodeJS \
-	-f ./Dockerfile \
+	-f $(DOCKERFILE)  \
 	$(ROOT)
 
-fibonacci-go-image: Dockerfile go/server.go
+fibonacci-go-image:$(DOCKERFILE) go/server.go
 	DOCKER_BUILDKIT=1 docker build \
 	--tag $(DOCKER_HUB_ACCOUNT)/fibonacci-go:latest \
 	--target fibonacciGo \
-	-f ./Dockerfile \
+	-f $(DOCKERFILE)  \
 	$(ROOT)
 
 

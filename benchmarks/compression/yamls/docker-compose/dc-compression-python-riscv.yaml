@@ -1,0 +1,83 @@
+# MIT License
+
+# Copyright (c) 2024 EASE lab
+
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
+
+version: "3.3"
+services:
+  compression-python:
+    image: caldiuoa/compression-python:latest
+    container_name: compression-python
+    networks:
+      - cassandra    
+    entrypoint:
+      - python3
+      - /app/server.py
+      - --addr=0.0.0.0
+      - --db_addr=database
+      - --port=50051
+    ports:
+      - target: 50051
+        published: 50051
+    
+
+  database:
+    image:  caldiuoa/cassandra:latest
+    container_name: db
+    networks:
+      - cassandra
+    hostname: cassandra
+    ports: 
+      - 9042:9042    
+    healthcheck:
+        test: ["CMD", "cqlsh", "-e", "describe keyspaces"]
+        interval: 120s
+        timeout: 120s
+        retries: 5
+
+  init-compression-standalone-database:
+    image: caldiuoa/compression-init-database:latest
+    container_name: init-compression-database
+    networks:
+      - cassandra    
+    entrypoint: 
+      - /app/init-database
+      - --db_addr=database:9042
+    restart: "no"
+
+  relay:
+    image: caldiuoa/relay:latest
+    networks:
+      - cassandra    
+    entrypoint:
+      - /app/server
+      - --addr=0.0.0.0:50000
+      - --function-endpoint-url=compression-python
+      - --function-endpoint-port=50051
+      - --function-name=compression-python
+      - --value=metamorphosis.txt
+    ports:
+        - published: 50000
+          target: 50000
+
+networks:
+    cassandra:
+      driver: bridge
+

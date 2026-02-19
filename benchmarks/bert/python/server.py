@@ -4,6 +4,7 @@ import argparse
 import os
 import sys
 import re
+import logging
 # protobuf
 from proto.bert import bert_pb2
 import bert_pb2_grpc
@@ -171,11 +172,12 @@ def serve():
 
     address = (args.addr + ":" + args.port)
     server.add_insecure_port(address)
-    print("Start Bert-python server. Addr: " + address)
+    logging.info("Start Bert-python server. Addr: " + address)
     server.start()
     server.wait_for_termination()
 
 
 if __name__ == "__main__":
+    logging.basicConfig(level=logging.INFO)
     serve()
     
