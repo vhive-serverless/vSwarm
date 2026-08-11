@@ -51,6 +51,7 @@ WORKDIR /py
 COPY ./benchmarks/image-rotate/python/requirements.txt ./requirements.txt
 RUN pip3 install --user -r requirements.txt
 COPY ./utils/tracing/python/tracing.py ./
+COPY ./utils/mongodb/python/mongo_connection.py ./
 COPY ./benchmarks/image-rotate/python/server.py ./
 ADD https://raw.githubusercontent.com/vhive-serverless/vSwarm-proto/main/proto/image_rotate/image_rotate_pb2_grpc.py ./
 ADD https://raw.githubusercontent.com/vhive-serverless/vSwarm-proto/main/proto/image_rotate/image_rotate_pb2.py ./proto/image_rotate/

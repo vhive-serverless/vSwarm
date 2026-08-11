@@ -1,8 +1,10 @@
+import os
+
 import tracing
 from PIL import Image, ImageOps, ImageFilter
 
-from pymongo import MongoClient
 import gridfs
+from mongo_connection import CONNECTION_MODES, MongoConnectionManager
 
 import grpc
 import argparse
@@ -18,12 +20,28 @@ parser.add_argument("-p", "--port", dest="port", default="50051", help="serve po
 parser.add_argument("-zipkin", "--zipkin", dest="url", default="http://0.0.0.0:9411/api/v2/spans", help="Zipkin endpoint url")
 parser.add_argument("--default_image", default="default.jpg", help="Default image to be rotated if empty")
 parser.add_argument("--db_addr", default="mongodb://image-rotate-database:27017", help="Address of the data-base server")
+parser.add_argument(
+    "--connection_mode",
+    choices=CONNECTION_MODES,
+    default=os.environ.get("VSWARM_CONNECTION_MODE", "per-invocation"),
+    help="MongoDB client lifecycle",
+)
+parser.add_argument(
+    "--mongo_timeout_ms",
+    type=int,
+    default=int(os.environ.get("VSWARM_MONGO_TIMEOUT_MS", "2000")),
+    help="MongoDB connect, server selection, and socket timeout",
+)
 
 args = parser.parse_args()
 
 db_name = "image_db"
-client = MongoClient(args.db_addr)
-db = client[db_name]
+mongo_connections = MongoConnectionManager(
+    args.db_addr,
+    db_name,
+    mode=args.connection_mode,
+    timeout_ms=args.mongo_timeout_ms,
+)
 
 if tracing.IsTracingEnabled():
     tracing.initTracer("image-rotate-python", url=args.url)
@@ -52,26 +70,31 @@ class ImageRotate(image_rotate_pb2_grpc.ImageRotateServicer):
             imagename = f"{request.name}"
 
         try:
-            with open(imagename):
-                pass
-        except FileNotFoundError:
-            try:
-                fs = gridfs.GridFS(db)
-                image_file_data = fs.find_one({"filename": imagename})
-                if image_file_data:
-                    with open(imagename, "wb") as file:
-                        file.write(image_file_data.read())
-                else:
-                    msg = f"fn: ImageRotate | image: {imagename} | Error: ImageNotFound in GridFS | runtime: Python"
-                    return image_rotate_pb2.GetRotatedImage(message=msg)
-            except Exception as e:
-                msg = f"fn: ImageRotate | image: {imagename} | Error: {e} | runtime: Python"
-                return image_rotate_pb2.GetRotatedImage(message=msg)
+            with mongo_connections.database() as (db, mongo_setup_us):
+                try:
+                    with open(imagename):
+                        pass
+                except FileNotFoundError:
+                    fs = gridfs.GridFS(db)
+                    image_file_data = fs.find_one({"filename": imagename})
+                    if image_file_data:
+                        with open(imagename, "wb") as file:
+                            file.write(image_file_data.read())
+                    else:
+                        msg = f"fn: ImageRotate | image: {imagename} | Error: ImageNotFound in GridFS | runtime: Python"
+                        return image_rotate_pb2.GetRotatedImage(message=msg)
 
-        with tracing.Span("Image Rotate"):
-            return_msg = ImageRotateFunction(imagename)
-        msg = f"fn: ImageRotate | image: {imagename} | return msg: {return_msg} | runtime: Python"
-        return image_rotate_pb2.GetRotatedImage(message=msg)
+                with tracing.Span("Image Rotate"):
+                    return_msg = ImageRotateFunction(imagename)
+                msg = (
+                    f"fn: ImageRotate | image: {imagename} | return msg: {return_msg} "
+                    f"| runtime: Python | connection_mode: {args.connection_mode} "
+                    f"| mongo_setup_us: {mongo_setup_us}"
+                )
+                return image_rotate_pb2.GetRotatedImage(message=msg)
+        except Exception as e:
+            msg = f"fn: ImageRotate | image: {imagename} | Error: {e} | runtime: Python"
+            return image_rotate_pb2.GetRotatedImage(message=msg)
 
 def serve():
     server = grpc.server(futures.ThreadPoolExecutor(max_workers=1))
@@ -80,7 +103,10 @@ def serve():
     server.add_insecure_port(address)
     print("Start ImageRotate-python server. Addr: " + address)
     server.start()
-    server.wait_for_termination()
+    try:
+        server.wait_for_termination()
+    finally:
+        mongo_connections.close()
 
 if __name__ == '__main__':
     serve()

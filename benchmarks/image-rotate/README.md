@@ -6,6 +6,21 @@ The `init-database.go` script runs when starting the function and populates the 
 
 The functionality is implemented in two runtimes, namely Go and Python. The function is invoked using gRPC.
 
+## MongoDB connection lifecycle
+
+Both implementations create, verify, and close a MongoDB client for every
+function invocation by default. This prevents a function restored from a VM
+snapshot from reusing a TCP connection captured before the snapshot. Responses
+include `connection_mode` and `mongo_setup_us` so that the reconnection cost can
+be measured separately from the image operation.
+
+For controlled comparisons with the historical process-scoped behavior, pass
+`--connection_mode=persistent`. The default can be selected explicitly with
+`--connection_mode=per-invocation`. Python also accepts
+`VSWARM_CONNECTION_MODE`; the MongoDB timeout can be configured with
+`--mongo_timeout_ms`/`VSWARM_MONGO_TIMEOUT_MS` in Python and
+`--mongo_timeout` in Go.
+
 ## Running this benchmark locally (using docker)
 
 The detailed and general description how to run benchmarks local you can find [here](../../docs/running_locally.md). The following steps show it on the image-rotate-python function.
