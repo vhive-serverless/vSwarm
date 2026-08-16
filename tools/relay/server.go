@@ -29,6 +29,7 @@ import (
 	"net"
 	"os"
 	"strconv"
+	"strings"
 	"time"
 
 	pb "github.com/vhive-serverless/vSwarm-proto/proto/helloworld"
@@ -39,7 +40,9 @@ import (
 	tracing "github.com/vhive-serverless/vSwarm/utils/tracing/go"
 
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/reflection"
+	"google.golang.org/grpc/status"
 )
 
 type server struct {
@@ -57,18 +60,23 @@ var (
 	functionEndpointURL  = flag.String("function-endpoint-url", "0.0.0.0", "Specify the function endpoint URL (HOST) to call at")
 	functionEndpointPort = flag.String("function-endpoint-port", "50051", "Specify the function endpoint port to call at")
 
-	lowerBound      = flag.Int("lowerBound", 1, "Lower bound while generating input")
-	upperBound      = flag.Int("upperBound", 10, "Upper bound while generating input")
-	generatorString = flag.String("generator", "unique", "Generator type (unique / linear / random)")
-	value           = flag.String("value", "helloWorld", "String input to pass to benchmark")
-	functionMethod  = flag.String("function-method", "default", "Which method of benchmark to invoke")
-	verbose         = flag.Bool("verbose", false, "Enable verbose log printing")
-	profileFunction = flag.Bool("profile-function", false, "Enable function profiling")
+	lowerBound       = flag.Int("lowerBound", 1, "Lower bound while generating input")
+	upperBound       = flag.Int("upperBound", 10, "Upper bound while generating input")
+	generatorString  = flag.String("generator", "unique", "Generator type (unique / linear / random)")
+	value            = flag.String("value", "helloWorld", "String input to pass to benchmark")
+	functionMethod   = flag.String("function-method", "default", "Which method of benchmark to invoke")
+	verbose          = flag.Bool("verbose", false, "Enable verbose log printing")
+	profileFunction  = flag.Bool("profile-function", false, "Enable function profiling")
+	failOnErrorReply = flag.Bool("fail-on-error-reply", false, "Return a nonzero gRPC status when the function reply reports an application error")
 
 	// Client
 	grpcClient     grpcClients.GrpcClient
 	inputGenerator grpcClients.Generator
 )
+
+func replyIndicatesFailure(reply string) bool {
+	return strings.Contains(reply, "Error:") || strings.Contains(reply, "Failed")
+}
 
 func isDebuggingEnabled() bool {
 	debugging := false
@@ -163,6 +171,12 @@ func (s *server) SayHello(ctx context.Context, in *pb.HelloRequest) (*pb.HelloRe
 	reply, err := grpcClient.Request(ctx, pkt)
 	endTime := time.Now()
 	elapsedTime := int64(endTime.Sub(startTime).Microseconds())
+	if err != nil {
+		return nil, err
+	}
+	if *failOnErrorReply && replyIndicatesFailure(reply) {
+		return nil, status.Error(codes.Internal, reply)
+	}
 
 	var finalReply string
 
@@ -175,5 +189,5 @@ func (s *server) SayHello(ctx context.Context, in *pb.HelloRequest) (*pb.HelloRe
 		finalReply = reply
 	}
 
-	return &pb.HelloReply{Message: finalReply}, err
+	return &pb.HelloReply{Message: finalReply}, nil
 }
