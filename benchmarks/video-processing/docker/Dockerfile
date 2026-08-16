@@ -51,6 +51,7 @@ WORKDIR /py
 COPY ./benchmarks/video-processing/python/requirements.txt ./requirements.txt
 RUN pip3 install --user -r requirements.txt
 COPY ./utils/tracing/python/tracing.py ./
+COPY ./utils/mongodb/python/mongo_connection.py ./
 COPY ./benchmarks/video-processing/python/server.py ./
 ADD https://raw.githubusercontent.com/vhive-serverless/vSwarm-proto/main/proto/video_processing/video_processing_pb2_grpc.py ./
 ADD https://raw.githubusercontent.com/vhive-serverless/vSwarm-proto/main/proto/video_processing/video_processing_pb2.py ./proto/video_processing/

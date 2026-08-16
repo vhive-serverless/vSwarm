@@ -9,8 +9,8 @@ import torch
 import torchvision.models as models
 import cv2
 
-from pymongo import MongoClient
 import gridfs
+from mongo_connection import CONNECTION_MODES, MongoConnectionManager
 
 import grpc
 import argparse
@@ -27,13 +27,29 @@ parser.add_argument("-zipkin", "--zipkin", dest="url", default="http://0.0.0.0:9
 parser.add_argument("--default_video", default="default.mp4", help="Default video to be object-detected")
 parser.add_argument("--num_frames", default=5, help="Number of frames to be considered")
 parser.add_argument("--db_addr", default="mongodb://video-analytics-standalone-database:27017", help="Address of the data-base server")
+parser.add_argument(
+    "--connection_mode",
+    choices=CONNECTION_MODES,
+    default=os.environ.get("VSWARM_CONNECTION_MODE", "per-invocation"),
+    help="MongoDB client lifecycle",
+)
+parser.add_argument(
+    "--mongo_timeout_ms",
+    type=int,
+    default=int(os.environ.get("VSWARM_MONGO_TIMEOUT_MS", "2000")),
+    help="MongoDB connect, server selection, and socket timeout",
+)
 
 args = parser.parse_args()
 args.num_frames = int(args.num_frames)
 
 db_name = "video_db"
-client = MongoClient(args.db_addr)
-db = client[db_name]
+mongo_connections = MongoConnectionManager(
+    args.db_addr,
+    db_name,
+    mode=args.connection_mode,
+    timeout_ms=args.mongo_timeout_ms,
+)
 
 # Load model
 model = models.squeezenet1_1(pretrained=True)
@@ -104,26 +120,31 @@ class VideoAnalytics(video_analytics_standalone_pb2_grpc.VideoAnalyticsServicer)
             video_name = f"{request.name}"
             
         try:
-            with open(video_name):
-                pass
-        except FileNotFoundError:
-            try:
-                fs = gridfs.GridFS(db)
-                video_file_data = fs.find_one({"filename": video_name})
-                if video_file_data:
-                    with open(video_name, "wb") as file:
-                        file.write(video_file_data.read())
-                else:
-                    msg = f"fn: VideoAnalyticsStandalone | video: {video_name} | Error: VideoNotFound in GridFS | runtime: Python"
-                    return video_analytics_standalone_pb2.GetResult(message=msg)
-            except Exception as e:
-                msg = f"fn: VideoAnalyticsStandalone | video: {video_name} | Error: {e} | runtime: Python"
-                return video_analytics_standalone_pb2.GetResult(message=msg)
+            with mongo_connections.database() as (db, mongo_setup_us):
+                try:
+                    with open(video_name):
+                        pass
+                except FileNotFoundError:
+                    fs = gridfs.GridFS(db)
+                    video_file_data = fs.find_one({"filename": video_name})
+                    if video_file_data:
+                        with open(video_name, "wb") as file:
+                            file.write(video_file_data.read())
+                    else:
+                        msg = f"fn: VideoAnalyticsStandalone | video: {video_name} | Error: VideoNotFound in GridFS | runtime: Python"
+                        return video_analytics_standalone_pb2.GetResult(message=msg)
 
-        with tracing.Span("Video Analytics Standalone"):
-            return_msg = ObjectDetectionFunction(video_name)
-        msg = f"fn: VideoAnalyticsStandalone | video: {video_name} | return msg: {return_msg} | runtime: Python"
-        return video_analytics_standalone_pb2.GetResult(message=msg)
+                with tracing.Span("Video Analytics Standalone"):
+                    return_msg = ObjectDetectionFunction(video_name)
+                msg = (
+                    f"fn: VideoAnalyticsStandalone | video: {video_name} | return msg: {return_msg} "
+                    f"| runtime: Python | connection_mode: {args.connection_mode} "
+                    f"| mongo_setup_us: {mongo_setup_us}"
+                )
+                return video_analytics_standalone_pb2.GetResult(message=msg)
+        except Exception as e:
+            msg = f"fn: VideoAnalyticsStandalone | video: {video_name} | Error: {e} | runtime: Python"
+            return video_analytics_standalone_pb2.GetResult(message=msg)
                 
 def serve():
     server = grpc.server(futures.ThreadPoolExecutor(max_workers=1))
@@ -132,7 +153,10 @@ def serve():
     server.add_insecure_port(address)
     print("Start VideoAnalyticsStandalone-python server. Addr: " + address)
     server.start()
-    server.wait_for_termination()
+    try:
+        server.wait_for_termination()
+    finally:
+        mongo_connections.close()
 
 if __name__ == '__main__':
     serve()

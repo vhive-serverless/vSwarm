@@ -6,6 +6,19 @@ The `init-database.go` script runs when starting the function and populates the 
 
 The functionality is implemented in Python. The function is invoked using gRPC.
 
+## MongoDB connection lifecycle
+
+The function creates, verifies, and closes a MongoDB client for every invocation
+by default. This prevents a function restored from a VM snapshot from reusing a
+TCP connection captured before the snapshot. Responses include
+`connection_mode` and `mongo_setup_us`, allowing reconnection cost to be
+measured separately from video analytics.
+
+For controlled comparisons with the historical process-scoped behavior, pass
+`--connection_mode=persistent`. The restore-safe default can be selected with
+`--connection_mode=per-invocation` or `VSWARM_CONNECTION_MODE`. The MongoDB
+timeout can be set with `--mongo_timeout_ms` or `VSWARM_MONGO_TIMEOUT_MS`.
+
 ## Running this benchmark locally (using docker)
 
 The detailed and general description how to run benchmarks local you can find [here](../../docs/running_locally.md). The following steps show it on the video-analytics-standalone-python function.

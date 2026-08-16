@@ -51,6 +51,7 @@ WORKDIR /py
 COPY ./benchmarks/video-analytics-standalone/python/requirements.txt ./requirements.txt
 RUN pip3 install --no-cache-dir --user -r requirements.txt --extra-index-url https://download.pytorch.org/whl/cpu
 COPY ./utils/tracing/python/tracing.py ./
+COPY ./utils/mongodb/python/mongo_connection.py ./
 COPY ./benchmarks/video-analytics-standalone/python/server.py ./
 COPY ./benchmarks/video-analytics-standalone/python/imagenet_labels.txt ./
 ADD https://raw.githubusercontent.com/vhive-serverless/vSwarm-proto/main/proto/video_analytics_standalone/video_analytics_standalone_pb2_grpc.py ./
