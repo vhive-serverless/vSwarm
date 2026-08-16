@@ -50,6 +50,7 @@ FROM vhiveease/python-slim:latest as videoAnalyticsStandalonePythonBuilder
 WORKDIR /py
 COPY ./benchmarks/video-analytics-standalone/python/requirements.txt ./requirements.txt
 RUN pip3 install --no-cache-dir --user -r requirements.txt --extra-index-url https://download.pytorch.org/whl/cpu
+RUN python3 -c 'from torchvision.models import SqueezeNet1_1_Weights, squeezenet1_1; squeezenet1_1(weights=SqueezeNet1_1_Weights.IMAGENET1K_V1)'
 COPY ./utils/tracing/python/tracing.py ./
 COPY ./utils/mongodb/python/mongo_connection.py ./
 COPY ./benchmarks/video-analytics-standalone/python/server.py ./
@@ -60,6 +61,7 @@ ADD https://raw.githubusercontent.com/vhive-serverless/vSwarm-proto/main/proto/v
 # Second stage (Runner):
 FROM vhiveease/python-slim:latest as videoAnalyticsStandalonePython
 COPY --from=videoAnalyticsStandalonePythonBuilder /root/.local /root/.local
+COPY --from=videoAnalyticsStandalonePythonBuilder /root/.cache/torch /root/.cache/torch
 COPY --from=videoAnalyticsStandalonePythonBuilder /py /app
 WORKDIR /app
 # ENV PATH=/root/.local/bin:$PATH

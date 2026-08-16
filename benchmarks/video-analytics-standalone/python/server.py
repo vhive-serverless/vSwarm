@@ -52,7 +52,9 @@ mongo_connections = MongoConnectionManager(
 )
 
 # Load model
-model = models.squeezenet1_1(pretrained=True)
+model = models.squeezenet1_1(
+    weights=models.SqueezeNet1_1_Weights.IMAGENET1K_V1,
+)
 labels_fd = open('imagenet_labels.txt', 'r')
 labels = []
 for i in labels_fd:
